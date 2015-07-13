@@ -11,9 +11,9 @@ Main features:
 
 Its still very experimental, but should work... generally.
 
-Example:
-./blogspot2epub.py starybezpiek
-./blogspot2epub.py poznanskiehistorie
+Examples:
+- ./blogspot2epub.py starybezpiek
+- ./blogspot2epub.py poznanskiehistorie
 
 Happy reading!
 :-)
