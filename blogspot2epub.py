@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 # blogspot2epub
-# version 0.1
+# version 0.2
 # author: Bohdan Bobrowski bohdan@bobrowski.com.pl
 
 import os
@@ -18,7 +18,6 @@ import requests
 from PIL import Image
 from os import listdir
 from os.path import isfile, join
-import zipfile
 
 class WWWDownloader:
     def __init__(self):
@@ -93,6 +92,7 @@ if len(sys.argv) > 1:
             images = re.findall('<table[^>]*><tbody>[\s]*<tr><td[^>]*><a href="([^"]*)"[^>]*><img[^>]*></a></td></tr>[\s]*<tr><td class="tr-caption" style="[^"]*">([^<]*)',art_html)
             if len(images) > 0:
                 for image in images:
+                    image_url = image[0]
                     originals_path = "./"+sys.argv[1]+"/originals/"
                     if not os.path.exists(originals_path):
                         os.makedirs(originals_path)
@@ -105,7 +105,7 @@ if len(sys.argv) > 1:
                     image_file_name = originals_path+image_hash+".jpg"
                     image_file_name_dest = images_path+image_hash+".jpg"
                     image_regex = '<table[^>]*><tbody>[\s]*<tr><td[^>]*><a href="'+image[0]+'"[^>]*><img[^>]*></a></td></tr>[\s]*<tr><td class="tr-caption" style="[^"]*">[^<]*</td></tr>[\s]*</tbody></table>'
-                    art_html = re.sub(image_regex,' #blogspot2epubimage#'+m.image_hash+'# ',art_html)
+                    art_html = re.sub(image_regex,' #blogspot2epubimage#'+image_hash+'# ',art_html)
                     if not os.path.isfile(image_file_name):
                         try:
                             u = urllib2.urlopen(image[0])
@@ -240,13 +240,18 @@ if len(sys.argv) > 1:
     # Add css file
     nav_css = epub.EpubItem(uid="style_nav", file_name="style/nav.css", media_type="text/css", content=style)
     book.add_item(nav_css)
-    epub.write_epub(sys.argv[1]+'_blogspot_com.epub', book, {})
 
     # Add images do epub file
     try:
         converted_images = [ f for f in listdir(images_path) if isfile(join(images_path,f)) ]
     except NameError:
         converted_images = []
-    zip_file = zipfile.ZipFile(sys.argv[1]+'_blogspot_com.epub', 'a')
-    for image in converted_images:
-        zip_file.write(images_path+image, "EPUB\\images\\"+image, zipfile.ZIP_DEFLATED )
+    for i, image in enumerate(converted_images):
+        image_cont = None
+        with open(images_path+image, 'r') as content_file:
+            image_cont = content_file.read()
+        epub_img = epub.EpubItem(uid="img"+str(i), file_name="images/"+image, media_type="image/jpeg", content=image_cont)
+        book.add_item(epub_img)
+   
+    # Save damn ebook
+    epub.write_epub(sys.argv[1]+'_blogspot_com.epub', book, {})
