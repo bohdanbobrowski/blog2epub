@@ -1,5 +1,9 @@
 # blogspot2epub
-Convert any blogspot blog to epub using single command!
+Convert selected webpage to epub using single command!
+
+Script is compatible with:
+- blogspot.com
+- pulshistorii.pb.pl
 
 Main features:
 - downloads all text contents of selected blog to epub file,
@@ -11,9 +15,14 @@ Main features:
 
 Its still very experimental, but should work... generally.
 
+Usage:
+- ./blogspot2epub.py [blog-name]
+- ./pulshistorii2epub.py [tag-id]
+
 Examples:
 - ./blogspot2epub.py starybezpiek
 - ./blogspot2epub.py poznanskiehistorie
+- ./pulshistorii2epub.py 36169
 
 Happy reading!
 :-)
