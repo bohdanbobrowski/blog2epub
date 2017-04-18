@@ -19,11 +19,10 @@ Usage:
 - ./blogspot2epub.py [blog-name] <parameters>
 
 Parameters:
-
--l/--limit=[x] - limit epub file to x posts
--s/--skip=[x] - skip x latest posts
--q/--images-quality=[0-100] - included images quality (default is 40)
--n/--no-images - don't include images
+- -l/--limit=[x] - limit epub file to x posts
+- -s/--skip=[x] - skip x latest posts
+- -q/--images-quality=[0-100] - included images quality (default is 40)
+- -n/--no-images - don't include images
 
 Examples:
 - ./blogspot2epub.py starybezpiek
