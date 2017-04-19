@@ -17,6 +17,8 @@ from lxml import html
 from lxml import etree
 import requests
 from PIL import Image
+from PIL import ImageFont
+from PIL import ImageDraw
 from os import listdir
 from os.path import isfile, join
 
@@ -98,11 +100,17 @@ while BLOG_URL != '':
     www_html = DownloadWebPage(BLOG_URL)
     artykuly = re.findall("<h3 class='post-title entry-title' itemprop='name'>[\s]*<a href='([^']*)'>([^>^<]*)</a>[\s]*</h3>",www_html)
     if x == 1:
-        book.set_title(unicode(re.search("<title>([^>^<]*)</title>",www_html).group(1).strip().decode('utf-8')))
+        title = re.search("<title>([^>^<]*)</title>",www_html).group(1).strip().decode('utf-8');
+        book.set_title(unicode(title))
         book.set_language('pl')
         book.add_author(BLOG_URL)
-        if os.path.isfile(sys.argv[1]+'.jpg'):
-            book.set_cover(sys.argv[1]+'.jpg', open(sys.argv[1]+'.jpg', 'rb').read())
+        if not os.path.isfile(sys.argv[1]+'.jpg'):
+            cover_image = Image.new('RGB', (600, 800))
+            cover_draw = ImageDraw.Draw(cover_image)
+            cover_draw.text((15, 700),title,(255,255,255),font=ImageFont.truetype("Lato-Bold.ttf", 35))
+            cover_draw.text((15, 740),sys.argv[1]+".blogspot.com",(255,255,255),font=ImageFont.truetype("Lato-Regular.ttf", 25))
+            cover_image.save(sys.argv[1]+'.jpg', format='JPEG', quality=100)
+        book.set_cover(sys.argv[1]+'.jpg', open(sys.argv[1]+'.jpg', 'rb').read())
     BLOG_URL = ''
     if re.search("<a class='blog-pager-older-link' href='([^']*)' id='Blog1_blog-pager-older-link'",www_html):
         BLOG_URL = re.search("<a class='blog-pager-older-link' href='([^']*)' id='Blog1_blog-pager-older-link'",www_html).group(1)        
