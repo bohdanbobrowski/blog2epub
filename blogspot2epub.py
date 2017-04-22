@@ -92,7 +92,6 @@ def is_landscape(width, height):
 
 
 def crop_image(img, size):
-    img_width, img_height = size
     upper_x, upper_y, lower_x, lower_y = box_params_center(img.size[0], img.size[1])
     box = (upper_x, upper_y, lower_x, lower_y)
     region = img.crop(box)
@@ -137,11 +136,11 @@ def generate_cover(file_name, images_list):
                 i = i + 1
                 if i > len(images_list):
                     i = 1
-    cover_draw.text((15, 710), title, (255, 255, 255), font=ImageFont.truetype("Lato-Bold.ttf", 30))
-    cover_draw.text((15, 745), sys.argv[1] + ".blogspot.com", (255, 255, 255),
+    cover_draw.text((15, 700), title, (255, 255, 255), font=ImageFont.truetype("Lato-Bold.ttf", 30))
+    cover_draw.text((15, 735), sys.argv[1] + ".blogspot.com", (255, 255, 255),
                     font=ImageFont.truetype("Lato-Regular.ttf", 20))
     if START_DATE == END_DATE:
-        cover_draw.text((15, 770), START_DATE, (200, 200, 200), font=ImageFont.truetype("Lato-Regular.ttf", 20))
+        cover_draw.text((15, 760), START_DATE, (200, 200, 200), font=ImageFont.truetype("Lato-Regular.ttf", 20))
     else:
         end_date = END_DATE.split(' ')
         start_date = START_DATE.split(' ')
@@ -151,7 +150,7 @@ def generate_cover(file_name, images_list):
                 if d != start_date[i]:
                     ed.append(d)
         ed = ' '.join(ed)
-        cover_draw.text((15, 770), ed + " - " + START_DATE, (100, 100, 100),
+        cover_draw.text((15, 760), ed + " - " + START_DATE, (100, 100, 100),
                         font=ImageFont.truetype("Lato-Regular.ttf", 20))
     cover_image = cover_image.convert('L')
     cover_image.save(file_name + '.jpg', format='JPEG', quality=100)
