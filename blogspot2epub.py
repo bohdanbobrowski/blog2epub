@@ -92,7 +92,7 @@ START_DATE = False;
 END_DATE = False;
 
 book = epub.EpubBook()
-spistresci = []
+table_of_contents = []
 y = x = 1
 BLOG_URL = 'http://'+sys.argv[1]+'.blogspot.com/'
 images_included = []
@@ -104,13 +104,6 @@ while BLOG_URL != '':
         book.set_title(unicode(title))
         book.set_language('pl')
         book.add_author(BLOG_URL)
-        if not os.path.isfile(sys.argv[1]+'.jpg'):
-            cover_image = Image.new('RGB', (600, 800))
-            cover_draw = ImageDraw.Draw(cover_image)
-            cover_draw.text((15, 700),title,(255,255,255),font=ImageFont.truetype("Lato-Bold.ttf", 35))
-            cover_draw.text((15, 740),sys.argv[1]+".blogspot.com",(255,255,255),font=ImageFont.truetype("Lato-Regular.ttf", 25))
-            cover_image.save(sys.argv[1]+'.jpg', format='JPEG', quality=100)
-        book.set_cover(sys.argv[1]+'.jpg', open(sys.argv[1]+'.jpg', 'rb').read())
     BLOG_URL = ''
     if re.search("<a class='blog-pager-older-link' href='([^']*)' id='Blog1_blog-pager-older-link'",www_html):
         BLOG_URL = re.search("<a class='blog-pager-older-link' href='([^']*)' id='Blog1_blog-pager-older-link'",www_html).group(1)        
@@ -269,20 +262,48 @@ while BLOG_URL != '':
             c.content = c.content+art_comments
             book.add_item(c)        
             book.spine.append(c)
-            spistresci.append(c)        
+            table_of_contents.append(c)        
             x = x+1
             if not LIMIT == False and x>LIMIT:
                 BLOG_URL = ''
                 break
         y = y+1
 
+# Generate file name
+book_file_name = sys.argv[1]+'.blogspot.com'
+if START_DATE == END_DATE:
+    book_file_name = book_file_name+'_'+slugify(END_DATE)
+else:
+    end_date = END_DATE.split(' ')
+    start_date = START_DATE.split(' ')
+    if len(end_date) == len(start_date):
+        ed = []
+        for i,d in enumerate(end_date):
+            if d != start_date[i]:
+                ed.append(d)
+    ed = '_'.join(ed)
+    book_file_name = book_file_name+'_'+slugify(ed)+'-'+START_DATE.replace(' ','_')
+
 # Add cover - if file exist
 book.spine.append('nav')
-if os.path.isfile(sys.argv[1]+'.jpg'):
-    book.spine.append('cover')       
+# if not os.path.isfile(sys.argv[1]+'.jpg'):
+if not os.path.isfile(book_file_name+'.jpg'):
+    cover_image = Image.new('RGB', (600, 800))
+    cover_draw = ImageDraw.Draw(cover_image)
+    cover_draw.text((15, 700),title,(255,255,255),font=ImageFont.truetype("Lato-Bold.ttf", 35))
+    cover_draw.text((15, 740),sys.argv[1]+".blogspot.com",(255,255,255),font=ImageFont.truetype("Lato-Regular.ttf", 20))
+    if START_DATE == END_DATE:
+        cover_draw.text((15, 765),START_DATE,(200,200,200),font=ImageFont.truetype("Lato-Regular.ttf", 20))
+    else:
+        cover_draw.text((15, 765),START_DATE+" - "+END_DATE,(100,100,100),font=ImageFont.truetype("Lato-Regular.ttf", 20))
+    cover_image.save(book_file_name+'.jpg', format='JPEG', quality=100)
+book.set_cover(book_file_name+'.jpg', open(book_file_name+'.jpg', 'rb').read())
+book.spine.append('cover')       
 book.spine.reverse()
-spistresci.reverse()
-book.toc = spistresci
+
+# Add table of contents
+table_of_contents.reverse()
+book.toc = table_of_contents
 
 # Add default NCX and Nav file
 book.add_item(epub.EpubNcx())
@@ -332,18 +353,4 @@ if INCLUDE_IMAGES:
             book.add_item(epub_img)
 
 # Save damn ebook
-epub_fname = sys.argv[1]+'.blogspot.com'
-if START_DATE == END_DATE:
-    epub_fname = epub_fname+'_'+slugify(END_DATE)
-else:
-    end_date = END_DATE.split(' ')
-    start_date = START_DATE.split(' ')
-    if len(end_date) == len(start_date):
-        ed = []
-        for i,d in enumerate(end_date):
-            if d != start_date[i]:
-                ed.append(d)
-    ed = '_'.join(ed)
-    epub_fname = epub_fname+'_'+slugify(ed)+'-'+START_DATE.replace(' ','_')
-epub_fname = slugify(epub_fname)
-epub.write_epub(epub_fname+'.epub', book, {})
+epub.write_epub(book_file_name+'.epub', book, {})
