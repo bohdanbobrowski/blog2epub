@@ -7,7 +7,7 @@ Main features:
 - downloads images, resizes them (to 400x300px) and converts to grayscale,
 - one post = one chapter,
 - chapters are sorted by date ascending,
-- optional: it adds cover, if you add jpg file with the same name like blog you want to download (sample.jpg for sample.blogspot.com),
+- cover is generated automatically
 
 Its still very experimental, but should work... generally.
 

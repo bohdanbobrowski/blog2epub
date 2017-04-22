@@ -57,6 +57,52 @@ def getImages(html):
 def getDate(str_date):
     return unicode(re.sub('[^\,]*, ','',str_date))
 
+def makeThumb(img, size):
+    cropped_img = cropit(img, size)
+    cropped_img.thumbnail(size, Image.ANTIALIAS)
+    return cropped_img
+
+def boxParamsCenter(width, height):
+    """
+    Calculate the box parameters for cropping the center of an image based
+    on the image width and image height
+    """
+ 
+    if isLandscape(width, height):
+         upper_x = int((width/2) - (height/2))
+         upper_y = 0
+         lower_x = int((width/2) + (height/2))
+         lower_y = height
+         return upper_x, upper_y, lower_x, lower_y
+    else:
+        upper_x = 0
+        upper_y = int((height/2) - (width/2))
+        lower_x = width
+        lower_y = int((height/2) + (width/2))
+        return upper_x, upper_y, lower_x, lower_y
+
+def isLandscape(width, height):
+    """
+    Takes the image width and height and returns if the image is in landscape
+    or portrait mode.
+    """
+    if width >= height:
+        return True
+    else:
+        return False
+
+def cropit(img, size):
+    """
+    Performs the cropping of the input image to generate a square thumbnail.
+    It calculates the box parameters required by the PIL cropping method, crops
+    the input image and returns the cropped square.
+    """
+    img_width, img_height = size
+    upper_x, upper_y, lower_x, lower_y = boxParamsCenter(img.size[0], img.size[1])
+    box = (upper_x, upper_y, lower_x, lower_y)
+    region = img.crop(box)
+    return region
+
 # Default params:
 INCLUDE_IMAGES = True
 IMAGES_QUALITY = 40
@@ -135,6 +181,7 @@ while BLOG_URL != '':
             # Post title:
             c.content = u'<h2>'+art_title+u'</h2>'+art_date+u'<p><i>'+art[0]+u'</i></p>'
             # Images:
+            image_files = []
             images = re.findall('<table[^>]*><tbody>[\s]*<tr><td[^>]*><a href="([^"]*)"[^>]*><img[^>]*></a></td></tr>[\s]*<tr><td class="tr-caption" style="[^"]*">([^<]*)',art_html)
             if len(images) > 0:
                 for image in images:
@@ -150,6 +197,7 @@ while BLOG_URL != '':
                     image_hash = m.hexdigest()
                     images_included.append(image_hash+".jpg")
                     image_file_name = originals_path+image_hash+".jpg"
+                    image_files.append(image_file_name)
                     image_file_name_dest = images_path+image_hash+".jpg"
                     image_regex = '<table[^>]*><tbody>[\s]*<tr><td[^>]*><a href="'+image[0]+'"[^>]*><img[^>]*></a></td></tr>[\s]*<tr><td class="tr-caption" style="[^"]*">[^<]*</td></tr>[\s]*</tbody></table>'
                     art_html = re.sub(image_regex,' #blogspot2epubimage#'+image_hash+'# ',art_html)
@@ -202,6 +250,7 @@ while BLOG_URL != '':
                             images_included.append(image_hash+".jpg")
                             art_html = re.sub(image_regex,' #blogspot2epubimage#'+image_hash+'# ',art_html)
                             image_file_name = originals_path+image_hash+".jpg"
+                            image_files.append(image_file_name)
                             image_file_name_dest = images_path+image_hash+".jpg"
                             if not os.path.isfile(image_file_name):
                                 try:
@@ -284,22 +333,37 @@ else:
     ed = '_'.join(ed)
     book_file_name = book_file_name+'_'+slugify(ed)+'-'+START_DATE.replace(' ','_')
 
+# print image_files
+
 # Add cover - if file exist
 book.spine.append('nav')
-# if not os.path.isfile(sys.argv[1]+'.jpg'):
-if not os.path.isfile(book_file_name+'.jpg'):
-    cover_image = Image.new('RGB', (600, 800))
-    cover_draw = ImageDraw.Draw(cover_image)
-    cover_draw.text((15, 700),title,(255,255,255),font=ImageFont.truetype("Lato-Bold.ttf", 35))
-    cover_draw.text((15, 740),sys.argv[1]+".blogspot.com",(255,255,255),font=ImageFont.truetype("Lato-Regular.ttf", 20))
-    if START_DATE == END_DATE:
-        cover_draw.text((15, 765),START_DATE,(200,200,200),font=ImageFont.truetype("Lato-Regular.ttf", 20))
-    else:
-        cover_draw.text((15, 765),START_DATE+" - "+END_DATE,(100,100,100),font=ImageFont.truetype("Lato-Regular.ttf", 20))
-    cover_image.save(book_file_name+'.jpg', format='JPEG', quality=100)
+cover_image = Image.new('RGB', (600, 800))
+cover_draw = ImageDraw.Draw(cover_image)    
+dark_factor = 1
+if len(image_files) > 0:
+    i = 1
+    for x in range(0, 11):
+        for y in range(0, 10):
+            # print x,y,image_files[i-1]                
+            thumb = makeThumb(Image.open(image_files[i-1]),(60,60))
+            thumb = thumb.point(lambda p: p * dark_factor)
+            dark_factor = dark_factor - 0.009
+            cover_image.paste(thumb,(y*60,x*60))
+            i = i+1
+            if i > len(image_files):
+                i = 1
+cover_draw.text((15, 710),title,(255,255,255),font=ImageFont.truetype("Lato-Bold.ttf", 30))
+cover_draw.text((15, 745),sys.argv[1]+".blogspot.com",(255,255,255),font=ImageFont.truetype("Lato-Regular.ttf", 20))    
+if START_DATE == END_DATE:
+    cover_draw.text((15, 770),START_DATE,(200,200,200),font=ImageFont.truetype("Lato-Regular.ttf", 20))
+else:
+    cover_draw.text((15, 770),START_DATE+" - "+END_DATE,(100,100,100),font=ImageFont.truetype("Lato-Regular.ttf", 20))
+cover_image = cover_image.convert('L')
+cover_image.save(book_file_name+'.jpg', format='JPEG', quality=100)
 book.set_cover(book_file_name+'.jpg', open(book_file_name+'.jpg', 'rb').read())
 book.spine.append('cover')       
 book.spine.reverse()
+os.remove(book_file_name+'.jpg')
 
 # Add table of contents
 table_of_contents.reverse()
