@@ -1,9 +1,5 @@
 # blogspot2epub
-Convert selected webpage to epub using single command!
-
-Script is compatible with:
-- blogspot.com
-- pulshistorii.pb.pl
+Convert selected blogspot blog to epub using single command!
 
 Main features:
 - downloads all text contents of selected blog to epub file,
