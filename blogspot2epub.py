@@ -181,7 +181,6 @@ while BLOG_URL != '':
             # Post title:
             c.content = u'<h2>'+art_title+u'</h2>'+art_date+u'<p><i>'+art[0]+u'</i></p>'
             # Images:
-            image_files = []
             images = re.findall('<table[^>]*><tbody>[\s]*<tr><td[^>]*><a href="([^"]*)"[^>]*><img[^>]*></a></td></tr>[\s]*<tr><td class="tr-caption" style="[^"]*">([^<]*)',art_html)
             if len(images) > 0:
                 for image in images:
@@ -197,7 +196,6 @@ while BLOG_URL != '':
                     image_hash = m.hexdigest()
                     images_included.append(image_hash+".jpg")
                     image_file_name = originals_path+image_hash+".jpg"
-                    image_files.append(image_file_name)
                     image_file_name_dest = images_path+image_hash+".jpg"
                     image_regex = '<table[^>]*><tbody>[\s]*<tr><td[^>]*><a href="'+image[0]+'"[^>]*><img[^>]*></a></td></tr>[\s]*<tr><td class="tr-caption" style="[^"]*">[^<]*</td></tr>[\s]*</tbody></table>'
                     art_html = re.sub(image_regex,' #blogspot2epubimage#'+image_hash+'# ',art_html)
@@ -250,7 +248,6 @@ while BLOG_URL != '':
                             images_included.append(image_hash+".jpg")
                             art_html = re.sub(image_regex,' #blogspot2epubimage#'+image_hash+'# ',art_html)
                             image_file_name = originals_path+image_hash+".jpg"
-                            image_files.append(image_file_name)
                             image_file_name_dest = images_path+image_hash+".jpg"
                             if not os.path.isfile(image_file_name):
                                 try:
@@ -288,7 +285,7 @@ while BLOG_URL != '':
                         m.update(image[0])
                         image_caption = image[1].strip().decode('utf-8')
                         if m.hexdigest() == image_md5:
-                            image_html = '<table align="center" cellpadding="0" cellspacing="0" class="tr-caption-container" style="margin-left: auto; margin-right: auto; text-align: center; background: #FFF; box-shadow: 1px 1px 5px rgba(0, 0, 0, 0.5); padding: 8px;"><tbody><tr><td style="text-align: center;"><img border="0" src="images/'+image_md5+'.jpg" /></td></tr><tr><td class="tr-caption" style="text-align: center;">'+image_caption+'</td></tr></tbody></table>'
+                            image_html = '<p><table align="center" cellpadding="0" cellspacing="0" class="tr-caption-container" style="margin-left: auto; margin-right: auto; text-align: center; background: #FFF; box-shadow: 1px 1px 5px rgba(0, 0, 0, 0.5); padding: 8px;"><tbody><tr><td style="text-align: center;"><img border="0" src="images/'+image_md5+'.jpg" /></td></tr><tr><td class="tr-caption" style="text-align: center;">'+image_caption+'</td></tr></tbody></table></p>'
                             art_content = art_content.replace('#blogspot2epubimage#'+image_md5+'#',image_html)
                     for image in images_nocaption:
                         image = etree.tostring(image)
@@ -303,7 +300,7 @@ while BLOG_URL != '':
                             m = hashlib.md5()
                             m.update(image_url)
                             if m.hexdigest() == image_md5:
-                                image_html = '<img border="0" src="images/'+image_md5+'.jpg" />'
+                                image_html = '<p><img border="0" src="images/'+image_md5+'.jpg" /></p>'
                                 art_content = art_content.replace('#blogspot2epubimage#'+image_md5+'#',image_html)
                         else:
                             art_content = art_content.replace('#blogspot2epubimage#'+image_md5+'#','<em>Image not found<em>')
@@ -321,7 +318,7 @@ while BLOG_URL != '':
 # Generate file name
 book_file_name = sys.argv[1]+'.blogspot.com'
 if START_DATE == END_DATE:
-    book_file_name = book_file_name+'_'+slugify(END_DATE)
+    book_file_name = book_file_name+'['+slugify(END_DATE.replace(' ','_'))+']'
 else:
     end_date = END_DATE.split(' ')
     start_date = START_DATE.split(' ')
@@ -331,37 +328,42 @@ else:
             if d != start_date[i]:
                 ed.append(d)
     ed = '_'.join(ed)
-    book_file_name = book_file_name+'_'+slugify(ed)+'-'+START_DATE.replace(' ','_')
-
-# print image_files
+    book_file_name = book_file_name+'['+slugify(ed)+'-'+slugify(START_DATE.replace(' ','_'))+']'
 
 # Add cover - if file exist
 book.spine.append('nav')
 cover_image = Image.new('RGB', (600, 800))
 cover_draw = ImageDraw.Draw(cover_image)    
 dark_factor = 1
-if len(image_files) > 0:
+if len(images_included) > 0:
     i = 1
     for x in range(0, 11):
         for y in range(0, 10):
-            # print x,y,image_files[i-1]                
-            thumb = makeThumb(Image.open(image_files[i-1]),(60,60))
+            thumb = makeThumb(Image.open("./"+sys.argv[1]+"/originals/"+images_included[i-1]),(60,60))
             thumb = thumb.point(lambda p: p * dark_factor)
             dark_factor = dark_factor - 0.009
             cover_image.paste(thumb,(y*60,x*60))
             i = i+1
-            if i > len(image_files):
+            if i > len(images_included):
                 i = 1
 cover_draw.text((15, 710),title,(255,255,255),font=ImageFont.truetype("Lato-Bold.ttf", 30))
 cover_draw.text((15, 745),sys.argv[1]+".blogspot.com",(255,255,255),font=ImageFont.truetype("Lato-Regular.ttf", 20))    
 if START_DATE == END_DATE:
     cover_draw.text((15, 770),START_DATE,(200,200,200),font=ImageFont.truetype("Lato-Regular.ttf", 20))
 else:
-    cover_draw.text((15, 770),START_DATE+" - "+END_DATE,(100,100,100),font=ImageFont.truetype("Lato-Regular.ttf", 20))
+    end_date = END_DATE.split(' ')
+    start_date = START_DATE.split(' ')
+    if len(end_date) == len(start_date):
+        ed = []
+        for i,d in enumerate(end_date):
+            if d != start_date[i]:
+                ed.append(d)
+    ed = ' '.join(ed)
+    cover_draw.text((15, 770),ed+" - "+START_DATE,(100,100,100),font=ImageFont.truetype("Lato-Regular.ttf", 20))
 cover_image = cover_image.convert('L')
 cover_image.save(book_file_name+'.jpg', format='JPEG', quality=100)
-book.set_cover(book_file_name+'.jpg', open(book_file_name+'.jpg', 'rb').read())
-book.spine.append('cover')       
+#book.set_cover(book_file_name+'.jpg', open(book_file_name+'.jpg', 'rb').read())
+#book.spine.append('cover')       
 book.spine.reverse()
 os.remove(book_file_name+'.jpg')
 
