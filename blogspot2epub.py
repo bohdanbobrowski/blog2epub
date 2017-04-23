@@ -379,8 +379,10 @@ end_date_obj = datetime.strptime(translate_month(END_DATE,BLOG_LANGUAGE), '%d %B
 book_file_name = sys.argv[1] + '.blogspot.com'
 if START_DATE == END_DATE:
     book_file_name = book_file_name + '_' + start_date_obj.strftime('%Y.%m.%d')
+    book.set_title(start_date_obj.strftime('%Y.%m.%d'))    
 else:
     book_file_name = book_file_name + '_' + end_date_obj.strftime('%Y.%m.%d') + '-' + start_date_obj.strftime('%Y.%m.%d')
+    book.set_title(end_date_obj.strftime('%Y.%m.%d') + '-' + start_date_obj.strftime('%Y.%m.%d'))    
 
 # Add cover - if file exist
 book.spine.append('nav')
