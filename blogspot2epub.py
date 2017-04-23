@@ -12,6 +12,7 @@ import pycurl
 import urllib2
 import hashlib
 from ebooklib import epub
+from datetime import datetime
 from slugify import slugify
 from lxml import html
 from lxml import etree
@@ -115,8 +116,8 @@ def download_image(picture_url, original_picture, target_picture):
             print(e.read())
     if INCLUDE_IMAGES and not os.path.isfile(target_picture):
         picture = Image.open(original_picture)
-        if picture.size[0] > IMAGES_HEIGHT or picture.size[1] > IMAGES_WIDTH:
-            picture.thumbnail([IMAGES_HEIGHT, IMAGES_WIDTH], Image.ANTIALIAS)
+        if picture.size[0] > IMAGES_WIDTH or picture.size[1] > IMAGES_HEIGHT:
+            picture.thumbnail([IMAGES_WIDTH, IMAGES_HEIGHT], Image.ANTIALIAS)
         picture = picture.convert('L')
         picture.save(target_picture, format='JPEG', quality=IMAGES_QUALITY)
 
@@ -156,13 +157,28 @@ def generate_cover(file_name, images_list):
     cover_image.save(file_name + '.jpg', format='JPEG', quality=100)
 
 
+def get_blog_language(html, default_language):
+    language = default_language;
+    if re.search("'lang':[\s]*'([a-z^']+)'", html):
+        language = re.search("'lang':[\s]*'([a-z^']+)'", html).group(1).strip().decode('utf-8')
+    if re.search('lang="([a-z^"]+)"', html):
+        language = re.search('lang="([a-z^"]+)"', html).group(1).strip().decode('utf-8')
+    for arg in sys.argv:
+        if arg.find('-ln=') == 0:
+            language = arg.replace('-ln=', '')
+        if arg.find('--language=') == 0:
+            language = arg.replace('--language=', '')
+    return language
+
+
 # Default params:
 INCLUDE_IMAGES = True
 IMAGES_QUALITY = 40
-IMAGES_HEIGHT = 300
-IMAGES_WIDTH = 400
+IMAGES_HEIGHT = 800
+IMAGES_WIDTH = 600
 LIMIT = False
 SKIP = False
+BLOG_LANGUAGE = 'en'
 
 # Check CLI params
 if len(sys.argv) < 2:
@@ -200,9 +216,10 @@ while BLOG_URL != '':
     artykuly = re.findall(
         "<h3 class='post-title entry-title' itemprop='name'>[\s]*<a href='([^']*)'>([^>^<]*)</a>[\s]*</h3>", www_html)
     if x == 1:
+        BLOG_LANGUAGE = get_blog_language(www_html, BLOG_LANGUAGE)
         title = re.search("<title>([^>^<]*)</title>", www_html).group(1).strip().decode('utf-8')
         book.set_title(unicode(title))
-        book.set_language('pl')
+        book.set_language(BLOG_LANGUAGE)
         book.add_author(BLOG_URL)
     BLOG_URL = ''
     if re.search("<a class='blog-pager-older-link' href='([^']*)' id='Blog1_blog-pager-older-link'", www_html):
@@ -338,20 +355,32 @@ while BLOG_URL != '':
                 break
         y = y + 1
 
-# Generate file name
+
+def translate_month(date, language):
+    if language == 'pl':
+        date = date.replace('stycznia','january');
+        date = date.replace('lutego','february');
+        date = date.replace('marca','march');
+        date = date.replace('kwietnia','april');
+        date = date.replace('maja','may');
+        date = date.replace('czerwca','june');
+        date = date.replace('lipca','july');
+        date = date.replace('sierpnia','august');
+        date = date.replace(u'września','september');
+        date = date.replace(u'października','october');
+        date = date.replace('listopada','november');
+        date = date.replace('grudnia','december');
+    return date
+
+
+# Generate file namespace
+start_date_obj = datetime.strptime(translate_month(START_DATE,BLOG_LANGUAGE), '%d %B %Y')
+end_date_obj = datetime.strptime(translate_month(END_DATE,BLOG_LANGUAGE), '%d %B %Y')
 book_file_name = sys.argv[1] + '.blogspot.com'
 if START_DATE == END_DATE:
-    book_file_name = book_file_name + '_' + slugify(END_DATE)
+    book_file_name = book_file_name + '_' + start_date_obj.strftime('%Y.%m.%d')
 else:
-    end_date = END_DATE.split(' ')
-    start_date = START_DATE.split(' ')
-    if len(end_date) == len(start_date):
-        ed = []
-        for i, d in enumerate(end_date):
-            if d != start_date[i]:
-                ed.append(d)
-    ed = '_'.join(ed)
-    book_file_name = book_file_name + '_' + slugify(ed) + '-' + START_DATE.replace(' ', '_')
+    book_file_name = book_file_name + '_' + end_date_obj.strftime('%Y.%m.%d') + '-' + start_date_obj.strftime('%Y.%m.%d')
 
 # Add cover - if file exist
 book.spine.append('nav')
