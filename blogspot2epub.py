@@ -5,6 +5,8 @@
 # author: Bohdan Bobrowski bohdan@bobrowski.com.pl
 
 import os
+import zipfile
+import tempfile
 import json
 import re
 import sys
@@ -13,6 +15,7 @@ import urllib2
 import hashlib
 from ebooklib import epub
 from datetime import datetime
+from random import shuffle
 from slugify import slugify
 from lxml import html
 from lxml import etree
@@ -121,27 +124,44 @@ def download_image(picture_url, original_picture, target_picture):
         picture = picture.convert('L')
         picture.save(target_picture, format='JPEG', quality=IMAGES_QUALITY)
 
+def get_cover_title(cover_title, start, end):
+    cover_title = cover_title + ' '
+    if start == end:
+        cover_title = cover_title + start
+    else:
+        end_date = end.split(' ')
+        start_date = start.split(' ')
+        if len(end_date) == len(start_date):
+            ed = []
+            for i, d in enumerate(end_date):
+                if d != start_date[i]:
+                    ed.append(d)
+        ed = ' '.join(ed)
+        cover_title = cover_title + ed + '-' + start
+    return cover_title
+
 
 def generate_cover(file_name, images_list):
     cover_image = Image.new('RGB', (600, 800))
     cover_draw = ImageDraw.Draw(cover_image)
     dark_factor = 1
     if len(images_list) > 0:
+        shuffle(images_list)
         i = 1
-        for x in range(0, 11):
-            for y in range(0, 10):
-                thumb = make_thumb(Image.open(images_list[i - 1]), (60, 60))
+        for x in range(0, 7):
+            for y in range(0, 5):
+                thumb = make_thumb(Image.open(images_list[i - 1]), (120, 120))
                 thumb = thumb.point(lambda p: p * dark_factor)
-                dark_factor = dark_factor - 0.009
-                cover_image.paste(thumb, (y * 60, x * 60))
+                dark_factor = dark_factor - 0.03
+                cover_image.paste(thumb, (y * 120, x * 120))
                 i = i + 1
                 if i > len(images_list):
                     i = 1
-    cover_draw.text((15, 700), title, (255, 255, 255), font=ImageFont.truetype("Lato-Bold.ttf", 30))
-    cover_draw.text((15, 735), sys.argv[1] + ".blogspot.com", (255, 255, 255),
+    cover_draw.text((15, 615), title, (255, 255, 255), font=ImageFont.truetype("Lato-Bold.ttf", 30))
+    cover_draw.text((15, 760), sys.argv[1] + ".blogspot.com", (255, 255, 255),
                     font=ImageFont.truetype("Lato-Regular.ttf", 20))
     if START_DATE == END_DATE:
-        cover_draw.text((15, 760), START_DATE, (200, 200, 200), font=ImageFont.truetype("Lato-Regular.ttf", 20))
+        cover_draw.text((15, 650), START_DATE, (150, 150, 150), font=ImageFont.truetype("Lato-Italic.ttf", 20))
     else:
         end_date = END_DATE.split(' ')
         start_date = START_DATE.split(' ')
@@ -151,8 +171,8 @@ def generate_cover(file_name, images_list):
                 if d != start_date[i]:
                     ed.append(d)
         ed = ' '.join(ed)
-        cover_draw.text((15, 760), ed + " - " + START_DATE, (100, 100, 100),
-                        font=ImageFont.truetype("Lato-Regular.ttf", 20))
+        cover_draw.text((15, 650), ed + " - " + START_DATE, (100, 100, 100),
+                        font=ImageFont.truetype("Lato-Italic.ttf", 20))
     cover_image = cover_image.convert('L')
     cover_image.save(file_name + '.jpg', format='JPEG', quality=100)
 
@@ -169,6 +189,30 @@ def get_blog_language(html, default_language):
         if arg.find('--language=') == 0:
             language = arg.replace('--language=', '')
     return language
+
+
+def fix_cover_padding(zipname):
+    filename = 'EPUB/cover.xhtml'
+    tmpfd, tmpname = tempfile.mkstemp(dir=os.path.dirname(zipname))
+    os.close(tmpfd)
+    with zipfile.ZipFile(zipname, 'r') as zin:
+        with zipfile.ZipFile(tmpname, 'w') as zout:
+            zout.comment = zin.comment # preserve the comment
+            for item in zin.infolist():
+                if item.filename == filename:
+                    cover_html = zin.read(filename)
+                else:
+                    zout.writestr(item, zin.read(item.filename))                
+    os.remove(zipname)
+    os.rename(tmpname, zipname)
+    zf = zipfile.ZipFile(zipname, 'r')
+    cover_html = cover_html.replace('</head>', """<style type="text/css" title="override_css">
+@page {padding: 0pt; margin:0pt}
+body { text-align: center; padding:0pt; margin: 0pt; }
+</style>
+</head>""")
+    with zipfile.ZipFile(zipname, mode='a', compression=zipfile.ZIP_DEFLATED) as zf:
+        zf.writestr(filename, cover_html)
 
 
 # Default params:
@@ -218,9 +262,8 @@ while BLOG_URL != '':
     if x == 1:
         BLOG_LANGUAGE = get_blog_language(www_html, BLOG_LANGUAGE)
         title = re.search("<title>([^>^<]*)</title>", www_html).group(1).strip().decode('utf-8')
-        book.set_title(unicode(title))
         book.set_language(BLOG_LANGUAGE)
-        book.add_author(BLOG_URL)
+        book.add_author(title + ', ' + sys.argv[1] + '.blogspot.com')
     BLOG_URL = ''
     if re.search("<a class='blog-pager-older-link' href='([^']*)' id='Blog1_blog-pager-older-link'", www_html):
         BLOG_URL = re.search("<a class='blog-pager-older-link' href='([^']*)' id='Blog1_blog-pager-older-link'",
@@ -282,8 +325,8 @@ while BLOG_URL != '':
             if len(images_nocaption) > 0:
                 for image in images_nocaption:
                     image = etree.tostring(image)
-                    image_href = re.findall('href="([^"]*)"', image)[0]
-                    image_src = re.findall('src="([^"]*)"', image)[0]
+                    image_href = re.findall('href="([^"]*)"', image)
+                    image_src = re.findall('src="([^"]*)"', image)
                     if INCLUDE_IMAGES:
                         originals_path = "./" + sys.argv[1] + "/originals/"
                         if not os.path.exists(originals_path):
@@ -293,10 +336,10 @@ while BLOG_URL != '':
                             os.makedirs(images_path)
                         image_url = '';
                         if len(image_href) > 0:
-                            image_url = image_href
+                            image_url = image_href[0]
                             image_regex = '<a href="' + image_url + '"[^>]*><img[^>]*></a>'
                         if len(image_src) > 0:
-                            image_url = image_src
+                            image_url = image_src[0]
                             image_regex = '<img[?=\sa-z\"0-9]*src="' + image_url + '"[^>]+>'
                         if len(image_url) > 0:
                             m = hashlib.md5()
@@ -328,13 +371,13 @@ while BLOG_URL != '':
                             art_content = art_content.replace('#blogspot2epubimage#' + image_md5 + '#', image_html)
                     for image in images_nocaption:
                         image = etree.tostring(image)
-                        image_href = re.findall('href="([^"]*)"', image)[0]
-                        image_src = re.findall('src="([^"]*)"', image)[0]
+                        image_href = re.findall('href="([^"]*)"', image)
+                        image_src = re.findall('src="([^"]*)"', image)
                         image_url = ''
                         if len(image_href) > 0:
-                            image_url = image_href
+                            image_url = image_href[0]
                         if len(image_src) > 0:
-                            image_url = image_src
+                            image_url = image_src[0]
                         if len(image_url) > 0:
                             m = hashlib.md5()
                             m.update(image_url)
@@ -377,12 +420,13 @@ def translate_month(date, language):
 start_date_obj = datetime.strptime(translate_month(START_DATE,BLOG_LANGUAGE), '%d %B %Y')
 end_date_obj = datetime.strptime(translate_month(END_DATE,BLOG_LANGUAGE), '%d %B %Y')
 book_file_name = sys.argv[1] + '.blogspot.com'
+book.set_title(get_cover_title(title, START_DATE, END_DATE))
 if START_DATE == END_DATE:
     book_file_name = book_file_name + '_' + start_date_obj.strftime('%Y.%m.%d')
-    book.set_title(start_date_obj.strftime('%Y.%m.%d'))    
+    # book.set_title(unicode(title) + ', ' + start_date_obj.strftime('%Y.%m.%d'))    
 else:
     book_file_name = book_file_name + '_' + end_date_obj.strftime('%Y.%m.%d') + '-' + start_date_obj.strftime('%Y.%m.%d')
-    book.set_title(end_date_obj.strftime('%Y.%m.%d') + '-' + start_date_obj.strftime('%Y.%m.%d'))    
+    # book.set_title(unicode(title) + ', ' + end_date_obj.strftime('%Y.%m.%d') + '-' + start_date_obj.strftime('%Y.%m.%d'))    
 
 # Add cover - if file exist
 book.spine.append('nav')
@@ -446,3 +490,4 @@ if INCLUDE_IMAGES:
 
 # Save damn ebook
 epub.write_epub(book_file_name + '.epub', book, {})
+fix_cover_padding(book_file_name + '.epub')
