@@ -117,7 +117,7 @@ def download_image(picture_url, original_picture, target_picture):
         except urllib2.HTTPError as e:
             print(e.code)
             print(e.read())
-    if INCLUDE_IMAGES and not os.path.isfile(target_picture):
+    if INCLUDE_IMAGES and not os.path.isfile(target_picture) and os.path.isfile(original_picture):
         picture = Image.open(original_picture)
         if picture.size[0] > IMAGES_WIDTH or picture.size[1] > IMAGES_HEIGHT:
             picture.thumbnail([IMAGES_WIDTH, IMAGES_HEIGHT], Image.ANTIALIAS)
@@ -346,7 +346,12 @@ while BLOG_URL != '':
                             m.update(image_url)
                             image_hash = m.hexdigest()
                             images_included.append(image_hash + ".jpg")
-                            art_html = re.sub(image_regex, ' #blogspot2epubimage#' + image_hash + '# ', art_html)
+                            try:
+                                art_html = re.sub(image_regex, ' #blogspot2epubimage#' + image_hash + '# ', art_html)
+                                break
+                            except error:
+                                # TODO: "sre_constants.error: multiple repeat" - try to handle this error
+                                break
                             image_file_name = originals_path + image_hash + ".jpg"
                             image_files.append(image_file_name)
                             image_file_name_dest = images_path + image_hash + ".jpg"
