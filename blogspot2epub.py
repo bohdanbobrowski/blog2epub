@@ -191,7 +191,7 @@ def get_blog_language(html, default_language):
     return language
 
 
-def fix_cover(zipname, cover_title):
+def fix_cover(zipname):
     filename = 'EPUB/cover.xhtml'
     tmpfd, tmpname = tempfile.mkstemp(dir=os.path.dirname(zipname+'.epub'))
     os.close(tmpfd)
@@ -207,23 +207,29 @@ def fix_cover(zipname, cover_title):
     os.rename(tmpname, zipname+'.epub')
     zf = zipfile.ZipFile(zipname+'.epub', 'r')
     cover_html = """<?xml version='1.0' encoding='utf-8'?>
-<!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" epub:prefix="z3998: http://www.daisy.org/z3998/2012/vocab/structure/#" lang="pl" xml:lang="pl">
-  <head>
-    <title>Cover</title>
-  <style type="text/css" title="override_css">
-@page {padding: 0pt; margin:0pt}
-body { text-align: center; padding:0pt; margin: 0pt; }
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+<meta name="calibre:cover" content="true"/>
+<title>Cover</title>
+<style type="text/css" title="override_css">
+@page {
+    padding: 0pt;
+    margin: 0pt;
+}
+body {
+    text-align: center;
+    padding: 0pt;
+    margin: 0pt;
+}
 </style>
 </head>
 <body>
-<div id="cover-image">
-<img src="###FILE###" alt="###TITLE###" />
-</div>
+<div><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" width="100%" height="100%" viewBox="0 0 600 800" preserveAspectRatio="none">
+<image width="600" height="800" xlink:href="###FILE###"/>
+</svg></div>
 </body>
 </html>"""
     cover_html = cover_html.replace('###FILE###',zipname+'.jpg')
-    cover_html = cover_html.replace('###TITLE###',cover_title)
     with zipfile.ZipFile(zipname+'.epub', mode='a', compression=zipfile.ZIP_DEFLATED) as zf:
         zf.writestr(filename, cover_html)
 
@@ -437,14 +443,11 @@ def translate_month(date, language):
 start_date_obj = datetime.strptime(translate_month(START_DATE,BLOG_LANGUAGE), '%d %B %Y')
 end_date_obj = datetime.strptime(translate_month(END_DATE,BLOG_LANGUAGE), '%d %B %Y')
 book_file_name = sys.argv[1] + '.blogspot.com'
-cover_title = get_cover_title(title, START_DATE, END_DATE)
-book.set_title(cover_title)
+book.set_title(get_cover_title(title, START_DATE, END_DATE))
 if START_DATE == END_DATE:
     book_file_name = book_file_name + '_' + start_date_obj.strftime('%Y.%m.%d')
-    # book.set_title(unicode(title) + ', ' + start_date_obj.strftime('%Y.%m.%d'))    
 else:
     book_file_name = book_file_name + '_' + end_date_obj.strftime('%Y.%m.%d') + '-' + start_date_obj.strftime('%Y.%m.%d')
-    # book.set_title(unicode(title) + ', ' + end_date_obj.strftime('%Y.%m.%d') + '-' + start_date_obj.strftime('%Y.%m.%d'))    
 
 # Add cover - if file exist
 book.spine.append('nav')
@@ -508,5 +511,4 @@ if INCLUDE_IMAGES:
 
 # Save damn ebook
 epub.write_epub(book_file_name + '.epub', book, {})
-print cover_title
-fix_cover(book_file_name, cover_title.encode('utf-8'))
+fix_cover(book_file_name)
