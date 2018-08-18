@@ -142,26 +142,29 @@ def get_cover_title(cover_title, start, end):
 
 
 def generate_cover(file_name, images_list):
+    tile_size = 120
+    tiles_count_y = 5
+    tiles_count_x = 7
     cover_image = Image.new('RGB', (600, 800))
     cover_draw = ImageDraw.Draw(cover_image)
     dark_factor = 1
-    if len(images_list) > 0:
+    if len(images_list) > 0:        
         shuffle(images_list)
         i = 1
-        for x in range(0, 7):
-            for y in range(0, 5):
-                thumb = make_thumb(Image.open(images_list[i - 1]), (120, 120))
+        for x in range(0, tiles_count_x):
+            for y in range(0, tiles_count_y):
+                thumb = make_thumb(Image.open(images_list[i - 1]), (tile_size, tile_size))
                 thumb = thumb.point(lambda p: p * dark_factor)
                 dark_factor = dark_factor - 0.03
-                cover_image.paste(thumb, (y * 120, x * 120))
+                cover_image.paste(thumb, (y * tile_size, x * tile_size))
                 i = i + 1
                 if i > len(images_list):
                     i = 1
-    cover_draw.text((15, 615), title, (255, 255, 255), font=ImageFont.truetype("Lato-Bold.ttf", 30))
+    cover_draw.text((15, 635), title, (255, 255, 255), font=ImageFont.truetype("Lato-Bold.ttf", 30))
     cover_draw.text((15, 760), sys.argv[1] + ".blogspot.com", (255, 255, 255),
                     font=ImageFont.truetype("Lato-Regular.ttf", 20))
     if START_DATE == END_DATE:
-        cover_draw.text((15, 650), START_DATE, (150, 150, 150), font=ImageFont.truetype("Lato-Italic.ttf", 20))
+        cover_draw.text((15, 670), START_DATE, (150, 150, 150), font=ImageFont.truetype("Lato-Italic.ttf", 20))
     else:
         end_date = END_DATE.split(' ')
         start_date = START_DATE.split(' ')
@@ -171,7 +174,7 @@ def generate_cover(file_name, images_list):
                 if d != start_date[i]:
                     ed.append(d)
         ed = ' '.join(ed)
-        cover_draw.text((15, 650), ed + " - " + START_DATE, (100, 100, 100),
+        cover_draw.text((15, 670), ed + " - " + START_DATE, (150, 150, 150),
                         font=ImageFont.truetype("Lato-Italic.ttf", 20))
     cover_image = cover_image.convert('L')
     cover_image.save(file_name + '.jpg', format='JPEG', quality=100)
@@ -274,6 +277,7 @@ table_of_contents = []
 y = x = 1
 BLOG_URL = 'http://' + sys.argv[1] + '.blogspot.com/'
 images_included = []
+all_image_files = []
 while BLOG_URL != '':
     www_html = download_web_page(BLOG_URL)
     artykuly = re.findall(
@@ -419,6 +423,7 @@ while BLOG_URL != '':
             if not LIMIT == False and x > LIMIT:
                 BLOG_URL = ''
                 break
+            all_image_files = image_files + all_image_files
         y = y + 1
 
 
@@ -451,7 +456,7 @@ else:
 
 # Add cover - if file exist
 book.spine.append('nav')
-generate_cover(book_file_name, image_files)
+generate_cover(book_file_name, all_image_files)
 book.set_cover(book_file_name + '.jpg', open(book_file_name + '.jpg', 'rb').read())
 book.spine.append('cover')
 book.spine.reverse()
