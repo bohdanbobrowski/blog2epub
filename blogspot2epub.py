@@ -114,15 +114,17 @@ def download_image(picture_url, original_picture, target_picture):
                     break
                 f.write(buffer)
             f.close()
-        except urllib2.HTTPError as e:
-            print(e.code)
-            print(e.read())
+        except Exception as e:
+            print e
     if INCLUDE_IMAGES and not os.path.isfile(target_picture) and os.path.isfile(original_picture):
-        picture = Image.open(original_picture)
-        if picture.size[0] > IMAGES_WIDTH or picture.size[1] > IMAGES_HEIGHT:
-            picture.thumbnail([IMAGES_WIDTH, IMAGES_HEIGHT], Image.ANTIALIAS)
-        picture = picture.convert('L')
-        picture.save(target_picture, format='JPEG', quality=IMAGES_QUALITY)
+        try:
+            picture = Image.open(original_picture)
+            if picture.size[0] > IMAGES_WIDTH or picture.size[1] > IMAGES_HEIGHT:
+                picture.thumbnail([IMAGES_WIDTH, IMAGES_HEIGHT], Image.ANTIALIAS)
+            picture = picture.convert('L')
+            picture.save(target_picture, format='JPEG', quality=IMAGES_QUALITY)
+        except Exception as e:
+            print e
 
 def get_cover_title(cover_title, start, end):
     cover_title = cover_title + ' '
@@ -153,11 +155,14 @@ def generate_cover(file_name, images_list):
         i = 1
         for x in range(0, tiles_count_x):
             for y in range(0, tiles_count_y):
-                thumb = make_thumb(Image.open(images_list[i - 1]), (tile_size, tile_size))
-                thumb = thumb.point(lambda p: p * dark_factor)
-                dark_factor = dark_factor - 0.03
-                cover_image.paste(thumb, (y * tile_size, x * tile_size))
-                i = i + 1
+                try:
+                    thumb = make_thumb(Image.open(images_list[i - 1]), (tile_size, tile_size))
+                    thumb = thumb.point(lambda p: p * dark_factor)
+                    dark_factor = dark_factor - 0.03
+                    cover_image.paste(thumb, (y * tile_size, x * tile_size))
+                    i = i + 1
+                except Exception as e:
+                    print e
                 if i > len(images_list):
                     i = 1
     cover_draw.text((15, 635), title, (255, 255, 255), font=ImageFont.truetype("Lato-Bold.ttf", 30))
@@ -341,7 +346,10 @@ while BLOG_URL != '':
                     image_file_name_dest = images_path + image_hash + ".jpg"
                     image_regex = '<table[^>]*><tbody>[\s]*<tr><td[^>]*><a href="' + image[
                         0] + '"[^>]*><img[^>]*></a></td></tr>[\s]*<tr><td class="tr-caption" style="[^"]*">[^<]*</td></tr>[\s]*</tbody></table>'
-                    art_html = re.sub(image_regex, ' #blogspot2epubimage#' + image_hash + '# ', art_html)
+                    try:
+                        art_html = re.sub(image_regex, ' #blogspot2epubimage#' + image_hash + '# ', art_html)
+                    except Exception as e:
+                        print e
                     download_image(image[0], image_file_name, image_file_name_dest)
             art_tree = html.fromstring(art_html)
             images_nocaption = art_tree.xpath('//a[@imageanchor="1"]')
@@ -460,7 +468,7 @@ generate_cover(book_file_name, all_image_files)
 book.set_cover(book_file_name + '.jpg', open(book_file_name + '.jpg', 'rb').read())
 book.spine.append('cover')
 book.spine.reverse()
-os.remove(book_file_name + '.jpg')
+# os.remove(book_file_name + '.jpg')
 
 # Add table of contents
 table_of_contents.reverse()
