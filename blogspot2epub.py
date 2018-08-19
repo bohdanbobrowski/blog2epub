@@ -102,7 +102,10 @@ def crop_image(img, size):
     return region
 
 
-def download_image(picture_url, original_picture, target_picture):
+def download_image(picture_url, original_picture, target_picture):    
+    result = False
+    if picture_url.startswith("//"):
+        picture_url = "http:" + picture_url
     if not os.path.isfile(original_picture):
         try:
             u = urllib2.urlopen(picture_url)
@@ -125,6 +128,9 @@ def download_image(picture_url, original_picture, target_picture):
             picture.save(target_picture, format='JPEG', quality=IMAGES_QUALITY)
         except Exception as e:
             print e
+    if os.path.isfile(target_picture):
+        result = True
+    return result
 
 def get_cover_title(cover_title, start, end):
     cover_title = cover_title + ' '
@@ -342,7 +348,6 @@ while BLOG_URL != '':
                     image_hash = m.hexdigest()
                     images_included.append(image_hash + ".jpg")
                     image_file_name = originals_path + image_hash + ".jpg"
-                    image_files.append(image_file_name)
                     image_file_name_dest = images_path + image_hash + ".jpg"
                     image_regex = '<table[^>]*><tbody>[\s]*<tr><td[^>]*><a href="' + image[
                         0] + '"[^>]*><img[^>]*></a></td></tr>[\s]*<tr><td class="tr-caption" style="[^"]*">[^<]*</td></tr>[\s]*</tbody></table>'
@@ -350,7 +355,8 @@ while BLOG_URL != '':
                         art_html = re.sub(image_regex, ' #blogspot2epubimage#' + image_hash + '# ', art_html)
                     except Exception as e:
                         print e
-                    download_image(image[0], image_file_name, image_file_name_dest)
+                    if download_image(image[0], image_file_name, image_file_name_dest):
+                        image_files.append(image_file_name)
             art_tree = html.fromstring(art_html)
             images_nocaption = art_tree.xpath('//a[@imageanchor="1"]')
             if len(images_nocaption) > 0:
@@ -380,9 +386,9 @@ while BLOG_URL != '':
                             try:
                                 art_html = re.sub(image_regex, ' #blogspot2epubimage#' + image_hash + '# ', art_html)
                                 image_file_name = originals_path + image_hash + ".jpg"
-                                image_files.append(image_file_name)
                                 image_file_name_dest = images_path + image_hash + ".jpg"
-                                download_image(image_url, image_file_name, image_file_name_dest)
+                                if download_image(image_url, image_file_name, image_file_name_dest):
+                                    image_files.append(image_file_name)
                             except Exception, err:
                                 print "Error:",err
                                 # TODO: "sre_constants.error: multiple repeat" - try to handle this error
