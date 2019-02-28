@@ -25,6 +25,7 @@ from PIL import ImageFont
 from PIL import ImageDraw
 from os import listdir
 from os.path import isfile, join
+from BeautifulSoup import BeautifulStoneSoup
 
 
 class WWWDownloader:
@@ -35,26 +36,39 @@ class WWWDownloader:
         self.contents = self.contents + buf
 
 
-def download_web_page(url):
-    try:
-        www = WWWDownloader()
-        c = pycurl.Curl()
-        c.setopt(c.URL, url)
-        c.setopt(c.WRITEFUNCTION, www.body_callback)
-        c.setopt(c.HEADER, 1);
-        c.setopt(c.FOLLOWLOCATION, 1)
-        c.setopt(c.COOKIEFILE, '')
-        c.setopt(c.CONNECTTIMEOUT, 30)
-        c.setopt(c.TIMEOUT, 30)
-        c.setopt(c.COOKIEFILE, '')
-        c.perform()
-    except Exception, err:
-        print "- Connection error."
-        print err
-        exit()
-        www_html = ''
+def download_web_page(url, forceDownload = False):
+    m = hashlib.md5()
+    m.update(url)
+    url_hash = m.hexdigest()
+    html_path = './' + sys.argv[1] + '/html/'
+    if not os.path.exists(html_path):
+        os.makedirs(html_path)
+    html_file_path = html_path + url_hash + '.html'
+    if forceDownload or not os.path.isfile(html_file_path):
+        try:
+            www = WWWDownloader()
+            c = pycurl.Curl()
+            c.setopt(c.URL, url)
+            c.setopt(c.WRITEFUNCTION, www.body_callback)
+            c.setopt(c.HEADER, 1);
+            c.setopt(c.FOLLOWLOCATION, 1)
+            c.setopt(c.COOKIEFILE, '')
+            c.setopt(c.CONNECTTIMEOUT, 30)
+            c.setopt(c.TIMEOUT, 30)
+            c.setopt(c.COOKIEFILE, '')
+            c.perform()
+        except Exception, err:
+            print "- Connection error."
+            print err
+            exit()
+        else:
+            www_html = www.contents
+            html_file = open(html_file_path, "w+")
+            html_file.write(www_html)
+            html_file.close()
     else:
-        www_html = www.contents
+        with open(html_file_path, 'r') as html_file:
+            www_html = html_file.read()
     return www_html
 
 
@@ -135,7 +149,7 @@ def download_image(picture_url, original_picture, target_picture):
 def get_cover_title(cover_title, start, end):
     cover_title = cover_title + ' '
     if start == end:
-        cover_title = cover_title + start
+        cover_title = cover_title + str(start)
     else:
         end_date = end.split(' ')
         start_date = start.split(' ')
@@ -247,6 +261,9 @@ body {
     with zipfile.ZipFile(zipname+'.epub', mode='a', compression=zipfile.ZIP_DEFLATED) as zf:
         zf.writestr(filename, cover_html)
 
+def HTMLEntitiesToUnicode(text):
+    text = unicode(BeautifulStoneSoup(text, convertEntities=BeautifulStoneSoup.ALL_ENTITIES))
+    return text
 
 # Default params:
 INCLUDE_IMAGES = True
@@ -290,7 +307,7 @@ BLOG_URL = 'http://' + sys.argv[1] + '.blogspot.com/'
 images_included = []
 all_image_files = []
 while BLOG_URL != '':
-    www_html = download_web_page(BLOG_URL)
+    www_html = download_web_page(BLOG_URL, True)
     artykuly = re.findall(
         "<h3 class='post-title entry-title' itemprop='name'>[\s]*<a href='([^']*)'>([^>^<]*)</a>[\s]*</h3>", www_html)
     if x == 1:
@@ -305,6 +322,7 @@ while BLOG_URL != '':
     for art in artykuly:
         if SKIP == False or y > SKIP:
             art_title = unicode(art[1].strip().decode('utf-8'))
+            art_title = HTMLEntitiesToUnicode(art_title)
             print str(x) + '. ' + art_title
             art_html = download_web_page(art[0])
             art_tree = html.fromstring(art_html)
@@ -459,14 +477,17 @@ def translate_month(date, language):
 
 
 # Generate file namespace
-start_date_obj = datetime.strptime(translate_month(START_DATE,BLOG_LANGUAGE), '%d %B %Y')
-end_date_obj = datetime.strptime(translate_month(END_DATE,BLOG_LANGUAGE), '%d %B %Y')
 book_file_name = sys.argv[1] + '.blogspot.com'
 book.set_title(get_cover_title(title, START_DATE, END_DATE))
-if START_DATE == END_DATE:
-    book_file_name = book_file_name + '_' + start_date_obj.strftime('%Y.%m.%d')
-else:
-    book_file_name = book_file_name + '_' + end_date_obj.strftime('%Y.%m.%d') + '-' + start_date_obj.strftime('%Y.%m.%d')
+try:
+    start_date_obj = datetime.strptime(translate_month(START_DATE,BLOG_LANGUAGE), '%d %B %Y')
+    end_date_obj = datetime.strptime(translate_month(END_DATE,BLOG_LANGUAGE), '%d %B %Y')
+    if START_DATE == END_DATE:
+        book_file_name = book_file_name + '_' + start_date_obj.strftime('%Y.%m.%d')
+    else:
+        book_file_name = book_file_name + '_' + end_date_obj.strftime('%Y.%m.%d') + '-' + start_date_obj.strftime('%Y.%m.%d')
+except:
+    pass
 
 # Add cover - if file exist
 book.spine.append('nav')
