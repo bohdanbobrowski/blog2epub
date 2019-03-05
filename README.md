@@ -1,4 +1,7 @@
 # blogspot2epub
+
+## Warning: this branch is currently during deep refactor
+
 Convert selected blogspot blog to epub using single command!
 
 Main features:
