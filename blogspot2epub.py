@@ -7,7 +7,6 @@
 import os
 import zipfile
 import tempfile
-import json
 import re
 import sys
 import pycurl
@@ -16,10 +15,8 @@ import hashlib
 from ebooklib import epub
 from datetime import datetime
 from random import shuffle
-from slugify import slugify
 from lxml import html
 from lxml import etree
-import requests
 from PIL import Image
 from PIL import ImageFont
 from PIL import ImageDraw
