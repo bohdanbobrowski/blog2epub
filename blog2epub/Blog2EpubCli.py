@@ -1,4 +1,7 @@
-# -*- coding: utf-8 -*-
+#!/usr/bin/env python3
+# -*- coding : utf-8 -*-
+
+from blog2epub import Blog2Epub
 
 class Blog2EpubCli(object):
     """
@@ -8,5 +11,8 @@ class Blog2EpubCli(object):
     def __init__(self):
         pass
 
-    def main(self):
+    def parseParameters(self):
         pass
+
+    def main(self):
+        self.parseParameters()

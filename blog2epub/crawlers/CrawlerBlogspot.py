@@ -1,13 +1,12 @@
 #!/usr/bin/env python3
 # -*- coding : utf-8 -*-
 
-class Cover(object):
+from Crawler import Crawler
+
+class CrawlerBlogspot(Crawler):
     """
-    Cover class used in Blog2Epub class.
+    Universal blog crawler.
     """
 
     def __init__(self):
-        pass
-
-    def main(self):
         pass

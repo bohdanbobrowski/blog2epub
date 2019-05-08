@@ -1,4 +1,7 @@
-# -*- coding: utf-8 -*-
+#!/usr/bin/env python3
+# -*- coding : utf-8 -*-
+
+from blog2epub.Cover import Cover
 
 class Book(object):
     """
@@ -6,7 +9,8 @@ class Book(object):
     """
 
     def __init__(self):
-        pass
+        self.cover = Cover()
+        self.images = {}
 
     def main(self):
         pass

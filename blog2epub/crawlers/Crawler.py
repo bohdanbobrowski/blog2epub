@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 # -*- coding : utf-8 -*-
 
-class Cover(object):
+class Crawler(object):
     """
-    Cover class used in Blog2Epub class.
+    Universal blog crawler.
     """
 
     def __init__(self):

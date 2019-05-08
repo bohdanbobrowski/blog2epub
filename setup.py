@@ -6,7 +6,7 @@ from setuptools import setup
 
 setup(
     name='blog2epub',
-    version='0.2',
+    version='0.3',
     description="Blog To Epub Downloader",
     url="https://github.com/bohdanbobrowski/blogspot2epub",
     author="Bohdan Bobrowski",
