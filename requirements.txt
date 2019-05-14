@@ -1,0 +1,6 @@
+pycurl
+ebooklib
+slugify
+requests
+Pillow
+beautifulsoup
