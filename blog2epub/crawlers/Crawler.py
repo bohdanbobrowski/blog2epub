@@ -17,6 +17,8 @@ class Crawler(object):
 
     title = None
     language = 'en'
+    images = {}
+    pages = {}
 
     def __init__(self, url, include_images=True, images_height=800, images_width=600, images_quality=40, start=None,
                  end=None, limit=False, skip=False):

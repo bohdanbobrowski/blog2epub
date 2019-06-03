@@ -14,8 +14,10 @@ class Blog2Epub(object):
         self.crawler = self._selectCrawler(url, params)
 
     def _selectCrawler(self, url, params):
-        self.crawler = Crawler(params)
-        self.crawler = CrawlerBlogspot(params)
+        if url.search("blogspot.com"):
+            return CrawlerBlogspot(params)
+        else:
+            return Crawler(params)
 
     def download(self):
         self.crawler.crawl()
