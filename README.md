@@ -14,6 +14,9 @@ Main features:
 
 Its still very experimental, but should work... generally.
 
+Installation:
+- pip install -r requirements.txt
+
 Usage:
 - ./blogspot2epub.py [blog-name] <parameters>
 
