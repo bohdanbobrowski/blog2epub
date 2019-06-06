@@ -5,17 +5,13 @@
 # author: Bohdan Bobrowski bohdan@bobrowski.com.pl
 
 import os
-import zipfile
-import tempfile
 import re
 import sys
-import urllib2
 import hashlib
 from ebooklib import epub
 from datetime import datetime
 from lxml import html
 from lxml import etree
-from PIL import Image
 from os import listdir
 from os.path import isfile, join
 from BeautifulSoup import BeautifulStoneSoup
@@ -25,61 +21,7 @@ from BeautifulSoup import BeautifulStoneSoup
 
 
 
-def get_blog_language(html, default_language):
-    language = default_language;
-    if re.search("'lang':[\s]*'([a-z^']+)'", html):
-        language = re.search("'lang':[\s]*'([a-z^']+)'", html).group(1).strip().decode('utf-8')
-    if re.search('lang="([a-z^"]+)"', html):
-        language = re.search('lang="([a-z^"]+)"', html).group(1).strip().decode('utf-8')
-    for arg in sys.argv:
-        if arg.find('-ln=') == 0:
-            language = arg.replace('-ln=', '')
-        if arg.find('--language=') == 0:
-            language = arg.replace('--language=', '')
-    return language
 
-
-def fix_cover(zipname):
-    filename = 'EPUB/cover.xhtml'
-    tmpfd, tmpname = tempfile.mkstemp(dir=os.path.dirname(zipname+'.epub'))
-    os.close(tmpfd)
-    with zipfile.ZipFile(zipname+'.epub', 'r') as zin:
-        with zipfile.ZipFile(tmpname, 'w') as zout:
-            zout.comment = zin.comment # preserve the comment
-            for item in zin.infolist():
-                if item.filename == filename:
-                    cover_html = zin.read(filename)
-                else:
-                    zout.writestr(item, zin.read(item.filename))                
-    os.remove(zipname+'.epub')
-    os.rename(tmpname, zipname+'.epub')
-    zf = zipfile.ZipFile(zipname+'.epub', 'r')
-    cover_html = """<?xml version='1.0' encoding='utf-8'?>
-<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
-<head>
-<meta name="calibre:cover" content="true"/>
-<title>Cover</title>
-<style type="text/css" title="override_css">
-@page {
-    padding: 0pt;
-    margin: 0pt;
-}
-body {
-    text-align: center;
-    padding: 0pt;
-    margin: 0pt;
-}
-</style>
-</head>
-<body>
-<div><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" width="100%" height="100%" viewBox="0 0 600 800" preserveAspectRatio="none">
-<image width="600" height="800" xlink:href="###FILE###"/>
-</svg></div>
-</body>
-</html>"""
-    cover_html = cover_html.replace('###FILE###',zipname+'.jpg')
-    with zipfile.ZipFile(zipname+'.epub', mode='a', compression=zipfile.ZIP_DEFLATED) as zf:
-        zf.writestr(filename, cover_html)
 
 def HTMLEntitiesToUnicode(text):
     text = unicode(BeautifulStoneSoup(text, convertEntities=BeautifulStoneSoup.ALL_ENTITIES))
@@ -292,31 +234,6 @@ book.toc = table_of_contents
 # Add default NCX and Nav file
 book.add_item(epub.EpubNcx())
 book.add_item(epub.EpubNav())
-
-# Define CSS style
-style = '''
-@namespace epub "http://www.idpf.org/2007/ops";
-body {
-    font-family: Cambria, Liberation Serif, Bitstream Vera Serif, Georgia, Times, Times New Roman, serif;
-}
-h2 {
-     text-align: left;
-     text-transform: uppercase;
-     font-weight: 200;     
-}
-ol {
-        list-style-type: none;
-}
-ol > li:first-child {
-        margin-top: 0.3em;
-}
-nav[epub|type~='toc'] > ol > li > ol  {
-    list-style-type:square;
-}
-nav[epub|type~='toc'] > ol > li > ol > li {
-        margin-top: 0.3em;
-}
-'''
 
 # Add css file
 nav_css = epub.EpubItem(uid="style_nav", file_name="style/nav.css", media_type="text/css", content=style)

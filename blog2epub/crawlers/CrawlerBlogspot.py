@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding : utf-8 -*-
-
-from Crawler import Crawler
+from blog2epub.crawlers.Crawler import Crawler
 
 class CrawlerBlogspot(Crawler):
     """

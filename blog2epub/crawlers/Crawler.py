@@ -138,6 +138,19 @@ class Crawler(object):
             contents = self._file_read()
         return contents
 
+    def get_blog_language(self, html):
+        language = self.language;
+        if re.search("'lang':[\s]*'([a-z^']+)'", html):
+            language = re.search("'lang':[\s]*'([a-z^']+)'", html).group(1).strip().decode('utf-8')
+        if re.search('lang="([a-z^"]+)"', html):
+            language = re.search('lang="([a-z^"]+)"', html).group(1).strip().decode('utf-8')
+        for arg in sys.argv:
+            if arg.find('-ln=') == 0:
+                language = arg.replace('-ln=', '')
+            if arg.find('--language=') == 0:
+                language = arg.replace('--language=', '')
+        return language
+
     def crawl(self):
         pass
 

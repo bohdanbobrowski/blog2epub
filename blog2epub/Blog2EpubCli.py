@@ -2,6 +2,8 @@
 # -*- coding : utf-8 -*-
 import sys
 
+from blog2epub.crawlers.CrawlerBlogspot import CrawlerBlogspot
+
 
 class Blog2EpubCli(object):
     """
@@ -9,7 +11,9 @@ class Blog2EpubCli(object):
     """
 
     def __init__(self):
-        pass
+        params = self.parseParameters()
+        crawler = CrawlerBlogspot(**params)
+        crawler.crawl()
 
     def parseParameters(self):
         params = {}
@@ -32,10 +36,3 @@ class Blog2EpubCli(object):
             if arg.find('--quality=') == 0:
                 params['images_quality'] = int(arg.replace('--quality=', ''))
         return params
-
-    def main(self):
-        params = self.parseParameters()
-
-        # TODO:
-        crawler = CrawlerBlogspot(**params)
-        crawler.crawl()
