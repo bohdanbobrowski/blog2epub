@@ -2,8 +2,17 @@
 # -*- coding : utf-8 -*-
 import sys
 
+from blog2epub.Blog2Epub import Blog2Epub
 from blog2epub.crawlers.CrawlerBlogspot import CrawlerBlogspot
 from urllib import parse
+
+
+class CliInterface:
+
+    @staticmethod
+    def print(text):
+        print(text)
+
 
 class Blog2EpubCli(object):
     """
@@ -13,8 +22,9 @@ class Blog2EpubCli(object):
     def __init__(self, **defaults):
         params = self.parseParameters()
         params = {**defaults, **params}
-        crawler = CrawlerBlogspot(**params)
-        crawler.crawl()
+        interface = CliInterface()
+        blog2epub = Blog2Epub(params)
+        blog2epub.download(interface)
 
     def getUrl(self):
         if len(sys.argv) > 1:
@@ -24,7 +34,9 @@ class Blog2EpubCli(object):
         raise Exception("Not enough command line parameters.")
 
     def parseParameters(self):
-        params = {}
+        params = {
+            'interface': CliInterface()
+        }
 
         try:
             params['url'] = self.getUrl()
