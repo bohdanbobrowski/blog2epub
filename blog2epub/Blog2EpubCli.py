@@ -3,23 +3,39 @@
 import sys
 
 from blog2epub.crawlers.CrawlerBlogspot import CrawlerBlogspot
-
+from urllib import parse
 
 class Blog2EpubCli(object):
     """
     Command line interface for Blog2Epub class.
     """
 
-    def __init__(self):
+    def __init__(self, **defaults):
         params = self.parseParameters()
+        params = {**defaults, **params}
         crawler = CrawlerBlogspot(**params)
         crawler.crawl()
 
+    def getUrl(self):
+        if len(sys.argv) > 1:
+            if parse.urlparse(sys.argv[1]):
+                return sys.argv[1]
+            raise Exception("Blog url is not valid.")
+        raise Exception("Not enough parameters.")
+
+
     def parseParameters(self):
         params = {}
-        if len(sys.argv) < 2:
+
+        try:
+            params['url'] = self.getUrl()
+        except Exception as e:
+            print(e)
             print("usage: blogspot2epub <blog_name> [params...]")
             exit()
+
+        params['url'] = sys.argv[1]
+
         if '-n' in sys.argv or '--no-images' in sys.argv:
             params['include_images'] = False
         for arg in sys.argv:
