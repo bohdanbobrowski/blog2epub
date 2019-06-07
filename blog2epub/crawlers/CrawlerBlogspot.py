@@ -4,8 +4,5 @@ from blog2epub.crawlers.Crawler import Crawler
 
 class CrawlerBlogspot(Crawler):
     """
-    Universal blog crawler.
+    Blogspot crawler.
     """
-
-    def __init__(self):
-        pass

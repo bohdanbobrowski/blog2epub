@@ -31,7 +31,7 @@ def HTMLEntitiesToUnicode(text):
 START_DATE = False;
 END_DATE = False;
 
-book = epub.EpubBook()
+
 table_of_contents = []
 y = x = 1
 BLOG_URL = 'http://' + sys.argv[1] + '.blogspot.com/'
@@ -191,18 +191,18 @@ while BLOG_URL != '':
 
 def translate_month(date, language):
     if language == 'pl':
-        date = date.replace('stycznia','january');
-        date = date.replace('lutego','february');
-        date = date.replace('marca','march');
-        date = date.replace('kwietnia','april');
-        date = date.replace('maja','may');
-        date = date.replace('czerwca','june');
-        date = date.replace('lipca','july');
-        date = date.replace('sierpnia','august');
-        date = date.replace(u'września','september');
-        date = date.replace(u'października','october');
-        date = date.replace('listopada','november');
-        date = date.replace('grudnia','december');
+        date = date.replace('stycznia','january')
+        date = date.replace('lutego','february')
+        date = date.replace('marca','march')
+        date = date.replace('kwietnia','april')
+        date = date.replace('maja','may')
+        date = date.replace('czerwca','june')
+        date = date.replace('lipca','july')
+        date = date.replace('sierpnia','august')
+        date = date.replace(u'września','september')
+        date = date.replace(u'października','october')
+        date = date.replace('listopada','november')
+        date = date.replace('grudnia','december')
     return date
 
 

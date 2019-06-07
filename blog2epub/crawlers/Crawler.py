@@ -2,11 +2,13 @@
 # -*- coding : utf-8 -*-
 
 import hashlib
+import html
 import os
 import re
 import sys
 
 import pycurl
+from ebooklib import epub
 from PIL import Image
 
 
@@ -19,6 +21,7 @@ class Crawler(object):
     language = 'en'
     images = {}
     pages = {}
+    contents = {}
 
     def __init__(self, url, include_images=True, images_height=800, images_width=600, images_quality=40, start=None,
                  end=None, limit=False, skip=False):
@@ -34,6 +37,7 @@ class Crawler(object):
         self.downloader = CrawlerDownloader()
         self.path = './' + sys.argv[1] + '/'
         self.html_path = self.path + 'html/'
+        self.book = epub.EpubBook()
 
     def _prepare_directories(self):
         if not os.path.exists(self.html_path):
@@ -151,9 +155,13 @@ class Crawler(object):
                 language = arg.replace('--language=', '')
         return language
 
-    def crawl(self):
-        pass
+    def HTMLEntitiesToUnicode(text):
+        return html.unescape(text)
 
+    def crawl(self):
+        url_to_crawl = self.url
+        while url_to_crawl:
+            url_to_crawl= None
 
 class CrawlerDownloader:
     def __init__(self):

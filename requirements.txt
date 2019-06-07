@@ -1,2 +1,6 @@
+EbookLib==0.17.1
+lxml==4.3.3
 Pillow==6.0.0
+pkg-resources==0.0.0
 pycurl==7.43.0.2
+six==1.12.0

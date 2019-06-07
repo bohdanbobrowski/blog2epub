@@ -21,8 +21,7 @@ class Blog2EpubCli(object):
             if parse.urlparse(sys.argv[1]):
                 return sys.argv[1]
             raise Exception("Blog url is not valid.")
-        raise Exception("Not enough parameters.")
-
+        raise Exception("Not enough command line parameters.")
 
     def parseParameters(self):
         params = {}
