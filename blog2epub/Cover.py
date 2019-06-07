@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding : utf-8 -*-
+import zipfile
 from random import shuffle
 
 from PIL import Image, ImageDraw
@@ -91,3 +92,50 @@ class Cover(object):
                             font=ImageFont.truetype("Lato-Italic.ttf", 20))
         cover_image = cover_image.convert('L')
         cover_image.save(file_name + '.jpg', format='JPEG', quality=100)
+
+    @staticmethod
+    def fixBookCover(zipname):
+        """
+        :param zipname:
+        :return:
+        """
+        filename = 'EPUB/cover.xhtml'
+        tmpfd, tmpname = tempfile.mkstemp(dir=os.path.dirname(zipname+'.epub'))
+        os.close(tmpfd)
+        with zipfile.ZipFile(zipname+'.epub', 'r') as zin:
+            with zipfile.ZipFile(tmpname, 'w') as zout:
+                zout.comment = zin.comment # preserve the comment
+                for item in zin.infolist():
+                    if item.filename == filename:
+                        cover_html = zin.read(filename)
+                    else:
+                        zout.writestr(item, zin.read(item.filename))
+        os.remove(zipname+'.epub')
+        os.rename(tmpname, zipname+'.epub')
+        zf = zipfile.ZipFile(zipname+'.epub', 'r')
+        cover_html = """<?xml version='1.0' encoding='utf-8'?>
+    <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+    <head>
+    <meta name="calibre:cover" content="true"/>
+    <title>Cover</title>
+    <style type="text/css" title="override_css">
+    @page {
+        padding: 0pt;
+        margin: 0pt;
+    }
+    body {
+        text-align: center;
+        padding: 0pt;
+        margin: 0pt;
+    }
+    </style>
+    </head>
+    <body>
+    <div><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" width="100%" height="100%" viewBox="0 0 600 800" preserveAspectRatio="none">
+    <image width="600" height="800" xlink:href="###FILE###"/>
+    </svg></div>
+    </body>
+    </html>"""
+        cover_html = cover_html.replace('###FILE###',zipname+'.jpg')
+        with zipfile.ZipFile(zipname+'.epub', mode='a', compression=zipfile.ZIP_DEFLATED) as zf:
+            zf.writestr(filename, cover_html)

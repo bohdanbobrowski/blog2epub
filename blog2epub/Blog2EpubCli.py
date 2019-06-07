@@ -2,20 +2,51 @@
 # -*- coding : utf-8 -*-
 import sys
 
+from blog2epub.Blog2Epub import Blog2Epub
+from blog2epub.crawlers.CrawlerBlogspot import CrawlerBlogspot
+from urllib import parse
+
+
+class CliInterface:
+
+    @staticmethod
+    def print(text):
+        print(text)
+
 
 class Blog2EpubCli(object):
     """
     Command line interface for Blog2Epub class.
     """
 
-    def __init__(self):
-        pass
+    def __init__(self, **defaults):
+        params = self.parseParameters()
+        params = {**defaults, **params}
+        interface = CliInterface()
+        blog2epub = Blog2Epub(params)
+        blog2epub.download(interface)
+
+    def getUrl(self):
+        if len(sys.argv) > 1:
+            if parse.urlparse(sys.argv[1]):
+                return sys.argv[1]
+            raise Exception("Blog url is not valid.")
+        raise Exception("Not enough command line parameters.")
 
     def parseParameters(self):
-        params = {}
-        if len(sys.argv) < 2:
+        params = {
+            'interface': CliInterface()
+        }
+
+        try:
+            params['url'] = self.getUrl()
+        except Exception as e:
+            print(e)
             print("usage: blogspot2epub <blog_name> [params...]")
             exit()
+
+        params['url'] = sys.argv[1]
+
         if '-n' in sys.argv or '--no-images' in sys.argv:
             params['include_images'] = False
         for arg in sys.argv:
@@ -32,10 +63,3 @@ class Blog2EpubCli(object):
             if arg.find('--quality=') == 0:
                 params['images_quality'] = int(arg.replace('--quality=', ''))
         return params
-
-    def main(self):
-        params = self.parseParameters()
-
-        # TODO:
-        crawler = CrawlerBlogspot(**params)
-        crawler.crawl()
