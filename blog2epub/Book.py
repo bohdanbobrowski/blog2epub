@@ -1,7 +1,9 @@
 #!/usr/bin/env python3
 # -*- coding : utf-8 -*-
+from ebooklib import epub
 
 from blog2epub.Cover import Cover
+
 
 class Book(object):
     """
@@ -36,5 +38,15 @@ class Book(object):
         self.cover = Cover()
         self.images = {}
 
-    def main(self):
-        pass
+
+
+class Chapter(object):
+
+    def __init__(self, article, number, language):
+        """
+        :param article: Article class
+        """
+        self.epub = epub.EpubHtml(title=article.title, file_name='chap_' + str(number) + '.xhtml', lang=language)
+        self.epub.content = '<h2>{}</h2>{}<p><i><a href="{}">{}</a></i></p>'.format(article.title, article.date,
+                                                                                    article.url, article.url)
+

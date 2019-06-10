@@ -17,45 +17,11 @@ from os.path import isfile, join
 from BeautifulSoup import BeautifulStoneSoup
 
 
-
-
-
-
-
-
 def HTMLEntitiesToUnicode(text):
     text = unicode(BeautifulStoneSoup(text, convertEntities=BeautifulStoneSoup.ALL_ENTITIES))
     return text
 
 
-START_DATE = False;
-END_DATE = False;
-
-
-table_of_contents = []
-blog_article = ebook_article = 1
-BLOG_URL = 'http://' + sys.argv[1] + '.blogspot.com/'
-images_included = []
-all_image_files = []
-while BLOG_URL != '':
-
-
-
-def translate_month(date, language):
-    if language == 'pl':
-        date = date.replace('stycznia','january')
-        date = date.replace('lutego','february')
-        date = date.replace('marca','march')
-        date = date.replace('kwietnia','april')
-        date = date.replace('maja','may')
-        date = date.replace('czerwca','june')
-        date = date.replace('lipca','july')
-        date = date.replace('sierpnia','august')
-        date = date.replace(u'września','september')
-        date = date.replace(u'października','october')
-        date = date.replace('listopada','november')
-        date = date.replace('grudnia','december')
-    return date
 
 
 # Generate file namespace

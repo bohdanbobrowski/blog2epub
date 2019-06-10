@@ -12,6 +12,25 @@ import pycurl
 from ebooklib import epub
 from PIL import Image
 
+from blog2epub.Book import Chapter
+
+
+def translate_month(date, language):
+    if language == 'pl':
+        date = date.replace('stycznia','january')
+        date = date.replace('lutego','february')
+        date = date.replace('marca','march')
+        date = date.replace('kwietnia','april')
+        date = date.replace('maja','may')
+        date = date.replace('czerwca','june')
+        date = date.replace('lipca','july')
+        date = date.replace('sierpnia','august')
+        date = date.replace('września','september')
+        date = date.replace('października','october')
+        date = date.replace('listopada','november')
+        date = date.replace('grudnia','december')
+    return date
+
 
 class Crawler(object):
     """
@@ -30,12 +49,7 @@ class Crawler(object):
         self.limit = limit
         self.skip = skip
         self.force_download = force_download
-
-        if interface:
-            self.interface = interface
-        else:
-            self.interface = EmptyInterface()
-
+        self.interface = self._get_the_interface(interface)
         self.downloader = CrawlerDownloader()
         self.path = './' + sys.argv[1] + '/'
         self.html_path = self.path + 'html/'
@@ -47,6 +61,12 @@ class Crawler(object):
         self.pages = {}
         self.contents = {}
         self.ebook_article_counter = self.blog_article_counter = 1
+
+    def _get_the_interface(self, interface):
+        if interface:
+            return interface
+        else:
+            return EmptyInterface()
 
     def _prepare_directories(self):
         if not os.path.exists(self.html_path):
@@ -143,10 +163,10 @@ class Crawler(object):
     def get_date(str_date):
         return re.sub('[^\,]*, ', '', str_date)
 
-    def _get_content(self, url, forceDownload=False):
-        filepath = self._get_filepath(url)
-        if forceDownload or not os.path.isfile(filepath):
-            contents = self._file_download(url)
+    def _get_content(self):
+        filepath = self._get_filepath(self.url)
+        if self.force_download or not os.path.isfile(filepath):
+            contents = self._file_download(self.url)
         else:
             contents = self._file_read()
         return contents
@@ -168,20 +188,16 @@ class Crawler(object):
         return re.search("<title>([^>^<]*)</title>", content).group(1).strip().decode('utf-8')
 
     def _get_articles(self, content):
-        return re.findall("<h3 class='post-title entry-title' itemprop='name'>[\s]*<a href='([^']*)'>([^>^<]*)</a>[\s]*</h3>",
+        """
+        :param content: web page content
+        :return: list of Article class objects
+        """
+        articles_list = re.findall("<h3 class='post-title entry-title' itemprop='name'>[\s]*<a href='([^']*)'>([^>^<]*)</a>[\s]*</h3>",
                           content)
-
-    def _get_article_title(self, article, content=None):
-        return html.unescape(art[1].strip().decode('utf-8'))
-
-    def _get_article_date(self, article, content):
-        pass
-
-    def _get_article_content(self, article, content):
-        pass
-
-    def _get_article_comments(self, article, content):
-        pass
+        output = []
+        for art in articles_list:
+            output.append(Article(art[0], art[1], self._get_content))
+        return output
 
     def _get_url_to_crawl(self, content):
         url_to_crawl = None
@@ -193,34 +209,19 @@ class Crawler(object):
     def _articles_loop(self, articles):
         for art in articles:
             if self.skip == False or self.blog_article_counter > self.skip:
-                content = self.download_web_page(art[0])
-                art_tree = html.fromstring(content)
-
-                art_title = self._get_article_title(art, content)
-                self.interface.print(str(self.ebook_article_counter) + '. ' + art_title)
-
-                art_date = art_tree.xpath('//h2[@class="date-header"]/span/text()')
-
-                if START_DATE == False:
-                    START_DATE = get_date(art_date[0])
-                END_DATE = get_date(art_date[0])
+                art.download()
+                art.process()
+                self.interface.print(str(self.ebook_article_counter) + '. ' + art.title)
+                if self.start == False:
+                    self.start = art.date
+                self.end = art_date
                 if len(art_date) == 1:
                     art_date = '<p><strong>' + art_date[0] + '</strong></p>'
-                art_comments_h = art_tree.xpath('//div[@id="comments"]/h4/text()')
-                art_comments = ''
-                if len(art_comments_h) == 1:
-                    art_comments = '<hr/><h4>' + art_comments_h[0] + '</h4>'
-                art_comments_c = art_tree.xpath('//div[@class="comment-block"]//text()')
-                tag = u'h3';
-                for acc in art_comments_c:
-                    acc = acc.strip()
-                    if acc != u'Odpowiedz' and acc != u'Usuń':
-                        art_comments = art_comments + u'<' + tag + u'>' + acc + u'</' + tag + u'>'
-                        if tag == u'h3': tag = u'p'
-                    if acc == u'Usuń': tag = u'h3'
-                c = epub.EpubHtml(title=art_title, file_name='chap_' + str(ebook_article) + '.xhtml', lang='pl')
-                # Post title:
-                c.content = u'<h2>' + art_title + u'</h2>' + art_date + u'<p><i>' + art[0] + u'</i></p>'
+
+                chapter = Chapter(art, self.ebook_article_counter, self.language)
+                self.book.add_item(chapter)
+                self.book.spine.append(chapter)
+
                 # Images:
                 image_files = []
                 images = re.findall(
@@ -323,11 +324,9 @@ class Crawler(object):
                                                                   '<em>Image not found<em>')
                     c.content = c.content + art_content
                 c.content = c.content + art_comments
-                self.book.add_item(c)
-                self.book.spine.append(c)
+
                 self.table_of_contents.append(c)
                 self.ebook_article += 1
-
                 self._check_limit()
                 self.images = image_files + self.images
             self.blog_article += 1
@@ -335,7 +334,6 @@ class Crawler(object):
     def _check_limit(self):
         if self.limit and self.ebook_article > self.limit:
             self.url_to_crawl = None
-            break
 
     def crawl(self):
         self.url_to_crawl = self.url
@@ -355,10 +353,55 @@ class Crawler(object):
 
 
 class Article:
+    """
+    Blog post, article which became book chapter...
+    """
 
-    def __init__(self, title, url):
+    def __init__(self, title, url, download):
         self.title = title
         self.url = url
+        self.download = download
+        self.comments = []
+        self.date = self.content = self.tree = None
+
+    def _get_title(self):
+        return html.unescape(self.title.strip().decode('utf-8'))
+
+    def _get_date(self):
+        return self.tree.xpath('//h2[@class="date-header"]/span/text()')[0]
+
+    def _get_content(self):
+        """
+        :param article: Article class
+        :return:
+        """
+        return ""
+
+    def _get_comments(self):
+        """
+        :param article: Article class
+        :return:
+        """
+        headers = self.tree.xpath('//div[@id="comments"]/h4/text()')
+        comments = ''
+        if len(headers) == 1:
+            art_comments = '<hr/><h4>' + headers[0] + '</h4>'
+        art_comments_c = self.tree.xpath('//div[@class="comment-block"]//text()')
+        tag = 'h3';
+        for acc in art_comments_c:
+            acc = acc.strip()
+            if acc != 'Odpowiedz' and acc != 'Usuń':
+                art_comments = art_comments + '<' + tag + '>' + acc + '</' + tag + '>'
+                if tag == 'h3': tag = 'p'
+            if acc == 'Usuń': tag = 'h3'
+        return comments
+
+    def process(self):
+        self.tree = html.fromstring(self.content)
+        self.title = self._get_title()
+        self.date = self._get_date()
+        self.content = self._get_content()
+        self.comments = self._get_comments()
 
 
 class CrawlerDownloader:
@@ -371,6 +414,9 @@ class CrawlerDownloader:
 
 
 class EmptyInterface:
+    """
+    Emty interface for script output.
+    """
 
     def print(self):
         pass
