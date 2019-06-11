@@ -44,18 +44,13 @@ class Book(object):
         self.cover = Cover(name, title, images)
         self.language = language
         self.chapters = chapters
+        self.table_of_contents = []
+        self.book = None
 
     def addChapter(self, article, language):
         number = len(self.chapters) + 1
         self.end = article.date
         self.chapters.append(Chapter(article, number, language))
-
-    def create(self):
-        self.book = epub.EpubBook()
-        for chapter in self.chapters:
-            self.book.add_item(chapter.epub)
-            self.book.spine.append(chapter.epub)
-            self.book.table_of_contents.append(chapter.epub)
 
     def get_cover_title(self):
         cover_title = self.title + ' '
@@ -74,7 +69,8 @@ class Book(object):
         return cover_title
 
     def _get_book_title(self):
-        book.set_title(get_cover_title(title, START_DATE, END_DATE))
+        # TODO
+        self.book.set_title(get_cover_title(title, START_DATE, END_DATE))
         try:
             start_date_obj = datetime.strptime(translate_month(START_DATE,BLOG_LANGUAGE), '%d %B %Y')
             end_date_obj = datetime.strptime(translate_month(END_DATE,BLOG_LANGUAGE), '%d %B %Y')
@@ -85,45 +81,56 @@ class Book(object):
         except:
             pass
 
-# Add cover - if file exist
-book.spine.append('nav')
-generate_cover(book_file_name, all_image_files)
-book.set_cover(book_file_name + '.jpg', open(book_file_name + '.jpg', 'rb').read())
-book.spine.append('cover')
-book.spine.reverse()
-# os.remove(book_file_name + '.jpg')
+    def _add_cover(self):
+        # TODO
+        # Add cover - if file exist
+        book.spine.append('nav')
+        generate_cover(book_file_name, all_image_files)
+        book.set_cover(book_file_name + '.jpg', open(book_file_name + '.jpg', 'rb').read())
+        book.spine.append('cover')
+        book.spine.reverse()
+        # os.remove(book_file_name + '.jpg')
 
-# Add table of contents
-table_of_contents.reverse()
-book.toc = table_of_contents
+    def _add_table_of_contents(self):
+        # TODO
+        # Add table of contents
+        self.table_of_contents.reverse()
+        self.book.toc = self.table_of_contents
+        # Add default NCX and Nav file
+        self.book.add_item(epub.EpubNcx())
+        self.book.add_item(epub.EpubNav())
 
-# Add default NCX and Nav file
-book.add_item(epub.EpubNcx())
-book.add_item(epub.EpubNav())
+    def _add_epub_css(self):
+        # Add css file
+        nav_css = epub.EpubItem(uid="style_nav", file_name="style/nav.css", media_type="text/css", content=self.style)
+        self.book.add_item(nav_css)
 
-# Add css file
-nav_css = epub.EpubItem(uid="style_nav", file_name="style/nav.css", media_type="text/css", content=style)
-book.add_item(nav_css)
+    def _include_images(self):
+        # Add images do epub file_name
+        if INCLUDE_IMAGES:
+            try:
+                converted_images = [f for f in listdir(images_path) if isfile(join(images_path, f))]
+            except NameError:
+                converted_images = []
+            for i, image in enumerate(converted_images):
+                if image in images_included:
+                    image_cont = None
+                    with open(images_path + image, 'r') as content_file:
+                        image_cont = content_file.read()
+                    epub_img = epub.EpubItem(uid="img" + str(i), file_name="images/" + image, media_type="image/jpeg",
+                                             content=image_cont)
+                    book.add_item(epub_img)
 
-# Add images do epub file_name
-if INCLUDE_IMAGES:
-    try:
-        converted_images = [f for f in listdir(images_path) if isfile(join(images_path, f))]
-    except NameError:
-        converted_images = []
-    for i, image in enumerate(converted_images):
-        if image in images_included:
-            image_cont = None
-            with open(images_path + image, 'r') as content_file:
-                image_cont = content_file.read()
-            epub_img = epub.EpubItem(uid="img" + str(i), file_name="images/" + image, media_type="image/jpeg",
-                                     content=image_cont)
-            book.add_item(epub_img)
-
-# Save damn ebook
-epub.write_epub(book_file_name + '.epub', book, {})
-fix_cover(book_file_name)
-
+    def save(self):
+        self.book = epub.EpubBook()
+        for chapter in self.chapters:
+            self.book.add_item(chapter.epub)
+            self.book.spine.append(chapter.epub)
+            self.table_of_contents.append(chapter.epub)
+        self._add_table_of_contents()
+        self._add_epub_css()
+        epub.write_epub(self.name + '.epub', self.book, {})
+        # fix_cover(book_file_name)
 
 class Chapter(object):
 

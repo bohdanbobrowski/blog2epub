@@ -193,12 +193,12 @@ class Crawler(object):
             if self.book is None:
                 self.language = self._get_blog_language(content)
                 self.title = self._get_blog_title(content)
-                self.book = Book(self.name, self.title, self.start, self.end, self.language)
+                self.book = Book(self.name, self.title, self.url, self.start, self.end, self.language)
             self._articles_loop(articles)
             self.url_to_crawl = self._get_url_to_crawl(content)
 
     def save(self):
-        pass
+        self.book.save()
 
 
 class Dirs(object):
