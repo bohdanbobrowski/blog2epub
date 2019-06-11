@@ -2,11 +2,11 @@
 # -*- coding : utf-8 -*-
 
 import hashlib
-import html
+from xml.etree import ElementTree as etree
 import os
 import re
 import sys
-from urllib import request
+from urllib.request import urlopen
 from xml import etree
 
 from ebooklib import epub
@@ -39,9 +39,11 @@ class Crawler(object):
 
     def __init__(self, url, include_images=True, images_height=800, images_width=600, images_quality=40, start=None,
                  end=None, limit=False, skip=False, force_download=False, interface=None):
+
         self.url = url
-        r = request.get('http://' + url)
-        self.url_full = r.url
+        r = urlopen('http://' + url)
+        self.url_full = r.geturl()
+
         self.include_images = include_images
         self.images_quality = images_quality
         self.images_height = images_height
@@ -92,7 +94,7 @@ class Crawler(object):
 
     def _file_download(self, url, filepath):
         self.dirs._prepare_directories()
-        response = request.urlopen('https://' + url)
+        response = urlopen(url)
         data = response.read()
         contents = data.decode('utf-8')
         self._file_write(contents, filepath)
@@ -164,7 +166,7 @@ class Crawler(object):
     def _articles_loop(self, articles):
         for art in articles:
             if self.skip == False or self.blog_article_counter > self.skip:
-                art.download()
+                art.download(art.url)
                 art.process()
                 self.interface.print(str(self.ebook_article_counter) + '. ' + art.title)
                 if self.start == False:
@@ -185,7 +187,7 @@ class Crawler(object):
             self.url_to_crawl = None
 
     def crawl(self):
-        self.url_to_crawl = self.url
+        self.url_to_crawl = self.url_full
         while self.url_to_crawl:
             content = self._get_content(self.url_to_crawl)
             articles = self._get_articles(content)
@@ -225,9 +227,9 @@ class Article:
     Blog post, article which became book chapter...
     """
 
-    def __init__(self, title, url, download, dirs, interface, include_images=True):
-        self.title = title
+    def __init__(self, url, title, download, dirs, interface, include_images=True):
         self.url = url
+        self.title = title
         self.download = download
         self.interface = interface
         self.dirs = dirs
@@ -242,7 +244,7 @@ class Article:
         self.tree = None
 
     def _get_title(self):
-        self.title = html.unescape(self.title.strip().decode('utf-8'))
+        self.title = etree.unescape(self.title.strip().decode('utf-8'))
 
     def _get_date(self):
         self.date = self.tree.xpath('//h2[@class="date-header"]/span/text()')[0]
@@ -253,7 +255,7 @@ class Article:
             picture_url = "http:" + picture_url
         if not os.path.isfile(original_picture):
             try:
-                u = request.urlopen(picture_url)
+                u = urlopen(picture_url)
                 f = open(original_picture, 'wb')
                 block_sz = 8192
                 while True:
@@ -334,7 +336,7 @@ class Article:
             self.content = re.sub('class="[^"]*"', '', self.content)
 
     def _get_tree(self):
-        self.tree = html.fromstring(self.html)
+        self.tree = etree.fromstring(self.html)
 
     def _get_comments(self):
         """
