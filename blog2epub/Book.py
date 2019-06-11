@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding : utf-8 -*-
-from ebooklib import epub
 
+from ebooklib import epub
 from blog2epub.Cover import Cover
 
 
@@ -37,7 +37,19 @@ class Book(object):
     def __init__(self):
         self.cover = Cover()
         self.images = {}
+        self.chapters = []
 
+
+    def addChapter(self, article, language):
+        number = len(self.chapters) + 1
+        self.chappters.append(Chapter(article, number, language))
+
+    def create(self):
+        self.book = epub.EpubBook()
+        for chapter in self.chapters:
+            self.book.add_item(chapter.epub)
+            self.book.spine.append(chapter.epub)
+            self.book.table_of_contents.append(chapter.epub)
 
 
 class Chapter(object):

@@ -7,13 +7,10 @@ import os
 import re
 import sys
 from urllib.request import urlopen
-from xml import etree
 from lxml.html.soupparser import fromstring
-
-from ebooklib import epub
 from PIL import Image
 
-from blog2epub.Book import Chapter
+from blog2epub.Book import Book
 
 
 def translate_month(date, language):
@@ -57,14 +54,14 @@ class Crawler(object):
         self.interface = self._get_the_interface(interface)
         self.dirs = Dirs(self.url)
         self.downloader = CrawlerDownloader()
-        self.book = epub.EpubBook()
+        self.book = Book
         self.title = None
         self.url_to_crawl = None
         self.language = 'en'
         self.images = {}
         self.pages = {}
         self.contents = {}
-        self.ebook_article_counter = self.blog_article_counter = 1
+        self.article_counter = 1
 
     def _get_the_interface(self, interface):
         if interface:
@@ -166,7 +163,7 @@ class Crawler(object):
 
     def _articles_loop(self, articles):
         for art in articles:
-            if self.skip == False or self.blog_article_counter > self.skip:
+            if self.skip == False or self.article_counter > self.skip:
                 art.download(art.url)
                 art.process()
                 self.interface.print(str(self.ebook_article_counter) + '. ' + art.title)
@@ -175,11 +172,7 @@ class Crawler(object):
                 self.end = art.date
                 if len(art.date) == 1:
                     art_date = '<p><strong>' + art_date[0] + '</strong></p>'
-                chapter = Chapter(art, self.ebook_article_counter, self.language)
-                self.book.add_item(chapter.epub)
-                self.book.spine.append(chapter.epub)
-                self.table_of_contents.append(chapter.epub)
-                self.ebook_article_counter += 1
+                self.book.addChapter(art, self.language)
                 self._check_limit()
             self.blog_article += 1
 
@@ -192,7 +185,7 @@ class Crawler(object):
         while self.url_to_crawl:
             content = self._get_content(self.url_to_crawl)
             articles = self._get_articles(content)
-            if self.ebook_article_counter == 1:
+            if len(self.book.chapters) == 0:
                 self.language = self._get_blog_language(content)
                 self.title = self._get_blog_title(content)
                 self.book.set_language(self.language)
