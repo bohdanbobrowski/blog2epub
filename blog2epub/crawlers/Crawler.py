@@ -41,7 +41,7 @@ class Crawler(object):
         self.url = self._prepare_url(url)
         self.url_to_crawl = self._prepare_url_to_crawl(self.url)
         self.name = self._prepare_name(self.url)
-
+        self.title = None
         self.include_images = include_images
         self.images_quality = images_quality
         self.images_height = images_height
@@ -53,10 +53,8 @@ class Crawler(object):
         self.force_download = force_download
         self.interface = self._get_the_interface(interface)
         self.dirs = Dirs(self.url)
-        self.downloader = CrawlerDownloader()
-        self.book = Book
+        self.book = None
         self.title = None
-
         self.language = 'en'
         self.images = {}
         self.pages = {}
@@ -66,7 +64,7 @@ class Crawler(object):
     def _prepare_url(self, url):
         return url.replace('http:', '').replace('https:', '').strip('/')
 
-    def _prepeare_name(self, url):
+    def _prepare_name(self, url):
         return url.replace('/', '_')
 
     def _prepare_url_to_crawl(self, url):
@@ -176,7 +174,7 @@ class Crawler(object):
             if self.skip == False or self.article_counter > self.skip:
                 art.download(art.url)
                 art.process()
-                self.interface.print(str(self.ebook_article_counter) + '. ' + art.title)
+                self.interface.print(str(len(self.book.chapters)) + '. ' + art.title)
                 if self.start == False:
                     self.start = art.date
                 self.end = art.date
@@ -184,7 +182,7 @@ class Crawler(object):
                     art_date = '<p><strong>' + art_date[0] + '</strong></p>'
                 self.book.addChapter(art, self.language)
                 self._check_limit()
-            self.blog_article += 1
+            self.article_counter += 1
 
     def _check_limit(self):
         if self.limit and self.ebook_article > self.limit:
@@ -194,11 +192,10 @@ class Crawler(object):
         while self.url_to_crawl:
             content = self._get_content(self.url_to_crawl)
             articles = self._get_articles(content)
-            if len(self.book.chapters) == 0:
+            if self.book is None:
                 self.language = self._get_blog_language(content)
                 self.title = self._get_blog_title(content)
-                self.book.set_language(self.language)
-                self.book.add_author(self.title + ', ' + self.url)
+                self.book = Book(self.name, self.title, self.url, self.language)
             self._articles_loop(articles)
             self.url_to_crawl = self._get_url_to_crawl(content)
 
@@ -368,15 +365,6 @@ class Article:
         self._get_date()
         self._get_content()
         self._get_comments()
-
-
-class CrawlerDownloader:
-
-    def __init__(self):
-        self.contents = ''
-
-    def body_callback(self, buf):
-        self.contents = self.contents + str(buf)
 
 
 class EmptyInterface:

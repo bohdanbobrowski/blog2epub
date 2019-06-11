@@ -34,17 +34,17 @@ class Book(object):
     }
     '''
 
-    def __init__(self, name, title, images=[], chapters=[]):
+    def __init__(self, name: str, title: str, language: str, images: list = [], chapters: list = []) -> object:
         self.name = name
         self.title = title
         self.images = images
         self.cover = Cover(name, title, images)
+        self.language = language
         self.chapters = chapters
-
 
     def addChapter(self, article, language):
         number = len(self.chapters) + 1
-        self.chappters.append(Chapter(article, number, language))
+        self.chapters.append(Chapter(article, number, language))
 
     def create(self):
         self.book = epub.EpubBook()
