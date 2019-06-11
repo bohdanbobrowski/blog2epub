@@ -3,11 +3,11 @@
 import sys
 
 from blog2epub.Blog2Epub import Blog2Epub
-from blog2epub.crawlers.CrawlerBlogspot import CrawlerBlogspot
+from blog2epub.crawlers.Crawler import EmptyInterface
 from urllib import parse
 
 
-class CliInterface:
+class CliInterface(EmptyInterface):
 
     @staticmethod
     def print(text):

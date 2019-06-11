@@ -6,10 +6,9 @@ import html
 import os
 import re
 import sys
-from urllib.request import urlopen
+from urllib import request
 from xml import etree
 
-import pycurl
 from ebooklib import epub
 from PIL import Image
 
@@ -41,6 +40,8 @@ class Crawler(object):
     def __init__(self, url, include_images=True, images_height=800, images_width=600, images_quality=40, start=None,
                  end=None, limit=False, skip=False, force_download=False, interface=None):
         self.url = url
+        r = request.get('http://' + url)
+        self.url_full = r.url
         self.include_images = include_images
         self.images_quality = images_quality
         self.images_height = images_height
@@ -91,23 +92,10 @@ class Crawler(object):
 
     def _file_download(self, url, filepath):
         self.dirs._prepare_directories()
-        try:
-            c = pycurl.Curl()
-            c.setopt(c.URL, url)
-            c.setopt(c.WRITEFUNCTION, self.downloader.body_callback)
-            c.setopt(c.HEADER, 1);
-            c.setopt(c.FOLLOWLOCATION, 1)
-            c.setopt(c.COOKIEFILE, '')
-            c.setopt(c.CONNECTTIMEOUT, 30)
-            c.setopt(c.TIMEOUT, 30)
-            c.setopt(c.COOKIEFILE, '')
-            c.perform()
-        except Exception as err:
-            self.interface.print(err)
-            exit()
-        else:
-            contents = self.downloader.contents
-            self._file_write(contents, filepath)
+        response = request.urlopen('https://' + url)
+        data = response.read()
+        contents = data.decode('utf-8')
+        self._file_write(contents, filepath)
         return contents
 
     def get_cover_title(self):
@@ -214,6 +202,9 @@ class Crawler(object):
 
 
 class Dirs(object):
+    """
+    Tiny class to temporary directories configurations.
+    """
 
     def _prepare_directories(self):
         paths = [self.html, self.images, self.originals]
@@ -262,7 +253,7 @@ class Article:
             picture_url = "http:" + picture_url
         if not os.path.isfile(original_picture):
             try:
-                u = urlopen(picture_url)
+                u = request.urlopen(picture_url)
                 f = open(original_picture, 'wb')
                 block_sz = 8192
                 while True:
@@ -387,5 +378,10 @@ class EmptyInterface:
     Emty interface for script output.
     """
 
+    @staticmethod
     def print(self):
+        pass
+
+    @staticmethod
+    def exception(e):
         pass
