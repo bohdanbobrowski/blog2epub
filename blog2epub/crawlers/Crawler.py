@@ -2,12 +2,13 @@
 # -*- coding : utf-8 -*-
 
 import hashlib
-from xml.etree import ElementTree as etree
+import xml.etree.ElementTree as ET
 import os
 import re
 import sys
 from urllib.request import urlopen
 from xml import etree
+from lxml.html.soupparser import fromstring
 
 from ebooklib import epub
 from PIL import Image
@@ -171,13 +172,13 @@ class Crawler(object):
                 self.interface.print(str(self.ebook_article_counter) + '. ' + art.title)
                 if self.start == False:
                     self.start = art.date
-                self.end = art_date
-                if len(art_date) == 1:
+                self.end = art.date
+                if len(art.date) == 1:
                     art_date = '<p><strong>' + art_date[0] + '</strong></p>'
                 chapter = Chapter(art, self.ebook_article_counter, self.language)
-                self.book.add_item(chapter)
-                self.book.spine.append(chapter)
-                self.table_of_contents.append(chapter)
+                self.book.add_item(chapter.epub)
+                self.book.spine.append(chapter.epub)
+                self.table_of_contents.append(chapter.epub)
                 self.ebook_article_counter += 1
                 self._check_limit()
             self.blog_article += 1
@@ -244,7 +245,7 @@ class Article:
         self.tree = None
 
     def _get_title(self):
-        self.title = etree.unescape(self.title.strip().decode('utf-8'))
+        self.title = self.title.strip()
 
     def _get_date(self):
         self.date = self.tree.xpath('//h2[@class="date-header"]/span/text()')[0]
@@ -331,12 +332,13 @@ class Article:
     def _get_content(self):
         self.content = self.tree.xpath("//div[contains(concat(' ',normalize-space(@class),' '),'post-body')]")
         if len(self.content) == 1:
-            self.content = etree.tostring(self.content[0], pretty_print=True)
-            self.content = re.sub('style="[^"]*"', '', self.content)
+            self.content = self.content[0]
+            self.content = ET.tostring(self.content)
+            self.content = re.sub('style="[^"]*"', '', self.content.decode("utf-8"))
             self.content = re.sub('class="[^"]*"', '', self.content)
 
     def _get_tree(self):
-        self.tree = etree.fromstring(self.html)
+        self.tree = fromstring(self.html)
 
     def _get_comments(self):
         """
