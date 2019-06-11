@@ -53,6 +53,7 @@ class Crawler(object):
         self.downloader = CrawlerDownloader()
         self.path = './' + sys.argv[1] + '/'
         self.html_path = self.path + 'html/'
+        self.images_path = self.path + 'images/'
         self.book = epub.EpubBook()
         self.title = None
         self.url_to_crawl = None
@@ -71,11 +72,13 @@ class Crawler(object):
     def _prepare_directories(self):
         if not os.path.exists(self.html_path):
             os.makedirs(self.html_path)
+        if not os.path.exists(self.images_path):
+            os.makedirs(self.images_path)
 
     @staticmethod
     def _get_urlhash(url):
         m = hashlib.md5()
-        m.update(url)
+        m.update(url.encode('utf-8'))
         return m.hexdigest()
 
     def _get_filepath(self, url):
@@ -93,7 +96,7 @@ class Crawler(object):
             contents = html_file.read()
         return contents
 
-    def _file_download(self, url):
+    def _file_download(self, url, filepath):
         try:
             c = pycurl.Curl()
             c.setopt(c.URL, url)
@@ -110,7 +113,7 @@ class Crawler(object):
             exit()
         else:
             contents = self.downloader.contents
-            self._file_write(contents)
+            self._file_write(contents, filepath)
         return contents
 
     def _image_download(self, picture_url, original_picture, target_picture, urllib2=None):
@@ -163,12 +166,12 @@ class Crawler(object):
     def get_date(str_date):
         return re.sub('[^\,]*, ', '', str_date)
 
-    def _get_content(self):
-        filepath = self._get_filepath(self.url)
+    def _get_content(self, url):
+        filepath = self._get_filepath(url)
         if self.force_download or not os.path.isfile(filepath):
-            contents = self._file_download(self.url)
+            contents = self._file_download(url,filepath)
         else:
-            contents = self._file_read()
+            contents = self._file_read(filepath)
         return contents
 
     def _get_blog_language(self, content):
@@ -338,7 +341,7 @@ class Crawler(object):
     def crawl(self):
         self.url_to_crawl = self.url
         while self.url_to_crawl:
-            content = self.download_web_page(self.url_to_crawl, True)
+            content = self._get_content(self.url_to_crawl)
             articles = self._get_articles(content)
             if self.ebook_article_counter == 1:
                 self.language = self._get_blog_language(content)
@@ -410,7 +413,7 @@ class CrawlerDownloader:
         self.contents = ''
 
     def body_callback(self, buf):
-        self.contents = self.contents + buf
+        self.contents = self.contents + str(buf)
 
 
 class EmptyInterface:

@@ -22,9 +22,9 @@ class Blog2EpubCli(object):
     def __init__(self, **defaults):
         params = self.parseParameters()
         params = {**defaults, **params}
-        interface = CliInterface()
+        params['interface'] = CliInterface()
         blog2epub = Blog2Epub(params)
-        blog2epub.download(interface)
+        blog2epub.download()
 
     def getUrl(self):
         if len(sys.argv) > 1:
