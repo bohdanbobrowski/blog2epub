@@ -2,12 +2,12 @@
 # -*- coding : utf-8 -*-
 
 import hashlib
-import xml.etree.ElementTree as ET
 import os
 import re
 import sys
 from urllib.request import urlopen
 from lxml.html.soupparser import fromstring
+from lxml.ElementInclude import etree
 from PIL import Image
 
 from blog2epub.Book import Book
@@ -174,12 +174,10 @@ class Crawler(object):
             if self.skip == False or self.article_counter > self.skip:
                 art.download(art.url)
                 art.process()
-                self.interface.print(str(len(self.book.chapters)) + '. ' + art.title)
+                self.interface.print(str(len(self.book.chapters) + 1) + '. ' + art.title)
                 if self.start == False:
                     self.start = art.date
                 self.end = art.date
-                if len(art.date) == 1:
-                    art_date = '<p><strong>' + art_date[0] + '</strong></p>'
                 self.book.addChapter(art, self.language)
                 self._check_limit()
             self.article_counter += 1
@@ -195,7 +193,7 @@ class Crawler(object):
             if self.book is None:
                 self.language = self._get_blog_language(content)
                 self.title = self._get_blog_title(content)
-                self.book = Book(self.name, self.title, self.url, self.language)
+                self.book = Book(self.name, self.title, self.start, self.end, self.language)
             self._articles_loop(articles)
             self.url_to_crawl = self._get_url_to_crawl(content)
 
@@ -332,7 +330,7 @@ class Article:
         self.content = self.tree.xpath("//div[contains(concat(' ',normalize-space(@class),' '),'post-body')]")
         if len(self.content) == 1:
             self.content = self.content[0]
-            self.content = ET.tostring(self.content)
+            self.content = etree.tostring(self.content)
             self.content = re.sub('style="[^"]*"', '', self.content.decode("utf-8"))
             self.content = re.sub('class="[^"]*"', '', self.content)
 
