@@ -6,6 +6,7 @@ import html
 import os
 import re
 import sys
+from urllib.request import urlopen
 from xml import etree
 
 import pycurl
@@ -50,10 +51,8 @@ class Crawler(object):
         self.skip = skip
         self.force_download = force_download
         self.interface = self._get_the_interface(interface)
+        self.dirs = Dirs(self.url)
         self.downloader = CrawlerDownloader()
-        self.path = './' + sys.argv[1] + '/'
-        self.html_path = self.path + 'html/'
-        self.images_path = self.path + 'images/'
         self.book = epub.EpubBook()
         self.title = None
         self.url_to_crawl = None
@@ -69,12 +68,6 @@ class Crawler(object):
         else:
             return EmptyInterface()
 
-    def _prepare_directories(self):
-        if not os.path.exists(self.html_path):
-            os.makedirs(self.html_path)
-        if not os.path.exists(self.images_path):
-            os.makedirs(self.images_path)
-
     @staticmethod
     def _get_urlhash(url):
         m = hashlib.md5()
@@ -82,7 +75,7 @@ class Crawler(object):
         return m.hexdigest()
 
     def _get_filepath(self, url):
-        return self.html_path + self._get_urlhash(url) + '.html'
+        return self.dirs.html + self._get_urlhash(url) + '.html'
 
     @staticmethod
     def _file_write(contents, filepath):
@@ -97,6 +90,7 @@ class Crawler(object):
         return contents
 
     def _file_download(self, url, filepath):
+        self.dirs._prepare_directories()
         try:
             c = pycurl.Curl()
             c.setopt(c.URL, url)
@@ -115,36 +109,6 @@ class Crawler(object):
             contents = self.downloader.contents
             self._file_write(contents, filepath)
         return contents
-
-    def _image_download(self, picture_url, original_picture, target_picture, urllib2=None):
-        result = False
-        if picture_url.startswith("//"):
-            picture_url = "http:" + picture_url
-        if not os.path.isfile(original_picture):
-            try:
-                u = urllib2.urlopen(picture_url)
-                f = open(original_picture, 'wb')
-                block_sz = 8192
-                while True:
-                    buffer = u.read(block_sz)
-                    if not buffer:
-                        break
-                    f.write(buffer)
-                f.close()
-            except Exception as e:
-                self.interface.print(e)
-        if self.include_images and not os.path.isfile(target_picture) and os.path.isfile(original_picture):
-            try:
-                picture = Image.open(original_picture)
-                if picture.size[0] > self.images_width or picture.size[1] > self.images_height:
-                    picture.thumbnail([self.images_width, self.images_height], Image.ANTIALIAS)
-                picture = picture.convert('L')
-                picture.save(target_picture, format='JPEG', quality=self.images_quality)
-            except Exception as e:
-                self.interface.print(e)
-        if os.path.isfile(target_picture):
-            result = True
-        return result
 
     def get_cover_title(self):
         cover_title = self.title + ' '
@@ -169,7 +133,7 @@ class Crawler(object):
     def _get_content(self, url):
         filepath = self._get_filepath(url)
         if self.force_download or not os.path.isfile(filepath):
-            contents = self._file_download(url,filepath)
+            contents = self._file_download(url, filepath)
         else:
             contents = self._file_read(filepath)
         return contents
@@ -177,9 +141,9 @@ class Crawler(object):
     def _get_blog_language(self, content):
         language = self.language;
         if re.search("'lang':[\s]*'([a-z^']+)'", content):
-            language = re.search("'lang':[\s]*'([a-z^']+)'", content).group(1).strip().decode('utf-8')
+            language = re.search("'lang':[\s]*'([a-z^']+)'", content).group(1).strip()
         if re.search('lang="([a-z^"]+)"', content):
-            language = re.search('lang="([a-z^"]+)"', content).group(1).strip().decode('utf-8')
+            language = re.search('lang="([a-z^"]+)"', content).group(1).strip()
         for arg in sys.argv:
             if arg.find('-ln=') == 0:
                 language = arg.replace('-ln=', '')
@@ -188,7 +152,7 @@ class Crawler(object):
         return language
 
     def _get_blog_title(self, content):
-        return re.search("<title>([^>^<]*)</title>", content).group(1).strip().decode('utf-8')
+        return re.search("<title>([^>^<]*)</title>", content).group(1).strip()
 
     def _get_articles(self, content):
         """
@@ -199,7 +163,7 @@ class Crawler(object):
                           content)
         output = []
         for art in articles_list:
-            output.append(Article(art[0], art[1], self._get_content))
+            output.append(Article(art[0], art[1], self._get_content, self.dirs, self.interface))
         return output
 
     def _get_url_to_crawl(self, content):
@@ -220,118 +184,12 @@ class Crawler(object):
                 self.end = art_date
                 if len(art_date) == 1:
                     art_date = '<p><strong>' + art_date[0] + '</strong></p>'
-
                 chapter = Chapter(art, self.ebook_article_counter, self.language)
                 self.book.add_item(chapter)
                 self.book.spine.append(chapter)
-
-                # Images:
-                image_files = []
-                images = re.findall(
-                    '<table[^>]*><tbody>[\s]*<tr><td[^>]*><a href="([^"]*)"[^>]*><img[^>]*></a></td></tr>[\s]*<tr><td class="tr-caption" style="[^"]*">([^<]*)',
-                    art_html)
-                if len(images) > 0:
-                    for image in images:
-                        image_url = image[0]
-                        originals_path = "./" + sys.argv[1] + "/originals/"
-                        if not os.path.exists(originals_path):
-                            os.makedirs(originals_path)
-                        images_path = "./" + sys.argv[1] + "/images/"
-                        if not os.path.exists(images_path):
-                            os.makedirs(images_path)
-                        m = hashlib.md5()
-                        m.update(image_url)
-                        image_hash = m.hexdigest()
-                        images_included.append(image_hash + ".jpg")
-                        image_file_name = originals_path + image_hash + ".jpg"
-                        image_file_name_dest = images_path + image_hash + ".jpg"
-                        image_regex = '<table[^>]*><tbody>[\s]*<tr><td[^>]*><a href="' + image[
-                            0] + '"[^>]*><img[^>]*></a></td></tr>[\s]*<tr><td class="tr-caption" style="[^"]*">[^<]*</td></tr>[\s]*</tbody></table>'
-                        try:
-                            art_html = re.sub(image_regex, ' #blogspot2epubimage#' + image_hash + '# ', art_html)
-                        except Exception as e:
-                            self.interface.print(e)
-                        if download_image(image[0], image_file_name, image_file_name_dest):
-                            image_files.append(image_file_name)
-                art_tree = html.fromstring(art_html)
-                images_nocaption = art_tree.xpath('//a[@imageanchor="1"]')
-                if len(images_nocaption) > 0:
-                    for image in images_nocaption:
-                        image = etree.tostring(image)
-                        image_href = re.findall('href="([^"]*)"', image)
-                        image_src = re.findall('src="([^"]*)"', image)
-                        if INCLUDE_IMAGES:
-                            originals_path = "./" + sys.argv[1] + "/originals/"
-                            if not os.path.exists(originals_path):
-                                os.makedirs(originals_path)
-                            images_path = "./" + sys.argv[1] + "/images/"
-                            if not os.path.exists(images_path):
-                                os.makedirs(images_path)
-                            image_url = '';
-                            if len(image_href) > 0:
-                                image_url = image_href[0]
-                                image_regex = '<a href="' + image_url + '"[^>]*><img[^>]*></a>'
-                            if len(image_src) > 0:
-                                image_url = image_src[0]
-                                image_regex = '<img[?=\sa-z\"0-9]*src="' + image_url + '"[^>]+>'
-                            if len(image_url) > 0:
-                                m = hashlib.md5()
-                                m.update(image_url)
-                                image_hash = m.hexdigest()
-                                images_included.append(image_hash + ".jpg")
-                                try:
-                                    art_html = re.sub(image_regex, ' #blogspot2epubimage#' + image_hash + '# ',
-                                                      art_html)
-                                    image_file_name = originals_path + image_hash + ".jpg"
-                                    image_file_name_dest = images_path + image_hash + ".jpg"
-                                    if download_image(image_url, image_file_name, image_file_name_dest):
-                                        image_files.append(image_file_name)
-                                except Exception as err:
-                                    self.interface.print(err)
-                        else:
-                            art_html = art_html.replace(image, '')
-                # Post content:
-                art_tree = html.fromstring(art_html)
-                art_content = art_tree.xpath("//div[contains(concat(' ',normalize-space(@class),' '),'post-body')]")
-                if len(art_content) == 1:
-                    art_content = etree.tostring(art_content[0], pretty_print=True)
-                    art_content = re.sub('style="[^"]*"', '', art_content)
-                    art_content = re.sub('class="[^"]*"', '', art_content)
-                    images_md5 = re.findall('#blogspot2epubimage#([^#]*)', art_content)
-                    for image_md5 in images_md5:
-                        for image in images:
-                            m = hashlib.md5()
-                            m.update(image[0])
-                            image_caption = image[1].strip().decode('utf-8')
-                            if m.hexdigest() == image_md5:
-                                image_html = '<table align="center" cellpadding="0" cellspacing="0" class="tr-caption-container" style="margin-left: auto; margin-right: auto; text-align: center; background: #FFF; box-shadow: 1px 1px 5px rgba(0, 0, 0, 0.5); padding: 8px;"><tbody><tr><td style="text-align: center;"><img border="0" src="images/' + image_md5 + '.jpg" /></td></tr><tr><td class="tr-caption" style="text-align: center;">' + image_caption + '</td></tr></tbody></table>'
-                                art_content = art_content.replace('#blogspot2epubimage#' + image_md5 + '#', image_html)
-                        for image in images_nocaption:
-                            image = etree.tostring(image)
-                            image_href = re.findall('href="([^"]*)"', image)
-                            image_src = re.findall('src="([^"]*)"', image)
-                            image_url = ''
-                            if len(image_href) > 0:
-                                image_url = image_href[0]
-                            if len(image_src) > 0:
-                                image_url = image_src[0]
-                            if len(image_url) > 0:
-                                m = hashlib.md5()
-                                m.update(image_url)
-                                if m.hexdigest() == image_md5:
-                                    image_html = '<img border="0" src="images/' + image_md5 + '.jpg" />'
-                                    art_content = art_content.replace('#blogspot2epubimage#' + image_md5 + '#',
-                                                                      image_html)
-                            else:
-                                art_content = art_content.replace('#blogspot2epubimage#' + image_md5 + '#',
-                                                                  '<em>Image not found<em>')
-                    c.content = c.content + art_content
-                c.content = c.content + art_comments
-
-                self.table_of_contents.append(c)
-                self.ebook_article += 1
+                self.table_of_contents.append(chapter)
+                self.ebook_article_counter += 1
                 self._check_limit()
-                self.images = image_files + self.images
             self.blog_article += 1
 
     def _check_limit(self):
@@ -355,30 +213,137 @@ class Crawler(object):
         pass
 
 
+class Dirs(object):
+
+    def _prepare_directories(self):
+        paths = [self.html, self.images, self.originals]
+        for p in paths:
+            if not os.path.exists(p):
+                os.makedirs(p)
+
+    def __init__(self, name):
+        self.path = './temp/' + name + '/'
+        self.html = self.path + 'html/'
+        self.images = self.path + 'images/'
+        self.originals = self.path + 'originals/'
+        self._prepare_directories()
+
+
 class Article:
     """
     Blog post, article which became book chapter...
     """
 
-    def __init__(self, title, url, download):
+    def __init__(self, title, url, download, dirs, interface, include_images=True):
         self.title = title
         self.url = url
         self.download = download
+        self.interface = interface
+        self.dirs = dirs
         self.comments = []
-        self.date = self.content = self.tree = None
+        self.include_images = include_images
+        self.images = []
+        self.images_files = []
+        self.images_included = []
+        self.html = None
+        self.content = None
+        self.date = None
+        self.tree = None
 
     def _get_title(self):
-        return html.unescape(self.title.strip().decode('utf-8'))
+        self.title = html.unescape(self.title.strip().decode('utf-8'))
 
     def _get_date(self):
-        return self.tree.xpath('//h2[@class="date-header"]/span/text()')[0]
+        self.date = self.tree.xpath('//h2[@class="date-header"]/span/text()')[0]
+
+    def _image_download(self, picture_url, original_picture, target_picture):
+        result = False
+        if picture_url.startswith("//"):
+            picture_url = "http:" + picture_url
+        if not os.path.isfile(original_picture):
+            try:
+                u = urlopen(picture_url)
+                f = open(original_picture, 'wb')
+                block_sz = 8192
+                while True:
+                    buffer = u.read(block_sz)
+                    if not buffer:
+                        break
+                    f.write(buffer)
+                f.close()
+            except Exception as e:
+                self.interface.print(e)
+        if self.include_images and not os.path.isfile(target_picture) and os.path.isfile(original_picture):
+            try:
+                picture = Image.open(original_picture)
+                if picture.size[0] > self.images_width or picture.size[1] > self.images_height:
+                    picture.thumbnail([self.images_width, self.images_height], Image.ANTIALIAS)
+                picture = picture.convert('L')
+                picture.save(target_picture, format='JPEG', quality=self.images_quality)
+            except Exception as e:
+                self.interface.print(e)
+        if os.path.isfile(target_picture):
+            result = True
+        return result
+
+    def _find_images(self):
+        return re.findall(
+            '<table[^>]*><tbody>[\s]*<tr><td[^>]*><a href="([^"]*)"[^>]*><img[^>]*></a></td></tr>[\s]*<tr><td class="tr-caption" style="[^"]*">([^<]*)',
+            self.html)
+
+    @staticmethod
+    def _default_processor(html, im_url, im_hash, im_fname, dest_fname, im_regex=None):
+        im_regex = '<table[^>]*><tbody>[\s]*<tr><td[^>]*><a href="' + im_url +\
+                   '"[^>]*><img[^>]*></a></td></tr>[\s]*<tr><td class="tr-caption" style="[^"]*">[^<]*</td></tr>[\s]*</tbody></table>'
+        try:
+            html = re.sub(im_regex, ' #blogspot2epubimage#' + im_hash + '# ', html)
+        except Exception as e:
+            print(e)
+        return html
+
+    @staticmethod
+    def _nocaption_processor(html, im_url, im_hash, im_fname, dest_fname, im_regex=None):
+        pass
+
+    def _process_images(self, images=[], processor=_default_processor):
+        for image in images:
+            im_url = image[0]
+            m = hashlib.md5()
+            m.update(im_url)
+            im_hash = m.hexdigest()
+            self.images_included.append(im_hash + ".jpg")
+            im_fname = self.dirs.originals + im_hash + ".jpg"
+            dest_fname = self.dirs.images + im_hash+ ".jpg"
+            self.html = processor(self.html, im_url, im_hash, im_fname, dest_fname)
+            if self._image_download(image[0], im_fname, dest_fname):
+                self.images_files.append(im_fname)
+
+    def _get_images(self):
+        self._process_images(self._find_images())
+        self._get_tree()
+        # self._process_images(self.tree.xpath('//a[@imageanchor="1"]'), self._nocaption_processor)
+        # self._get_tree()
+
+    def _replace_images(self):
+        images_md5 = re.findall('#blogspot2epubimage#([^#]*)', self.content)
+        for im_md5 in images_md5:
+            for image in self.images:
+                m = hashlib.md5()
+                m.update(image[0])
+                image_caption = image[1].strip().decode('utf-8')
+                if m.hexdigest() == im_md5:
+                    image_html = '<table align="center" cellpadding="0" cellspacing="0" class="tr-caption-container" style="margin-left: auto; margin-right: auto; text-align: center; background: #FFF; box-shadow: 1px 1px 5px rgba(0, 0, 0, 0.5); padding: 8px;"><tbody><tr><td style="text-align: center;"><img border="0" src="images/' + im_md5 + '.jpg" /></td></tr><tr><td class="tr-caption" style="text-align: center;">' + image_caption + '</td></tr></tbody></table>'
+                    self.content = self.content.replace('#blogspot2epubimage#' + im_md5 + '#', image_html)
 
     def _get_content(self):
-        """
-        :param article: Article class
-        :return:
-        """
-        return ""
+        self.content = self.tree.xpath("//div[contains(concat(' ',normalize-space(@class),' '),'post-body')]")
+        if len(self.content) == 1:
+            self.content = etree.tostring(self.content[0], pretty_print=True)
+            self.content = re.sub('style="[^"]*"', '', self.content)
+            self.content = re.sub('class="[^"]*"', '', self.content)
+
+    def _get_tree(self):
+        self.tree = html.fromstring(self.html)
 
     def _get_comments(self):
         """
@@ -400,11 +365,12 @@ class Article:
         return comments
 
     def process(self):
-        self.tree = html.fromstring(self.content)
-        self.title = self._get_title()
-        self.date = self._get_date()
-        self.content = self._get_content()
-        self.comments = self._get_comments()
+        self.html = self.download(self.url)
+        self._get_tree()
+        self._get_title()
+        self._get_date()
+        self._get_content()
+        self._get_comments()
 
 
 class CrawlerDownloader:

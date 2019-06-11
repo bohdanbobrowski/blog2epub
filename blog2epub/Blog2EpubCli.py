@@ -13,6 +13,10 @@ class CliInterface:
     def print(text):
         print(text)
 
+    @staticmethod
+    def exception(e):
+        print(e)
+
 
 class Blog2EpubCli(object):
     """
