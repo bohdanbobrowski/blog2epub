@@ -34,10 +34,12 @@ class Book(object):
     }
     '''
 
-    def __init__(self):
-        self.cover = Cover()
-        self.images = {}
-        self.chapters = []
+    def __init__(self, name, title, images=[], chapters=[]):
+        self.name = name
+        self.title = title
+        self.images = images
+        self.cover = Cover(name, title, images)
+        self.chapters = chapters
 
 
     def addChapter(self, article, language):

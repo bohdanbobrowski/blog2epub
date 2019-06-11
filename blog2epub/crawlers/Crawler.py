@@ -38,9 +38,9 @@ class Crawler(object):
     def __init__(self, url, include_images=True, images_height=800, images_width=600, images_quality=40, start=None,
                  end=None, limit=False, skip=False, force_download=False, interface=None):
 
-        self.url = url
-        r = urlopen('http://' + url)
-        self.url_full = r.geturl()
+        self.url = self._prepare_url(url)
+        self.url_to_crawl = self._prepare_url_to_crawl(self.url)
+        self.name = self._prepare_name(self.url)
 
         self.include_images = include_images
         self.images_quality = images_quality
@@ -56,12 +56,22 @@ class Crawler(object):
         self.downloader = CrawlerDownloader()
         self.book = Book
         self.title = None
-        self.url_to_crawl = None
+
         self.language = 'en'
         self.images = {}
         self.pages = {}
         self.contents = {}
         self.article_counter = 1
+
+    def _prepare_url(self, url):
+        return url.replace('http:', '').replace('https:', '').strip('/')
+
+    def _prepeare_name(self, url):
+        return url.replace('/', '_')
+
+    def _prepare_url_to_crawl(self, url):
+        r = urlopen('http://' + url)
+        return r.geturl()
 
     def _get_the_interface(self, interface):
         if interface:
@@ -181,7 +191,6 @@ class Crawler(object):
             self.url_to_crawl = None
 
     def crawl(self):
-        self.url_to_crawl = self.url_full
         while self.url_to_crawl:
             content = self._get_content(self.url_to_crawl)
             articles = self._get_articles(content)
