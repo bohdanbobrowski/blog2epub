@@ -1,16 +1,15 @@
 #!/usr/bin/env python3
 # -*- coding : utf-8 -*-
-
 import hashlib
 import os
 import re
-import sys
 from urllib.request import urlopen
 from lxml.html.soupparser import fromstring
 from lxml.ElementInclude import etree
 from PIL import Image
 
 from blog2epub.Book import Book
+
 
 class Crawler(object):
     """
