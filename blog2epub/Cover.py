@@ -69,7 +69,8 @@ class Cover(object):
             for x in range(0, tiles_count_x):
                 for y in range(0, tiles_count_y):
                     try:
-                        thumb = self._make_thumb(Image.open(self.images[i - 1]), (tile_size, tile_size))
+                        img_file = os.path.join(self.dirs.images, self.images[i - 1])
+                        thumb = self._make_thumb(Image.open(img_file), (tile_size, tile_size))
                         thumb = thumb.point(lambda p: p * dark_factor)
                         dark_factor = dark_factor - 0.03
                         cover_image.paste(thumb, (y * tile_size, x * tile_size))
