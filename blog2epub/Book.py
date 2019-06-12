@@ -103,26 +103,14 @@ class Book(object):
         return cover_title
 
     def _get_book_title(self):
-        # TODO
-        self.book.set_title(get_cover_title(title, START_DATE, END_DATE))
-        try:
-            start_date_obj = datetime.strptime(translate_month(START_DATE,BLOG_LANGUAGE), '%d %B %Y')
-            end_date_obj = datetime.strptime(translate_month(END_DATE,BLOG_LANGUAGE), '%d %B %Y')
-            if START_DATE == END_DATE:
-                book_file_name = book_file_name + '_' + start_date_obj.strftime('%Y.%m.%d')
-            else:
-                book_file_name = book_file_name + '_' + end_date_obj.strftime('%Y.%m.%d') + '-' + start_date_obj.strftime('%Y.%m.%d')
-        except:
-            pass
+        self.book.set_title(self.title, self.start, self.end)
 
     def _add_cover(self):
-        # TODO
-        # Add cover - if file exist
-        book.spine.append('nav')
-        generate_cover(book_file_name, all_image_files)
-        book.set_cover(book_file_name + '.jpg', open(book_file_name + '.jpg', 'rb').read())
-        book.spine.append('cover')
-        book.spine.reverse()
+        self.book.spine.append('nav')
+        # generate_cover(book_file_name, all_image_files)
+        # book.set_cover(book_file_name + '.jpg', open(book_file_name + '.jpg', 'rb').read())
+        # book.spine.append('cover')
+        self.book.spine.reverse()
         # os.remove(book_file_name + '.jpg')
 
     def _add_table_of_contents(self):

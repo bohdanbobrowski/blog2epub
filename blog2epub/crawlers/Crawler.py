@@ -144,9 +144,9 @@ class Crawler(object):
 
     def _get_url_to_crawl(self, content):
         url_to_crawl = None
-        if re.search("<a class='blog-pager-older-link' href='([^']*)' id='Blog1_blog-pager-older-link'", content):
-            url_to_crawl = re.search("<a class='blog-pager-older-link' href='([^']*)' id='Blog1_blog-pager-older-link'",
-                                 content).group(1)
+        tree = fromstring(content)
+        if tree.xpath('//a[@class="blog-pager-older-link"]/@href'):
+            url_to_crawl = tree.xpath('//a[@class="blog-pager-older-link"]/@href')[0]
         return url_to_crawl
 
     def _articles_loop(self, content):
@@ -175,8 +175,9 @@ class Crawler(object):
             if len(self.articles) == 0:
                 self._get_blog_language(content)
                 self.title = self._get_blog_title(content)
-            self.url_to_crawl = self._get_url_to_crawl(content)
+                self.title = self._get_blog_title(content)
             self._articles_loop(content)
+            self.url_to_crawl = self._get_url_to_crawl(content)
             self._check_limit()
 
     def save(self):
