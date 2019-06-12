@@ -1,9 +1,11 @@
 #!/usr/bin/env python3
 # -*- coding : utf-8 -*-
+import datetime
 import os
 
 from ebooklib import epub
 from blog2epub.Cover import Cover
+from blog2epub.crawlers.Crawler import translate_month
 
 
 class Book(object):
@@ -36,7 +38,7 @@ class Book(object):
     '''
 
     def __init__(self, destination_folder, file_name, title, url, start, end, language, images=[], chapters=[]):
-        self.file_name = file_name + ".epub"
+        self.file_name = self._get_file_name(file_name)
         self.destination_folder = destination_folder
         self.title = title
         self.url = url
@@ -48,6 +50,16 @@ class Book(object):
         self.chapters = chapters
         self.table_of_contents = []
         self.book = None
+
+    def _get_file_name(self, file_name):
+        start_date_obj = datetime.strptime(translate_month(self.start, self.language), '%d %B %Y')
+        end_date_obj = datetime.strptime(translate_month(self.end, self.language), '%d %B %Y')
+        if self.start == self.end:
+            file_name = file_name  + '_' + start_date_obj.strftime('%Y.%m.%d')
+        else:
+        file_name = file_name + '_' + end_date_obj.strftime('%Y.%m.%d') + '-' + start_date_obj.strftime('%Y.%m.%d')
+        return file_name + ".epub"
+
 
     def addChapter(self, article, language):
         number = len(self.chapters) + 1
@@ -140,7 +152,8 @@ class Chapter(object):
         """
         :param article: Article class
         """
-        self.epub = epub.EpubHtml(title=article.title, file_name='chap_' + str(number) + '.xhtml', lang=language)
+        uid = 'chapter_' + str(number)
+        self.epub = epub.EpubHtml(title=article.title, uid=uid, file_name=uid + '.xhtml', lang=language)
         self.epub.content = '<h2>{}</h2>{}<p><i><a href="{}">{}</a></i></p>'.format(article.title, article.date,
                                                                                     article.url, article.url)
         self.epub.content = self.epub.content + article.content + article.comments

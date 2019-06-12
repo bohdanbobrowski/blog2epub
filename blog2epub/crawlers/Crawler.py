@@ -36,7 +36,7 @@ class Crawler(object):
     """
 
     def __init__(self, url, include_images=True, images_height=800, images_width=600, images_quality=40, start=None,
-                 end=None, limit=1, skip=False, force_download=False, file_name=None, destination_folder='./',
+                 end=None, limit=False, skip=False, force_download=False, file_name=None, destination_folder='./',
                  interface=None):
 
         self.url = self._prepare_url(url)
