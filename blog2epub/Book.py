@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding : utf-8 -*-
+import os
 
 from ebooklib import epub
 from blog2epub.Cover import Cover
@@ -34,8 +35,9 @@ class Book(object):
     }
     '''
 
-    def __init__(self, name, title, url, start, end, language, images=[], chapters=[]):
-        self.name = name
+    def __init__(self, destination_folder, file_name, title, url, start, end, language, images=[], chapters=[]):
+        self.file_name = file_name + ".epub"
+        self.destination_folder = destination_folder
         self.title = title
         self.url = url
         self.start = start
@@ -129,7 +131,7 @@ class Book(object):
             self.table_of_contents.append(chapter.epub)
         self._add_table_of_contents()
         self._add_epub_css()
-        epub.write_epub(self.name + '.epub', self.book, {})
+        epub.write_epub(os.path.join([self.destination_folder, self.file_name]), self.book, {})
         # fix_cover(book_file_name)
 
 class Chapter(object):

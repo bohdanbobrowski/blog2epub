@@ -36,11 +36,12 @@ class Crawler(object):
     """
 
     def __init__(self, url, include_images=True, images_height=800, images_width=600, images_quality=40, start=None,
-                 end=None, limit=False, skip=False, force_download=False, interface=None):
+                 end=None, limit=False, skip=False, force_download=False, file_name=None, destination_folder='./',
+                 interface=None):
 
         self.url = self._prepare_url(url)
         self.url_to_crawl = self._prepare_url_to_crawl(self.url)
-        self.name = self._prepare_name(self.url)
+        self.file_name = self._prepare_file_name(file_name, self.url)
         self.title = None
         self.include_images = include_images
         self.images_quality = images_quality
@@ -64,7 +65,9 @@ class Crawler(object):
     def _prepare_url(self, url):
         return url.replace('http:', '').replace('https:', '').strip('/')
 
-    def _prepare_name(self, url):
+    def _prepare_file_name(self, file_name, url):
+        if file_name:
+            return file_name
         return url.replace('/', '_')
 
     def _prepare_url_to_crawl(self, url):
@@ -193,7 +196,7 @@ class Crawler(object):
             if self.book is None:
                 self.language = self._get_blog_language(content)
                 self.title = self._get_blog_title(content)
-                self.book = Book(self.name, self.title, self.url, self.start, self.end, self.language)
+                self.book = Book(self.destination_folder, self.file_name, self.title, self.url, self.start, self.end, self.language)
             self._articles_loop(articles)
             self.url_to_crawl = self._get_url_to_crawl(content)
 
