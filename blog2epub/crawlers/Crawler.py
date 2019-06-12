@@ -19,7 +19,7 @@ class Crawler(object):
     images_regex = r'<table[^>]*><tbody>[\s]*<tr><td[^>]*><a href="([^"]*)"[^>]*><img[^>]*></a></td></tr>[\s]*<tr><td class="tr-caption" style="[^"]*">([^<]*)'
 
     def __init__(self, url, include_images=True, images_height=800, images_width=600, images_quality=40, start=None,
-                 end=None, limit=1, skip=False, force_download=False, file_name=None, destination_folder='./',
+                 end=None, limit=None, skip=False, force_download=False, file_name=None, destination_folder='./',
                  language=None, interface=None):
 
         self.url = self._prepare_url(url)

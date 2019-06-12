@@ -2,6 +2,8 @@
 # -*- coding : utf-8 -*-
 from datetime import datetime
 import os
+import tempfile
+import zipfile
 
 from ebooklib import epub
 from blog2epub.Cover import Cover
@@ -11,7 +13,7 @@ class Book(object):
     Book class used in Blogspot2Epub class.
     """
 
-    style = '''
+    style = """
     @namespace epub "http://www.idpf.org/2007/ops";
     body {
         font-family: Cambria, Liberation Serif, Bitstream Vera Serif, Georgia, Times, Times New Roman, serif;
@@ -33,7 +35,32 @@ class Book(object):
     nav[epub|type~='toc'] > ol > li > ol > li {
             margin-top: 0.3em;
     }
-    '''
+    """
+
+    cover_html = """<?xml version='1.0' encoding='utf-8'?>
+    <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+    <head>
+    <meta name="calibre:cover" content="true"/>
+    <title>Cover</title>
+    <style type="text/css" title="override_css">
+    @page {
+        padding: 0pt;
+        margin: 0pt;
+    }
+    body {
+        text-align: center;
+        padding: 0pt;
+        margin: 0pt;
+    }
+    </style>
+    </head>
+    <body>
+    <div><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" width="100%" height="100%" viewBox="0 0 600 800" preserveAspectRatio="none">
+    <image width="600" height="800" xlink:href="###FILE###"/>
+    </svg></div>
+    </body>
+    </html>"""
+
 
     def __init__(self, crawler):
         """
@@ -96,7 +123,7 @@ class Book(object):
             cover_title = cover_title + str(self.start)
         else:
             end_date = self.end.split(' ')
-            start_date = start.split(' ')
+            start_date = self.start.split(' ')
             if len(end_date) == len(start_date):
                 ed = []
                 for i, d in enumerate(end_date):
@@ -110,24 +137,34 @@ class Book(object):
         self.book.set_title(self.title, self.start, self.end)
 
     def _add_cover(self):
-        self.book.spine.append('nav')
-        # generate_cover(book_file_name, all_image_files)
-        # book.set_cover(book_file_name + '.jpg', open(book_file_name + '.jpg', 'rb').read())
-        # book.spine.append('cover')
-        self.book.spine.reverse()
-        # os.remove(book_file_name + '.jpg')
+        self.cover = Cover(self)
+        self.cover.generate()
+        self.book.set_cover(self.file_name + '.jpg', open(self.file_name + '.jpg', 'rb').read())
+        os.remove(self.file_name + '.jpg')
+
+    def _fix_cover(self):
+        filename = 'EPUB/cover.xhtml'
+        tmpfd, tmpname = tempfile.mkstemp(dir=os.path.dirname(self.file_name))
+        os.close(tmpfd)
+        with zipfile.ZipFile(self.file_name, 'r') as zin:
+            with zipfile.ZipFile(tmpname, 'w') as zout:
+                zout.comment = zin.comment
+                for item in zin.infolist():
+                    if item.filename != filename:
+                        zout.writestr(item, zin.read(item.filename))
+        os.remove(self.file_name)
+        os.rename(tmpname, self.file_name)
+        cover_html = self.cover_html.replace('###FILE###', self.file_name + '.jpg')
+        with zipfile.ZipFile(self.file_name, mode='a', compression=zipfile.ZIP_DEFLATED) as zf:
+            zf.writestr(filename, cover_html)
 
     def _add_table_of_contents(self):
-        # TODO
-        # Add table of contents
         self.table_of_contents.reverse()
         self.book.toc = self.table_of_contents
-        # Add default NCX and Nav file
         self.book.add_item(epub.EpubNcx())
         self.book.add_item(epub.EpubNav())
 
     def _add_epub_css(self):
-        # Add css file
         nav_css = epub.EpubItem(uid="style_nav", file_name="style/nav.css", media_type="text/css", content=self.style)
         self.book.add_item(nav_css)
 
@@ -156,11 +193,15 @@ class Book(object):
             self.table_of_contents.append(chapter.epub)
         self._add_table_of_contents()
         self._add_epub_css()
-        epub.write_epub(os.path.join(self.destination_folder, self.file_name), self.book, {})
         self.cover = Cover(self)
         self.cover.generate()
+        self.book.spine.append('nav')
+        self.book.spine.append('cover')
+        self.book.spine.reverse()
+        epub.write_epub(os.path.join(self.destination_folder, self.file_name), self.book, {})
         self.book.set_cover(self.file_name + '.jpg', open(self.file_name + '.jpg', 'rb').read())
-        self.cover.fix()
+        self._add_cover()
+        self._fix_cover()
 
 class Chapter(object):
 

@@ -1,8 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding : utf-8 -*-
 import os
-import tempfile
-import zipfile
 from random import shuffle
 
 from PIL import Image, ImageDraw, ImageFont
@@ -101,44 +99,3 @@ class Cover(object):
         cover_image = cover_image.convert('L')
         cover_image.save(self.file_name + '.jpg', format='JPEG', quality=100)
 
-    def fix(self):
-        filename = 'EPUB/cover.xhtml'
-        tmpfd, tmpname = tempfile.mkstemp(dir=os.path.dirname(self.file_name))
-        os.close(tmpfd)
-        with zipfile.ZipFile(self.file_name, 'r') as zin:
-            with zipfile.ZipFile(tmpname, 'w') as zout:
-                zout.comment = zin.comment
-                for item in zin.infolist():
-                    if item.filename == filename:
-                        cover_html = zin.read(filename)
-                    else:
-                        zout.writestr(item, zin.read(item.filename))
-        os.remove(self.file_name)
-        os.rename(tmpname, self.file_name)
-        zf = zipfile.ZipFile(self.file_name, 'r')
-        cover_html = """<?xml version='1.0' encoding='utf-8'?>
-    <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
-    <head>
-    <meta name="calibre:cover" content="true"/>
-    <title>Cover</title>
-    <style type="text/css" title="override_css">
-    @page {
-        padding: 0pt;
-        margin: 0pt;
-    }
-    body {
-        text-align: center;
-        padding: 0pt;
-        margin: 0pt;
-    }
-    </style>
-    </head>
-    <body>
-    <div><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" width="100%" height="100%" viewBox="0 0 600 800" preserveAspectRatio="none">
-    <image width="600" height="800" xlink:href="###FILE###"/>
-    </svg></div>
-    </body>
-    </html>"""
-        cover_html = cover_html.replace('###FILE###', self.file_name + '.jpg')
-        with zipfile.ZipFile(self.file_name, mode='a', compression=zipfile.ZIP_DEFLATED) as zf:
-            zf.writestr(filename, cover_html)
