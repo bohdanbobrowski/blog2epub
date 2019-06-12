@@ -42,6 +42,7 @@ class Crawler(object):
         self.url = self._prepare_url(url)
         self.url_to_crawl = self._prepare_url_to_crawl(self.url)
         self.file_name = self._prepare_file_name(file_name, self.url)
+        self.destination_folder = destination_folder
         self.title = None
         self.include_images = include_images
         self.images_quality = images_quality
