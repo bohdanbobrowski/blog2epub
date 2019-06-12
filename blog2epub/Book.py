@@ -169,6 +169,7 @@ class Book(object):
         self.book.add_item(nav_css)
 
     def _include_images(self):
+        # TODO
         # Add images do epub file_name
         if self.include_images:
             try:
