@@ -130,17 +130,14 @@ class Book(object):
                     if d != start_date[i]:
                         ed.append(d)
             ed = ' '.join(ed)
-            cover_title = cover_title + ed + '-' + start
+            cover_title = cover_title + ed + '-' + self.start
         return cover_title
-
-    def _get_book_title(self):
-        self.book.set_title(self.title, self.start, self.end)
 
     def _add_cover(self):
         self.cover = Cover(self)
-        self.cover.generate()
-        self.book.set_cover(self.file_name + '.jpg', open(self.file_name + '.jpg', 'rb').read())
-        os.remove(self.file_name + '.jpg')
+        cover_file_name = self.cover.generate()
+        # self.book.set_cover(cover_file_name, open(self.file_name + '.jpg', 'rb').read())
+        # os.remove(cover_file_name)
 
     def _fix_cover(self):
         filename = 'EPUB/cover.xhtml'
@@ -148,7 +145,7 @@ class Book(object):
         os.close(tmpfd)
         with zipfile.ZipFile(self.file_name, 'r') as zin:
             with zipfile.ZipFile(tmpname, 'w') as zout:
-                zout.comment = zin.comment
+                zout.comment = zin.comment # preserve the comment
                 for item in zin.infolist():
                     if item.filename != filename:
                         zout.writestr(item, zin.read(item.filename))
@@ -169,39 +166,32 @@ class Book(object):
         self.book.add_item(nav_css)
 
     def _include_images(self):
-        # TODO
-        # Add images do epub file_name
         if self.include_images:
-            try:
-                converted_images = [f for f in listdir(images_path) if isfile(join(images_path, f))]
-            except NameError:
-                converted_images = []
-            for i, image in enumerate(converted_images):
-                if image in images_included:
-                    image_cont = None
-                    with open(images_path + image, 'r') as content_file:
-                        image_cont = content_file.read()
-                    epub_img = epub.EpubItem(uid="img" + str(i), file_name="images/" + image, media_type="image/jpeg",
-                                             content=image_cont)
-                    book.add_item(epub_img)
+            for i, image in enumerate(self.images, start=1):
+                epub_img = epub.EpubItem(uid="img%s" % i, file_name="images/" + image, media_type="image/jpeg",
+                                         content=open(os.path.join(self.dirs.images, image), 'rb').read())
+                self.book.add_item(epub_img)
 
     def save(self):
         self.update_file_name()
         self.book = epub.EpubBook()
+        self.book.set_title(self.title)
+        self.book.set_language(self.language)
+        self.book.add_author(self.title + ', ' + self.file_name_prefix)
         for chapter in self.chapters:
             self.book.add_item(chapter.epub)
             self.book.spine.append(chapter.epub)
             self.table_of_contents.append(chapter.epub)
         self._add_table_of_contents()
         self._add_epub_css()
-        self.cover = Cover(self)
-        self.cover.generate()
         self.book.spine.append('nav')
         self.book.spine.append('cover')
         self.book.spine.reverse()
-        epub.write_epub(os.path.join(self.destination_folder, self.file_name), self.book, {})
-        self.book.set_cover(self.file_name + '.jpg', open(self.file_name + '.jpg', 'rb').read())
+        if len(self.description) > 0:
+            self.book.add_metadata('DC', 'description', "\n".join(self.description))
         self._add_cover()
+        self._include_images()
+        epub.write_epub(os.path.join(self.destination_folder, self.file_name), self.book, {})
         self._fix_cover()
 
 class Chapter(object):

@@ -97,5 +97,7 @@ class Cover(object):
             cover_draw.text((15, 670), ed + " - " + self.start, (150, 150, 150),
                             font=ImageFont.truetype(os.path.join(self.dirs.assets, "Lato-Italic.ttf"), 20))
         cover_image = cover_image.convert('L')
-        cover_image.save(self.file_name + '.jpg', format='JPEG', quality=100)
+        cover_file_name = self.file_name + '.jpg'
+        cover_image.save(cover_file_name, format='JPEG', quality=100)
+        return cover_file_name
 

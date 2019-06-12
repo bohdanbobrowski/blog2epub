@@ -41,7 +41,7 @@ class Crawler(object):
         self.title = None
         self.description = None
         self.language = language
-        self.images = {}
+        self.images = []
         self.articles = []
 
     def _prepare_url(self, url):
@@ -73,7 +73,7 @@ class Crawler(object):
 
     @staticmethod
     def _file_write(contents, filepath):
-        html_file = open(filepath, "w+")
+        html_file = open(filepath, "wb")
         html_file.write(contents)
         html_file.close()
 
@@ -90,6 +90,12 @@ class Crawler(object):
         contents = data.decode('utf-8')
         self._file_write(contents, filepath)
         return contents
+
+    def _image_download(self, url, filepath):
+        self.dirs._prepare_directories()
+        f = open(filepath, 'wb')
+        f.write(urlopen(url).read())
+        f.close()
 
     def _get_content(self, url):
         filepath = self._get_filepath(url)
@@ -132,6 +138,27 @@ class Crawler(object):
 
     def _get_blog_description(self, tree):
         return tree.xpath('//div[@id="header"]/div/div/div/p[@class="description"]/span/text()')
+
+    def _get_header_images(self, tree):
+        header_images = []
+        for img in tree.xpath('//div[@id="header"]/div/div/div/p[@class="description"]/span/img/@src'):
+            if img.startswith("//"):
+                img = "http:" + img
+            img_hash = self._get_urlhash(img)
+            img_type = os.path.splitext(img)[1]
+            img_filename = os.path.join(self.dirs.originals, img_hash + "." + img_type)
+            if not os.path.isfile(img_filename):
+                self._image_download(img, img_filename)
+            img_images = os.path.join(self.dirs.images, img_hash + ".jpg")
+            if not os.path.isfile(img_images):
+                if self.include_images and os.path.isfile(img_filename):
+                    picture = Image.open(img_filename)
+                    if picture.size[0] > self.images_width or picture.size[1] > self.images_height:
+                        picture.thumbnail([self.images_width, self.images_height], Image.ANTIALIAS)
+                    picture = picture.convert('L')
+                    picture.save(img_images, format='JPEG', quality=self.images_quality)
+            header_images.append(img_hash + ".jpg")
+        return header_images
 
     def _get_articles(self, content):
         """
@@ -178,6 +205,7 @@ class Crawler(object):
             if len(self.articles) == 0:
                 self._get_blog_language(content)
                 self.title = self._get_blog_title(content)
+                self.images = self.images +self._get_header_images(tree)
                 self.description = self._get_blog_description(tree)
             self._articles_loop(content)
             self.url_to_crawl = self._get_url_to_crawl(tree)
