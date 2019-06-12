@@ -12,38 +12,21 @@ from PIL import Image
 
 from blog2epub.Book import Book
 
-
-def translate_month(date, language):
-    if language == 'pl':
-        date = date.replace('stycznia','january')
-        date = date.replace('lutego','february')
-        date = date.replace('marca','march')
-        date = date.replace('kwietnia','april')
-        date = date.replace('maja','may')
-        date = date.replace('czerwca','june')
-        date = date.replace('lipca','july')
-        date = date.replace('sierpnia','august')
-        date = date.replace('września','september')
-        date = date.replace('października','october')
-        date = date.replace('listopada','november')
-        date = date.replace('grudnia','december')
-    return date
-
-
 class Crawler(object):
     """
     Universal blog crawler.
     """
 
+    images_regex = r'<table[^>]*><tbody>[\s]*<tr><td[^>]*><a href="([^"]*)"[^>]*><img[^>]*></a></td></tr>[\s]*<tr><td class="tr-caption" style="[^"]*">([^<]*)'
+
     def __init__(self, url, include_images=True, images_height=800, images_width=600, images_quality=40, start=None,
                  end=None, limit=False, skip=False, force_download=False, file_name=None, destination_folder='./',
-                 interface=None):
+                 language=None, interface=None):
 
         self.url = self._prepare_url(url)
         self.url_to_crawl = self._prepare_url_to_crawl(self.url)
         self.file_name = self._prepare_file_name(file_name, self.url)
         self.destination_folder = destination_folder
-        self.title = None
         self.include_images = include_images
         self.images_quality = images_quality
         self.images_height = images_height
@@ -57,11 +40,9 @@ class Crawler(object):
         self.dirs = Dirs(self.url)
         self.book = None
         self.title = None
-        self.language = 'en'
+        self.language = language
         self.images = {}
-        self.pages = {}
-        self.contents = {}
-        self.article_counter = 1
+        self.articles = []
 
     def _prepare_url(self, url):
         return url.replace('http:', '').replace('https:', '').strip('/')
@@ -110,6 +91,14 @@ class Crawler(object):
         self._file_write(contents, filepath)
         return contents
 
+    def _get_content(self, url):
+        filepath = self._get_filepath(url)
+        if self.force_download or not os.path.isfile(filepath):
+            contents = self._file_download(url, filepath)
+        else:
+            contents = self._file_read(filepath)
+        return contents
+
     def get_cover_title(self):
         cover_title = self.title + ' '
         if self.start == self.end:
@@ -130,26 +119,13 @@ class Crawler(object):
     def get_date(str_date):
         return re.sub('[^\,]*, ', '', str_date)
 
-    def _get_content(self, url):
-        filepath = self._get_filepath(url)
-        if self.force_download or not os.path.isfile(filepath):
-            contents = self._file_download(url, filepath)
-        else:
-            contents = self._file_read(filepath)
-        return contents
-
     def _get_blog_language(self, content):
-        language = self.language;
-        if re.search("'lang':[\s]*'([a-z^']+)'", content):
-            language = re.search("'lang':[\s]*'([a-z^']+)'", content).group(1).strip()
-        if re.search('lang="([a-z^"]+)"', content):
-            language = re.search('lang="([a-z^"]+)"', content).group(1).strip()
-        for arg in sys.argv:
-            if arg.find('-ln=') == 0:
-                language = arg.replace('-ln=', '')
-            if arg.find('--language=') == 0:
-                language = arg.replace('--language=', '')
-        return language
+        if self.language is None:
+            self.language = 'en';
+            if re.search("'lang':[\s]*'([a-z^']+)'", content):
+                self.language = re.search("'lang':[\s]*'([a-z^']+)'", content).group(1).strip()
+            if re.search('lang=.([a-z^"]+).', content):
+                self.language = re.search('lang=.([a-z^"]+).', content).group(1).strip()
 
     def _get_blog_title(self, content):
         return re.search("<title>([^>^<]*)</title>", content).group(1).strip()
@@ -173,38 +149,38 @@ class Crawler(object):
                                  content).group(1)
         return url_to_crawl
 
-    def _articles_loop(self, articles):
+    def _articles_loop(self, content):
+        articles = self._get_articles(content)
         for art in articles:
             if self.skip == False or self.article_counter > self.skip:
                 art.download(art.url)
                 art.process()
-                self.interface.print(str(len(self.book.chapters) + 1) + '. ' + art.title)
-                if self.start == False:
+                self.interface.print(str(len(self.articles) + 1) + '. ' + art.title)
+                if self.start:
+                    self.end = art.date
+                else:
                     self.start = art.date
-                self.end = art.date
-                self.book.addChapter(art, self.language)
-            self.article_counter += 1
-            self._check_limit()
+                self.articles.append(art)
+                self._check_limit()
             if not self.url_to_crawl:
                 break
 
     def _check_limit(self):
-        if self.limit and self.article_counter > self.limit:
+        if self.limit and len(self.articles) > self.limit:
             self.url_to_crawl = None
 
     def crawl(self):
         while self.url_to_crawl:
             content = self._get_content(self.url_to_crawl)
-            articles = self._get_articles(content)
-            if self.book is None:
-                self.language = self._get_blog_language(content)
+            if len(self.articles) == 0:
+                self._get_blog_language(content)
                 self.title = self._get_blog_title(content)
-                self.book = Book(self.destination_folder, self.file_name, self.title, self.url, self.start, self.end, self.language)
-            self._articles_loop(articles)
             self.url_to_crawl = self._get_url_to_crawl(content)
+            self._articles_loop(content)
             self._check_limit()
 
     def save(self):
+        self.book = Book(self)
         self.book.save()
 
 
@@ -252,7 +228,7 @@ class Article:
         self.title = self.title.strip()
 
     def _get_date(self):
-        self.date = self.tree.xpath('//h2[@class="date-header"]/span/text()')[0]
+        self.date = re.sub('(.*?, )', '', self.tree.xpath('//h2[@class="date-header"]/span/text()')[0])
 
     def _image_download(self, picture_url, original_picture, target_picture):
         result = False
@@ -285,9 +261,7 @@ class Article:
         return result
 
     def _find_images(self):
-        return re.findall(
-            '<table[^>]*><tbody>[\s]*<tr><td[^>]*><a href="([^"]*)"[^>]*><img[^>]*></a></td></tr>[\s]*<tr><td class="tr-caption" style="[^"]*">([^<]*)',
-            self.html)
+        return re.findall(self.images_regex, self.html)
 
     @staticmethod
     def _default_processor(html, im_url, im_hash, im_fname, dest_fname, im_regex=None):

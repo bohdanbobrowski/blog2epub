@@ -1,12 +1,11 @@
 #!/usr/bin/env python3
 # -*- coding : utf-8 -*-
-import datetime
+
+from datetime import datetime
 import os
 
 from ebooklib import epub
 from blog2epub.Cover import Cover
-from blog2epub.crawlers.Crawler import translate_month
-
 
 class Book(object):
     """
@@ -37,34 +36,55 @@ class Book(object):
     }
     '''
 
-    def __init__(self, destination_folder, file_name, title, url, start, end, language, images=[], chapters=[]):
-        self.file_name = self._get_file_name(file_name)
-        self.destination_folder = destination_folder
-        self.title = title
-        self.url = url
-        self.start = start
-        self.end = end
-        self.images = images
-        self.cover = Cover(file_name, title, images)
-        self.language = language
-        self.chapters = chapters
+    def __init__(self, crawler):
+        self.title = crawler.title
+        self.url = crawler.url
+        self.start = crawler.start
+        self.end = crawler.end
+        self.include_images = crawler.include_images
+        self.images = crawler.images
+        self.cover = Cover(crawler.file_name, crawler.title, crawler.images)
+        self.language = crawler.language
+        self.chapters = []
         self.table_of_contents = []
+        self.file_name_prefix = crawler.file_name
+        self.update_file_name()
+        self.destination_folder = crawler.destination_folder
         self.book = None
-
-    def _get_file_name(self, file_name):
-        start_date_obj = datetime.strptime(translate_month(self.start, self.language), '%d %B %Y')
-        end_date_obj = datetime.strptime(translate_month(self.end, self.language), '%d %B %Y')
-        if self.start == self.end:
-            file_name = file_name  + '_' + start_date_obj.strftime('%Y.%m.%d')
-        else:
-        file_name = file_name + '_' + end_date_obj.strftime('%Y.%m.%d') + '-' + start_date_obj.strftime('%Y.%m.%d')
-        return file_name + ".epub"
+        self._add_chapters(crawler.articles)
 
 
-    def addChapter(self, article, language):
-        number = len(self.chapters) + 1
-        self.end = article.date
-        self.chapters.append(Chapter(article, number, language))
+    def update_file_name(self):
+        file_name = self.file_name_prefix
+        if self.start and self.end:
+            start_date_obj = datetime.strptime(self._translate_month(self.start), '%d %B %Y')
+            end_date_obj = datetime.strptime(self._translate_month(self.end), '%d %B %Y')
+            if self.start == self.end:
+                file_name = file_name  + '_' + start_date_obj.strftime('%Y.%m.%d')
+            else:
+                file_name = file_name + '_' + end_date_obj.strftime('%Y.%m.%d') + '-' + start_date_obj.strftime('%Y.%m.%d')
+        self.file_name = file_name + ".epub"
+
+    def _translate_month(self, date):
+        if self.language == 'pl':
+            date = date.replace('stycznia', 'january')
+            date = date.replace('lutego', 'february')
+            date = date.replace('marca', 'march')
+            date = date.replace('kwietnia', 'april')
+            date = date.replace('maja', 'may')
+            date = date.replace('czerwca', 'june')
+            date = date.replace('lipca', 'july')
+            date = date.replace('sierpnia', 'august')
+            date = date.replace('września', 'september')
+            date = date.replace('października', 'october')
+            date = date.replace('listopada', 'november')
+            date = date.replace('grudnia', 'december')
+        return date
+
+    def _add_chapters(self, articles):
+        for article in articles:
+            number = len(self.chapters) + 1
+            self.chapters.append(Chapter(article, number, self.language))
 
     def get_cover_title(self):
         cover_title = self.title + ' '
@@ -121,7 +141,7 @@ class Book(object):
 
     def _include_images(self):
         # Add images do epub file_name
-        if INCLUDE_IMAGES:
+        if self.include_images:
             try:
                 converted_images = [f for f in listdir(images_path) if isfile(join(images_path, f))]
             except NameError:
@@ -136,6 +156,7 @@ class Book(object):
                     book.add_item(epub_img)
 
     def save(self):
+        self.update_file_name()
         self.book = epub.EpubBook()
         for chapter in self.chapters:
             self.book.add_item(chapter.epub)
