@@ -37,19 +37,24 @@ class Book(object):
     '''
 
     def __init__(self, crawler):
+        """
+        :param crawler: instance of Crawler class
+        """
         self.title = crawler.title
+        self.description = crawler.description
         self.url = crawler.url
+        self.dirs = crawler.dirs
         self.start = crawler.start
         self.end = crawler.end
         self.include_images = crawler.include_images
         self.images = crawler.images
-        self.cover = Cover(crawler.file_name, crawler.title, crawler.images)
         self.language = crawler.language
         self.chapters = []
         self.table_of_contents = []
         self.file_name_prefix = crawler.file_name
         self.update_file_name()
         self.destination_folder = crawler.destination_folder
+        self.cover = None
         self.book = None
         self._add_chapters(crawler.articles)
 
@@ -153,7 +158,10 @@ class Book(object):
         self._add_table_of_contents()
         self._add_epub_css()
         epub.write_epub(os.path.join(self.destination_folder, self.file_name), self.book, {})
-        # fix_cover(book_file_name)
+        self.cover = Cover(self)
+        self.cover.generate()
+        self.book.set_cover(self.file_name + '.jpg', open(self.file_name + '.jpg', 'rb').read())
+        self.cover.fix()
 
 class Chapter(object):
 

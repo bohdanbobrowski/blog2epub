@@ -1,9 +1,11 @@
 #!/usr/bin/env python3
 # -*- coding : utf-8 -*-
+import os
+import tempfile
 import zipfile
 from random import shuffle
 
-from PIL import Image, ImageDraw
+from PIL import Image, ImageDraw, ImageFont
 
 
 class Cover(object):
@@ -11,15 +13,19 @@ class Cover(object):
     Cover class used in Blog2Epub class.
     """
 
-    def __init__(self, name, title, images=[]):
+    def __init__(self, book):
         """
-        :param name: name of the book (address of the blog)
-        :param title: title of the blog
-        :param images: list of images
+        :param crawler: intance of Book class
         """
-        self.name = name
-        self.title = title
-        self.images = images
+        self.dirs = book.dirs
+        self.file_name = book.file_name
+        self.file_name_prefix = book.file_name_prefix
+        self.description = book.description
+        self.title = book.title
+        self.images = book.images
+        self.destination_folder = book.destination_folder
+        self.start = book.start
+        self.end = book.end
 
     def _make_thumb(self, img, size):
         cropped_img = self._crop_image(img, size)
@@ -74,45 +80,42 @@ class Cover(object):
                         print(e)
                     if i > len(self.images):
                         i = 1
-        cover_draw.text((15, 635), title, (255, 255, 255), font=ImageFont.truetype("Lato-Bold.ttf", 30))
-        cover_draw.text((15, 760), sys.argv[1] + ".blogspot.com", (255, 255, 255),
-                        font=ImageFont.truetype("Lato-Regular.ttf", 20))
-        if START_DATE == END_DATE:
-            cover_draw.text((15, 670), START_DATE, (150, 150, 150), font=ImageFont.truetype("Lato-Italic.ttf", 20))
+        cover_draw.text((15, 635), self.title, (255, 255, 255),
+                        font=ImageFont.truetype(os.path.join(self.dirs.assets, "Lato-Bold.ttf"), 30))
+        cover_draw.text((15, 760), self.file_name_prefix, (255, 255, 255),
+                        font=ImageFont.truetype(os.path.join(self.dirs.assets, "Lato-Regular.ttf"), 20))
+        if self.end is None:
+            cover_draw.text((15, 670), self.start, (150, 150, 150),
+                            font=ImageFont.truetype(os.path.join(self.dirs.assets, "Lato-Italic.ttf"), 20))
         else:
-            end_date = END_DATE.split(' ')
-            start_date = START_DATE.split(' ')
+            end_date = self.end.split(' ')
+            start_date = self.start.split(' ')
             if len(end_date) == len(start_date):
                 ed = []
                 for i, d in enumerate(end_date):
                     if d != start_date[i]:
                         ed.append(d)
             ed = ' '.join(ed)
-            cover_draw.text((15, 670), ed + " - " + START_DATE, (150, 150, 150),
-                            font=ImageFont.truetype("Lato-Italic.ttf", 20))
+            cover_draw.text((15, 670), ed + " - " + self.start, (150, 150, 150),
+                            font=ImageFont.truetype(os.path.join(self.dirs.assets, "Lato-Italic.ttf"), 20))
         cover_image = cover_image.convert('L')
-        cover_image.save(file_name + '.jpg', format='JPEG', quality=100)
+        cover_image.save(self.file_name + '.jpg', format='JPEG', quality=100)
 
-    @staticmethod
-    def fixBookCover(zipname):
-        """
-        :param zipname:
-        :return:
-        """
+    def fix(self):
         filename = 'EPUB/cover.xhtml'
-        tmpfd, tmpname = tempfile.mkstemp(dir=os.path.dirname(zipname+'.epub'))
+        tmpfd, tmpname = tempfile.mkstemp(dir=os.path.dirname(self.file_name))
         os.close(tmpfd)
-        with zipfile.ZipFile(zipname+'.epub', 'r') as zin:
+        with zipfile.ZipFile(self.file_name, 'r') as zin:
             with zipfile.ZipFile(tmpname, 'w') as zout:
-                zout.comment = zin.comment # preserve the comment
+                zout.comment = zin.comment
                 for item in zin.infolist():
                     if item.filename == filename:
                         cover_html = zin.read(filename)
                     else:
                         zout.writestr(item, zin.read(item.filename))
-        os.remove(zipname+'.epub')
-        os.rename(tmpname, zipname+'.epub')
-        zf = zipfile.ZipFile(zipname+'.epub', 'r')
+        os.remove(self.file_name)
+        os.rename(tmpname, self.file_name)
+        zf = zipfile.ZipFile(self.file_name, 'r')
         cover_html = """<?xml version='1.0' encoding='utf-8'?>
     <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
     <head>
@@ -136,6 +139,6 @@ class Cover(object):
     </svg></div>
     </body>
     </html>"""
-        cover_html = cover_html.replace('###FILE###',zipname+'.jpg')
-        with zipfile.ZipFile(zipname+'.epub', mode='a', compression=zipfile.ZIP_DEFLATED) as zf:
+        cover_html = cover_html.replace('###FILE###', self.file_name + '.jpg')
+        with zipfile.ZipFile(self.file_name, mode='a', compression=zipfile.ZIP_DEFLATED) as zf:
             zf.writestr(filename, cover_html)

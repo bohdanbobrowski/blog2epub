@@ -20,7 +20,7 @@ class Crawler(object):
     images_regex = r'<table[^>]*><tbody>[\s]*<tr><td[^>]*><a href="([^"]*)"[^>]*><img[^>]*></a></td></tr>[\s]*<tr><td class="tr-caption" style="[^"]*">([^<]*)'
 
     def __init__(self, url, include_images=True, images_height=800, images_width=600, images_quality=40, start=None,
-                 end=None, limit=False, skip=False, force_download=False, file_name=None, destination_folder='./',
+                 end=None, limit=1, skip=False, force_download=False, file_name=None, destination_folder='./',
                  language=None, interface=None):
 
         self.url = self._prepare_url(url)
@@ -40,6 +40,7 @@ class Crawler(object):
         self.dirs = Dirs(self.url)
         self.book = None
         self.title = None
+        self.description = None
         self.language = language
         self.images = {}
         self.articles = []
@@ -130,6 +131,9 @@ class Crawler(object):
     def _get_blog_title(self, content):
         return re.search("<title>([^>^<]*)</title>", content).group(1).strip()
 
+    def _get_blog_description(self, tree):
+        return tree.xpath('//div[@id="header"]/div/div/div/p[@class="description"]/span/text()')
+
     def _get_articles(self, content):
         """
         :param content: web page content
@@ -142,9 +146,8 @@ class Crawler(object):
             output.append(Article(art[0], art[1], self._get_content, self.dirs, self.interface))
         return output
 
-    def _get_url_to_crawl(self, content):
+    def _get_url_to_crawl(self, tree):
         url_to_crawl = None
-        tree = fromstring(content)
         if tree.xpath('//a[@class="blog-pager-older-link"]/@href'):
             url_to_crawl = tree.xpath('//a[@class="blog-pager-older-link"]/@href')[0]
         return url_to_crawl
@@ -166,21 +169,23 @@ class Crawler(object):
                 break
 
     def _check_limit(self):
-        if self.limit and len(self.articles) > self.limit:
+        if self.limit and len(self.articles) >= self.limit:
             self.url_to_crawl = None
 
-    def crawl(self):
+    def _crawl(self):
         while self.url_to_crawl:
             content = self._get_content(self.url_to_crawl)
+            tree = fromstring(content)
             if len(self.articles) == 0:
                 self._get_blog_language(content)
                 self.title = self._get_blog_title(content)
-                self.title = self._get_blog_title(content)
+                self.description = self._get_blog_description(tree)
             self._articles_loop(content)
-            self.url_to_crawl = self._get_url_to_crawl(content)
+            self.url_to_crawl = self._get_url_to_crawl(tree)
             self._check_limit()
 
     def save(self):
+        self._crawl()
         self.book = Book(self)
         self.book.save()
 
@@ -201,6 +206,7 @@ class Dirs(object):
         self.html = self.path + 'html/'
         self.images = self.path + 'images/'
         self.originals = self.path + 'originals/'
+        self.assets = './assets/'
         self._prepare_directories()
 
 
