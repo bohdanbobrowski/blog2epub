@@ -36,7 +36,7 @@ class Crawler(object):
     """
 
     def __init__(self, url, include_images=True, images_height=800, images_width=600, images_quality=40, start=None,
-                 end=None, limit=False, skip=False, force_download=False, file_name=None, destination_folder='./',
+                 end=None, limit=1, skip=False, force_download=False, file_name=None, destination_folder='./',
                  interface=None):
 
         self.url = self._prepare_url(url)
@@ -183,11 +183,10 @@ class Crawler(object):
                     self.start = art.date
                 self.end = art.date
                 self.book.addChapter(art, self.language)
-                self._check_limit()
             self.article_counter += 1
 
     def _check_limit(self):
-        if self.limit and self.ebook_article > self.limit:
+        if self.limit and self.article_counter > self.limit:
             self.url_to_crawl = None
 
     def crawl(self):
@@ -200,6 +199,7 @@ class Crawler(object):
                 self.book = Book(self.destination_folder, self.file_name, self.title, self.url, self.start, self.end, self.language)
             self._articles_loop(articles)
             self.url_to_crawl = self._get_url_to_crawl(content)
+            self._check_limit()
 
     def save(self):
         self.book.save()
@@ -347,18 +347,17 @@ class Article:
         :return:
         """
         headers = self.tree.xpath('//div[@id="comments"]/h4/text()')
-        comments = ''
+        self.comments = ''
         if len(headers) == 1:
-            art_comments = '<hr/><h4>' + headers[0] + '</h4>'
-        art_comments_c = self.tree.xpath('//div[@class="comment-block"]//text()')
+            self.comments = '<hr/><h4>' + headers[0] + '</h4>'
+        comments_in_article = self.tree.xpath('//div[@class="comment-block"]//text()')
         tag = 'h3';
-        for acc in art_comments_c:
-            acc = acc.strip()
-            if acc != 'Odpowiedz' and acc != 'Usuń':
-                art_comments = art_comments + '<' + tag + '>' + acc + '</' + tag + '>'
+        for c in comments_in_article:
+            c = c.strip()
+            if c != 'Odpowiedz' and c != 'Usuń':
+                self.comments = self.comments + '<' + tag + '>' + c + '</' + tag + '>'
                 if tag == 'h3': tag = 'p'
-            if acc == 'Usuń': tag = 'h3'
-        return comments
+            if c == 'Usuń': tag = 'h3'
 
     def process(self):
         self.html = self.download(self.url)
