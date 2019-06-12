@@ -184,6 +184,9 @@ class Crawler(object):
                 self.end = art.date
                 self.book.addChapter(art, self.language)
             self.article_counter += 1
+            self._check_limit()
+            if not self.url_to_crawl:
+                break
 
     def _check_limit(self):
         if self.limit and self.article_counter > self.limit:
