@@ -235,7 +235,7 @@ class Article:
         self.download = download
         self.interface = interface
         self.dirs = dirs
-        self.comments = []
+        self.comments = ''
         self.include_images = include_images
         self.images = []
         self.images_files = []
@@ -337,6 +337,9 @@ class Article:
             self.content = etree.tostring(self.content)
             self.content = re.sub('style="[^"]*"', '', self.content.decode("utf-8"))
             self.content = re.sub('class="[^"]*"', '', self.content)
+            iframe_srcs = re.findall('<iframe.+? src="([^?= ]*)', self.content)
+            for src in iframe_srcs:
+                self.content = re.sub('<iframe.+?%s.+?/>' % src, '<a href="%s">%s</a>' % (src, src), self.content)
 
     def _get_tree(self):
         self.tree = fromstring(self.html)
@@ -349,15 +352,15 @@ class Article:
         headers = self.tree.xpath('//div[@id="comments"]/h4/text()')
         self.comments = ''
         if len(headers) == 1:
-            self.comments = '<hr/><h4>' + headers[0] + '</h4>'
+            self.comments = '<hr/><h3>' + headers[0] + '</h3>'
         comments_in_article = self.tree.xpath('//div[@class="comment-block"]//text()')
-        tag = 'h3';
+        tag = 'h5';
         for c in comments_in_article:
             c = c.strip()
             if c != 'Odpowiedz' and c != 'Usuń':
                 self.comments = self.comments + '<' + tag + '>' + c + '</' + tag + '>'
-                if tag == 'h3': tag = 'p'
-            if c == 'Usuń': tag = 'h3'
+                if tag == 'h5': tag = 'p'
+            if c == 'Usuń': tag = 'h5'
 
     def process(self):
         self.html = self.download(self.url)

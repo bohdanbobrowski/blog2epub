@@ -143,5 +143,5 @@ class Chapter(object):
         self.epub = epub.EpubHtml(title=article.title, file_name='chap_' + str(number) + '.xhtml', lang=language)
         self.epub.content = '<h2>{}</h2>{}<p><i><a href="{}">{}</a></i></p>'.format(article.title, article.date,
                                                                                     article.url, article.url)
-        self.epub.content = self.epub.content + article.content
+        self.epub.content = self.epub.content + article.content + article.comments
 
