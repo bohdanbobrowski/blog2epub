@@ -24,8 +24,7 @@ class Blog2EpubCli(object):
     """
 
     def __init__(self, **defaults):
-        params = self.parseParameters()
-        params = {**defaults, **params}
+        params = {**defaults, **self.parseParameters()}
         params['interface'] = CliInterface()
         blog2epub = Blog2Epub(params)
         blog2epub.download()
