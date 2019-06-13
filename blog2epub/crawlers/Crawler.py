@@ -42,9 +42,9 @@ class Crawler(object):
         self.title = None
         self.description = None
         self.language = language
-        self.images = []
         self.articles = []
         self.article_counter = 0
+        self.images = []
         self.downloader = Downloader(self)
 
     def _prepare_url(self, url):
@@ -127,7 +127,7 @@ class Crawler(object):
         articles = self._get_articles(content)
         for art in articles:
             self.article_counter += 1
-            if self.skip == False or self.article_counter > self.skip:
+            if not self.skip or self.article_counter > self.skip:
                 art.process()
                 self.images = self.images + art.images
                 self.interface.print(str(len(self.articles) + 1) + '. ' + art.title)
@@ -268,6 +268,7 @@ class Article(object):
         self.include_images = crawler.include_images
         self.images_regex = crawler.images_regex
         self.images = []
+        self.images_captions = []
         self.html = None
         self.content = None
         self.date = None
@@ -284,42 +285,47 @@ class Article(object):
         return re.findall(self.images_regex, self.html)
 
     @staticmethod
-    def _default_processor(html, im_url, im_hash):
-        im_regex = '<table[^>]*><tbody>[\s]*<tr><td[^>]*><a href="' + im_url +\
+    def _default_ripper(img, img_hash, html):
+        im_regex = '<table[^>]*><tbody>[\s]*<tr><td[^>]*><a href="' + img +\
                    '"[^>]*><img[^>]*></a></td></tr>[\s]*<tr><td class="tr-caption" style="[^"]*">[^<]*</td></tr>[\s]*</tbody></table>'
         try:
-            html = re.sub(im_regex, ' #blogspot2epubimage#' + im_hash + '# ', html)
+            return re.sub(im_regex, ' #blog2epubimage#' + img_hash + '# ', html)
         except Exception as e:
             print(e)
-        return html
 
     @staticmethod
-    def _nocaption_processor(html, im_url, im_hash, im_fname, dest_fname, im_regex=None):
-        pass
+    def _nocaption_ripper(img, img_hash, html):
+        im_regex = '<a href="' + img + '" imageanchor="1"[^<]*<img.*?></a>'
+        try:
+            return re.sub(im_regex, ' #blog2epubimage#' + img_hash + '# ', html)
+        except Exception as e:
+            print(e)
 
-    def _process_images(self, images=[]):
+    def _process_images(self, images, ripper):
         for image in images:
-            img = image[0]
+            if isinstance(image, str):
+                img = image
+                caption  = ''
+            else:
+                img = image[0]
+                caption = image[1]
             img_hash = self.downloader.download_image(img)
-            self.html = self._default_processor(self.html, img, os.path.join('images', img_hash))
+            self.html = ripper(img=img, img_hash=img_hash, html=self.html)
             self.images.append(img_hash)
+            self.images_captions.append(caption)
+        self._get_tree()
 
     def _get_images(self):
-        self._process_images(self._find_images())
+        self._process_images(self._find_images(), self._default_ripper)
+        self._process_images(self.tree.xpath('//a[@imageanchor="1"]/@href'), self._nocaption_ripper)
+        self._replace_images()
         self._get_tree()
-        # self._process_images(self.tree.xpath('//a[@imageanchor="1"]'), self._nocaption_processor)
-        # self._get_tree()
 
     def _replace_images(self):
-        images_md5 = re.findall('#blogspot2epubimage#([^#]*)', self.content)
-        for im_md5 in images_md5:
-            for image in self.images:
-                m = hashlib.md5()
-                m.update(image[0])
-                image_caption = image[1].strip().decode('utf-8')
-                if m.hexdigest() == im_md5:
-                    image_html = '<table align="center" cellpadding="0" cellspacing="0" class="tr-caption-container" style="margin-left: auto; margin-right: auto; text-align: center; background: #FFF; box-shadow: 1px 1px 5px rgba(0, 0, 0, 0.5); padding: 8px;"><tbody><tr><td style="text-align: center;"><img border="0" src="images/' + im_md5 + '.jpg" /></td></tr><tr><td class="tr-caption" style="text-align: center;">' + image_caption + '</td></tr></tbody></table>'
-                    self.content = self.content.replace('#blogspot2epubimage#' + im_md5 + '#', image_html)
+        for key, image in enumerate(self.images):
+            image_caption = self.images_captions[key]
+            image_html = '<table align="center" cellpadding="0" cellspacing="0" class="tr-caption-container" style="margin-left: auto; margin-right: auto; text-align: center; background: #FFF; box-shadow: 1px 1px 5px rgba(0, 0, 0, 0.5); padding: 8px;"><tbody><tr><td style="text-align: center;"><img border="0" src="images/' + image + '" /></td></tr><tr><td class="tr-caption" style="text-align: center;">' + image_caption + '</td></tr></tbody></table>'
+            self.html = self.html.replace('#blog2epubimage#' + image + '#', image_html)
 
     def _get_content(self):
         self.content = self.tree.xpath("//div[contains(concat(' ',normalize-space(@class),' '),'post-body')]")
@@ -358,8 +364,8 @@ class Article(object):
         self._get_tree()
         self._get_title()
         self._get_date()
-        self._get_content()
         self._get_images()
+        self._get_content()
         self._get_comments()
 
 
