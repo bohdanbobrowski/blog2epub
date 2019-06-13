@@ -155,6 +155,7 @@ class Book(object):
             zf.writestr(cover_html_fn, cover_html)
             zf.write(cover_file_name, 'EPUB/' + cover_file_name)
             zf.writestr(content_opf_fn, self._upgrade_opf(content_opf, cover_file_name))
+        os.remove(cover_file_name)
 
     def _upgrade_opf(self, content_opt, cover_file_name):
         new_manifest = """<manifest>
@@ -174,11 +175,14 @@ class Book(object):
         self.book.add_item(nav_css)
 
     def _include_images(self):
+        images_included = []
         if self.include_images:
             for i, image in enumerate(self.images, start=1):
-                epub_img = epub.EpubItem(uid="img%s" % i, file_name="images/" + image, media_type="image/jpeg",
-                                         content=open(os.path.join(self.dirs.images, image), 'rb').read())
-                self.book.add_item(epub_img)
+                if image not in images_included:
+                    epub_img = epub.EpubItem(uid="img%s" % i, file_name="images/" + image, media_type="image/jpeg",
+                                             content=open(os.path.join(self.dirs.images, image), 'rb').read())
+                    self.book.add_item(epub_img)
+                    images_included.append(image)
 
     def save(self):
         self.update_file_name()
