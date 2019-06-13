@@ -6,14 +6,15 @@ from setuptools import setup
 
 setup(
     name='blog2epub',
-    version='0.3',
+    version='1.0',
     description="Blog To Epub Downloader",
     url="https://github.com/bohdanbobrowski/blogspot2epub",
     author="Bohdan Bobrowski",
     author_email="bohdanbobrowski@gmail.com",
     license="MIT",
     packages=[
-        "blog2epub"
+        "blog2epub",
+        "blog2epub.crawlers",
     ],
     install_requires=[
         "eyed3",
@@ -25,13 +26,13 @@ setup(
     ],
     entry_points={
         'console_scripts': [
-            'blog2epub = blog2epub.blog2epub-cli:main'
+            'blog2epub = blog2epub.Blog2EpubCli:run'
         ],
     },
     package_data={
-        'prdl': [
-            '*.jpg'
+        'blog2epub': [
+            'assets/*.ttf'
         ]
     },
-    include_package_data = True,
+    include_package_data=True,
 )

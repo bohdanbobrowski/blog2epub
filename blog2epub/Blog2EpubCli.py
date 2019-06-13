@@ -23,7 +23,7 @@ class Blog2EpubCli(object):
     Command line interface for Blog2Epub class.
     """
 
-    def __init__(self, **defaults):
+    def __init__(self, defaults={}):
         params = {**defaults, **self.parseParameters()}
         params['interface'] = CliInterface()
         blog2epub = Blog2Epub(params)
@@ -66,3 +66,6 @@ class Blog2EpubCli(object):
             if arg.find('--quality=') == 0:
                 params['images_quality'] = int(arg.replace('--quality=', ''))
         return params
+
+def run():
+    Blog2EpubCli()
