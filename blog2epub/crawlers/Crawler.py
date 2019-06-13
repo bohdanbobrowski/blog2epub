@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding : utf-8 -*-
 import hashlib
+import html
 import os
 import re
 from urllib.request import urlopen
@@ -43,6 +44,8 @@ class Crawler(object):
         self.language = language
         self.images = []
         self.articles = []
+        self.article_counter = 0
+        self.downloader = Downloader(self)
 
     def _prepare_url(self, url):
         return url.replace('http:', '').replace('https:', '').strip('/')
@@ -61,49 +64,6 @@ class Crawler(object):
             return interface
         else:
             return EmptyInterface()
-
-    @staticmethod
-    def _get_urlhash(url):
-        m = hashlib.md5()
-        m.update(url.encode('utf-8'))
-        return m.hexdigest()
-
-    def _get_filepath(self, url):
-        return self.dirs.html + self._get_urlhash(url) + '.html'
-
-    @staticmethod
-    def _file_write(contents, filepath):
-        html_file = open(filepath, "wb")
-        html_file.write(contents)
-        html_file.close()
-
-    @staticmethod
-    def _file_read(filepath):
-        with open(filepath, 'r') as html_file:
-            contents = html_file.read()
-        return contents
-
-    def _file_download(self, url, filepath):
-        self.dirs._prepare_directories()
-        response = urlopen(url)
-        data = response.read()
-        contents = data.decode('utf-8')
-        self._file_write(contents, filepath)
-        return contents
-
-    def _image_download(self, url, filepath):
-        self.dirs._prepare_directories()
-        f = open(filepath, 'wb')
-        f.write(urlopen(url).read())
-        f.close()
-
-    def _get_content(self, url):
-        filepath = self._get_filepath(url)
-        if self.force_download or not os.path.isfile(filepath):
-            contents = self._file_download(url, filepath)
-        else:
-            contents = self._file_read(filepath)
-        return contents
 
     def get_cover_title(self):
         cover_title = self.title + ' '
@@ -142,22 +102,7 @@ class Crawler(object):
     def _get_header_images(self, tree):
         header_images = []
         for img in tree.xpath('//div[@id="header"]/div/div/div/p[@class="description"]/span/img/@src'):
-            if img.startswith("//"):
-                img = "http:" + img
-            img_hash = self._get_urlhash(img)
-            img_type = os.path.splitext(img)[1]
-            img_filename = os.path.join(self.dirs.originals, img_hash + "." + img_type)
-            if not os.path.isfile(img_filename):
-                self._image_download(img, img_filename)
-            img_images = os.path.join(self.dirs.images, img_hash + ".jpg")
-            if not os.path.isfile(img_images):
-                if self.include_images and os.path.isfile(img_filename):
-                    picture = Image.open(img_filename)
-                    if picture.size[0] > self.images_width or picture.size[1] > self.images_height:
-                        picture.thumbnail([self.images_width, self.images_height], Image.ANTIALIAS)
-                    picture = picture.convert('L')
-                    picture.save(img_images, format='JPEG', quality=self.images_quality)
-            header_images.append(img_hash + ".jpg")
+            header_images.append(self.downloader.download_image(img))
         return header_images
 
     def _get_articles(self, content):
@@ -169,7 +114,7 @@ class Crawler(object):
                           content)
         output = []
         for art in articles_list:
-            output.append(Article(art[0], art[1], self._get_content, self.dirs, self.interface))
+            output.append(Article(art[0], art[1], self))
         return output
 
     def _get_url_to_crawl(self, tree):
@@ -181,9 +126,10 @@ class Crawler(object):
     def _articles_loop(self, content):
         articles = self._get_articles(content)
         for art in articles:
+            self.article_counter += 1
             if self.skip == False or self.article_counter > self.skip:
-                art.download(art.url)
                 art.process()
+                self.images = self.images + art.images
                 self.interface.print(str(len(self.articles) + 1) + '. ' + art.title)
                 if self.start:
                     self.end = art.date
@@ -200,7 +146,7 @@ class Crawler(object):
 
     def _crawl(self):
         while self.url_to_crawl:
-            content = self._get_content(self.url_to_crawl)
+            content = self.downloader.get_content(self.url_to_crawl)
             tree = fromstring(content)
             if len(self.articles) == 0:
                 self._get_blog_language(content)
@@ -237,68 +183,108 @@ class Dirs(object):
         self._prepare_directories()
 
 
-class Article:
+class Downloader(object):
+
+    def __init__(self, crawler):
+        self.dirs = crawler.dirs
+        self.force_download = crawler.force_download
+        self.images_width = crawler.images_width
+        self.images_height = crawler.images_height
+        self.images_quality = crawler.images_quality
+
+    @staticmethod
+    def get_urlhash(url):
+        m = hashlib.md5()
+        m.update(url.encode('utf-8'))
+        return m.hexdigest()
+
+    @staticmethod
+    def file_write(contents, filepath):
+        html_file = open(filepath, "w")
+        html_file.write(contents)
+        html_file.close()
+
+    @staticmethod
+    def file_read(filepath):
+        with open(filepath, 'r') as html_file:
+            contents = html_file.read()
+        return contents
+
+    def get_filepath(self, url):
+        return self.dirs.html + self.get_urlhash(url) + '.html'
+
+    def file_download(self, url, filepath):
+        self.dirs._prepare_directories()
+        response = urlopen(url)
+        data = response.read()
+        contents = data.decode('utf-8')
+        self.file_write(contents, filepath)
+        return contents
+
+    def image_download(self, url, filepath):
+        self.dirs._prepare_directories()
+        f = open(filepath, 'wb')
+        f.write(urlopen(url).read())
+        f.close()
+
+    def get_content(self, url):
+        filepath = self.get_filepath(url)
+        if self.force_download or not os.path.isfile(filepath):
+            contents = self.file_download(url, filepath)
+        else:
+            contents = self.file_read(filepath)
+        return contents
+
+    def download_image(self, img):
+        if img.startswith("//"):
+            img = "http:" + img
+        img_hash = self.get_urlhash(img)
+        img_type = os.path.splitext(img)[1].lower()
+        img_filename = os.path.join(self.dirs.originals, img_hash + "." + img_type)
+        if not os.path.isfile(img_filename):
+            self.image_download(img, img_filename)
+        img_images = os.path.join(self.dirs.images, img_hash + ".jpg")
+        if not os.path.isfile(img_images):
+            if os.path.isfile(img_filename):
+                picture = Image.open(img_filename)
+                if picture.size[0] > self.images_width or picture.size[1] > self.images_height:
+                    picture.thumbnail([self.images_width, self.images_height], Image.ANTIALIAS)
+                picture = picture.convert('L')
+                picture.save(img_images, format='JPEG', quality=self.images_quality)
+        return img_hash + ".jpg"
+
+
+class Article(object):
     """
     Blog post, article which became book chapter...
     """
 
-    def __init__(self, url, title, download, dirs, interface, include_images=True):
+    def __init__(self, url, title, crawler):
         self.url = url
         self.title = title
-        self.download = download
-        self.interface = interface
-        self.dirs = dirs
+        self.interface = crawler.interface
+        self.dirs = crawler.dirs
         self.comments = ''
-        self.include_images = include_images
+        self.include_images = crawler.include_images
+        self.images_regex = crawler.images_regex
         self.images = []
-        self.images_files = []
-        self.images_included = []
         self.html = None
         self.content = None
         self.date = None
         self.tree = None
+        self.downloader = Downloader(crawler)
 
     def _get_title(self):
-        self.title = self.title.strip()
+        self.title = html.unescape(self.title.strip())
 
     def _get_date(self):
         self.date = re.sub('(.*?, )', '', self.tree.xpath('//h2[@class="date-header"]/span/text()')[0])
-
-    def _image_download(self, picture_url, original_picture, target_picture):
-        result = False
-        if picture_url.startswith("//"):
-            picture_url = "http:" + picture_url
-        if not os.path.isfile(original_picture):
-            try:
-                u = urlopen(picture_url)
-                f = open(original_picture, 'wb')
-                block_sz = 8192
-                while True:
-                    buffer = u.read(block_sz)
-                    if not buffer:
-                        break
-                    f.write(buffer)
-                f.close()
-            except Exception as e:
-                self.interface.print(e)
-        if self.include_images and not os.path.isfile(target_picture) and os.path.isfile(original_picture):
-            try:
-                picture = Image.open(original_picture)
-                if picture.size[0] > self.images_width or picture.size[1] > self.images_height:
-                    picture.thumbnail([self.images_width, self.images_height], Image.ANTIALIAS)
-                picture = picture.convert('L')
-                picture.save(target_picture, format='JPEG', quality=self.images_quality)
-            except Exception as e:
-                self.interface.print(e)
-        if os.path.isfile(target_picture):
-            result = True
-        return result
 
     def _find_images(self):
         return re.findall(self.images_regex, self.html)
 
     @staticmethod
-    def _default_processor(html, im_url, im_hash, im_fname, dest_fname, im_regex=None):
+    def _default_processor(html, im_url, im_hash):
         im_regex = '<table[^>]*><tbody>[\s]*<tr><td[^>]*><a href="' + im_url +\
                    '"[^>]*><img[^>]*></a></td></tr>[\s]*<tr><td class="tr-caption" style="[^"]*">[^<]*</td></tr>[\s]*</tbody></table>'
         try:
@@ -311,18 +297,12 @@ class Article:
     def _nocaption_processor(html, im_url, im_hash, im_fname, dest_fname, im_regex=None):
         pass
 
-    def _process_images(self, images=[], processor=_default_processor):
+    def _process_images(self, images=[]):
         for image in images:
-            im_url = image[0]
-            m = hashlib.md5()
-            m.update(im_url)
-            im_hash = m.hexdigest()
-            self.images_included.append(im_hash + ".jpg")
-            im_fname = self.dirs.originals + im_hash + ".jpg"
-            dest_fname = self.dirs.images + im_hash+ ".jpg"
-            self.html = processor(self.html, im_url, im_hash, im_fname, dest_fname)
-            if self._image_download(image[0], im_fname, dest_fname):
-                self.images_files.append(im_fname)
+            img = image[0]
+            img_hash = self.downloader.download_image(img)
+            self.html = self._default_processor(self.html, img, os.path.join('images', img_hash))
+            self.images.append(img_hash)
 
     def _get_images(self):
         self._process_images(self._find_images())
@@ -374,15 +354,16 @@ class Article:
             if c == 'Usuń': tag = 'h5'
 
     def process(self):
-        self.html = self.download(self.url)
+        self.html = self.downloader.get_content(self.url)
         self._get_tree()
         self._get_title()
         self._get_date()
         self._get_content()
+        self._get_images()
         self._get_comments()
 
 
-class EmptyInterface:
+class EmptyInterface(object):
     """
     Emty interface for script output.
     """

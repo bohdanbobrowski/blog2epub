@@ -56,7 +56,7 @@ class Book(object):
     </head>
     <body>
     <div><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" width="100%" height="100%" viewBox="0 0 600 800" preserveAspectRatio="none">
-    <image width="600" height="800" xlink:href="###FILE###"/>
+    <image id="cover_img" width="600" height="800" xlink:href="###FILE###"/>
     </svg></div>
     </body>
     </html>"""
@@ -136,24 +136,32 @@ class Book(object):
     def _add_cover(self):
         self.cover = Cover(self)
         cover_file_name = self.cover.generate()
-        # self.book.set_cover(cover_file_name, open(self.file_name + '.jpg', 'rb').read())
-        # os.remove(cover_file_name)
-
-    def _fix_cover(self):
-        filename = 'EPUB/cover.xhtml'
+        cover_html = self.cover_html.replace('###FILE###', cover_file_name)
+        cover_html_fn = 'EPUB/cover.xhtml'
+        content_opf_fn = 'EPUB/content.opf'
+        with zipfile.ZipFile(self.file_name, 'r') as zf:
+            content_opf = zf.read(content_opf_fn)
         tmpfd, tmpname = tempfile.mkstemp(dir=os.path.dirname(self.file_name))
         os.close(tmpfd)
         with zipfile.ZipFile(self.file_name, 'r') as zin:
             with zipfile.ZipFile(tmpname, 'w') as zout:
-                zout.comment = zin.comment # preserve the comment
+                zout.comment = zin.comment  # preserve the comment
                 for item in zin.infolist():
-                    if item.filename != filename:
+                    if item.filename not in [cover_html_fn, content_opf_fn]:
                         zout.writestr(item, zin.read(item.filename))
         os.remove(self.file_name)
         os.rename(tmpname, self.file_name)
-        cover_html = self.cover_html.replace('###FILE###', self.file_name + '.jpg')
-        with zipfile.ZipFile(self.file_name, mode='a', compression=zipfile.ZIP_DEFLATED) as zf:
-            zf.writestr(filename, cover_html)
+        with zipfile.ZipFile(self.file_name, 'a') as zf:
+            zf.writestr(cover_html_fn, cover_html)
+            zf.write(cover_file_name, 'EPUB/' + cover_file_name)
+            zf.writestr(content_opf_fn, self._upgrade_opf(content_opf, cover_file_name))
+
+    def _upgrade_opf(self, content_opt, cover_file_name):
+        new_manifest = """<manifest>
+    <item href="cover.xhtml" id="cover" media-type="application/xhtml+xml"/>
+    <item href="{}" id="cover_img" media-type="image/jpeg"/>""".format(cover_file_name)
+        content_opt = content_opt.decode("utf-8").replace("<manifest>", new_manifest)
+        return content_opt
 
     def _add_table_of_contents(self):
         self.table_of_contents.reverse()
@@ -189,10 +197,9 @@ class Book(object):
         self.book.spine.reverse()
         if len(self.description) > 0:
             self.book.add_metadata('DC', 'description', "\n".join(self.description))
-        self._add_cover()
         self._include_images()
         epub.write_epub(os.path.join(self.destination_folder, self.file_name), self.book, {})
-        self._fix_cover()
+        self._add_cover()
 
 class Chapter(object):
 
@@ -204,5 +211,5 @@ class Chapter(object):
         self.epub = epub.EpubHtml(title=article.title, uid=uid, file_name=uid + '.xhtml', lang=language)
         self.epub.content = '<h2>{}</h2>{}<p><i><a href="{}">{}</a></i></p>'.format(article.title, article.date,
                                                                                     article.url, article.url)
-        self.epub.content = self.epub.content + article.content + article.comments
+        self.epub.content = '<div>' + self.epub.content + article.content + article.comments + '</div>'
 
