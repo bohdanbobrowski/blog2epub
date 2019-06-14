@@ -84,7 +84,6 @@ class Book(object):
         self.book = None
         self._add_chapters(crawler.articles)
 
-
     def update_file_name(self):
         file_name = self.file_name_prefix
         if self.start and self.end:

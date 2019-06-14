@@ -90,8 +90,8 @@ class Crawler(object):
             self.language = 'en';
             if re.search("'lang':[\s]*'([a-z^']+)'", content):
                 self.language = re.search("'lang':[\s]*'([a-z^']+)'", content).group(1).strip()
-            if re.search('lang=.([a-z^"]+).', content):
-                self.language = re.search('lang=.([a-z^"]+).', content).group(1).strip()
+            if re.search('lang=[\'"]([a-z]+)[\'"]', content):
+                self.language = re.search('lang=[\'"]([a-z]+)[\'"]', content).group(1).strip()
 
     def _get_blog_title(self, content):
         return re.search("<title>([^>^<]*)</title>", content).group(1).strip()
