@@ -17,12 +17,12 @@ setup(
         "blog2epub.crawlers",
     ],
     install_requires=[
-        "eyed3",
-        "mutagen",
-        "slugify",
+        "EbookLib",
+        "lxml",
+        "Pillow",
         "pycurl",
-        "pillow",
-        "clint"
+        "six",
+        "python-dateutil",
     ],
     entry_points={
         'console_scripts': [

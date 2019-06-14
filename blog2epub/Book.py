@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding : utf-8 -*-
-from datetime import datetime
+from dateutil.parser import parse
 import os
 import tempfile
 import zipfile
@@ -88,12 +88,12 @@ class Book(object):
     def update_file_name(self):
         file_name = self.file_name_prefix
         if self.start and self.end:
-            start_date_obj = datetime.strptime(self._translate_month(self.start), '%d %B %Y')
-            end_date_obj = datetime.strptime(self._translate_month(self.end), '%d %B %Y')
-            if self.start == self.end:
-                file_name = file_name  + '_' + start_date_obj.strftime('%Y.%m.%d')
+            start_date = parse(self._translate_month(self.start))
+            end_date = parse(self._translate_month(self.end))
+            if start_date == end_date:
+                file_name = file_name  + '_' + start_date.strftime('%Y.%m.%d')
             else:
-                file_name = file_name + '_' + end_date_obj.strftime('%Y.%m.%d') + '-' + start_date_obj.strftime('%Y.%m.%d')
+                file_name = file_name + '_' + end_date.strftime('%Y.%m.%d') + '-' + start_date.strftime('%Y.%m.%d')
         self.file_name = file_name + ".epub"
 
     def _translate_month(self, date):
