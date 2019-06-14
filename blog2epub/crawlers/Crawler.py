@@ -86,14 +86,14 @@ class Crawler(object):
         return re.sub('[^\,]*, ', '', str_date)
 
     def _get_blog_language(self, content):
+        if self.language is None and re.search("'lang':[\s]*'([a-z^']+)'", content):
+            self.language = re.search("'lang':[\s]*'([a-z^']+)'", content).group(1).strip()
+        if self.language is None and re.search('lang=[\'"]([a-z]+)[\'"]', content):
+            self.language = re.search('lang=[\'"]([a-z]+)[\'"]', content).group(1).strip()
+        if self.language is None and re.search('locale[\'"]:[\s]*[\'"]([a-z]+)[\'"]', content):
+            self.language = re.search('locale[\'"]:[\s]*[\'"]([a-z]+)[\'"]', content).group(1).strip()
         if self.language is None:
             self.language = 'en';
-            if re.search("'lang':[\s]*'([a-z^']+)'", content):
-                self.language = re.search("'lang':[\s]*'([a-z^']+)'", content).group(1).strip()
-            if re.search('lang=[\'"]([a-z]+)[\'"]', content):
-                self.language = re.search('lang=[\'"]([a-z]+)[\'"]', content).group(1).strip()
-            if re.search('locale[\'"]:[\s]*[\'"]([a-z]+)[\'"]', content):
-                self.language = re.search('locale[\'"]:[\s]*[\'"]([a-z]+)[\'"]', content).group(1).strip()
 
     def _get_blog_title(self, content):
         return re.search("<title>([^>^<]*)</title>", content).group(1).strip()
