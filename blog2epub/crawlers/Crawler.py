@@ -222,10 +222,14 @@ class Downloader(object):
         return contents
 
     def image_download(self, url, filepath):
-        self.dirs._prepare_directories()
-        f = open(filepath, 'wb')
-        f.write(urlopen(url).read())
-        f.close()
+        try:
+            self.dirs._prepare_directories()
+            f = open(filepath, 'wb')
+            f.write(urlopen(url).read())
+            f.close()
+            return True
+        except Exception as e:
+            return False
 
     def get_content(self, url):
         filepath = self.get_filepath(url)
@@ -241,16 +245,18 @@ class Downloader(object):
         img_hash = self.get_urlhash(img)
         img_type = os.path.splitext(img)[1].lower()
         img_filename = os.path.join(self.dirs.originals, img_hash + "." + img_type)
-        if not os.path.isfile(img_filename):
-            self.image_download(img, img_filename)
-        img_images = os.path.join(self.dirs.images, img_hash + ".jpg")
-        if not os.path.isfile(img_images):
-            if os.path.isfile(img_filename):
-                picture = Image.open(img_filename)
-                if picture.size[0] > self.images_width or picture.size[1] > self.images_height:
-                    picture.thumbnail([self.images_width, self.images_height], Image.ANTIALIAS)
-                picture = picture.convert('L')
-                picture.save(img_images, format='JPEG', quality=self.images_quality)
+        if os.path.isfile(img_filename) or self.image_download(img, img_filename):
+            img_images = os.path.join(self.dirs.images, img_hash + ".jpg")
+            if not os.path.isfile(img_images):
+                if os.path.isfile(img_filename):
+                    try:
+                        picture = Image.open(img_filename)
+                        if picture.size[0] > self.images_width or picture.size[1] > self.images_height:
+                            picture.thumbnail([self.images_width, self.images_height], Image.ANTIALIAS)
+                        picture = picture.convert('L')
+                        picture.save(img_images, format='JPEG', quality=self.images_quality)
+                    except Exception as e:
+                        return None
         return img_hash + ".jpg"
 
 
@@ -309,6 +315,14 @@ class Article(object):
         except Exception as e:
             print(e)
 
+    @staticmethod
+    def _img_ripper(img, img_hash, html):
+        im_regex = '<img.*?src="' + img.replace("+", "\+") + '".*?>'
+        try:
+            return re.sub(im_regex, ' #blog2epubimage#' + img_hash + '# ', html)
+        except Exception as e:
+            print(e)
+
     def _process_images(self, images, ripper):
         for image in images:
             if isinstance(image, str):
@@ -318,15 +332,17 @@ class Article(object):
                 img = image[0]
                 caption = image[1]
             img_hash = self.downloader.download_image(img)
-            self.html = ripper(img=img, img_hash=img_hash, html=self.html)
-            self.images.append(img_hash)
-            self.images_captions.append(caption)
+            if img_hash:
+                self.html = ripper(img=img, img_hash=img_hash, html=self.html)
+                self.images.append(img_hash)
+                self.images_captions.append(caption)
         self._get_tree()
 
     def _get_images(self):
         self._process_images(self._find_images(), self._default_ripper)
         self._process_images(self.tree.xpath('//a[@imageanchor="1"]/@href'), self._nocaption_ripper)
         self._process_images(self.tree.xpath('//img[contains(@id,"BLOGGER_PHOTO_ID_")]/@src'), self._bloggerphoto_ripper)
+        self._process_images(self.tree.xpath('//img/@src'), self._bloggerphoto_ripper)
         self._replace_images()
         self._get_tree()
 

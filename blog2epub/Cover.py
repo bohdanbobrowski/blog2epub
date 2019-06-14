@@ -11,6 +11,8 @@ class Cover(object):
     Cover class used in Blog2Epub class.
     """
 
+    tile_size = 120
+
     def __init__(self, book):
         """
         :param crawler: intance of Book class
@@ -20,10 +22,20 @@ class Cover(object):
         self.file_name_prefix = book.file_name_prefix
         self.description = book.description
         self.title = book.title
-        self.images = book.images
+        self.images = self._check_image_size(book.images)
         self.destination_folder = book.destination_folder
         self.start = book.start
         self.end = book.end
+        
+    def _check_image_size(self, images):
+        verified_images = []
+        for image in set(images):
+            img_file = os.path.join(self.dirs.images, image)
+            if os.path.isfile(img_file):
+                img = Image.open(img_file)
+                if img.size[0] >= self.tile_size and img.size[0] >= self.tile_size:
+                    verified_images.append(image)
+        return verified_images
 
     def _make_thumb(self, img, size):
         cropped_img = self._crop_image(img, size)
@@ -56,8 +68,7 @@ class Cover(object):
         region = img.crop(box)
         return region
 
-    def generate(self):
-        tile_size = 120
+    def generate(self):        
         tiles_count_y = 5
         tiles_count_x = 7
         cover_image = Image.new('RGB', (600, 800))
@@ -70,10 +81,10 @@ class Cover(object):
                 for y in range(0, tiles_count_y):
                     try:
                         img_file = os.path.join(self.dirs.images, self.images[i - 1])
-                        thumb = self._make_thumb(Image.open(img_file), (tile_size, tile_size))
+                        thumb = self._make_thumb(Image.open(img_file), (self.tile_size, self.tile_size))
                         thumb = thumb.point(lambda p: p * dark_factor)
                         dark_factor = dark_factor - 0.03
-                        cover_image.paste(thumb, (y * tile_size, x * tile_size))
+                        cover_image.paste(thumb, (y * self.tile_size, x * self.tile_size))
                         i = i + 1
                     except Exception as e:
                         print(e)

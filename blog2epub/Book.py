@@ -178,7 +178,7 @@ class Book(object):
         images_included = []
         if self.include_images:
             for i, image in enumerate(self.images, start=1):
-                if image not in images_included:
+                if image not in images_included and os.path.isfile(os.path.join(self.dirs.images, image)):
                     epub_img = epub.EpubItem(uid="img%s" % i, file_name="images/" + image, media_type="image/jpeg",
                                              content=open(os.path.join(self.dirs.images, image), 'rb').read())
                     self.book.add_item(epub_img)
