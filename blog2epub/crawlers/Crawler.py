@@ -311,7 +311,7 @@ class Article(object):
 
     @staticmethod
     def _bloggerphoto_ripper(img, img_hash, html):
-        im_regex = '<a href="[^"]+"><img.*?id="BLOGGER_PHOTO_ID_[0-9]+".*?src="' + img.replace("+", "\+") + '".*?></a>'
+        im_regex = '<a href="[^"]+"><img.*?id="BLOGGER_PHOTO_ID_[0-9]+".*?src="' + img.replace("+", "\+") + '".*?/a>'
         try:
             return re.sub(im_regex, ' #blog2epubimage#' + img_hash + '# ', html)
         except Exception as e:
@@ -344,7 +344,7 @@ class Article(object):
         self._process_images(self._find_images(), self._default_ripper)
         self._process_images(self.tree.xpath('//a[@imageanchor="1"]/@href'), self._nocaption_ripper)
         self._process_images(self.tree.xpath('//img[contains(@id,"BLOGGER_PHOTO_ID_")]/@src'), self._bloggerphoto_ripper)
-        self._process_images(self.tree.xpath('//img/@src'), self._bloggerphoto_ripper)
+        self._process_images(self.tree.xpath('//img/@src'), self._img_ripper)
         self._replace_images()
         self._get_tree()
 
