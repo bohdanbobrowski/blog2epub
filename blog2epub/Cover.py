@@ -33,7 +33,7 @@ class Cover(object):
             img_file = os.path.join(self.dirs.images, image)
             if os.path.isfile(img_file):
                 img = Image.open(img_file)
-                if img.size[0] >= self.tile_size and img.size[0] >= self.tile_size:
+                if img.size[0] >= self.tile_size and img.size[1] >= self.tile_size:
                     verified_images.append(image)
         return verified_images
 
