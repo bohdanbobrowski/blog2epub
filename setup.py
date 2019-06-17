@@ -26,8 +26,11 @@ setup(
     ],
     entry_points={
         'console_scripts': [
-            'blog2epub = blog2epub.Blog2EpubCli:run'
+            'blog2epub = blog2epub.Blog2EpubCli:main'
         ],
+        'gui_scripts': [
+            'blog2epubqt = blog2epub.Blog2EpubQt:main'
+        ]
     },
     package_data={
         'blog2epub': [

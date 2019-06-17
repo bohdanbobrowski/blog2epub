@@ -67,5 +67,5 @@ class Blog2EpubCli(object):
                 params['images_quality'] = int(arg.replace('--quality=', ''))
         return params
 
-def run():
+def main():
     Blog2EpubCli()
