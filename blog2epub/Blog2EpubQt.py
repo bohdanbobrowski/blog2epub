@@ -17,7 +17,6 @@ class Blog2EpubQt(QDialog):
     # TODO: this is even not a sketch
 
     def __init__(self):
-        super(KeywordCounterWindow, self).__init__()
         self.setWindowTitle("Keyword counter")
         self.input = self.draw_input()
         self.button = self.draw_button(self.button_clicked)
@@ -25,20 +24,10 @@ class Blog2EpubQt(QDialog):
         self.set_main_layout()
 
     def button_clicked(self):
-        crawler = KeywordCounterCrawler(self.input.text())
-        if crawler.download() is False:
-            self.input.setText("")
-            self.set_table_data([])
-        else:
-            message = QMessageBox();
-            message.setIcon(QMessageBox.Information)
-            message.setText("Entered url is correct")
-            message.setInformativeText(str(len(crawler.keywords)) + " keywords found")
-            message.setWindowTitle("Keyword Counter Message")
-            message.setDetailedText(crawler.body)
-            message.setStandardButtons(QMessageBox.Ok)
-            message.exec_()
-            self.set_table_data(crawler.data)
+        message = QMessageBox();
+        message.setIcon(QMessageBox.Information)
+        message.setText("Entered url is correct")
+        message.exec_()
 
     def set_main_layout(self):
         main_layout = QVBoxLayout()
