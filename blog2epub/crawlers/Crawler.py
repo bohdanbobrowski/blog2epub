@@ -287,7 +287,13 @@ class Article(object):
         self.title = html.unescape(self.title.strip())
 
     def _get_date(self):
-        self.date = re.sub('(.*?, )', '', self.tree.xpath('//h2[@class="date-header"]/span/text()')[0])
+        date = self.tree.xpath('//abbr[@itemprop="datePublished"]/@title')
+        if date:
+            self.date = date[0]
+        else:
+            date = self.tree.xpath('//h2[@class="date-header"]/span/text()')
+            if len(date) > 0:
+                self.date = re.sub('(.*?, )', '', date[0])
 
     def _find_images(self):
         return re.findall(self.images_regex, self.html)

@@ -96,6 +96,8 @@ class Book(object):
         self.file_name = file_name + ".epub"
 
     def _translate_month(self, date):
+        # TODO: need to be refactored, or moved as parameter to dateutil parser function
+        date = date.lower()
         if self.language == 'pl':
             date = date.replace('stycznia', 'january')
             date = date.replace('lutego', 'february')
@@ -109,6 +111,19 @@ class Book(object):
             date = date.replace('października', 'october')
             date = date.replace('listopada', 'november')
             date = date.replace('grudnia', 'december')
+        if self.language == 'ru':
+            date = date.replace('января', 'january')
+            date = date.replace('февраля', 'february')
+            date = date.replace('марта', 'march')
+            date = date.replace('апреля', 'april')
+            date = date.replace('мая', 'may')
+            date = date.replace('июня', 'june')
+            date = date.replace('июля', 'july')
+            date = date.replace('августа', 'august')
+            date = date.replace('сентября', 'september')
+            date = date.replace('октября', 'october')
+            date = date.replace('ноября', 'november')
+            date = date.replace('декабря', 'december')
         return date
 
     def _add_chapters(self, articles):
