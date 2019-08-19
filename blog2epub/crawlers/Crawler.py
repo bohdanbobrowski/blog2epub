@@ -4,6 +4,8 @@ import hashlib
 import html
 import os
 import re
+import dateutil.parser
+from datetime import datetime
 from urllib.request import urlopen
 from lxml.html.soupparser import fromstring
 from lxml.ElementInclude import etree
@@ -275,6 +277,7 @@ class Article(object):
         self.comments = ''
         self.include_images = crawler.include_images
         self.images_regex = crawler.images_regex
+        self.language = crawler.language
         self.images = []
         self.images_captions = []
         self.html = None
@@ -294,6 +297,40 @@ class Article(object):
             date = self.tree.xpath('//h2[@class="date-header"]/span/text()')
             if len(date) > 0:
                 self.date = re.sub('(.*?, )', '', date[0])
+        self.date = self._translate_month(self.date)
+        self.date = dateutil.parser.parse(self.date)
+
+    def _translate_month(self, date):
+        # TODO: need to be refactored, or moved as parameter to dateutil parser function
+        date = date.lower()
+        if self.language == 'pl':
+            date = date.replace('stycznia', 'january')
+            date = date.replace('lutego', 'february')
+            date = date.replace('marca', 'march')
+            date = date.replace('kwietnia', 'april')
+            date = date.replace('maja', 'may')
+            date = date.replace('czerwca', 'june')
+            date = date.replace('lipca', 'july')
+            date = date.replace('sierpnia', 'august')
+            date = date.replace('września', 'september')
+            date = date.replace('października', 'october')
+            date = date.replace('listopada', 'november')
+            date = date.replace('grudnia', 'december')
+        if self.language == 'ru':
+            date = date.replace('января', 'january')
+            date = date.replace('февраля', 'february')
+            date = date.replace('марта', 'march')
+            date = date.replace('апреля', 'april')
+            date = date.replace('мая', 'may')
+            date = date.replace('июня', 'june')
+            date = date.replace('июля', 'july')
+            date = date.replace('августа', 'august')
+            date = date.replace('сентября', 'september')
+            date = date.replace('октября', 'october')
+            date = date.replace('ноября', 'november')
+            date = date.replace('декабря', 'december')
+            date = re.sub(' г.$', '', date)
+        return date
 
     def _find_images(self):
         return re.findall(self.images_regex, self.html)
@@ -351,6 +388,7 @@ class Article(object):
         self._process_images(self.tree.xpath('//a[@imageanchor="1"]/@href'), self._nocaption_ripper)
         self._process_images(self.tree.xpath('//img[contains(@id,"BLOGGER_PHOTO_ID_")]/@src'), self._bloggerphoto_ripper)
         self._process_images(self.tree.xpath('//img/@src'), self._img_ripper)
+        # self._process_images(re., self._img_ripper)
         self._replace_images()
         self._get_tree()
 
@@ -384,13 +422,13 @@ class Article(object):
         if len(headers) == 1:
             self.comments = '<hr/><h3>' + headers[0] + '</h3>'
         comments_in_article = self.tree.xpath('//div[@class="comment-block"]//text()')
-        tag = 'h5';
+        tag = 'h6';
         for c in comments_in_article:
             c = c.strip()
             if c != 'Odpowiedz' and c != 'Usuń':
                 self.comments = self.comments + '<' + tag + '>' + c + '</' + tag + '>'
-                if tag == 'h5': tag = 'p'
-            if c == 'Usuń': tag = 'h5'
+                if tag == 'h6': tag = 'p'
+            if c == 'Usuń': tag = 'h6'
 
     def process(self):
         self.html = self.downloader.get_content(self.url)

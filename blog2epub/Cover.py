@@ -68,6 +68,17 @@ class Cover(object):
         region = img.crop(box)
         return region
 
+    def _get_cover_date(self):
+        if self.end is None:
+            return self.start.strftime('%d %B %Y')
+        else:
+            if self.start.strftime('%Y.%m') == self.end.strftime('%Y.%m'):
+                return self.end.strftime('%d') + "-" + self.start.strftime('%d %B %Y')
+            elif self.start.strftime('%Y.%m') == self.end.strftime('%Y.%m'):
+                return self.end.strftime('%d %B') + " - " + self.start.strftime('%d %B %Y')
+            else:
+                return self.end.strftime('%d %B %Y') + " - " + self.start.strftime('%d %B %Y')
+
     def generate(self):        
         tiles_count_y = 5
         tiles_count_x = 7
@@ -94,20 +105,8 @@ class Cover(object):
                         font=ImageFont.truetype(os.path.join(self.dirs.assets, "Lato-Bold.ttf"), 30))
         cover_draw.text((15, 760), self.file_name_prefix, (255, 255, 255),
                         font=ImageFont.truetype(os.path.join(self.dirs.assets, "Lato-Regular.ttf"), 20))
-        if self.end is None:
-            cover_draw.text((15, 670), self.start, (150, 150, 150),
-                            font=ImageFont.truetype(os.path.join(self.dirs.assets, "Lato-Italic.ttf"), 20))
-        else:
-            end_date = self.end.split(' ')
-            start_date = self.start.split(' ')
-            if len(end_date) == len(start_date):
-                ed = []
-                for i, d in enumerate(end_date):
-                    if d != start_date[i]:
-                        ed.append(d)
-            ed = ' '.join(ed)
-            cover_draw.text((15, 670), ed + " - " + self.start, (150, 150, 150),
-                            font=ImageFont.truetype(os.path.join(self.dirs.assets, "Lato-Italic.ttf"), 20))
+        cover_draw.text((15, 670), self._get_cover_date(), (150, 150, 150),
+                        font=ImageFont.truetype(os.path.join(self.dirs.assets, "Lato-Italic.ttf"), 20))
         cover_image = cover_image.convert('L')
         cover_file_name = self.file_name + '.jpg'
         cover_image.save(cover_file_name, format='JPEG', quality=100)

@@ -4,6 +4,7 @@ from dateutil.parser import parse
 import os
 import tempfile
 import zipfile
+import locale
 
 from ebooklib import epub
 from blog2epub.Cover import Cover
@@ -75,6 +76,8 @@ class Book(object):
         self.include_images = crawler.include_images
         self.images = crawler.images
         self.language = crawler.language
+        self.interface = crawler.interface
+        self._set_locale()
         self.chapters = []
         self.table_of_contents = []
         self.file_name_prefix = crawler.file_name
@@ -84,47 +87,27 @@ class Book(object):
         self.book = None
         self._add_chapters(crawler.articles)
 
+    def _set_locale(self):
+        if self.language:
+            self.locale = self.language+'_'+self.language.upper()+'.UTF-8'           
+        else:
+            self.locale = 'en_US.UTF-8'
+        try:
+            locale.setlocale(locale.LC_TIME, self.locale)
+            self.interface.print("Locale setted as %s" % self.locale)
+        except Exception:            
+            self.interface.print("Can't set locale to %s" % self.locale)
+
     def update_file_name(self):
         file_name = self.file_name_prefix
         if self.start and self.end:
-            start_date = parse(self._translate_month(self.start))
-            end_date = parse(self._translate_month(self.end))
+            end_date = self.end.strftime('%Y.%m.%d')
+            start_date = self.start.strftime('%Y.%m.%d')
             if start_date == end_date:
-                file_name = file_name  + '_' + start_date.strftime('%Y.%m.%d')
+                file_name = file_name  + '_' + start_date
             else:
-                file_name = file_name + '_' + end_date.strftime('%Y.%m.%d') + '-' + start_date.strftime('%Y.%m.%d')
+                file_name = file_name + '_' + end_date + '-' + start_date
         self.file_name = file_name + ".epub"
-
-    def _translate_month(self, date):
-        # TODO: need to be refactored, or moved as parameter to dateutil parser function
-        date = date.lower()
-        if self.language == 'pl':
-            date = date.replace('stycznia', 'january')
-            date = date.replace('lutego', 'february')
-            date = date.replace('marca', 'march')
-            date = date.replace('kwietnia', 'april')
-            date = date.replace('maja', 'may')
-            date = date.replace('czerwca', 'june')
-            date = date.replace('lipca', 'july')
-            date = date.replace('sierpnia', 'august')
-            date = date.replace('września', 'september')
-            date = date.replace('października', 'october')
-            date = date.replace('listopada', 'november')
-            date = date.replace('grudnia', 'december')
-        if self.language == 'ru':
-            date = date.replace('января', 'january')
-            date = date.replace('февраля', 'february')
-            date = date.replace('марта', 'march')
-            date = date.replace('апреля', 'april')
-            date = date.replace('мая', 'may')
-            date = date.replace('июня', 'june')
-            date = date.replace('июля', 'july')
-            date = date.replace('августа', 'august')
-            date = date.replace('сентября', 'september')
-            date = date.replace('октября', 'october')
-            date = date.replace('ноября', 'november')
-            date = date.replace('декабря', 'december')
-        return date
 
     def _add_chapters(self, articles):
         for article in articles:
@@ -227,7 +210,7 @@ class Chapter(object):
         """
         uid = 'chapter_' + str(number)
         self.epub = epub.EpubHtml(title=article.title, uid=uid, file_name=uid + '.xhtml', lang=language)
-        self.epub.content = '<h2>{}</h2>{}<p><i><a href="{}">{}</a></i></p>'.format(article.title, article.date,
+        self.epub.content = '<h2>{}</h2>{}<p><i><a href="{}">{}</a></i></p>'.format(article.title, article.date.strftime('%d %B %Y, %H:%M'),
                                                                                     article.url, article.url)
         self.epub.content = '<div>' + self.epub.content + article.content + article.comments + '</div>'
 

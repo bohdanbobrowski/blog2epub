@@ -1,5 +1,12 @@
-/.idea/
-/temp/
+/.idea
+/.vscode
+/#EPUB
+/*.egg-info
+/build
+/dist
+/venv
+/temp
 *.epub
 *.jpg
 /*.sh
+__pycache__
