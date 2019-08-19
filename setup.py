@@ -29,7 +29,7 @@ setup(
             'blog2epub = blog2epub.Blog2EpubCli:main'
         ],
         'gui_scripts': [
-            'blog2epubqt = blog2epub.Blog2EpubQt:main'
+            'blog2epubgui = blog2epub.Blog2EpubGui:main'
         ]
     },
     package_data={
