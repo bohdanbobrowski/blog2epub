@@ -5,6 +5,7 @@ import html
 import os
 import re
 import dateutil.parser
+from pathlib import Path
 from datetime import datetime
 from urllib.request import urlopen
 from lxml.html.soupparser import fromstring
@@ -24,13 +25,15 @@ class Crawler(object):
 
     def __init__(self, url, include_images=True, images_height=800, images_width=600, images_quality=40, start=None,
                  end=None, limit=None, skip=False, force_download=False, file_name=None, destination_folder='./',
-                 cache_folder='./temp', language=None, interface=None):
+                 cache_folder=None, language=None, interface=None):
 
         self.url = self._prepare_url(url)
         self.url_to_crawl = self._prepare_url_to_crawl(self.url)
         self.file_name = self._prepare_file_name(file_name, self.url)
         self.destination_folder = destination_folder
         self.cache_folder = cache_folder
+        if cache_folder is None:
+            self.cache_folder = os.path.join(str(Path.home()), '.blog2epub')
         self.include_images = include_images
         self.images_quality = images_quality
         self.images_height = images_height

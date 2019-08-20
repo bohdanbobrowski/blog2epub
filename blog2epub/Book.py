@@ -80,7 +80,9 @@ class Book(object):
         self._set_locale()
         self.chapters = []
         self.table_of_contents = []
+        self.file_name = None
         self.file_name_prefix = crawler.file_name
+        self.file_full_path = None
         self.update_file_name()
         self.destination_folder = crawler.destination_folder
         self.cover = None
@@ -132,27 +134,27 @@ class Book(object):
 
     def _add_cover(self):
         self.cover = Cover(self)
-        cover_file_name = self.cover.generate()
+        cover_file_name, cover_file_full_path = self.cover.generate()
         cover_html = self.cover_html.replace('###FILE###', cover_file_name)
         cover_html_fn = 'EPUB/cover.xhtml'
         content_opf_fn = 'EPUB/content.opf'
-        with zipfile.ZipFile(self.file_name, 'r') as zf:
+        with zipfile.ZipFile(self.file_full_path, 'r') as zf:
             content_opf = zf.read(content_opf_fn)
-        tmpfd, tmpname = tempfile.mkstemp(dir=os.path.dirname(self.file_name))
+        tmpfd, tmpname = tempfile.mkstemp(dir=os.path.dirname(self.file_full_path))
         os.close(tmpfd)
-        with zipfile.ZipFile(self.file_name, 'r') as zin:
+        with zipfile.ZipFile(self.file_full_path, 'r') as zin:
             with zipfile.ZipFile(tmpname, 'w') as zout:
                 zout.comment = zin.comment  # preserve the comment
                 for item in zin.infolist():
                     if item.filename not in [cover_html_fn, content_opf_fn]:
                         zout.writestr(item, zin.read(item.filename))
-        os.remove(self.file_name)
-        os.rename(tmpname, self.file_name)
-        with zipfile.ZipFile(self.file_name, 'a') as zf:
+        os.remove(self.file_full_path)
+        os.rename(tmpname, self.file_full_path)
+        with zipfile.ZipFile(self.file_full_path, 'a') as zf:
             zf.writestr(cover_html_fn, cover_html)
-            zf.write(cover_file_name, 'EPUB/' + cover_file_name)
+            zf.write(cover_file_full_path, 'EPUB/' + cover_file_name)
             zf.writestr(content_opf_fn, self._upgrade_opf(content_opf, cover_file_name))
-        os.remove(cover_file_name)
+        os.remove(cover_file_full_path)
 
     def _upgrade_opf(self, content_opt, cover_file_name):
         new_manifest = """<manifest>
@@ -199,7 +201,10 @@ class Book(object):
         if len(self.description) > 0:
             self.book.add_metadata('DC', 'description', "\n".join(self.description))
         self._include_images()
-        epub.write_epub(os.path.join(self.destination_folder, self.file_name), self.book, {})
+        self.file_full_path = os.path.join(self.destination_folder, self.file_name)
+        epub.write_epub(self.file_full_path, self.book, {})
+        if os.path.isfile(self.file_full_path):
+            self.interface.print('Epub created: %s' % self.file_full_path)
         self._add_cover()
 
 class Chapter(object):
