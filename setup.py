@@ -18,6 +18,7 @@ setup(
     ],
     install_requires=[
         "EbookLib",
+        "beautifulsoup4",
         "lxml",
         "Pillow",
         "pycurl",
