@@ -220,7 +220,7 @@ class Downloader(object):
         return contents
 
     def get_filepath(self, url):
-        return self.dirs.html + self.get_urlhash(url) + '.html'
+        return os.path.join(self.dirs.html, self.get_urlhash(url) + '.html')
 
     def file_download(self, url, filepath):
         self.dirs._prepare_directories()
