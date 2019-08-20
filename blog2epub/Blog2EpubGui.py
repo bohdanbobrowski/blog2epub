@@ -25,6 +25,9 @@ class TkInterface(EmptyInterface):
         self.consoleOutput.see('end')
         self.refresh()
 
+    def clear(self):
+        self.consoleOutput.delete(1.0, tk.END)
+
 
 class Blog2EpubGui(tk.Frame):
 
@@ -35,7 +38,26 @@ class Blog2EpubGui(tk.Frame):
         self.urlEntry = tk.Entry(self.master, width=10)
         self.limitEntry = tk.Entry(self.master, width=10)
         self.skipEntry = tk.Entry(self.master, width=10)
+        self.interface = TkInterface(self.consoleOutput, self.master.update)
         self.init_window()
+
+    def _get_params(self):
+        return {
+            'interface': self.interface,
+            'url': self.urlEntry.get(),
+            'include_images': True,
+            'images_height': 800,
+            'images_width': 600,
+            'images_quality': 40,
+            'start': None,
+            'end': None,
+            'limit': self._is_int(self.limitEntry.get()),
+            'skip': self._is_int(self.skipEntry.get()),
+            'force_download': False,
+            'file_name': None,
+            'cache_folder': os.path.join(str(Path.home()), '.blog2epub'),
+            'destination_folder': str(Path.home()),
+        }
 
     def init_window(self):
         self.master.title("Blog2Epub")
@@ -64,26 +86,9 @@ class Blog2EpubGui(tk.Frame):
             return None
 
     def download(self):
-        self.consoleOutput.delete(1.0,tk.END)
-        interface = TkInterface(self.consoleOutput, self.update_idletasks)
-        interface.print('Downloading...')
-        params = {
-            'interface': interface,
-            'url': self.urlEntry.get(),
-            'include_images': True,
-            'images_height': 800,
-            'images_width': 600,
-            'images_quality': 40,
-            'start': None,
-            'end': None,
-            'limit': self._is_int(self.limitEntry.get()),
-            'skip': self._is_int(self.skipEntry.get()),
-            'force_download': False,
-            'file_name': None,
-            'cache_folder': os.path.join(str(Path.home()), '.blog2epub'),
-            'destination_folder': str(Path.home()),
-        }
-        blog2epub = Blog2Epub(params)
+        self.interface.clear()
+        self.interface.print('Downloading...')
+        blog2epub = Blog2Epub(self._get_params())
         blog2epub.download()
 
 

@@ -102,14 +102,14 @@ class Book(object):
 
     def update_file_name(self):
         file_name = self.file_name_prefix
-        if self.start and self.end:
-            end_date = self.end.strftime('%Y.%m.%d')
+        if self.start:  
             start_date = self.start.strftime('%Y.%m.%d')
-            if start_date == end_date:
-                file_name = file_name  + '_' + start_date
-            else:
+            if self.end and self.start != self.end:
+                end_date = self.end.strftime('%Y.%m.%d')
                 file_name = file_name + '_' + end_date + '-' + start_date
-        self.file_name = file_name + ".epub"
+            else:
+                file_name = file_name + '_' + start_date
+        self.file_name = file_name + '.epub'
 
     def _add_chapters(self, articles):
         for article in articles:
