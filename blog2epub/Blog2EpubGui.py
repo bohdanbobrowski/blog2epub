@@ -2,6 +2,7 @@
 # -*- coding : utf-8 -*-
 import tkinter as tk
 import sys
+from pathlib import Path
 
 from blog2epub.Blog2Epub import Blog2Epub
 from blog2epub.crawlers.Crawler import EmptyInterface
@@ -52,6 +53,18 @@ class Blog2EpubGui(tk.Frame):
         params = {
             'interface': TkInterface(self.consoleOutput),
             'url': self.urlEntry.get(),
+            'include_images': True,
+            'images_height': 800,
+            'images_width': 600,
+            'images_quality': 40,
+            'start': None,
+            'end': None,
+            'limit': None,
+            'skip': False,
+            'force_download': False,
+            'file_name': None,
+            'cache_folder': os.path.join(str(Path.home()), '.blog2epub'),
+            'destination_folder': './',
         }
         self.consoleOutput.insert(tk.INSERT, self.urlEntry.get())
         blog2epub = Blog2Epub(params)

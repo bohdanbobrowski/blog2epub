@@ -1,5 +1,8 @@
 # blogspot2epub
 
+[![Maintenance](https://img.shields.io/badge/Maintained%3F-yes-green.svg)](https://GitHub.com/Naereen/StrapDown.js/graphs/commit-activity)
+
+
 Convert selected blogspot.com blog to epub using single command. After months of struggle, finnally I've uploaded and merged new, deeply refactored version. It is still not perfect and have some bugs... but, hey! I'm still developing it! ;-)
 
 #### Main features:
@@ -10,13 +13,11 @@ Convert selected blogspot.com blog to epub using single command. After months of
 - chapters are sorted by date ascending,
 - cover is generated automatically
 
-Its still ~~very~~ experimental, but should work... generally.
-
 #### Installation:
-- python setup.py install
+- python3 setup.py install
 
 #### Usage:
-- ./blogspot2epub.py [blog-name] <parameters>
+- blog2epub [blog url] <parameters>
 
 ##### Parameters:
 - -l/--limit=[x] - limit epub file to x posts
@@ -30,11 +31,15 @@ Its still ~~very~~ experimental, but should work... generally.
 - blog2epub poznanskiehistorie.blogspot.com
 - blog2epub poznanskiehistorie.blogspot.com -q=100
 - blog2epub poznanskiehistorie.blogspot.com --limit=10 --no-images
+- blog2epubgui
 
 #### Plannned features:
-- crossplatform GUI
+- crossplatform GUI (currently under development)
 - mobile app
-- more reliable crawler
 - more blog engines and templates supported
 
-**Happy reading! :-)**
+## Release notes
+
+### [![GitHub release](https://img.shields.io/github/release/Naereen/StrapDown.js.svg)](https://github.com/bohdanbobrowski/blogspot2epub/releases/tag/1.0.1)
+- first stable release
+- only CLI 

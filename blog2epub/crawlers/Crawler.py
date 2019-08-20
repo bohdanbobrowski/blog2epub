@@ -11,6 +11,7 @@ from lxml.html.soupparser import fromstring
 from lxml.ElementInclude import etree
 from PIL import Image
 
+import blog2epub
 from blog2epub.Book import Book
 
 
@@ -23,12 +24,13 @@ class Crawler(object):
 
     def __init__(self, url, include_images=True, images_height=800, images_width=600, images_quality=40, start=None,
                  end=None, limit=None, skip=False, force_download=False, file_name=None, destination_folder='./',
-                 language=None, interface=None):
+                 cache_folder='./temp', language=None, interface=None):
 
         self.url = self._prepare_url(url)
         self.url_to_crawl = self._prepare_url_to_crawl(self.url)
         self.file_name = self._prepare_file_name(file_name, self.url)
         self.destination_folder = destination_folder
+        self.cache_folder = cache_folder
         self.include_images = include_images
         self.images_quality = images_quality
         self.images_height = images_height
@@ -39,7 +41,7 @@ class Crawler(object):
         self.skip = skip
         self.force_download = force_download
         self.interface = self._get_the_interface(interface)
-        self.dirs = Dirs(self.url)
+        self.dirs = Dirs(self.cache_folder, self.url)
         self.book = None
         self.title = None
         self.description = None
@@ -178,12 +180,12 @@ class Dirs(object):
             if not os.path.exists(p):
                 os.makedirs(p)
 
-    def __init__(self, name):
-        self.path = './temp/' + name + '/'
-        self.html = self.path + 'html/'
-        self.images = self.path + 'images/'
-        self.originals = self.path + 'originals/'
-        self.assets = './assets/'
+    def __init__(self, cache_folder, name):
+        self.path = os.path.join(cache_folder, name)
+        self.html = os.path.join(self.path, 'html')
+        self.images = os.path.join(self.path, 'images')
+        self.originals = os.path.join(self.path, 'originals')
+        self.assets = os.path.join(str(os.path.realpath(blog2epub.__file__).replace('__init__.py','')), 'assets')
         self._prepare_directories()
 
 
