@@ -237,7 +237,7 @@ class Downloader(object):
             f.write(urlopen(url).read())
             f.close()
             return True
-        except Exception as e:
+        except Exception:
             return False
 
     def get_content(self, url):
@@ -253,18 +253,19 @@ class Downloader(object):
             img = "http:" + img
         img_hash = self.get_urlhash(img)
         img_type = os.path.splitext(img)[1].lower()
-        img_filename = os.path.join(self.dirs.originals, img_hash + "." + img_type)
-        if os.path.isfile(img_filename) or self.image_download(img, img_filename):
-            img_images = os.path.join(self.dirs.images, img_hash + ".jpg")
-            if not os.path.isfile(img_images):
-                if os.path.isfile(img_filename):
+        original_fn = os.path.join(self.dirs.originals, img_hash + "." + img_type)
+        resized_fn = os.path.join(self.dirs.images, img_hash + ".jpg")
+        if os.path.isfile(original_fn) or self.image_download(img, original_fn):
+            if not os.path.isfile(resized_fn):
+                if os.path.isfile(original_fn):
                     try:
-                        picture = Image.open(img_filename)
+                        picture = Image.open(original_fn)
                         if picture.size[0] > self.images_width or picture.size[1] > self.images_height:
                             picture.thumbnail([self.images_width, self.images_height], Image.ANTIALIAS)
                         picture = picture.convert('L')
-                        picture.save(img_images, format='JPEG', quality=self.images_quality)
-                    except Exception as e:
+                        picture.save(resized_fn, format='JPEG', quality=self.images_quality)
+                        os.remove(original_fn)
+                    except Exception:
                         return None
         return img_hash + ".jpg"
 
@@ -427,7 +428,7 @@ class Article(object):
         if len(headers) == 1:
             self.comments = '<hr/><h3>' + headers[0] + '</h3>'
         comments_in_article = self.tree.xpath('//div[@class="comment-block"]//text()')
-        tag = 'h6';
+        tag = 'h6'
         for c in comments_in_article:
             c = c.strip()
             if c != 'Odpowiedz' and c != 'Usuń':
