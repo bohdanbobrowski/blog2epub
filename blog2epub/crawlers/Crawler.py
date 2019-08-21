@@ -100,7 +100,7 @@ class Crawler(object):
         if self.language is None and re.search('locale[\'"]:[\s]*[\'"]([a-z]+)[\'"]', content):
             self.language = re.search('locale[\'"]:[\s]*[\'"]([a-z]+)[\'"]', content).group(1).strip()
         if self.language is None:
-            self.language = 'en';
+            self.language = 'en'
 
     def _get_blog_title(self, content):
         return re.search("<title>([^>^<]*)</title>", content).group(1).strip()
@@ -196,27 +196,25 @@ class Downloader(object):
 
     def __init__(self, crawler):
         self.dirs = crawler.dirs
+        self.interface = crawler.interface
         self.force_download = crawler.force_download
         self.images_width = crawler.images_width
         self.images_height = crawler.images_height
         self.images_quality = crawler.images_quality
 
-    @staticmethod
-    def get_urlhash(url):
+    def get_urlhash(self, url):
         m = hashlib.md5()
         m.update(url.encode('utf-8'))
         return m.hexdigest()
 
-    @staticmethod
-    def file_write(contents, filepath):
+    def file_write(self, contents, filepath):
         html_file = open(filepath, "w")
         html_file.write(contents)
         html_file.close()
 
-    @staticmethod
-    def file_read(filepath):
-        with open(filepath, 'r') as html_file:
-            contents = html_file.read()
+    def file_read(self, filepath):
+        with open(filepath, 'rb') as html_file:
+            contents = html_file.read().decode('utf-8')
         return contents
 
     def get_filepath(self, url):
@@ -226,7 +224,11 @@ class Downloader(object):
         self.dirs._prepare_directories()
         response = urlopen(url)
         data = response.read()
-        contents = data.decode('utf-8')
+        try:
+            contents = data.decode('utf-8')
+        except Exception as e:
+            contents = data
+            self.interface.print(e)
         self.file_write(contents, filepath)
         return contents
 
@@ -255,18 +257,18 @@ class Downloader(object):
         img_type = os.path.splitext(img)[1].lower()
         original_fn = os.path.join(self.dirs.originals, img_hash + "." + img_type)
         resized_fn = os.path.join(self.dirs.images, img_hash + ".jpg")
-        if os.path.isfile(original_fn) or self.image_download(img, original_fn):
-            if not os.path.isfile(resized_fn):
-                if os.path.isfile(original_fn):
-                    try:
-                        picture = Image.open(original_fn)
-                        if picture.size[0] > self.images_width or picture.size[1] > self.images_height:
-                            picture.thumbnail([self.images_width, self.images_height], Image.ANTIALIAS)
-                        picture = picture.convert('L')
-                        picture.save(resized_fn, format='JPEG', quality=self.images_quality)
-                        os.remove(original_fn)
-                    except Exception:
-                        return None
+        if not os.path.isfile(resized_fn) or self.force_download:
+            self.image_download(img, original_fn)
+        if os.path.isfile(original_fn):
+            try:
+                picture = Image.open(original_fn)
+                if picture.size[0] > self.images_width or picture.size[1] > self.images_height:
+                    picture.thumbnail([self.images_width, self.images_height], Image.ANTIALIAS)
+                picture = picture.convert('L')
+                picture.save(resized_fn, format='JPEG', quality=self.images_quality)
+            except Exception:
+                return None
+            os.remove(original_fn)
         return img_hash + ".jpg"
 
 

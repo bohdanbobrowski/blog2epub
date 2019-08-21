@@ -159,4 +159,6 @@ def main():
     root = Tk()
     root.resizable(False, False)
     Blog2EpubGui(root)
+    os.system("open -a Python")
+    root.lift()
     root.mainloop() 

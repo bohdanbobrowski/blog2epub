@@ -4,9 +4,22 @@
 
 from setuptools import setup
 
+VERSION = '1.0.3'
+APP = ['blog2epubgui.py']
+DATA_FILES = []
+OPTIONS = {
+    'iconfile':'blog2epub.icns',
+    'plist': {
+        'CFBundleVersion': VERSION,
+        'CFBundleShortVersionString': VERSION,
+    },
+    'argv_emulation': True
+}
+
 setup(
     name='blog2epub',
-    version='1.0.2',
+    app=APP,
+    version=VERSION,
     description="Blog To Epub Downloader",
     url="https://github.com/bohdanbobrowski/blogspot2epub",
     author="Bohdan Bobrowski",
@@ -25,6 +38,11 @@ setup(
         "six",
         "python-dateutil",
     ],
+    data_files=DATA_FILES,
+    options={
+        'py2app': OPTIONS
+    },
+    setup_requires=['py2app'],
     entry_points={
         'console_scripts': [
             'blog2epub = blog2epub.Blog2EpubCli:main'
