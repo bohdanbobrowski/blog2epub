@@ -5,7 +5,9 @@
 
 Convert selected blogspot.com blog to epub using single command. After months of struggle, finnally I've uploaded and merged new, deeply refactored version. It is still not perfect and have some bugs... but, hey! I'm still developing it! ;-)
 
-#### Main features:
+## Main features
+
+- command line (CLI) and graphic user interface (GUI)
 - downloads all text contents of selected blog to epub file,
 - downloads post comments,
 - downloads images, resizes them (to 400x300px) and converts to grayscale,
@@ -13,19 +15,29 @@ Convert selected blogspot.com blog to epub using single command. After months of
 - chapters are sorted by date ascending,
 - cover is generated automatically
 
-#### Installation:
+## Installation
+
 - python3 setup.py install
 
-#### Usage:
+## GUI
+
+### macOS
+
+![macOS](https://raw.githubusercontent.com/bohdanbobrowski/blogspot2epub/master/blog2epub_osx_screenshot.png)
+
+## CLI
+
 - blog2epub [blog url] <parameters>
 
-##### Parameters:
+### Parameters
+
 - -l/--limit=[x] - limit epub file to x posts
 - -s/--skip=[x] - skip x latest posts
 - -q/--images-quality=[0-100] - included images quality (default is 40)
 - -n/--no-images - don't include images
 
-##### Examples:
+## Examples
+
 - blog2epub starybezpiek.blogspot.com
 - blog2epub starybezpiek.blogspot.com -l=10
 - blog2epub poznanskiehistorie.blogspot.com
@@ -33,7 +45,8 @@ Convert selected blogspot.com blog to epub using single command. After months of
 - blog2epub poznanskiehistorie.blogspot.com --limit=10 --no-images
 - blog2epubgui
 
-#### Plannned features:
+## Plannned features
+
 - crossplatform GUI (currently under development)
 - mobile app
 - more blog engines and templates supported
@@ -41,10 +54,12 @@ Convert selected blogspot.com blog to epub using single command. After months of
 ## Release notes
 
 ### [1.0.2](https://github.com/bohdanbobrowski/blogspot2epub/releases/tag/1.0.2)
+
 - first version of GUI
 - default output directory for GUI is user home directory
 - cache directory moved to '~/.blog2epub/'
 
 ### [1.0.1](https://github.com/bohdanbobrowski/blogspot2epub/releases/tag/1.0.1)
+
 - first stable release
-- only CLI 
+- only CLI
