@@ -43,7 +43,7 @@ class Blog2EpubSettings(object):
         if not os.path.isfile(self.fname):
             self._data = self._get_default()
             self.save()
-        with open(self.fname, 'r') as stream:
+        with open(self.fname, 'rb') as stream:
             data = yaml.safe_load(stream)
         return data
 
@@ -159,6 +159,7 @@ def main():
     root = Tk()
     root.resizable(False, False)
     Blog2EpubGui(root)
-    os.system("open -a Python")
     root.lift()
+    root.call('wm', 'attributes', '.', '-topmost', '1')
+    root.after_idle(root.call, 'wm', 'attributes', '.', '-topmost', False)
     root.mainloop() 

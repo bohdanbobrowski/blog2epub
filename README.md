@@ -21,6 +21,7 @@ Convert selected blogspot.com blog to epub using single command. After months of
 
 ## Installation
 
+- for macOS users: available [app](https://github.com/bohdanbobrowski/blogspot2epub/releases/tag/1.0.3)
 - python3 setup.py install
 
 ## GUI
@@ -45,10 +46,9 @@ Convert selected blogspot.com blog to epub using single command. After months of
 ## Examples
 
 - blog2epub starybezpiek.blogspot.com
-- blog2epub starybezpiek.blogspot.com -l=10
-- blog2epub poznanskiehistorie.blogspot.com
+- blog2epub velosov.blogspot.com -l=10
 - blog2epub poznanskiehistorie.blogspot.com -q=100
-- blog2epub poznanskiehistorie.blogspot.com --limit=10 --no-images
+- blog2epub classicameras.blogspot.com --limit=10 --no-images
 - blog2epubgui
 
 ## Plannned features
@@ -56,8 +56,15 @@ Convert selected blogspot.com blog to epub using single command. After months of
 - crossplatform GUI (currently under development)
 - mobile app
 - more blog engines and templates supported
+- [pocket](https://getpocket.com) integration
 
 ## Release notes
+
+### [1.0.3](https://github.com/bohdanbobrowski/blogspot2epub/releases/tag/1.0.3)
+
+- saving GUI settings to yaml file
+- first macOS builds (py2app)
+- application CI
 
 ### [1.0.2](https://github.com/bohdanbobrowski/blogspot2epub/releases/tag/1.0.2)
 

@@ -208,8 +208,8 @@ class Downloader(object):
         return m.hexdigest()
 
     def file_write(self, contents, filepath):
-        html_file = open(filepath, "w")
-        html_file.write(contents)
+        html_file = open(filepath, "wb")
+        html_file.write(bytes(contents, 'utf-8'))
         html_file.close()
 
     def file_read(self, filepath):
@@ -305,7 +305,14 @@ class Article(object):
             date = self.tree.xpath('//h2[@class="date-header"]/span/text()')
             if len(date) > 0:
                 self.date = re.sub('(.*?, )', '', date[0])
-        self.date = self._translate_month(self.date)
+        if self.date is None:
+            d = self.url.split('/')
+            if len(d) > 4:
+                self.date = "%s-%s-01 00:00" % (d[3], d[4])
+            else:
+                self.date = str(datetime.now())
+        else:
+            self.date = self._translate_month(self.date)
         self.date = dateutil.parser.parse(self.date)
 
     def _translate_month(self, date):
