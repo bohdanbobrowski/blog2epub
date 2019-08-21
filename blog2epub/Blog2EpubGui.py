@@ -5,12 +5,12 @@ from tkinter.ttk import *
 import sys
 import os
 import platform
-# if platform.system() == 'Darwin':
+import yaml
 from pathlib import Path
+from urllib import parse
 
 from blog2epub.Blog2Epub import Blog2Epub
 from blog2epub.crawlers.Crawler import EmptyInterface
-from urllib import parse
 
 
 class TkInterface(EmptyInterface):
@@ -25,7 +25,7 @@ class TkInterface(EmptyInterface):
         self.refresh()
 
     def exception(self, e):
-        self.consoleOutput.insert(END, e + '\n')
+        self.consoleOutput.insert(END, str(e) + '\n')
         self.consoleOutput.see('end')
         self.refresh()
 
@@ -33,22 +33,66 @@ class TkInterface(EmptyInterface):
         self.consoleOutput.delete(1.0, END)
 
 
+class Blog2EpubSettings(object):
+
+    def __init__(self):
+        self.fname = os.path.join(str(Path.home()), '.blog2epub', 'blog2epub.yml')
+        self._data = self._read()
+
+    def _read(self):
+        if not os.path.isfile(self.fname):
+            self._data = self._get_default()
+            self.save()
+        with open(self.fname, 'r') as stream:
+            data = yaml.safe_load(stream)
+        return data
+
+    def _get_default(self):
+        return {
+            'url': '',
+            'limit': '',
+            'skip': ''
+        }
+
+    def save(self):        
+        with open(self.fname, 'w') as outfile:
+            yaml.dump(self._data, outfile, default_flow_style=False)
+
+    def set(self, key, value):
+        self._data[key] = value
+
+    def get(self, key):
+        if key in self._data:
+            return self._data[key]
+        else:
+            return None
+
+
 class Blog2EpubGui(Frame):
 
     def __init__(self, master=None):
-        Frame.__init__(self, master)                 
+        Frame.__init__(self, master)    
+        self.settings = Blog2EpubSettings()             
         self.master = master
         self.consoleOutput = Text(self.master)
         self.urlEntry = Entry(self.master, width=10)
+        self.setEntryValue(self.urlEntry, self.settings.get("url"))
         self.limitEntry = Entry(self.master, width=10)
+        self.setEntryValue(self.limitEntry, self.settings.get("limit"))
         self.skipEntry = Entry(self.master, width=10)
+        self.setEntryValue(self.skipEntry, self.settings.get("skip"))
         self.interface = TkInterface(self.consoleOutput, self.master.update)
         self.init_window()
+
+    def _get_url(self):
+        if parse.urlparse(self.urlEntry.get()):
+            return self.urlEntry.get()
+        raise Exception("Blog url is not valid.")
 
     def _get_params(self):
         return {
             'interface': self.interface,
-            'url': self.urlEntry.get(),
+            'url': self._get_url(),
             'include_images': True,
             'images_height': 800,
             'images_width': 600,
@@ -62,6 +106,11 @@ class Blog2EpubGui(Frame):
             'cache_folder': os.path.join(str(Path.home()), '.blog2epub'),
             'destination_folder': str(Path.home()),
         }
+
+    @staticmethod
+    def setEntryValue(e, v=""):
+        e.delete(0, END)
+        e.insert(0, v)
 
     def init_window(self):
         self.master.title("Blog2Epub")
@@ -89,11 +138,21 @@ class Blog2EpubGui(Frame):
         except:
             return None
 
+    def saveSettings(self):
+        self.settings.set("url", self.urlEntry.get())
+        self.settings.set("limit", self.limitEntry.get())
+        self.settings.set("skip", self.skipEntry.get())
+        self.settings.save()
+
     def download(self):
         self.interface.clear()
-        self.interface.print('Downloading...')
-        blog2epub = Blog2Epub(self._get_params())
-        blog2epub.download()
+        try:
+            blog2epub = Blog2Epub(self._get_params())
+            self.interface.print('Downloading...')
+            blog2epub.download()
+            self.saveSettings()
+        except Exception as e:
+            self.interface.exception(e)
 
 
 def main():
