@@ -1,4 +1,4 @@
-<img src="https://raw.githubusercontent.com/bohdanbobrowski/blogspot2epub/master/blog2epub.svg" width="128" height="128" align="right" />
+<img src="https://raw.githubusercontent.com/bohdanbobrowski/blogspot2epub/master/blog2epub.png" width="128" height="128" align="left" />
 # blogspot2epub
 
 [![Maintenance](https://img.shields.io/badge/Maintained%3F-yes-green.svg)](https://github.com/bohdanbobrowski/blogspot2epub/graphs/commit-activity) [![MIT license](https://img.shields.io/badge/License-MIT-blue.svg)](https://lbesson.mit-license.org/)
