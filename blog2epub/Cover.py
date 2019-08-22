@@ -18,6 +18,7 @@ class Cover(object):
         :param crawler: intance of Book class
         """
         self.dirs = book.dirs
+        self.interface = book.interface
         self.file_name = book.file_name
         self.file_name_prefix = book.file_name_prefix
         self.description = book.description
@@ -79,11 +80,29 @@ class Cover(object):
             else:
                 return self.end.strftime('%d %B %Y') + " - " + self.start.strftime('%d %B %Y')
 
+    def _get_fonts_path(self, font_name):
+        if os.path.isfile(os.path.join(os.getcwd(), font_name)):
+            return os.path.join(os.getcwd(), font_name)
+        else:
+            return font_name
+
+    def _draw_text(self, cover_image):
+        lato_bold = self._get_fonts_path("Lato-Bold.ttf")
+        lato_regular = self._get_fonts_path("Lato-Regular.ttf")
+        lato_italic = self._get_fonts_path("Lato-Italic.ttf")
+        cover_draw = ImageDraw.Draw(cover_image)
+        cover_draw.text((15, 635), self.title, (255, 255, 255),
+                        font=ImageFont.truetype(os.path.join(self.dirs.assets, lato_bold), 30))
+        cover_draw.text((15, 760), self.file_name_prefix, (255, 255, 255),
+                        font=ImageFont.truetype(os.path.join(self.dirs.assets, lato_regular), 20))
+        cover_draw.text((15, 670), self._get_cover_date(), (150, 150, 150),
+                        font=ImageFont.truetype(os.path.join(self.dirs.assets, lato_italic), 20))
+        return cover_image
+
     def generate(self):        
         tiles_count_y = 5
         tiles_count_x = 7
         cover_image = Image.new('RGB', (600, 800))
-        cover_draw = ImageDraw.Draw(cover_image)
         dark_factor = 1
         if len(self.images) > 0:
             shuffle(self.images)
@@ -101,12 +120,7 @@ class Cover(object):
                         print(e)
                     if i > len(self.images):
                         i = 1
-        cover_draw.text((15, 635), self.title, (255, 255, 255),
-                        font=ImageFont.truetype(os.path.join(self.dirs.assets, "Lato-Bold.ttf"), 30))
-        cover_draw.text((15, 760), self.file_name_prefix, (255, 255, 255),
-                        font=ImageFont.truetype(os.path.join(self.dirs.assets, "Lato-Regular.ttf"), 20))
-        cover_draw.text((15, 670), self._get_cover_date(), (150, 150, 150),
-                        font=ImageFont.truetype(os.path.join(self.dirs.assets, "Lato-Italic.ttf"), 20))
+        cover_image = self._draw_text(cover_image)
         cover_image = cover_image.convert('L')
         cover_file_name = self.file_name + '.jpg'
         cover_file_full_path = os.path.join(self.destination_folder, cover_file_name)

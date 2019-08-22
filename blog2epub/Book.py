@@ -9,6 +9,7 @@ import locale
 from ebooklib import epub
 from blog2epub.Cover import Cover
 
+
 class Book(object):
     """
     Book class used in Blogspot2Epub class.
@@ -206,6 +207,7 @@ class Book(object):
         if os.path.isfile(self.file_full_path):
             self.interface.print('Epub created: %s' % self.file_full_path)
         self._add_cover()
+
 
 class Chapter(object):
 

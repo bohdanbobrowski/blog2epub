@@ -6,14 +6,21 @@ from setuptools import setup
 
 VERSION = '1.0.3'
 APP = ['blog2epubgui.py']
-DATA_FILES = []
+DATA_FILES = [
+    'blog2epub/assets/Lato-Bold.ttf',
+    'blog2epub/assets/Lato-Italic.ttf',
+    'blog2epub/assets/Lato-Regular.ttf',
+]
 OPTIONS = {
     'iconfile':'blog2epub.icns',
     'plist': {
         'CFBundleVersion': VERSION,
         'CFBundleShortVersionString': VERSION,
     },
-    'argv_emulation': True
+    'includes': [
+        'lxml', 'beautifulsoup4', 'Pillow', 'os', 'platform', 'tkinter'
+    ],
+    'argv_emulation': False
 }
 
 setup(
