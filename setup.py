@@ -18,7 +18,7 @@ OPTIONS = {
         'CFBundleShortVersionString': VERSION,
     },
     'includes': [
-        'lxml', 'beautifulsoup4', 'Pillow', 'os', 'platform', 'tkinter'
+        'lxml', 'beautifulsoup4', 'PIL', 'os', 'platform', 'tkinter'
     ],
     'argv_emulation': False
 }
