@@ -36,15 +36,25 @@ class TkInterface(EmptyInterface):
 class Blog2EpubSettings(object):
 
     def __init__(self):
-        self.fname = os.path.join(str(Path.home()), '.blog2epub', 'blog2epub.yml')
+        self.path = os.path.join(str(Path.home()), '.blog2epub')
+        self._prepare_path()
+        self.fname = os.path.join(self.path, 'blog2epub.yml')
         self._data = self._read()
+
+    def _prepare_path(self):
+        if not os.path.exists(self.path):
+            os.makedirs(self.path)        
 
     def _read(self):
         if not os.path.isfile(self.fname):
             self._data = self._get_default()
             self.save()
         with open(self.fname, 'rb') as stream:
-            data = yaml.safe_load(stream)
+            data_in_file = yaml.safe_load(stream)
+            data = selt._get_default()
+            for k, v in data.items():
+                if k i data_in_file:
+                    data[k] = data_in_file
         return data
 
     def _get_default(self):
