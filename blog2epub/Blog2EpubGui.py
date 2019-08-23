@@ -24,6 +24,19 @@ class TkInterface(EmptyInterface):
         self.consoleOutput.see('end')
         self.refresh()
 
+    def notify(self, title, subtitle, message, cover):
+        command = [
+            'terminal-notifier',
+            '-title {!r}'.format(title),
+            '-subtitle {!r}'.format(subtitle),
+            '-message {!r}'.format(message),
+            '-contentImage {!r}'.format(cover),
+            '-sound chime',
+            '-appIcon {!r}'.format(os.path.join(os.path.dirname(sys.executable), 'blogspot.png')),
+            '-open file:{!r}'.format(message),
+        ]
+        os.system('terminal-notifier {}'.format(' '.join(command)))
+
     def exception(self, e):
         self.consoleOutput.insert(END, str(e) + '\n')
         self.consoleOutput.see('end')
@@ -51,10 +64,10 @@ class Blog2EpubSettings(object):
             self.save()
         with open(self.fname, 'rb') as stream:
             data_in_file = yaml.safe_load(stream)
-            data = selt._get_default()
+            data = self._get_default()
             for k, v in data.items():
-                if k i data_in_file:
-                    data[k] = data_in_file
+                if k in data_in_file:
+                    data[k] = data_in_file[k]
         return data
 
     def _get_default(self):
@@ -86,18 +99,18 @@ class Blog2EpubGui(Frame):
         self.master = master
         self.consoleOutput = Text(self.master)
         self.urlEntry = Entry(self.master, width=10)
-        self.setEntryValue(self.urlEntry, self.settings.get("url"))
+        self.setEntryValue(self.urlEntry, self.settings.get('url'))
         self.limitEntry = Entry(self.master, width=10)
-        self.setEntryValue(self.limitEntry, self.settings.get("limit"))
+        self.setEntryValue(self.limitEntry, self.settings.get('limit'))
         self.skipEntry = Entry(self.master, width=10)
-        self.setEntryValue(self.skipEntry, self.settings.get("skip"))
+        self.setEntryValue(self.skipEntry, self.settings.get('skip'))
         self.interface = TkInterface(self.consoleOutput, self.master.update)
         self.init_window()
 
     def _get_url(self):
         if parse.urlparse(self.urlEntry.get()):
             return self.urlEntry.get()
-        raise Exception("Blog url is not valid.")
+        raise Exception('Blog url is not valid.')
 
     def _get_params(self):
         return {
@@ -118,23 +131,23 @@ class Blog2EpubGui(Frame):
         }
 
     @staticmethod
-    def setEntryValue(e, v=""):
+    def setEntryValue(e, v=''):
         e.delete(0, END)
         e.insert(0, v)
 
     def init_window(self):
-        self.master.title("Blog2Epub")
+        self.master.title('Blog2Epub')
         # Url:
-        Label(self.master, text="Url:").grid(row=0)
+        Label(self.master, text='Url:').grid(row=0)
         self.urlEntry.grid(row=0, column=1, columnspan=2, sticky=W+E)
         # Button:
-        downloadButton = Button(self.master, text="Download", command=self.download)
+        downloadButton = Button(self.master, text='Download', command=self.download)
         downloadButton.grid(row=0, column=3)
         # Limit:
-        Label(self.master, text="Limit:").grid(row=1)
+        Label(self.master, text='Limit:').grid(row=1)
         self.limitEntry.grid(row=1, column=1)
         # Skip:
-        Label(self.master, text="Skip:").grid(row=1, column=2)
+        Label(self.master, text='Skip:').grid(row=1, column=2)
         self.skipEntry.grid(row=1, column=3)
         # Text
         self.consoleOutput.grid(row=2, columnspan=4)
@@ -149,9 +162,9 @@ class Blog2EpubGui(Frame):
             return None
 
     def saveSettings(self):
-        self.settings.set("url", self.urlEntry.get())
-        self.settings.set("limit", self.limitEntry.get())
-        self.settings.set("skip", self.skipEntry.get())
+        self.settings.set('url', self.urlEntry.get())
+        self.settings.set('limit', self.limitEntry.get())
+        self.settings.set('skip', self.skipEntry.get())
         self.settings.save()
 
     def download(self):
@@ -167,6 +180,10 @@ class Blog2EpubGui(Frame):
 
 def main():
     root = Tk()
+    root.style = Style()
+    # ('aqua', 'clam', 'alt', 'default', 'classic')
+    root.style.theme_use('aqua')
+    root.config(background='systemWindowBody')
     root.resizable(False, False)
     Blog2EpubGui(root)
     root.lift()

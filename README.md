@@ -60,7 +60,13 @@ Convert selected blogspot.com blog to epub using single command. After months of
 
 ## Release notes
 
+
+### [1.0.4](https://github.com/bohdanbobrowski/blogspot2epub/releases/tag/1.0.4)
+
+- improved saving GUI settings
+- system notification on finished download
+
 ### [1.0.3](https://github.com/bohdanbobrowski/blogspot2epub/releases/tag/1.0.3)
 
 - saving GUI settings to yaml file
-- first macOS builds (--py2app)
+- first macOS builds (--py2app--pyinstaller)
