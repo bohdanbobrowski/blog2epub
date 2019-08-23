@@ -63,16 +63,4 @@ Convert selected blogspot.com blog to epub using single command. After months of
 ### [1.0.3](https://github.com/bohdanbobrowski/blogspot2epub/releases/tag/1.0.3)
 
 - saving GUI settings to yaml file
-- first macOS builds (py2app)
-- application CI
-
-### [1.0.2](https://github.com/bohdanbobrowski/blogspot2epub/releases/tag/1.0.2)
-
-- first version of GUI
-- default output directory for GUI is user home directory
-- cache directory moved to '~/.blog2epub/'
-
-### [1.0.1](https://github.com/bohdanbobrowski/blogspot2epub/releases/tag/1.0.1)
-
-- first stable release
-- only CLI
+- first macOS builds (--py2app)
