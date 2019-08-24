@@ -21,7 +21,7 @@ Convert selected blogspot.com blog to epub using single command. After months of
 
 ## Installation
 
-- for macOS users: available [app](https://github.com/bohdanbobrowski/blogspot2epub/releases/tag/v1.0.3)
+- for macOS users: available [app](https://github.com/bohdanbobrowski/blogspot2epub/releases)
 - python3 setup.py install
 
 ## GUI
