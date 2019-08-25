@@ -1,5 +1,5 @@
 <p align="center">
-<img src="https://raw.githubusercontent.com/bohdanbobrowski/blogspot2epub/master/blog2epub.png" width="128" height="128" />
+<img src="https://raw.githubusercontent.com/bohdanbobrowski/blogspot2epub/master/images/blog2epub.png" width="128" height="128" />
 </p>
 
 # blogspot2epub
@@ -29,7 +29,7 @@ Convert selected blogspot.com blog to epub using single command. After months of
 ### macOS
 
 <p align="center">
-<img src="https://raw.githubusercontent.com/bohdanbobrowski/blogspot2epub/master/blog2epub_osx_screenshot.png" width="741" height="604" />
+<img src="https://raw.githubusercontent.com/bohdanbobrowski/blogspot2epub/master/images/blog2epub_osx_screenshot.png" width="741" height="604" />
 </p>
 
 ## CLI
