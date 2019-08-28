@@ -51,11 +51,13 @@ Convert selected blogspot.com blog to epub using single command. After months of
 - blog2epub classicameras.blogspot.com --limit=10 --no-images
 - blog2epubgui
 
-## Plannned features
+## TODO list / Plannned features
 
 - crossplatform GUI (currently under development)
+- windows build
+- linux build
 - mobile app
-- more blog engines and templates supported
+- more blog engines and templates supported (worpress.com etc.)
 - [pocket](https://getpocket.com) integration
 
 ## Release notes
