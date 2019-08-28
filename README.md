@@ -1,5 +1,5 @@
 <p align="center">
-<img src="https://raw.githubusercontent.com/bohdanbobrowski/blogspot2epub/master/blog2epub.png" width="128" height="128" />
+<img src="https://raw.githubusercontent.com/bohdanbobrowski/blogspot2epub/master/images/blog2epub.png" width="128" height="128" />
 </p>
 
 # blogspot2epub
@@ -21,7 +21,7 @@ Convert selected blogspot.com blog to epub using single command. After months of
 
 ## Installation
 
-- for macOS users: available [app](https://github.com/bohdanbobrowski/blogspot2epub/releases/tag/v1.0.3)
+- for macOS users: available [app](https://github.com/bohdanbobrowski/blogspot2epub/releases)
 - python3 setup.py install
 
 ## GUI
@@ -29,7 +29,7 @@ Convert selected blogspot.com blog to epub using single command. After months of
 ### macOS
 
 <p align="center">
-<img src="https://raw.githubusercontent.com/bohdanbobrowski/blogspot2epub/master/blog2epub_osx_screenshot.png" width="741" height="604" />
+<img src="https://raw.githubusercontent.com/bohdanbobrowski/blogspot2epub/master/images/blog2epub_osx_screenshot.png" width="741" height="604" />
 </p>
 
 ## CLI
@@ -62,7 +62,13 @@ Convert selected blogspot.com blog to epub using single command. After months of
 
 ## Release notes
 
+
+### [1.0.4](https://github.com/bohdanbobrowski/blogspot2epub/releases/tag/1.0.4)
+
+- improved saving GUI settings
+- system notification on finished download
+
 ### [1.0.3](https://github.com/bohdanbobrowski/blogspot2epub/releases/tag/1.0.3)
 
 - saving GUI settings to yaml file
-- first macOS builds (--py2app)
+- first macOS builds (--py2app--pyinstaller)

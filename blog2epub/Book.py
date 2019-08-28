@@ -155,7 +155,12 @@ class Book(object):
             zf.writestr(cover_html_fn, cover_html)
             zf.write(cover_file_full_path, 'EPUB/' + cover_file_name)
             zf.writestr(content_opf_fn, self._upgrade_opf(content_opf, cover_file_name))
-        os.remove(cover_file_full_path)
+        # os.remove(cover_file_full_path)
+        try:
+            self.interface.notify('blog2epub', 'Epub created', self.file_full_path, cover_file_full_path)
+        except Exception:
+            if os.path.isfile(self.file_full_path):
+                self.interface.print('Epub created: %s' % self.file_full_path)
 
     def _upgrade_opf(self, content_opt, cover_file_name):
         new_manifest = """<manifest>
@@ -204,8 +209,6 @@ class Book(object):
         self._include_images()
         self.file_full_path = os.path.join(self.destination_folder, self.file_name)
         epub.write_epub(self.file_full_path, self.book, {})
-        if os.path.isfile(self.file_full_path):
-            self.interface.print('Epub created: %s' % self.file_full_path)
         self._add_cover()
 
 

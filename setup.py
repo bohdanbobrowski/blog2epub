@@ -4,7 +4,7 @@
 
 from setuptools import setup
 
-VERSION = '1.0.3'
+VERSION = '1.0.4'
 APP = ['blog2epubgui.py']
 DATA_FILES = [
     'blog2epub/assets/Lato-Bold.ttf',

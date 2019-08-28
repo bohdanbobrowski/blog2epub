@@ -20,8 +20,9 @@ class Crawler(object):
     """
     Universal blog crawler.
     """
-
+    
     images_regex = r'<table[^>]*><tbody>[\s]*<tr><td[^>]*><a href="([^"]*)"[^>]*><img[^>]*></a></td></tr>[\s]*<tr><td class="tr-caption" style="[^"]*">([^<]*)'
+    articles_regex = r'<h3 class=\'post-title entry-title\' itemprop=\'name\'>[\s]*<a href=\'([^\']*)\'>([^>^<]*)</a>[\s]*</h3>'
 
     def __init__(self, url, include_images=True, images_height=800, images_width=600, images_quality=40, start=None,
                  end=None, limit=None, skip=False, force_download=False, file_name=None, destination_folder='./',
@@ -44,7 +45,7 @@ class Crawler(object):
         self.skip = skip
         self.force_download = force_download
         self.interface = self._get_the_interface(interface)
-        self.dirs = Dirs(self.cache_folder, self.url)
+        self.dirs = Dirs(self.cache_folder, self.url.replace('/', '_'))
         self.book = None
         self.title = None
         self.description = None
@@ -92,7 +93,7 @@ class Crawler(object):
     def get_date(str_date):
         return re.sub('[^\,]*, ', '', str_date)
 
-    def _get_blog_language(self, content):
+    def _set_blog_language(self, content):
         if self.language is None and re.search("'lang':[\s]*'([a-z^']+)'", content):
             self.language = re.search("'lang':[\s]*'([a-z^']+)'", content).group(1).strip()
         if self.language is None and re.search('lang=[\'"]([a-z]+)[\'"]', content):
@@ -103,7 +104,9 @@ class Crawler(object):
             self.language = 'en'
 
     def _get_blog_title(self, content):
-        return re.search("<title>([^>^<]*)</title>", content).group(1).strip()
+        if re.search("<title>([^>^<]*)</title>", content):
+            return re.search("<title>([^>^<]*)</title>", content).group(1).strip()
+        return ''
 
     def _get_blog_description(self, tree):
         return tree.xpath('//div[@id="header"]/div/div/div/p[@class="description"]/span/text()')
@@ -119,8 +122,7 @@ class Crawler(object):
         :param content: web page content
         :return: list of Article class objects
         """
-        articles_list = re.findall("<h3 class='post-title entry-title' itemprop='name'>[\s]*<a href='([^']*)'>([^>^<]*)</a>[\s]*</h3>",
-                          content)
+        articles_list = re.findall(self.articles_regex, content)
         output = []
         for art in articles_list:
             output.append(Article(art[0], art[1], self))
@@ -153,15 +155,19 @@ class Crawler(object):
         if self.limit and len(self.articles) >= self.limit:
             self.url_to_crawl = None
 
+    def _prepare_content(self, content):
+        return content
+
     def _crawl(self):
         while self.url_to_crawl:
             content = self.downloader.get_content(self.url_to_crawl)
             tree = fromstring(content)
             if len(self.articles) == 0:
-                self._get_blog_language(content)
-                self.title = self._get_blog_title(content)
+                self._set_blog_language(content)
                 self.images = self.images +self._get_header_images(tree)
                 self.description = self._get_blog_description(tree)
+                self.title = self._get_blog_title(content)
+            content = self._prepare_content(content)
             self._articles_loop(content)
             self.url_to_crawl = self._get_url_to_crawl(tree)
             self._check_limit()

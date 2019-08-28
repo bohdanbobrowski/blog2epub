@@ -3,6 +3,7 @@
 import os
 import sys
 from random import shuffle
+from pathlib import Path
 
 from PIL import Image, ImageDraw, ImageFont
 
@@ -25,7 +26,7 @@ class Cover(object):
         self.description = book.description
         self.title = book.title
         self.images = self._check_image_size(book.images)
-        self.destination_folder = book.destination_folder
+        self.destination_folder = os.path.join(str(Path.home()), '.blog2epub')
         self.start = book.start
         self.end = book.end
         
