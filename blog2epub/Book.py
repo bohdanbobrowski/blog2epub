@@ -148,7 +148,7 @@ class Book(object):
                 zout.comment = zin.comment  # preserve the comment
                 for item in zin.infolist():
                     if item.filename not in [cover_html_fn, content_opf_fn]:
-                        zout.writestr(item, zin.read(item.filename))
+                        zout.writestr(i2014/03/koscio-wizytek-jak-za-czasow-canaletta.htmltem, zin.read(item.filename))
         os.remove(self.file_full_path)
         os.rename(tmpname, self.file_full_path)
         with zipfile.ZipFile(self.file_full_path, 'a') as zf:
@@ -211,8 +211,8 @@ class Book(object):
         epub.write_epub(self.file_full_path, self.book, {})
         self._add_cover()
 
-
-class Chapter(object):
+2014/03/koscio-wizytek-jak-za-czasow-canaletta.html
+class Chapter(object):2014/03/koscio-wizytek-jak-za-czasow-canaletta.html
 
     def __init__(self, article, number, language):
         """
