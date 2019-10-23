@@ -88,6 +88,10 @@ class Cover(object):
             return os.path.join(path, font_name)
         elif os.path.isfile(font_name):
             return font_name
+        path = os.path.dirname(__file__)
+        if os.path.isfile(os.path.join(path, 'assets', font_name)):
+            return os.path.join(path, 'assets', font_name)
+        self.interface.print("Font not found: " + os.path.join(path, 'assets', font_name))
         return False
 
     def _draw_text(self, cover_image):

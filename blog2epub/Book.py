@@ -148,7 +148,7 @@ class Book(object):
                 zout.comment = zin.comment  # preserve the comment
                 for item in zin.infolist():
                     if item.filename not in [cover_html_fn, content_opf_fn]:
-                        zout.writestr(i2014/03/koscio-wizytek-jak-za-czasow-canaletta.htmltem, zin.read(item.filename))
+                        zout.writestr(item, zin.read(item.filename))
         os.remove(self.file_full_path)
         os.rename(tmpname, self.file_full_path)
         with zipfile.ZipFile(self.file_full_path, 'a') as zf:
@@ -211,8 +211,8 @@ class Book(object):
         epub.write_epub(self.file_full_path, self.book, {})
         self._add_cover()
 
-2014/03/koscio-wizytek-jak-za-czasow-canaletta.html
-class Chapter(object):2014/03/koscio-wizytek-jak-za-czasow-canaletta.html
+
+class Chapter(object):
 
     def __init__(self, article, number, language):
         """
@@ -220,7 +220,18 @@ class Chapter(object):2014/03/koscio-wizytek-jak-za-czasow-canaletta.html
         """
         uid = 'chapter_' + str(number)
         self.epub = epub.EpubHtml(title=article.title, uid=uid, file_name=uid + '.xhtml', lang=language)
-        self.epub.content = '<h2>{}</h2>{}<p><i><a href="{}">{}</a></i></p>'.format(article.title, article.date.strftime('%d %B %Y, %H:%M'),
-                                                                                    article.url, article.url)
+        tags = self._print_tags(article)
+        self.epub.content = '<h2>{}</h2>{}{}<p><i><a href="{}">{}</a></i></p>'.format(article.title, tags,
+        article.date.strftime('%d %B %Y, %H:%M'), article.url, article.url)
         self.epub.content = '<div>' + self.epub.content + article.content + article.comments + '</div>'
+
+    def _print_tags(self, article):
+        if not article.tags:
+            return ""
+        tags = []
+        for tag in article.tags:
+            tags.append('<span epub:type="keyword">' + tag + '<span>')
+        return "<h5>{}</h5>".format(', '.join(tags))
+
+        
 

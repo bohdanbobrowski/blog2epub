@@ -54,6 +54,7 @@ class Crawler(object):
         self.article_counter = 0
         self.images = []
         self.downloader = Downloader(self)
+        self.tags = {}
 
     def _prepare_url(self, url):
         return url.replace('http:', '').replace('https:', '').strip('/')
@@ -134,6 +135,13 @@ class Crawler(object):
             url_to_crawl = tree.xpath('//a[@class="blog-pager-older-link"]/@href')[0]
         return url_to_crawl
 
+    def _add_tags(self, tags):
+        for tag in tags:
+            if tag in self.tags:
+                self.tags[tag] = self.tags[tag]+1
+            else:
+                self.tags[tag] = 1
+
     def _articles_loop(self, content):
         articles = self._get_articles(content)
         for art in articles:
@@ -147,7 +155,8 @@ class Crawler(object):
                 else:
                     self.start = art.date
                 self.articles.append(art)
-                self._check_limit()
+                self._add_tags(art.tags)
+                self._check_limit()                
             if not self.url_to_crawl:
                 break
 
@@ -434,13 +443,13 @@ class Article(object):
     def _get_tree(self):
         self.tree = fromstring(self.html)
 
-    def _get_tags(self, html):
+    def _get_tags(self):
         tags = self.tree.xpath('//a[@rel="tag"]//text()')        
         output = []
         for t in tags:
             t = t.strip()
             output.append(t)
-        return output
+        self.tags = output
             
     def _get_comments(self):
         """
@@ -466,6 +475,7 @@ class Article(object):
         self._get_title()
         self._get_date()
         self._get_images()
+        self._get_tags()
         self._get_content()
         self._get_comments()
 
