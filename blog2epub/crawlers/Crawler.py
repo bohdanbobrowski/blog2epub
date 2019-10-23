@@ -286,6 +286,7 @@ class Article(object):
     def __init__(self, url, title, crawler):
         self.url = url
         self.title = title
+        self.tags = []
         self.interface = crawler.interface
         self.dirs = crawler.dirs
         self.comments = ''
@@ -297,7 +298,7 @@ class Article(object):
         self.html = None
         self.content = None
         self.date = None
-        self.tree = None
+        self.tree = None        
         self.downloader = Downloader(crawler)
 
     def _get_title(self):
@@ -433,6 +434,14 @@ class Article(object):
     def _get_tree(self):
         self.tree = fromstring(self.html)
 
+    def _get_tags(self, html):
+        tags = self.tree.xpath('//a[@rel="tag"]//text()')        
+        output = []
+        for t in tags:
+            t = t.strip()
+            output.append(t)
+        return output
+            
     def _get_comments(self):
         """
         :param article: Article class
