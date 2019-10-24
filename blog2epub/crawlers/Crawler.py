@@ -7,10 +7,17 @@ import re
 import dateutil.parser
 from pathlib import Path
 from datetime import datetime
-from urllib.request import urlopen
-from lxml.html.soupparser import fromstring
+import urllib
+import gzip
+import requests, pickle
+import atoma
+from urllib import request
+from http.cookiejar import Cookie, CookieJar
+from lxml.html import tostring 
+from lxml.html.soupparser import fromstring 
 from lxml.ElementInclude import etree
 from PIL import Image
+from fake_useragent import UserAgent
 
 import blog2epub
 from blog2epub.Book import Book
@@ -30,6 +37,7 @@ class Crawler(object):
 
         self.url = self._prepare_url(url)
         self.url_to_crawl = self._prepare_url_to_crawl(self.url)
+        self.port = self._prepare_port(self.url_to_crawl)
         self.file_name = self._prepare_file_name(file_name, self.url)
         self.destination_folder = destination_folder
         self.cache_folder = cache_folder
@@ -50,6 +58,7 @@ class Crawler(object):
         self.title = None
         self.description = None
         self.language = language
+        self.atom_feed = False
         self.articles = []
         self.article_counter = 0
         self.images = []
@@ -65,8 +74,14 @@ class Crawler(object):
         return url.replace('/', '_')
 
     def _prepare_url_to_crawl(self, url):
-        r = urlopen('http://' + url)
+        r = request.urlopen('http://' + url)
         return r.geturl()
+
+    def _prepare_port(self, url):
+        if url.startswith("https://"):
+            return 443
+        else:
+            return 80
 
     def _get_the_interface(self, interface):
         if interface:
@@ -123,10 +138,25 @@ class Crawler(object):
         :param content: web page content
         :return: list of Article class objects
         """
-        articles_list = re.findall(self.articles_regex, content)
+        tree = fromstring(content)
+        art_urls = tree.xpath("//h3[contains(@class, 'entry-title')]/a/@href")
+        art_titles = tree.xpath("//h3[contains(@class, 'entry-title')]/a/text()")
         output = []
-        for art in articles_list:
-            output.append(Article(art[0], art[1], self))
+        if art_urls and len(art_urls) == len(art_titles):
+            for i in range(len(art_urls)):
+                output.append(Article(art_urls[i], art_titles[i], self))
+        else:
+            articles_list = re.findall(self.articles_regex, content)
+            for art in articles_list:
+                output.append(Article(art[0], art[1], self))
+        if not output:
+            # try to load atom
+            atom_content = self.downloader.get_content('http://' + self.url + '/feeds/posts/default')
+            try:            
+                feed = atoma.parse_atom_bytes(bytes(atom_content, encoding="utf-8"))
+                self.atom_feed = feed
+            except Exception:
+                pass
         return output
 
     def _get_url_to_crawl(self, tree):
@@ -142,23 +172,42 @@ class Crawler(object):
             else:
                 self.tags[tag] = 1
 
+    # TODO: This method should be refactored - atom feed logic should be moved to another crawler
     def _articles_loop(self, content):
         articles = self._get_articles(content)
-        for art in articles:
-            self.article_counter += 1
-            if not self.skip or self.article_counter > self.skip:
-                art.process()
-                self.images = self.images + art.images
+        if self.atom_feed:
+            for item in self.atom_feed.entries:
+                self.article_counter += 1
+                art = Article(item.links[0].href, item.title.value, self)
                 self.interface.print(str(len(self.articles) + 1) + '. ' + art.title)
+                art.date = item.updated
                 if self.start:
                     self.end = art.date
                 else:
                     self.start = art.date
+                art.html = art.content = item.content.value                
+                art.get_tree()
+                art.get_images()
+                self.images = self.images + art.images
                 self.articles.append(art)
                 self._add_tags(art.tags)
                 self._check_limit()                
-            if not self.url_to_crawl:
-                break
+        elif articles:        
+            for art in articles:
+                self.article_counter += 1
+                if not self.skip or self.article_counter > self.skip:
+                    art.process()
+                    self.images = self.images + art.images
+                    self.interface.print(str(len(self.articles) + 1) + '. ' + art.title)
+                    if self.start:
+                        self.end = art.date
+                    else:
+                        self.start = art.date
+                    self.articles.append(art)
+                    self._add_tags(art.tags)
+                    self._check_limit()                
+                if not self.url_to_crawl:
+                    break
 
     def _check_limit(self):
         if self.limit and len(self.articles) >= self.limit:
@@ -167,9 +216,12 @@ class Crawler(object):
     def _prepare_content(self, content):
         return content
 
+
+
     def _crawl(self):
         while self.url_to_crawl:
             content = self.downloader.get_content(self.url_to_crawl)
+
             tree = fromstring(content)
             if len(self.articles) == 0:
                 self._set_blog_language(content)
@@ -211,11 +263,19 @@ class Downloader(object):
 
     def __init__(self, crawler):
         self.dirs = crawler.dirs
+        self.crawler_url = crawler.url
+        self.crawler_port = crawler.port
         self.interface = crawler.interface
         self.force_download = crawler.force_download
         self.images_width = crawler.images_width
         self.images_height = crawler.images_height
         self.images_quality = crawler.images_quality
+        self.cookies = CookieJar()
+        self.session = requests.session()
+        ua = UserAgent()
+        self.headers = {
+            'User-Agent': ua.chrome,
+        }
 
     def get_urlhash(self, url):
         m = hashlib.md5()
@@ -223,22 +283,29 @@ class Downloader(object):
         return m.hexdigest()
 
     def file_write(self, contents, filepath):
-        html_file = open(filepath, "wb")
-        html_file.write(bytes(contents, 'utf-8'))
-        html_file.close()
+        filepath = filepath + ".gz"
+        with gzip.open(filepath, 'wb') as f:
+            f.write(contents.encode('utf-8'))
 
     def file_read(self, filepath):
-        with open(filepath, 'rb') as html_file:
-            contents = html_file.read().decode('utf-8')
+        if os.path.isfile(filepath + ".gz"):
+            with gzip.open(filepath + ".gz", 'rb') as f:
+                contents = f.read().decode('utf-8')
+        else:            
+            with open(filepath, 'rb') as html_file:
+                contents = html_file.read().decode('utf-8')
+            self.file_write(contents, filepath)
+            os.remove(filepath)
         return contents
 
     def get_filepath(self, url):
         return os.path.join(self.dirs.html, self.get_urlhash(url) + '.html')
 
     def file_download(self, url, filepath):
-        self.dirs._prepare_directories()
-        response = urlopen(url)
-        data = response.read()
+        self.dirs._prepare_directories()                
+        response = self.session.get(url, cookies=self.cookies, headers=self.headers)        
+        self.cookies = response.cookies
+        data = response.content
         try:
             contents = data.decode('utf-8')
         except Exception as e:
@@ -250,19 +317,32 @@ class Downloader(object):
     def image_download(self, url, filepath):
         try:
             self.dirs._prepare_directories()
-            f = open(filepath, 'wb')
-            f.write(urlopen(url).read())
+            f = open(filepath, 'wb')                        
+            response = self.session.get(url, cookies=self.cookies, headers=self.headers)        
+            f.write(response.content)
             f.close()
             return True
         except Exception:
             return False
 
-    def get_content(self, url):
-        filepath = self.get_filepath(url)
-        if self.force_download or not os.path.isfile(filepath):
-            contents = self.file_download(url, filepath)
+    def checkInterstitial(self, contents):
+        interstitial = re.findall('interstitial=([^"]+)', contents)        
+        if interstitial:
+            return interstitial[0]
         else:
+            return False
+
+    def get_content(self, url):
+        filepath = self.get_filepath(url) 
+        if self.force_download or (not os.path.isfile(filepath) and not os.path.isfile(filepath + ".gz")):
+            contents = self.file_download(url, filepath)
+        else:            
             contents = self.file_read(filepath)
+        interstitial = self.checkInterstitial(contents)
+        if interstitial:
+            interstitial_url = "http://" + self.crawler_url + "?interstitial="+interstitial
+            self.file_download(interstitial_url, self.get_filepath(interstitial_url))
+            contents = self.file_download("http://" + self.crawler_url, self.get_filepath("http://" + self.crawler_url));
         return contents
 
     def download_image(self, img):
@@ -403,7 +483,7 @@ class Article(object):
         for image in images:
             if isinstance(image, str):
                 img = image
-                caption  = ''
+                caption = ''
             else:
                 img = image[0]
                 caption = image[1]
@@ -412,16 +492,15 @@ class Article(object):
                 self.html = ripper(img=img, img_hash=img_hash, html=self.html)
                 self.images.append(img_hash)
                 self.images_captions.append(caption)
-        self._get_tree()
+        self.get_tree()
 
-    def _get_images(self):
+    def get_images(self):        
         self._process_images(self._find_images(), self._default_ripper)
         self._process_images(self.tree.xpath('//a[@imageanchor="1"]/@href'), self._nocaption_ripper)
         self._process_images(self.tree.xpath('//img[contains(@id,"BLOGGER_PHOTO_ID_")]/@src'), self._bloggerphoto_ripper)
         self._process_images(self.tree.xpath('//img/@src'), self._img_ripper)
-        # self._process_images(re., self._img_ripper)
         self._replace_images()
-        self._get_tree()
+        self.get_tree()
 
     def _replace_images(self):
         for key, image in enumerate(self.images):
@@ -440,7 +519,7 @@ class Article(object):
             for src in iframe_srcs:
                 self.content = re.sub('<iframe.+?%s.+?/>' % src, '<a href="%s">%s</a>' % (src, src), self.content)
 
-    def _get_tree(self):
+    def get_tree(self):
         self.tree = fromstring(self.html)
 
     def _get_tags(self):
@@ -471,10 +550,10 @@ class Article(object):
 
     def process(self):
         self.html = self.downloader.get_content(self.url)
-        self._get_tree()
+        self.get_tree()
         self._get_title()
         self._get_date()
-        self._get_images()
+        self.get_images()
         self._get_tags()
         self._get_content()
         self._get_comments()

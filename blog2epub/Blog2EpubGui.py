@@ -38,7 +38,8 @@ class TkInterface(EmptyInterface):
         os.system('terminal-notifier {}'.format(' '.join(command)))
 
     def exception(self, e):
-        self.consoleOutput.insert(END, str(e) + '\n')
+        print("Exception: " + str(e))
+        self.consoleOutput.insert(END, "Exception: " + str(e) + '\n')
         self.consoleOutput.see('end')
         self.refresh()
 
@@ -170,10 +171,10 @@ class Blog2EpubGui(Frame):
     def download(self):
         self.interface.clear()
         try:
+            self.saveSettings()
             blog2epub = Blog2Epub(self._get_params())
             self.interface.print('Downloading...')
             blog2epub.download()
-            self.saveSettings()
         except Exception as e:
             self.interface.exception(e)
 

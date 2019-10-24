@@ -102,8 +102,8 @@ class Book(object):
             self.interface.print("Can't set locale to %s" % self.locale)
 
     def update_file_name(self):
-        file_name = self.file_name_prefix
-        if self.start:  
+        file_name = self.file_name_prefix        
+        if self.start:            
             start_date = self.start.strftime('%Y.%m.%d')
             if self.end and self.start != self.end:
                 end_date = self.end.strftime('%Y.%m.%d')
@@ -220,8 +220,8 @@ class Chapter(object):
         """
         uid = 'chapter_' + str(number)
         self.epub = epub.EpubHtml(title=article.title, uid=uid, file_name=uid + '.xhtml', lang=language)
-        tags = self._print_tags(article)
-        self.epub.content = '<h2>{}</h2>{}{}<p><i><a href="{}">{}</a></i></p>'.format(article.title, tags,
+        tags = self._print_tags(article)        
+        self.epub.content = '<h2>{}</h2>{}{}<p><i><a href="{}">{}</a></i></p>'.format(article.title, tags,        
         article.date.strftime('%d %B %Y, %H:%M'), article.url, article.url)
         self.epub.content = '<div>' + self.epub.content + article.content + article.comments + '</div>'
 
