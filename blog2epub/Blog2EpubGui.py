@@ -6,6 +6,7 @@ import sys
 import os
 import platform
 import yaml
+import subprocess
 from pathlib import Path
 from urllib import parse
 
@@ -25,23 +26,26 @@ class TkInterface(EmptyInterface):
         self.refresh()
 
     def notify(self, title, subtitle, message, cover):
-        command = [
-            'terminal-notifier',
-            '-title {!r}'.format(title),
-            '-subtitle {!r}'.format(subtitle),
-            '-message {!r}'.format(message),
-            '-contentImage {!r}'.format(cover),
-            '-sound chime',
-            '-appIcon {!r}'.format(os.path.join(os.path.dirname(sys.executable), 'blogspot.png')),
-            '-open file:{!r}'.format(message),
-        ]
-        os.system('terminal-notifier {}'.format(' '.join(command)))
+        if(platform.system() == "Darwin"):
+            command = [
+                'terminal-notifier',
+                '-title {!r}'.format(title),
+                '-subtitle {!r}'.format(subtitle),
+                '-message {!r}'.format(message),
+                '-contentImage {!r}'.format(cover),
+                '-sound chime',
+                '-appIcon {!r}'.format(os.path.join(os.path.dirname(sys.executable), 'blogspot.png')),
+                '-open file:{!r}'.format(message),
+            ]
+            os.system('terminal-notifier {}'.format(' '.join(command)))            
+        if(platform.system() == "Linux"):
+            subprocess.Popen(['notify-send', subtitle + ': ' + message])
 
     def exception(self, e):
         print("Exception: " + str(e))
         self.consoleOutput.insert(END, "Exception: " + str(e) + '\n')
         self.consoleOutput.see('end')
-        self.refresh()
+        self.refresh()            
 
     def clear(self):
         self.consoleOutput.delete(1.0, END)
@@ -182,9 +186,9 @@ class Blog2EpubGui(Frame):
 def main():
     root = Tk()
     root.style = Style()
-    # ('aqua', 'clam', 'alt', 'default', 'classic')
-    # root.style.theme_use('aqua')
-    # root.config(background='systemWindowBody')
+    if(platform.system() == "Darwin"):
+        root.style.theme_use('aqua')
+        root.config(background='systemWindowBody')
     root.resizable(False, False)
     Blog2EpubGui(root)
     root.lift()

@@ -63,10 +63,11 @@ Convert selected blogspot.com blog to epub using single command. After months of
 ## Release notes
 
 
-### 1.0.5 - _under development_
+### [1.0.5](https://github.com/bohdanbobrowski/blogspot2epub/releases/tag/1.0.5)
 
 - gzip html in cache folder
 - atom feed parsing
+- better system notifications, also under linux
 
 ### [1.0.4](https://github.com/bohdanbobrowski/blogspot2epub/releases/tag/1.0.4)
 
