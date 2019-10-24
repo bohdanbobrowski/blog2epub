@@ -185,9 +185,9 @@ class Crawler(object):
                     self.end = art.date
                 else:
                     self.start = art.date
-                art.html = art.content = item.content.value                
-                art.get_tree()
+                art.set_content(item.content.value)
                 art.get_images()
+                art.set_content(art.html)
                 self.images = self.images + art.images
                 self.articles.append(art)
                 self._add_tags(art.tags)
@@ -500,6 +500,11 @@ class Article(object):
         self._process_images(self.tree.xpath('//img[contains(@id,"BLOGGER_PHOTO_ID_")]/@src'), self._bloggerphoto_ripper)
         self._process_images(self.tree.xpath('//img/@src'), self._img_ripper)
         self._replace_images()
+        self.get_tree()
+
+    def set_content(self, content):
+        self.content = content
+        self.html = content
         self.get_tree()
 
     def _replace_images(self):
