@@ -8,3 +8,4 @@ python-dateutil==2.8.0
 atoma>=0.0.17
 requests>=2.22.0
 fake-useragent>=0.1.11
+PyYAML>=5.3.1

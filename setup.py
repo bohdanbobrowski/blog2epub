@@ -44,6 +44,10 @@ setup(
         "pycurl",
         "six",
         "python-dateutil",
+        "atoma",
+        "requests",
+        "fake-useragent",
+        "PyYAML"
     ],
     data_files=DATA_FILES,
     options={
