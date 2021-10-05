@@ -4,7 +4,7 @@
 
 from setuptools import setup
 
-VERSION = '1.0.4'
+VERSION = '1.0.5'
 APP = ['blog2epubgui.py']
 DATA_FILES = [
     'blog2epub/assets/Lato-Bold.ttf',
@@ -47,7 +47,9 @@ setup(
         "atoma",
         "requests",
         "fake-useragent",
-        "PyYAML"
+        "PyYAML",
+        "pycairo",
+        "PyGObject"
     ],
     data_files=DATA_FILES,
     options={

@@ -24,6 +24,16 @@ Convert selected blogspot.com blog to epub using single command. After months of
 - for macOS users: available [app](https://github.com/bohdanbobrowski/blogspot2epub/releases)
 - python3 setup.py install
 
+### Running froum sources
+
+    git clone git@github.com:bohdanbobrowski/blogspot2epub.git
+    cd blogspot2epub
+    python -m venv venv
+    source ./venv/bin/activate
+    pip install -r ./requirements.txt
+    ./blog2epubgui.py
+
+
 ## GUI
 
 ### macOS
@@ -34,7 +44,7 @@ Convert selected blogspot.com blog to epub using single command. After months of
 
 ## CLI
 
-- blog2epub [blog url] <parameters>
+    blog2epub [blog url] <parameters>
 
 ### Parameters
 
@@ -45,11 +55,11 @@ Convert selected blogspot.com blog to epub using single command. After months of
 
 ## Examples
 
-- blog2epub starybezpiek.blogspot.com
-- blog2epub velosov.blogspot.com -l=10
-- blog2epub poznanskiehistorie.blogspot.com -q=100
-- blog2epub classicameras.blogspot.com --limit=10 --no-images
-- blog2epubgui
+    blog2epub starybezpiek.blogspot.com
+    blog2epub velosov.blogspot.com -l=10
+    blog2epub poznanskiehistorie.blogspot.com -q=100
+    blog2epub classicameras.blogspot.com --limit=10 --no-images
+    blog2epubgui
 
 ## TODO list / Plannned features
 
@@ -58,9 +68,13 @@ Convert selected blogspot.com blog to epub using single command. After months of
 - linux build
 - mobile app
 - more blog engines and templates supported (worpress.com etc.)
-- [pocket](https://getpocket.com) integration
 
 ## Release notes
+
+### 1.1.0 - under development
+
+- migration to Gtk
+- requirements cleanup
 
 
 ### [1.0.5](https://github.com/bohdanbobrowski/blogspot2epub/releases/tag/1.0.5)
