@@ -21,22 +21,22 @@ class MyWindow(Gtk.Window):
         Gtk.Window.__init__(self, title="Blog2Epub")        
         self.settings = Blog2EpubSettings()
         # Layout
-        self.set_default_size(500, 400)
+        # self.set_default_size(500, 400)
         self.grid = Gtk.Grid()
         # Input
-        text_label = Gtk.Label(label="Url")
-        self.grid.attach(text_label, 0, 0, 2, 1)
-        self.text = Gtk.Entry()        
+        text_label = Gtk.Label(label="Url:")
+        self.grid.add(text_label)
+        self.text = Gtk.Entry()
         self.text.set_activates_default(True)
-        self.grid.attach(self.text, 1, 0, 4, 1)
+        self.grid.attach(self.text, 1, 0, 2, 1)
         # Text output
         self.textview = Gtk.TextView()
         self.textbuffer = self.textview.get_buffer()
-        self.grid.attach(self.textview, 0, 1, 3, 2)
+        self.grid.attach_next_to(self.textview, text_label, Gtk.PositionType.BOTTOM, 10, 10)
         # Download button
         self.button = Gtk.Button(label="Download")
         self.button.connect("clicked", self.download)
-        self.grid.attach(self.button, 2, 2, 1, 1)
+        self.grid.attach_next_to(self.button, self.textview, Gtk.PositionType.BOTTOM, 1, 1)
         self.add(self.grid)
 
     def print(self, text):

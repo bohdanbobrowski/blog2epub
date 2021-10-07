@@ -4,7 +4,7 @@
 
 from distutils.core import setup
 
-VERSION = '1.0.5'
+VERSION = '1.1.0'
 APP = ['blog2epubgui.py']
 DATA_FILES = [
     'blog2epub/assets/Lato-Bold.ttf',
