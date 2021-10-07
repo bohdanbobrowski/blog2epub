@@ -16,17 +16,32 @@ gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk
 
 class MyWindow(Gtk.Window):
+
     def __init__(self):
-        Gtk.Window.__init__(self, title="Hello World")
-        self.settings = Blog2EpubSettings()   
-        self.button = Gtk.Button(label="Click Here")
-        self.button.connect("clicked", self.on_button_clicked)
-        self.add(self.button)
+        Gtk.Window.__init__(self, title="Blog2Epub")        
+        self.settings = Blog2EpubSettings()
+        # Layout
+        self.set_default_size(500, 400)
+        self.grid = Gtk.Grid()
+        # Input
+        text_label = Gtk.Label(label="Url")
+        self.grid.attach(text_label, 0, 0, 2, 1)
+        self.text = Gtk.Entry()        
+        self.text.set_activates_default(True)
+        self.grid.attach(self.text, 1, 0, 4, 1)
+        # Text output
+        self.textview = Gtk.TextView()
+        self.textbuffer = self.textview.get_buffer()
+        self.grid.attach(self.textview, 0, 1, 3, 2)
+        # Download button
+        self.button = Gtk.Button(label="Download")
+        self.button.connect("clicked", self.download)
+        self.grid.attach(self.button, 2, 2, 1, 1)
+        self.add(self.grid)
 
     def print(self, text):
-        self.consoleOutput.insert(END, text + '\n')
-        self.consoleOutput.see('end')
-        self.refresh()
+        self.textbuffer.insert(text + '\n')
+        self.textbuffer.see('end')
 
     def notify(self, title, subtitle, message, cover):
         if(platform.system() == "Darwin"):
@@ -67,8 +82,66 @@ class MyWindow(Gtk.Window):
             'destination_folder': str(Path.home()),
         }
 
-    def on_button_clicked(self, widget):
-        print("Hello World")
+    @staticmethod
+    def _is_int(value):
+        try:
+            int(value)
+            return int(value)
+        except:
+            return None
+
+    def saveSettings(self):
+        self.settings.set('url', self.urlEntry.get())
+        self.settings.set('limit', self.limitEntry.get())
+        self.settings.set('skip', self.skipEntry.get())
+        self.settings.save()
+
+    def download(self):
+        self.interface.clear()
+        try:
+            self.saveSettings()
+            blog2epub = Blog2Epub(self._get_params())
+            self.interface.print('Downloading...')
+            blog2epub.download()
+        except Exception as e:
+            self.interface.exception(e) 
+
+
+class TkInterface(EmptyInterface):
+
+    def __init__(self, consoleOutput, refresh):
+        self.consoleOutput = consoleOutput
+        self.refresh = refresh
+
+    def print(self, text):
+        self.consoleOutput.insert(END, text + '\n')
+        self.consoleOutput.see('end')
+        self.refresh()
+
+    def notify(self, title, subtitle, message, cover):
+        if(platform.system() == "Darwin"):
+            command = [
+                'terminal-notifier',
+                '-title {!r}'.format(title),
+                '-subtitle {!r}'.format(subtitle),
+                '-message {!r}'.format(message),
+                '-contentImage {!r}'.format(cover),
+                '-sound chime',
+                '-appIcon {!r}'.format(os.path.join(os.path.dirname(sys.executable), 'blogspot.png')),
+                '-open file:{!r}'.format(message),
+            ]
+            os.system('terminal-notifier {}'.format(' '.join(command)))            
+        if(platform.system() == "Linux"):
+            subprocess.Popen(['notify-send', subtitle + ': ' + message])
+
+    def exception(self, e):
+        print("Exception: " + str(e))
+        self.consoleOutput.insert(END, "Exception: " + str(e) + '\n')
+        self.consoleOutput.see('end')
+        self.refresh()            
+
+    def clear(self):
+        self.consoleOutput.delete(1.0, END)
 
 
 class Blog2EpubSettings(object):

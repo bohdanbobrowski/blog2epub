@@ -2,7 +2,7 @@
 # -*- coding : utf-8 -*-
 # Author: Bohdan Bobrowski
 
-from setuptools import setup
+from distutils.core import setup
 
 VERSION = '1.0.5'
 APP = ['blog2epubgui.py']
