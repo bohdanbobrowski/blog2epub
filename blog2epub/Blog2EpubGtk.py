@@ -10,6 +10,7 @@ import pathlib
 import logging
 from pathlib import Path
 from urllib import parse
+from datetime import datetime
 
 from blog2epub.Blog2Epub import Blog2Epub
 from blog2epub.crawlers.Crawler import EmptyInterface
@@ -17,8 +18,16 @@ from blog2epub.crawlers.Crawler import EmptyInterface
 gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk, GdkPixbuf
 
-logging_filename = os.path.join(str(Path.home()), '.blog2epub', 'blog2epub.log')
-logging.basicConfig(filename=logging_filename, encoding='utf-8', level=logging.DEBUG)
+now = datetime.now()
+date_time = now.strftime("%Y-%m-%d[%H.%M.%S]")
+logging_filename = os.path.join(str(Path.home()), '.blog2epub', 'blog2epub_{}.log'.format(date_time))
+
+logging.basicConfig(
+    filename=logging_filename,
+    encoding='utf-8',
+    level=logging.DEBUG,
+    format='%(asctime)s - %(levelname)s - %(message)s'
+)
 VERSION = '1.1.0'
 
 class MyWindow(Gtk.Window):
@@ -139,7 +148,6 @@ class MyWindow(Gtk.Window):
 
     def download(self, click):
         self.interface.clear()
-        self.interface.print('Downloading...')
         try:
             self.saveSettings()
             blog2epub = Blog2Epub(self._get_params())
@@ -168,7 +176,8 @@ class GtkInterface(EmptyInterface):
 
     def print(self, text):
         logging.info(text)
-        self.console_output.insert_at_cursor(text + "\n")
+        end_iter = self.console_output.get_end_iter()
+        self.console_output.insert(end_iter, text + "\n")
 
     def notify(self, title, subtitle, message, cover):
         if(platform.system() == "Darwin"):
