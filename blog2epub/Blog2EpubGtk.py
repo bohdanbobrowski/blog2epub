@@ -6,6 +6,7 @@ import os
 import platform
 import yaml
 import subprocess
+import pathlib
 from pathlib import Path
 from urllib import parse
 
@@ -13,7 +14,7 @@ from blog2epub.Blog2Epub import Blog2Epub
 from blog2epub.crawlers.Crawler import EmptyInterface
 
 gi.require_version("Gtk", "3.0")
-from gi.repository import Gtk
+from gi.repository import Gtk, GdkPixbuf
 
 VERSION = '1.1.0'
 
@@ -23,34 +24,41 @@ class MyWindow(Gtk.Window):
         Gtk.Window.__init__(self, title="Blog2Epub")        
         self.settings = Blog2EpubSettings()
         # Layout
-        # self.set_default_size(500, 400)
         self.set_resizable(False) 
         self.grid = Gtk.Grid()
         self.grid.set_row_spacing(5)
         self.grid.set_column_spacing(5)
-        # Input
+        # Url entry
         text_label = Gtk.Label(label="Url:")
         self.grid.add(text_label)
-        self.text = Gtk.Entry()
-        self.text.set_activates_default(True)
-        self.grid.attach_next_to(self.text, text_label, Gtk.PositionType.RIGHT, 3, 1)
-        # Text output
-        self.textview = Gtk.TextView()
-        self.textview.set_monospace(True)
-        self.textview.set_size_request(500,500)
-        self.textview.show()
-        self.textbuffer = self.textview.get_buffer()
-        self.grid.attach_next_to(self.textview, text_label, Gtk.PositionType.BOTTOM, 4, 4)
-        # About button
-        self.about_button = Gtk.Button(label="About")
-        self.about_button.connect("clicked", self.about)
-        self.grid.attach_next_to(self.about_button, self.textview, Gtk.PositionType.BOTTOM, 1, 1)
-        self.add(self.grid)
+        self.url_entry = Gtk.Entry()
+        self.url_entry.set_margin_top(5)
+        self.url_entry.set_text(self.settings.get('url'))
+        self.url_entry.set_activates_default(True)
+        self.grid.attach_next_to(self.url_entry, text_label, Gtk.PositionType.RIGHT, 3, 1)
         # Download button
         self.download_button = Gtk.Button(label="Download")
+        self.download_button.set_margin_top(5)
         self.download_button.connect("clicked", self.download)
-        self.grid.attach_next_to(self.download_button, self.about_button, Gtk.PositionType.RIGHT, 1, 1)
+        self.grid.attach_next_to(self.download_button, self.url_entry, Gtk.PositionType.RIGHT, 1, 1)
+        # About button
+        self.about_button = Gtk.Button(label="About")
+        self.about_button.set_margin_top(5)
+        self.about_button.set_margin_right(5)
+        self.about_button.connect("clicked", self.about)
+        self.grid.attach_next_to(self.about_button, self.download_button, Gtk.PositionType.RIGHT, 1, 1)
+        self.add(self.grid)
+        # Text output
+        self.console_output = Gtk.TextView()
+        self.console_output.set_monospace(True)
+        self.console_output.place_cursor_onscreen()
+        self.console_output.set_editable(False)
+        self.console_output.set_size_request(600,600)
+        self.console_output.set_cursor_visible(True)
+        self.console_output.show()
+        self.grid.attach_next_to(self.console_output, text_label, Gtk.PositionType.BOTTOM, 6, 4)
         # self.add(self.grid)
+        self.interface = GtkInterface(self.console_output)
 
     def print(self, text):
         self.textbuffer.insert(text + '\n')
@@ -73,8 +81,8 @@ class MyWindow(Gtk.Window):
             subprocess.Popen(['notify-send', subtitle + ': ' + message])
 
     def _get_url(self):
-        if parse.urlparse(self.urlEntry.get()):
-            return self.urlEntry.get()
+        if parse.urlparse(self.url_entry.get()):
+            return self.url_entry.get()
         raise Exception('Blog url is not valid.')
 
     def _get_params(self):
@@ -104,7 +112,7 @@ class MyWindow(Gtk.Window):
             return None
 
     def saveSettings(self):
-        self.settings.set('url', self.urlEntry.get())
+        self.settings.set('url', self.url_entry.get())
         self.settings.set('limit', self.limitEntry.get())
         self.settings.set('skip', self.skipEntry.get())
         self.settings.save()
@@ -120,25 +128,28 @@ class MyWindow(Gtk.Window):
             self.interface.exception(e) 
 
     def about(self, click):
+        logo_path = os.path.join(pathlib.Path(__file__).parent.resolve(), '..', 'images', 'blog2epub.png')
+        pixbuf = GdkPixbuf.Pixbuf.new_from_file_at_scale(logo_path, -1, 256, True)
         about = Gtk.AboutDialog()
         about.set_program_name("Blog2Epub")
         about.set_version(VERSION)
+        about.set_logo(pixbuf)
         about.set_comments("Nifty script to convert blog into ebook.")
         about.set_website("https://github.com/bohdanbobrowski/blogspot2epub")
         about.run()
         about.destroy()
 
 
-class TkInterface(EmptyInterface):
+class GtkInterface(EmptyInterface):
 
-    def __init__(self, consoleOutput, refresh):
-        self.consoleOutput = consoleOutput
+    def __init__(self, consoleOutput, refresh=None):
+        self.console_output = consoleOutput
         self.refresh = refresh
 
     def print(self, text):
-        self.consoleOutput.insert(END, text + '\n')
-        self.consoleOutput.see('end')
-        self.refresh()
+        self.console_output.do_insert_at_cursor(text + '\n')
+        if self.refresh:
+            self.refresh()
 
     def notify(self, title, subtitle, message, cover):
         if(platform.system() == "Darwin"):
@@ -158,12 +169,11 @@ class TkInterface(EmptyInterface):
 
     def exception(self, e):
         print("Exception: " + str(e))
-        self.consoleOutput.insert(END, "Exception: " + str(e) + '\n')
-        self.consoleOutput.see('end')
-        self.refresh()            
+        self.console_output.do_insert_at_cursor("Exception: " + str(e) + '\n')
+        self.refresh()
 
     def clear(self):
-        self.consoleOutput.delete(1.0, END)
+        self.console_output.props.buffer.delete(0,0)
 
 
 class Blog2EpubSettings(object):
@@ -209,7 +219,6 @@ class Blog2EpubSettings(object):
             return self._data[key]
         else:
             return None
-
 
 
 def main():
