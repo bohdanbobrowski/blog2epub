@@ -29,13 +29,13 @@ class MyWindow(Gtk.Window):
         self.grid.set_row_spacing(5)
         self.grid.set_column_spacing(5)
         # Url entry
-        text_label = Gtk.Label(label="Url:")
-        self.grid.add(text_label)
+        self.url_entry_label = Gtk.Label(label="Url:")
+        self.grid.add(self.url_entry_label)
         self.url_entry = Gtk.Entry()
         self.url_entry.set_margin_top(5)
         self.url_entry.set_text(self.settings.get('url'))
         self.url_entry.set_activates_default(True)
-        self.grid.attach_next_to(self.url_entry, text_label, Gtk.PositionType.RIGHT, 3, 1)
+        self.grid.attach_next_to(self.url_entry, self.url_entry_label, Gtk.PositionType.RIGHT, 3, 1)        
         # Download button
         self.download_button = Gtk.Button(label="Download")
         self.download_button.set_margin_top(5)
@@ -44,25 +44,42 @@ class MyWindow(Gtk.Window):
         # About button
         self.about_button = Gtk.Button(label="About")
         self.about_button.set_margin_top(5)
-        self.about_button.set_margin_right(5)
         self.about_button.connect("clicked", self.about)
-        self.grid.attach_next_to(self.about_button, self.download_button, Gtk.PositionType.RIGHT, 1, 1)
+        self.grid.attach_next_to(self.about_button, self.download_button, Gtk.PositionType.BOTTOM, 1, 1)
         self.add(self.grid)
+        # Limit
+        self.limit_entry_label = Gtk.Label(label="Limit:")
+        self.grid.attach_next_to(self.limit_entry_label, self.url_entry_label, Gtk.PositionType.BOTTOM, 1, 1)
+        self.limit_entry = Gtk.Entry()
+        self.limit_entry.set_margin_top(5)
+        self.limit_entry.set_text(self.settings.get('limit'))
+        self.limit_entry.set_activates_default(True)
+        self.grid.attach_next_to(self.limit_entry, self.limit_entry_label, Gtk.PositionType.RIGHT, 1, 1)
+        # Skip
+        self.skip_entry_label = Gtk.Label(label="Skip:")
+        self.grid.attach_next_to(self.skip_entry_label, self.limit_entry, Gtk.PositionType.RIGHT, 1, 1)
+        self.skip_entry = Gtk.Entry()
+        self.skip_entry.set_margin_top(5)
+        self.skip_entry.set_text(self.settings.get('skip'))
+        self.skip_entry.set_activates_default(True)
+        self.grid.attach_next_to(self.skip_entry, self.skip_entry_label, Gtk.PositionType.RIGHT, 1, 1)
         # Text output
         self.console_output = Gtk.TextView()
+        self.console_output_buffer = Gtk.TextBuffer()
+        self.console_output_buffer.set_text("")
         self.console_output.set_monospace(True)
         self.console_output.place_cursor_onscreen()
         self.console_output.set_editable(False)
         self.console_output.set_size_request(600,600)
-        self.console_output.set_cursor_visible(True)
-        self.console_output.show()
-        self.grid.attach_next_to(self.console_output, text_label, Gtk.PositionType.BOTTOM, 6, 4)
-        # self.add(self.grid)
-        self.interface = GtkInterface(self.console_output)
+        self.console_output.set_cursor_visible(True)        
+        self.console_output.set_buffer(self.console_output_buffer)
+        self.console_output.show()        
+        self.grid.attach_next_to(self.console_output, self.limit_entry_label, Gtk.PositionType.BOTTOM, 6, 4)
+        self.interface = GtkInterface(self.console_output_buffer)
 
     def print(self, text):
-        self.textbuffer.insert(text + '\n')
-        self.textbuffer.see('end')
+        self.console_output_buffer.insert(text + '\n')
+        self.console_output_buffer.see('end')
 
     def notify(self, title, subtitle, message, cover):
         if(platform.system() == "Darwin"):
@@ -81,8 +98,8 @@ class MyWindow(Gtk.Window):
             subprocess.Popen(['notify-send', subtitle + ': ' + message])
 
     def _get_url(self):
-        if parse.urlparse(self.url_entry.get()):
-            return self.url_entry.get()
+        if parse.urlparse(self.url_entry.get_text()):
+            return self.url_entry.get_text()
         raise Exception('Blog url is not valid.')
 
     def _get_params(self):
@@ -95,8 +112,8 @@ class MyWindow(Gtk.Window):
             'images_quality': 40,
             'start': None,
             'end': None,
-            'limit': self._is_int(self.limitEntry.get()),
-            'skip': self._is_int(self.skipEntry.get()),
+            'limit': self._is_int(self.limit_entry.get_text()),
+            'skip': self._is_int(self.skip_entry.get_text()),
             'force_download': False,
             'file_name': None,
             'cache_folder': os.path.join(str(Path.home()), '.blog2epub'),
@@ -112,9 +129,9 @@ class MyWindow(Gtk.Window):
             return None
 
     def saveSettings(self):
-        self.settings.set('url', self.url_entry.get())
-        self.settings.set('limit', self.limitEntry.get())
-        self.settings.set('skip', self.skipEntry.get())
+        self.settings.set('url', self.url_entry.get_text())
+        self.settings.set('limit', self.limit_entry.get_text())
+        self.settings.set('skip', self.skip_entry.get_text())
         self.settings.save()
 
     def download(self, click):
@@ -142,14 +159,11 @@ class MyWindow(Gtk.Window):
 
 class GtkInterface(EmptyInterface):
 
-    def __init__(self, consoleOutput, refresh=None):
-        self.console_output = consoleOutput
-        self.refresh = refresh
+    def __init__(self, console_output):
+        self.console_output = console_output
 
     def print(self, text):
-        self.console_output.do_insert_at_cursor(text + '\n')
-        if self.refresh:
-            self.refresh()
+        self.console_output.insert_at_cursor(text + '\n')
 
     def notify(self, title, subtitle, message, cover):
         if(platform.system() == "Darwin"):
@@ -169,11 +183,10 @@ class GtkInterface(EmptyInterface):
 
     def exception(self, e):
         print("Exception: " + str(e))
-        self.console_output.do_insert_at_cursor("Exception: " + str(e) + '\n')
-        self.refresh()
+        self.console_output.insert_at_cursor("Exception: " + str(e) + '\n')
 
     def clear(self):
-        self.console_output.props.buffer.delete(0,0)
+        self.console_output.set_text("")
 
 
 class Blog2EpubSettings(object):
