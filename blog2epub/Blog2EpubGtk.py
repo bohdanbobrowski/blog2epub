@@ -15,6 +15,8 @@ from blog2epub.crawlers.Crawler import EmptyInterface
 gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk
 
+VERSION = '1.1.0'
+
 class MyWindow(Gtk.Window):
 
     def __init__(self):
@@ -22,22 +24,33 @@ class MyWindow(Gtk.Window):
         self.settings = Blog2EpubSettings()
         # Layout
         # self.set_default_size(500, 400)
+        self.set_resizable(False) 
         self.grid = Gtk.Grid()
+        self.grid.set_row_spacing(5)
+        self.grid.set_column_spacing(5)
         # Input
         text_label = Gtk.Label(label="Url:")
         self.grid.add(text_label)
         self.text = Gtk.Entry()
         self.text.set_activates_default(True)
-        self.grid.attach(self.text, 1, 0, 2, 1)
+        self.grid.attach_next_to(self.text, text_label, Gtk.PositionType.RIGHT, 3, 1)
         # Text output
         self.textview = Gtk.TextView()
+        self.textview.set_monospace(True)
+        self.textview.set_size_request(500,500)
+        self.textview.show()
         self.textbuffer = self.textview.get_buffer()
-        self.grid.attach_next_to(self.textview, text_label, Gtk.PositionType.BOTTOM, 10, 10)
-        # Download button
-        self.button = Gtk.Button(label="Download")
-        self.button.connect("clicked", self.download)
-        self.grid.attach_next_to(self.button, self.textview, Gtk.PositionType.BOTTOM, 1, 1)
+        self.grid.attach_next_to(self.textview, text_label, Gtk.PositionType.BOTTOM, 4, 4)
+        # About button
+        self.about_button = Gtk.Button(label="About")
+        self.about_button.connect("clicked", self.about)
+        self.grid.attach_next_to(self.about_button, self.textview, Gtk.PositionType.BOTTOM, 1, 1)
         self.add(self.grid)
+        # Download button
+        self.download_button = Gtk.Button(label="Download")
+        self.download_button.connect("clicked", self.download)
+        self.grid.attach_next_to(self.download_button, self.about_button, Gtk.PositionType.RIGHT, 1, 1)
+        # self.add(self.grid)
 
     def print(self, text):
         self.textbuffer.insert(text + '\n')
@@ -96,7 +109,7 @@ class MyWindow(Gtk.Window):
         self.settings.set('skip', self.skipEntry.get())
         self.settings.save()
 
-    def download(self):
+    def download(self, click):
         self.interface.clear()
         try:
             self.saveSettings()
@@ -105,6 +118,15 @@ class MyWindow(Gtk.Window):
             blog2epub.download()
         except Exception as e:
             self.interface.exception(e) 
+
+    def about(self, click):
+        about = Gtk.AboutDialog()
+        about.set_program_name("Blog2Epub")
+        about.set_version(VERSION)
+        about.set_comments("Nifty script to convert blog into ebook.")
+        about.set_website("https://github.com/bohdanbobrowski/blogspot2epub")
+        about.run()
+        about.destroy()
 
 
 class TkInterface(EmptyInterface):
