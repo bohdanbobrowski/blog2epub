@@ -180,7 +180,7 @@ class Blog2EpubGui(Frame):
             self.interface.print('Downloading...')
             blog2epub.download()
         except Exception as e:
-            self.interface.exception(e) 
+            self.interface.exception(e)
 
 
 def main():
