@@ -159,8 +159,9 @@ class Book(object):
         try:
             self.interface.notify('blog2epub', 'Epub created', self.file_full_path, cover_file_full_path)
         except Exception:
-            if os.path.isfile(self.file_full_path):
-                self.interface.print('Epub created: %s' % self.file_full_path)
+            pass
+        if os.path.isfile(self.file_full_path):
+            self.interface.print('Epub created: %s' % self.file_full_path)
 
     def _upgrade_opf(self, content_opt, cover_file_name):
         new_manifest = """<manifest>

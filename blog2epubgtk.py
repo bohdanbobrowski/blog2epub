@@ -2,5 +2,5 @@
 # -*- coding : utf-8 -*-
 # Author: Bohdan Bobrowski
 
-from blog2epub import Blog2EpubGui
-Blog2EpubGui.main()
+from blog2epub import Blog2EpubGtk
+Blog2EpubGtk.main()

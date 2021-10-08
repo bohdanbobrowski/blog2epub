@@ -2,9 +2,9 @@
 # -*- coding : utf-8 -*-
 # Author: Bohdan Bobrowski
 
-from setuptools import setup
+from distutils.core import setup
 
-VERSION = '1.0.4'
+VERSION = '1.1.0'
 APP = ['blog2epubgui.py']
 DATA_FILES = [
     'blog2epub/assets/Lato-Bold.ttf',
@@ -47,7 +47,9 @@ setup(
         "atoma",
         "requests",
         "fake-useragent",
-        "PyYAML"
+        "PyYAML",
+        "pycairo",
+        "PyGObject"
     ],
     data_files=DATA_FILES,
     options={
@@ -59,7 +61,7 @@ setup(
             'blog2epub = blog2epub.Blog2EpubCli:main'
         ],
         'gui_scripts': [
-            'blog2epubgui = blog2epub.Blog2EpubGui:main'
+            'blog2epubgui = blog2epub.Blog2EpubGtk:main'
         ]
     },
     package_data={
