@@ -7,6 +7,7 @@ import platform
 import yaml
 import subprocess
 import pathlib
+import logging
 from pathlib import Path
 from urllib import parse
 
@@ -16,6 +17,8 @@ from blog2epub.crawlers.Crawler import EmptyInterface
 gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk, GdkPixbuf
 
+logging_filename = os.path.join(str(Path.home()), '.blog2epub', 'blog2epub.log')
+logging.basicConfig(filename=logging_filename, encoding='utf-8', level=logging.DEBUG)
 VERSION = '1.1.0'
 
 class MyWindow(Gtk.Window):
@@ -99,8 +102,8 @@ class MyWindow(Gtk.Window):
 
     def _get_url(self):
         if parse.urlparse(self.url_entry.get_text()):
-            return self.url_entry.get_text()
-        raise Exception('Blog url is not valid.')
+            return self.url_entry.get_text()            
+        raise Exception('Blog url is not valid.')        
 
     def _get_params(self):
         return {
@@ -136,6 +139,7 @@ class MyWindow(Gtk.Window):
 
     def download(self, click):
         self.interface.clear()
+        self.interface.print('Downloading...')
         try:
             self.saveSettings()
             blog2epub = Blog2Epub(self._get_params())
@@ -163,7 +167,8 @@ class GtkInterface(EmptyInterface):
         self.console_output = console_output
 
     def print(self, text):
-        self.console_output.insert_at_cursor(text + '\n')
+        logging.info(text)
+        self.console_output.insert_at_cursor(text + "\n")
 
     def notify(self, title, subtitle, message, cover):
         if(platform.system() == "Darwin"):
@@ -182,8 +187,8 @@ class GtkInterface(EmptyInterface):
             subprocess.Popen(['notify-send', subtitle + ': ' + message])
 
     def exception(self, e):
-        print("Exception: " + str(e))
-        self.console_output.insert_at_cursor("Exception: " + str(e) + '\n')
+        logging.error("Exception: " + str(e))
+        self.console_output.insert_at_cursor("Exception: " + str(e) + "\n")
 
     def clear(self):
         self.console_output.set_text("")
