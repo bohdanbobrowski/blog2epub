@@ -61,7 +61,7 @@ setup(
             'blog2epub = blog2epub.Blog2EpubCli:main'
         ],
         'gui_scripts': [
-            'blog2epubgui = blog2epub.Blog2EpubGui:main'
+            'blog2epubgui = blog2epub.Blog2EpubGtk:main'
         ]
     },
     package_data={

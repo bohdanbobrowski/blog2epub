@@ -16,7 +16,7 @@ from blog2epub.Blog2Epub import Blog2Epub
 from blog2epub.crawlers.Crawler import EmptyInterface
 
 gi.require_version("Gtk", "3.0")
-from gi.repository import Gtk, GdkPixbuf
+from gi.repository import Gtk, GdkPixbuf, Pango
 
 now = datetime.now()
 date_time = now.strftime("%Y-%m-%d[%H.%M.%S]")
@@ -30,10 +30,50 @@ logging.basicConfig(
 )
 VERSION = '1.1.0'
 
-class MyWindow(Gtk.Window):
 
+class Blog2EpubTextView(Gtk.TextView):
+  def __init__(self):
+    Gtk.TextView.__init__(self)
+    self.modify_font(
+        Pango.font_description_from_string('Inconsolata 9')
+    )
+    text_buffer = self.get_buffer()    
+    self.text_mark_end = text_buffer.create_mark("", text_buffer.get_end_iter(), False)
+    self.set_monospace(True)
+    self.place_cursor_onscreen()
+    self.set_editable(False)
+    self.set_size_request(600,600)
+    self.set_cursor_visible(True) 
+    self.set_hexpand(False)
+    self.set_vexpand(False)    
+
+  def append_text(self, text):
+    text_buffer = self.get_buffer()
+    text_iter_end = text_buffer.get_end_iter()
+    text_buffer.insert(text_iter_end, text)
+    self.scroll_to_mark(self.text_mark_end, 0, False, 0, 0)
+
+  def set_text(self, text):
+    text_buffer = self.get_buffer()
+    text_buffer.set_text(text)
+
+
+def get_image_file(filename):    
+    in_binaries = os.path.join(os.path.dirname(sys.executable), filename)
+    in_sources = os.path.join(pathlib.Path(__file__).parent.resolve(), '..', 'images', filename)
+    if os.path.isfile(in_binaries):
+        return in_binaries
+    if os.path.isfile(in_sources):
+        return in_sources
+    return False
+
+
+class MyWindow(Gtk.Window):
     def __init__(self):
-        Gtk.Window.__init__(self, title="Blog2Epub")        
+        Gtk.Window.__init__(self, title="Blog2Epub")                
+        icon_file = get_image_file('blog2epub.svg')
+        if icon_file:            
+            self.set_icon_from_file(icon_file)
         self.settings = Blog2EpubSettings()
         # Layout
         self.set_resizable(False) 
@@ -76,22 +116,15 @@ class MyWindow(Gtk.Window):
         self.skip_entry.set_activates_default(True)
         self.grid.attach_next_to(self.skip_entry, self.skip_entry_label, Gtk.PositionType.RIGHT, 1, 1)
         # Text output
-        self.console_output = Gtk.TextView()
-        self.console_output_buffer = Gtk.TextBuffer()
-        self.console_output_buffer.set_text("")
-        self.console_output.set_monospace(True)
-        self.console_output.place_cursor_onscreen()
-        self.console_output.set_editable(False)
-        self.console_output.set_size_request(600,600)
-        self.console_output.set_cursor_visible(True)        
-        self.console_output.set_buffer(self.console_output_buffer)
-        self.console_output.show()        
-        self.grid.attach_next_to(self.console_output, self.limit_entry_label, Gtk.PositionType.BOTTOM, 6, 4)
-        self.interface = GtkInterface(self.console_output_buffer)
-
-    def print(self, text):
-        self.console_output_buffer.insert(text + '\n')
-        self.console_output_buffer.see('end')
+        self.console_output = Blog2EpubTextView()
+        scrolledwindow = Gtk.ScrolledWindow()
+        scrolledwindow.set_hexpand(False)
+        scrolledwindow.set_vexpand(True)
+        scrolledwindow.set_min_content_width(600)
+        scrolledwindow.set_min_content_height(300)
+        scrolledwindow.add(self.console_output)
+        self.grid.attach_next_to(scrolledwindow, self.limit_entry_label, Gtk.PositionType.BOTTOM, 6, 4)
+        self.interface = GtkInterface(self.console_output)
 
     def notify(self, title, subtitle, message, cover):
         if(platform.system() == "Darwin"):
@@ -170,14 +203,13 @@ class MyWindow(Gtk.Window):
 
 
 class GtkInterface(EmptyInterface):
-
-    def __init__(self, console_output):
-        self.console_output = console_output
+    def __init__(self, console):
+        self.console = console
 
     def print(self, text):
         logging.info(text)
-        end_iter = self.console_output.get_end_iter()
-        self.console_output.insert(end_iter, text + "\n")
+        self.console.append_text(text + "\n")
+        self.gtk_update()
 
     def notify(self, title, subtitle, message, cover):
         if(platform.system() == "Darwin"):
@@ -197,14 +229,18 @@ class GtkInterface(EmptyInterface):
 
     def exception(self, e):
         logging.error("Exception: " + str(e))
-        self.console_output.insert_at_cursor("Exception: " + str(e) + "\n")
+        self.print("Exception: " + str(e))        
 
     def clear(self):
-        self.console_output.set_text("")
+        self.console.set_text("")
+        self.gtk_update()
 
+    def gtk_update(self):
+        while Gtk.events_pending():
+            Gtk.main_iteration()
+        
 
 class Blog2EpubSettings(object):
-
     def __init__(self):
         self.path = os.path.join(str(Path.home()), '.blog2epub')
         self._prepare_path()

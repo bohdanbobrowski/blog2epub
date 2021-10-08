@@ -206,6 +206,8 @@ class Crawler(object):
                     self.articles.append(art)
                     self._add_tags(art.tags)
                     self._check_limit()                
+                else:
+                    self.interface.print('[skipping] ' + art.title)
                 if not self.url_to_crawl:
                     break
 
