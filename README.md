@@ -33,13 +33,18 @@ Convert selected blogspot.com blog to epub using single command. After months of
     pip install -r ./requirements.txt
     ./blog2epubgui.py
 
-
 ## GUI
+
+### linux
+
+<p align="center">
+<img src="https://raw.githubusercontent.com/bohdanbobrowski/blogspot2epub/master/images/blog2epub_linux_screenshot.png" />
+</p>
 
 ### macOS
 
 <p align="center">
-<img src="https://raw.githubusercontent.com/bohdanbobrowski/blogspot2epub/master/images/blog2epub_osx_screenshot.png" width="741" height="604" />
+<img src="https://raw.githubusercontent.com/bohdanbobrowski/blogspot2epub/master/images/blog2epub_osx_screenshot.png" />
 </p>
 
 ## CLI
@@ -48,10 +53,10 @@ Convert selected blogspot.com blog to epub using single command. After months of
 
 ### Parameters
 
-- -l/--limit=[x] - limit epub file to x posts
-- -s/--skip=[x] - skip x latest posts
-- -q/--images-quality=[0-100] - included images quality (default is 40)
-- -n/--no-images - don't include images
+    -l/--limit=[x] - limit epub file to x posts
+    -s/--skip=[x] - skip x latest posts
+    -q/--images-quality=[0-100] - included images quality (default is 40)
+    -n/--no-images - don't include images
 
 ## Examples
 
@@ -71,11 +76,12 @@ Convert selected blogspot.com blog to epub using single command. After months of
 
 ## Release notes
 
-### 1.1.0 - under development
+### [1.1.0](https://github.com/bohdanbobrowski/blogspot2epub/releases/tag/1.1.0)
 
-- migration to Gtk
+- migration to Gtk (for better support on multiple platforms)
 - requirements cleanup
-
+- about dialog
+- osx dmg installer included
 
 ### [1.0.5](https://github.com/bohdanbobrowski/blogspot2epub/releases/tag/1.0.5)
 

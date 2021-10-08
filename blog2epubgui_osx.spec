@@ -2,7 +2,7 @@
 
 block_cipher = None
 
-a = Analysis(['blog2epubgui.py'],
+a = Analysis(['blog2epubgtk.py'],
              pathex=['.'],
              binaries=[],
              datas=[],
