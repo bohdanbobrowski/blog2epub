@@ -61,8 +61,6 @@ class Blog2EpubTextView(Gtk.TextView):
 def get_image_file(filename):    
     in_binaries = os.path.join(os.path.dirname(sys.executable), filename)
     in_sources = os.path.join(pathlib.Path(__file__).parent.resolve(), '..', 'images', filename)
-    print(in_binaries)
-    print(in_sources)
     if os.path.isfile(in_binaries):
         return in_binaries
     if os.path.isfile(in_sources):
@@ -196,9 +194,11 @@ class MyWindow(Gtk.Window):
         about = Gtk.AboutDialog()
         about.set_program_name("Blog2Epub")
         about.set_version(VERSION)
-        about.set_logo(pixbuf)
+        about.set_logo(pixbuf)        
+        about.set_authors(["Bohdan Bobrowski"])
         about.set_comments("Nifty script to convert blog into ebook.")
         about.set_website("https://github.com/bohdanbobrowski/blogspot2epub")
+        about.set_website_label("github.com/bohdanbobrowski/blogspot2epub")
         about.run()
         about.destroy()
 

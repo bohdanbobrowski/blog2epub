@@ -1,15 +1,14 @@
 # -*- mode: python ; coding: utf-8 -*-
-
+options = [ ('v', None, 'OPTION')]
 block_cipher = None
 
 a = Analysis(
     ['blog2epubgtk.py'],
-    pathex=['.'],
+    pathex=['./venv/', './venv.'],
     binaries=[],
     datas=[],
     hiddenimports=[],
     hookspath=[],
-    hooksconfig={},
     runtime_hooks=[],
     excludes=[],
     win_no_prefer_redirects=False,
@@ -29,18 +28,15 @@ exe = EXE(
     a.scripts,
     a.binaries,
     a.zipfiles,
-    a.datas,  
+    a.datas,
     name='blog2epub',
-    bootloader_ignore_signals=False,
     debug=False,
     strip=False,
     upx=True,
-    upx_exclude=[],
     runtime_tmpdir=None,
-    console=False,
+    console=False
     disable_windowed_traceback=False,
     target_arch=None,
     codesign_identity=None,
-    entitlements_file=None,
-    icon='images/blog2epub.png'
+    entitlements_file=None    
 )
