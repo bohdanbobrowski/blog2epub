@@ -61,19 +61,20 @@ class Blog2EpubTextView(Gtk.TextView):
 def get_image_file(filename):    
     in_binaries = os.path.join(os.path.dirname(sys.executable), filename)
     in_sources = os.path.join(pathlib.Path(__file__).parent.resolve(), '..', 'images', filename)
+    print(in_binaries)
+    print(in_sources)
     if os.path.isfile(in_binaries):
         return in_binaries
     if os.path.isfile(in_sources):
-        return in_sources
+        return in_sources        
     return False
 
 
 class MyWindow(Gtk.Window):
     def __init__(self):
         Gtk.Window.__init__(self, title="Blog2Epub")                
-        icon_file = get_image_file('blog2epub.svg')
-        if icon_file:            
-            self.set_icon_from_file(icon_file)
+        icon_file = get_image_file('blog2epub.png')
+        self.set_icon_from_file(icon_file)
         self.settings = Blog2EpubSettings()
         # Layout
         self.set_resizable(False) 
@@ -190,7 +191,7 @@ class MyWindow(Gtk.Window):
             self.interface.exception(e) 
 
     def about(self, click):
-        logo_path = os.path.join(pathlib.Path(__file__).parent.resolve(), '..', 'images', 'blog2epub.png')
+        logo_path = get_image_file('blog2epub.png')
         pixbuf = GdkPixbuf.Pixbuf.new_from_file_at_scale(logo_path, -1, 256, True)
         about = Gtk.AboutDialog()
         about.set_program_name("Blog2Epub")
