@@ -4,28 +4,10 @@
 
 from distutils.core import setup
 
-VERSION = '1.1.0'
-APP = ['blog2epubgui.py']
-DATA_FILES = [
-    'blog2epub/assets/Lato-Bold.ttf',
-    'blog2epub/assets/Lato-Italic.ttf',
-    'blog2epub/assets/Lato-Regular.ttf',
-]
-OPTIONS = {
-    'iconfile':'blog2epub.icns',
-    'plist': {
-        'CFBundleVersion': VERSION,
-        'CFBundleShortVersionString': VERSION,
-    },
-    'includes': [
-        'lxml', 'beautifulsoup4', 'PIL', 'os', 'platform', 'tkinter', 'atoma', 'python-dateutil'
-    ],
-    'argv_emulation': False
-}
+VERSION = '1.2.0'
 
 setup(
     name='blog2epub',
-    app=APP,
     version=VERSION,
     description="Blog To Epub Downloader",
     url="https://github.com/bohdanbobrowski/blogspot2epub",
@@ -51,17 +33,12 @@ setup(
         "pycairo",
         "PyGObject"
     ],
-    data_files=DATA_FILES,
-    options={
-        'py2app': OPTIONS
-    },
-    setup_requires=['py2app'],
     entry_points={
         'console_scripts': [
             'blog2epub = blog2epub.Blog2EpubCli:main'
         ],
         'gui_scripts': [
-            'blog2epubgui = blog2epub.Blog2EpubGtk:main'
+            'blog2epubgui = blog2epub.Blog2EpubKivy:main'
         ]
     },
     package_data={
