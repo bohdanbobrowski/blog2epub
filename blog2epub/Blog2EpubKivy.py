@@ -19,6 +19,7 @@ from kivy.uix.button import Button
 from kivy.uix.stacklayout import StackLayout
 from kivy.uix.label import Label
 from kivy.uix.textinput import TextInput
+from kivy.uix.popup import Popup
 from kivy.core.window import Window
 from kivy.config import Config
 Config.set('graphics', 'resizable', False)
@@ -75,11 +76,20 @@ class Blog2EpubKivyWindow(StackLayout):
         self.add_widget(self.skip_entry)
 
         self.about_button = StyledButton(text='About')
+        self.about_button.bind(on_press = self.about_popup)
         self.add_widget(self.about_button)
 
         self.console_output = TextInput(font_size='15sp', font_name='RobotoMono-Regular', size_hint=(1, 0.77), readonly=True)
         self.add_widget(self.console_output)
 
+    def about_popup(self, instance):
+        about_content = Label(text='Hello world')
+        about_popup = Popup(
+            title='Test popup',
+            content=about_content,
+            size_hint=(None, None), size=(400, 400)
+        )
+        about_popup.open()
 
 class Blog2EpubSettings(object):
     def __init__(self):
