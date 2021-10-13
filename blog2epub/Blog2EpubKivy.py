@@ -289,3 +289,7 @@ class Blog2EpubKivy(App):
         Window.resizable = False
         Window.size = (800,600)
         return Blog2EpubKivyWindow()
+
+
+def main():
+    Blog2EpubKivy().run()
