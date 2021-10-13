@@ -11,3 +11,4 @@ fake-useragent>=0.1.11
 PyYAML>=5.3.1
 pycairo>=1.2.0
 PyGObject>=3.3.8
+Kivy>=2.0.0
