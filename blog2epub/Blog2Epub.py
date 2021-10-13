@@ -7,6 +7,8 @@ class Blog2Epub(object):
     """
     Main Blog2Epub class.
     """
+    
+    VERSION = '1.2.0'
 
     def __init__(self, params):
         self.crawler = self._selectCrawler(params)
