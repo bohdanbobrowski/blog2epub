@@ -27,6 +27,7 @@ from kivy.uix.popup import Popup
 from kivy.core.window import Window
 from kivy.config import Config
 Config.set('graphics', 'resizable', False)
+Config.set('input', 'mouse', 'mouse,multitouch_on_demand')
 
 now = datetime.now()
 date_time = now.strftime("%Y-%m-%d[%H.%M.%S]")
@@ -56,7 +57,8 @@ class StyledLabel(Label):
     def __init__(self, **kwargs):
         super(StyledLabel, self).__init__(**kwargs)
         self.font_size = '25dp'
-        self.size_hint = kwargs.get('size_hint', (0.125, 0.06))
+        self.width = 100
+        self.size_hint = (None, 1)
 
 
 class StyledTextInput(TextInput):
@@ -64,9 +66,10 @@ class StyledTextInput(TextInput):
     def __init__(self, **kwargs):
         super(StyledTextInput, self).__init__(**kwargs)
         self.font_size = '25dp'
+        self.font_name = 'RobotoMono-Regular'
         self.halign = 'center'
         self.valign = 'middle'
-        self.size_hint = kwargs.get('size_hint', (0.25, 0.06))
+        self.size_hint = kwargs.get('size_hint', (0.25, 1))
         self.text = kwargs.get('text', '')
 
 
@@ -75,36 +78,51 @@ class StyledButton(Button):
     def __init__(self, **kwargs):
         super(StyledButton, self).__init__(**kwargs)
         self.font_size = '25dp'
-        self.size_hint = kwargs.get('size_hint', (0.25, 0.06))
+        self.width = 150
+        self.size_hint = (None, 1)
 
 
-class Blog2EpubKivyWindow(StackLayout):
+class Blog2EpubKivyWindow(BoxLayout):
 
     def __init__(self, **kwargs):
         super(Blog2EpubKivyWindow, self).__init__(**kwargs)
-        self.orientation = 'lr-tb'
+        self.orientation = 'vertical'
         self.padding = 10
         self.spacing = 10
         self.settings = Blog2EpubSettings()
 
-        self.add_widget(StyledLabel(text='Url:'))
-        self.url_entry = StyledTextInput(size_hint=(0.625, 0.06), text=self.settings.get('url'))        
-        self.add_widget(self.url_entry)
+        self.row1 = BoxLayout(
+            orientation='horizontal',
+            size_hint=(1, 0.1),
+            spacing = 10
+        )
+        self.add_widget(self.row1)
+
+        self.row1.add_widget(StyledLabel(text='Url:'))
+        self.url_entry = StyledTextInput(size_hint=(0.5, 1), text=self.settings.get('url'))        
+        self.row1.add_widget(self.url_entry)
         self.download_button = StyledButton(text='Download')
         self.download_button.bind(on_press = self.download)
-        self.add_widget(self.download_button)
+        self.row1.add_widget(self.download_button)
 
-        self.add_widget(StyledLabel(text='Limit:'))
+        self.row2 = BoxLayout(
+            orientation='horizontal',
+            size_hint=(1, 0.1),
+            spacing = 10
+        )
+        self.add_widget(self.row2)
+
+        self.row2.add_widget(StyledLabel(text='Limit:'))
         self.limit_entry = StyledTextInput(text=self.settings.get('limit'))
-        self.add_widget(self.limit_entry)
+        self.row2.add_widget(self.limit_entry)
 
-        self.add_widget(StyledLabel(text='Skip:'))
+        self.row2.add_widget(StyledLabel(text='Skip:'))
         self.skip_entry = StyledTextInput(text=self.settings.get('skip'))
-        self.add_widget(self.skip_entry)
+        self.row2.add_widget(self.skip_entry)
 
         self.about_button = StyledButton(text='About')
         self.about_button.bind(on_press = self.about_popup)
-        self.add_widget(self.about_button)
+        self.row2.add_widget(self.about_button)
 
         self.console_output = TextInput(
             font_size='15dp',
