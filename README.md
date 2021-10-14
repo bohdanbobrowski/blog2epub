@@ -38,13 +38,13 @@ Convert selected blogspot.com blog to epub using single command. After months of
 ### linux
 
 <p align="center">
-<img src="https://raw.githubusercontent.com/bohdanbobrowski/blogspot2epub/master/images/blog2epub_linux_screenshot_v1.2.0.png" />
+<img src="https://raw.githubusercontent.com/bohdanbobrowski/blogspot2epub/master/images/blog2epub_linux_screenshot_v1.2.0.png"  width="500px" />
 </p>
 
 ### macOS
 
 <p align="center">
-<img src="https://raw.githubusercontent.com/bohdanbobrowski/blogspot2epub/master/images/blog2epub_osx_screenshot_v1.2.0.png" />
+<img src="https://raw.githubusercontent.com/bohdanbobrowski/blogspot2epub/master/images/blog2epub_osx_screenshot_v1.2.0.png" width="600px" />
 </p>
 
 ## CLI
