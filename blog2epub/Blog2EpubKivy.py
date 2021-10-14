@@ -26,8 +26,13 @@ from kivy.uix.textinput import TextInput
 from kivy.uix.popup import Popup
 from kivy.core.window import Window
 from kivy.config import Config
+from kivy.metrics import dp
+
 Config.set('graphics', 'resizable', False)
+Config.set('graphics', 'width', '800')
+Config.set('graphics', 'height', '600')
 Config.set('input', 'mouse', 'mouse,multitouch_on_demand')
+
 
 now = datetime.now()
 date_time = now.strftime("%Y-%m-%d[%H.%M.%S]")
@@ -56,8 +61,8 @@ class StyledLabel(Label):
 
     def __init__(self, **kwargs):
         super(StyledLabel, self).__init__(**kwargs)
-        self.font_size = '25dp'
-        self.width = 100
+        self.font_size = dp(25)
+        self.width = dp(100)
         self.size_hint = (None, 1)
 
 
@@ -65,7 +70,7 @@ class StyledTextInput(TextInput):
 
     def __init__(self, **kwargs):
         super(StyledTextInput, self).__init__(**kwargs)
-        self.font_size = '25dp'
+        self.font_size = dp(25)
         self.font_name = 'RobotoMono-Regular'
         self.halign = 'center'
         self.valign = 'middle'
@@ -77,8 +82,8 @@ class StyledButton(Button):
 
     def __init__(self, **kwargs):
         super(StyledButton, self).__init__(**kwargs)
-        self.font_size = '25dp'
-        self.width = 150
+        self.font_size = dp(25)
+        self.width = dp(150)
         self.size_hint = (None, 1)
 
 
@@ -87,14 +92,14 @@ class Blog2EpubKivyWindow(BoxLayout):
     def __init__(self, **kwargs):
         super(Blog2EpubKivyWindow, self).__init__(**kwargs)
         self.orientation = 'vertical'
-        self.padding = 10
-        self.spacing = 10
+        self.padding = dp(1)
+        self.spacing = dp(1)
         self.settings = Blog2EpubSettings()
 
         self.row1 = BoxLayout(
-            orientation='horizontal',
-            size_hint=(1, 0.1),
-            spacing = 10
+            orientation = 'horizontal',
+            size_hint = (1, 0.1),
+            spacing = dp(1)
         )
         self.add_widget(self.row1)
 
@@ -106,9 +111,9 @@ class Blog2EpubKivyWindow(BoxLayout):
         self.row1.add_widget(self.download_button)
 
         self.row2 = BoxLayout(
-            orientation='horizontal',
-            size_hint=(1, 0.1),
-            spacing = 10
+            orientation = 'horizontal',
+            size_hint = (1, 0.1),
+            spacing = dp(1)
         )
         self.add_widget(self.row2)
 
@@ -125,13 +130,13 @@ class Blog2EpubKivyWindow(BoxLayout):
         self.row2.add_widget(self.about_button)
 
         self.console_output = TextInput(
-            font_size='15dp',
-            font_name='RobotoMono-Regular',
-            background_color='black',
-            foreground_color='white',
-            size_hint=(1, 0.88),            
-            readonly=True,
-            padding_x=['10dp', '10dp']
+            font_size = dp(15),
+            font_name = 'RobotoMono-Regular',
+            background_color = 'black',
+            foreground_color = 'white',
+            size_hint = (1, 0.88),            
+            readonly = True,
+            padding_x = [dp(10), dp(10)]
         )
         self.add_widget(self.console_output)
         self.interface = KivyInterface(self.console_output)
@@ -208,15 +213,15 @@ class Blog2EpubKivyWindow(BoxLayout):
 
         about_content.add_widget(Button(
             text = 'github.com/bohdanbobrowski/blogspot2epub',
-            font_size = '20dp',
+            font_size = dp(20),
             size_hint = (1, 0.1),
             on_press = about_url_click
         ))
         about_popup = Popup(
             title = 'Blog2Epub',
-            title_size = '30dp',
+            title_size = dp(30),
             content = about_content,
-            size_hint = (None, None), size=('500dp', '500dp'),            
+            size_hint = (None, None), size=(dp(500), dp(500)),            
         )
         about_popup.open()
 
@@ -225,7 +230,7 @@ class AboutPopupLabel(Label):
 
     def __init__(self, **kwargs):
         super(AboutPopupLabel, self).__init__(**kwargs)
-        self.font_size = '20dp'
+        self.font_size = dp(20)
         self.size_hint = (1, 0.1)
 
 
