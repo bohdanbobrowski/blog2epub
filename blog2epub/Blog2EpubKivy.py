@@ -30,9 +30,6 @@ from kivy.metrics import Metrics, dp
 
 SIZE = 4 / Metrics.density / Metrics.density
 
-Config.set('graphics', 'resizable', False)
-Config.set('graphics', 'width', dp(600*SIZE))
-Config.set('graphics', 'height', dp(200*SIZE))
 Config.set('input', 'mouse', 'mouse,multitouch_on_demand')
 
 
@@ -325,6 +322,7 @@ class Blog2EpubKivy(App):
         print("DPI: {}".format(Metrics.dpi))
         print("DPI ROUNDED: {}".format(Metrics.dpi_rounded))
         print("DENSITY: {}".format(Metrics.density))
+        print("Window size = {}, {}".format(dp(300*SIZE), dp(200*SIZE)))
         Window.size = (dp(300*SIZE), dp(200*SIZE))
         return Blog2EpubKivyWindow()
 
