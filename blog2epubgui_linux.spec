@@ -3,7 +3,7 @@ options = [ ('v', None, 'OPTION')]
 block_cipher = None
 
 a = Analysis(
-    ['blog2epubgtk.py'],
+    ['blog2epubkivy.py'],
     pathex=['./venv/', './venv.'],
     binaries=[],
     datas=[],

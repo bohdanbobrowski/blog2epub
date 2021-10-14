@@ -3,7 +3,9 @@
 block_cipher = None
 
 a = Analysis(
-    ['blog2epubkivy.py'],
+    [
+        'blog2epubkivy.py'
+    ],
     pathex=['.'],
     binaries=[],
     datas=[],

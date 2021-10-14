@@ -29,8 +29,8 @@ from kivy.config import Config
 from kivy.metrics import dp
 
 Config.set('graphics', 'resizable', False)
-Config.set('graphics', 'width', '800')
-Config.set('graphics', 'height', '600')
+Config.set('graphics', 'width', 800)
+Config.set('graphics', 'height', 600)
 Config.set('input', 'mouse', 'mouse,multitouch_on_demand')
 
 
