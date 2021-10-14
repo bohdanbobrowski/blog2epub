@@ -26,13 +26,11 @@ from kivy.uix.textinput import TextInput
 from kivy.uix.popup import Popup
 from kivy.core.window import Window
 from kivy.config import Config
-from kivy.metrics import sp
-
-SIZE = 3
+from kivy.metrics import pt
 
 Config.set('graphics', 'resizable', False)
-Config.set('graphics', 'width', sp(600*SIZE))
-Config.set('graphics', 'height', sp(200*SIZE))
+Config.set('graphics', 'width', pt(600))
+Config.set('graphics', 'height', pt(200))
 Config.set('input', 'mouse', 'mouse,multitouch_on_demand')
 
 
@@ -63,8 +61,8 @@ class StyledLabel(Label):
 
     def __init__(self, **kwargs):
         super(StyledLabel, self).__init__(**kwargs)
-        self.font_size = sp(10*SIZE)
-        self.width = sp(40*SIZE)
+        self.font_size = pt(10)
+        self.width = pt(40)
         self.size_hint = (None, 1)
 
 
@@ -72,7 +70,7 @@ class StyledTextInput(TextInput):
 
     def __init__(self, **kwargs):
         super(StyledTextInput, self).__init__(**kwargs)
-        self.font_size = sp(8*SIZE)
+        self.font_size = pt(8)
         self.font_name = 'RobotoMono-Regular'
         self.halign = 'center'
         self.valign = 'middle'
@@ -84,8 +82,8 @@ class StyledButton(Button):
 
     def __init__(self, **kwargs):
         super(StyledButton, self).__init__(**kwargs)
-        self.font_size = sp(10*SIZE)
-        self.width = sp(80*SIZE)
+        self.font_size = pt(10)
+        self.width = pt(80)
         self.size_hint = (None, 1)
 
 
@@ -94,14 +92,14 @@ class Blog2EpubKivyWindow(BoxLayout):
     def __init__(self, **kwargs):
         super(Blog2EpubKivyWindow, self).__init__(**kwargs)
         self.orientation = 'vertical'
-        self.padding = sp(1*SIZE)
-        self.spacing = sp(1*SIZE)
+        self.padding = pt(1)
+        self.spacing = pt(1)
         self.settings = Blog2EpubSettings()
 
         self.row1 = BoxLayout(
             orientation = 'horizontal',
             size_hint = (1, 0.1),
-            spacing = sp(10*SIZE)
+            spacing = pt(10)
         )
         self.add_widget(self.row1)
 
@@ -118,7 +116,7 @@ class Blog2EpubKivyWindow(BoxLayout):
         self.row2 = BoxLayout(
             orientation = 'horizontal',
             size_hint = (1, 0.1),
-            spacing = sp(1*SIZE)
+            spacing = pt(1)
         )
         self.add_widget(self.row2)
 
@@ -135,7 +133,7 @@ class Blog2EpubKivyWindow(BoxLayout):
         self.row2.add_widget(self.about_button)
 
         self.console_output = TextInput(
-            font_size = sp(6*SIZE),
+            font_size = pt(6),
             font_name = 'RobotoMono-Regular',
             background_color = 'black',
             foreground_color = 'white',
@@ -217,15 +215,15 @@ class Blog2EpubKivyWindow(BoxLayout):
 
         about_content.add_widget(Button(
             text = 'github.com/bohdanbobrowski/blogspot2epub',
-            font_size = sp(8*SIZE),
+            font_size = pt(8),
             size_hint = (1, 0.1),
             on_press = about_url_click
         ))
         about_popup = Popup(
             title = 'Blog2Epub',
-            title_size = sp(10*SIZE),
+            title_size = pt(10),
             content = about_content,
-            size_hint = (None, None), size=(sp(180*SIZE), sp(180*SIZE)),            
+            size_hint = (None, None), size=(pt(180), pt(180)),            
         )
         about_popup.open()
 
@@ -234,7 +232,7 @@ class AboutPopupLabel(Label):
 
     def __init__(self, **kwargs):
         super(AboutPopupLabel, self).__init__(**kwargs)
-        self.font_size = sp(8*SIZE)
+        self.font_size = pt(8)
         self.size_hint = (1, 0.1)
 
 
@@ -323,7 +321,7 @@ class Blog2EpubKivy(App):
     def build(self):
         Window.resizable = False
         print("DPI: {}".format(Window.dpi))
-        Window.size = (sp(300*SIZE), sp(200*SIZE))
+        Window.size = (pt(300), pt(200))
         return Blog2EpubKivyWindow()
 
 
