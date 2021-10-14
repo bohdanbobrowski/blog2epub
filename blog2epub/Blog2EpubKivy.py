@@ -28,7 +28,7 @@ from kivy.core.window import Window
 from kivy.config import Config
 from kivy.metrics import Metrics, dp
 
-SIZE = 2/Metrics.density
+SIZE = 4 / Metrics.density / Metrics.density
 
 Config.set('graphics', 'resizable', False)
 Config.set('graphics', 'width', dp(600*SIZE))
