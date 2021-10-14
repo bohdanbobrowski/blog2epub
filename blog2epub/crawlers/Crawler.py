@@ -177,21 +177,25 @@ class Crawler(object):
         articles = self._get_articles(content)
         if self.atom_feed:
             for item in self.atom_feed.entries:
-                self.article_counter += 1
-                art = Article(item.links[0].href, item.title.value, self)
-                self.interface.print(str(len(self.articles) + 1) + '. ' + art.title)
-                art.date = item.updated
-                if self.start:
-                    self.end = art.date
-                else:
-                    self.start = art.date
-                art.set_content(item.content.value)
-                art.get_images()
-                art.set_content(art.html)
-                self.images = self.images + art.images
-                self.articles.append(art)
-                self._add_tags(art.tags)
-                self._check_limit()                
+                try:
+                    self.article_counter += 1
+                    art = Article(item.links[0].href, item.title.value, self)
+                    self.interface.print(str(len(self.articles) + 1) + '. ' + art.title)
+                    art.date = item.updated
+                    if self.start:
+                        self.end = art.date
+                    else:
+                        self.start = art.date
+                    art.set_content(item.content.value)
+                    art.get_images()
+                    art.set_content(art.html)
+                    self.images = self.images + art.images
+                    self.articles.append(art)
+                    self._add_tags(art.tags)
+                    if self.limit and len(self.articles) >= self.limit:
+                        break
+                except Exception:
+                    self.interface.print("[article not recognized - skipping]")
         elif articles:        
             for art in articles:
                 self.article_counter += 1
