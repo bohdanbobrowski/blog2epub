@@ -82,25 +82,25 @@ Convert selected blogspot.com blog to epub using single command. After months of
 - deliver Windows build
 - what bout Android app?
 
-### [1.1.0](https://github.com/bohdanbobrowski/blogspot2epub/releases/tag/1.1.0)
+### [1.1.0](https://github.com/bohdanbobrowski/blogspot2epub/releases/tag/v1.1.0)
 
 - migration to Gtk (for better support on multiple platforms)
 - requirements cleanup
 - about dialog
 - osx dmg installer included
 
-### [1.0.5](https://github.com/bohdanbobrowski/blogspot2epub/releases/tag/1.0.5)
+### [1.0.5](https://github.com/bohdanbobrowski/blogspot2epub/releases/tag/v1.0.5)
 
 - gzip html in cache folder
 - atom feed parsing
 - better system notifications, also under linux
 
-### [1.0.4](https://github.com/bohdanbobrowski/blogspot2epub/releases/tag/1.0.4)
+### [1.0.4](https://github.com/bohdanbobrowski/blogspot2epub/releases/tag/v1.0.4)
 
 - improved saving GUI settings
 - system notification on finished download
 
-### [1.0.3](https://github.com/bohdanbobrowski/blogspot2epub/releases/tag/1.0.3)
+### [1.0.3](https://github.com/bohdanbobrowski/blogspot2epub/releases/tag/v1.0.3)
 
 - saving GUI settings to yaml file
 - first macOS builds (--py2app--pyinstaller)
