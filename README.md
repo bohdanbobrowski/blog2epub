@@ -38,13 +38,13 @@ Convert selected blogspot.com blog to epub using single command. After months of
 ### linux
 
 <p align="center">
-<img src="https://raw.githubusercontent.com/bohdanbobrowski/blogspot2epub/master/images/blog2epub_linux_screenshot.png" />
+<img src="https://raw.githubusercontent.com/bohdanbobrowski/blogspot2epub/master/images/blog2epub_linux_screenshot_v1.2.0.png" />
 </p>
 
 ### macOS
 
 <p align="center">
-<img src="https://raw.githubusercontent.com/bohdanbobrowski/blogspot2epub/master/images/blog2epub_osx_screenshot.png" />
+<img src="https://raw.githubusercontent.com/bohdanbobrowski/blogspot2epub/master/images/blog2epub_osx_screenshot_v1.2.0.png" />
 </p>
 
 ## CLI
@@ -64,7 +64,6 @@ Convert selected blogspot.com blog to epub using single command. After months of
     blog2epub velosov.blogspot.com -l=10
     blog2epub poznanskiehistorie.blogspot.com -q=100
     blog2epub classicameras.blogspot.com --limit=10 --no-images
-    blog2epubgui
 
 ## TODO list / Plannned features
 
@@ -76,7 +75,7 @@ Convert selected blogspot.com blog to epub using single command. After months of
 
 ## Release notes
 
-### 1.2.0 - IN DEVELOPMENT
+### [1.2.0](#) - IN DEVELOPMENT
 
 - migration to Kivy :-)
 - deliver Windows build
