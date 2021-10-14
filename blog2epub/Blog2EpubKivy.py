@@ -314,7 +314,7 @@ class Blog2EpubKivy(App):
 
     def __init__(self, **kwargs):
         super(Blog2EpubKivy, self).__init__(**kwargs)
-        self.icon = get_image_file('blog2epub.icns')
+        # self.icon = get_image_file('blog2epub.icns')
 
     def build(self):
         Window.resizable = False
