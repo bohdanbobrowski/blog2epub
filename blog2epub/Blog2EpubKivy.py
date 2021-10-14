@@ -28,6 +28,10 @@ from kivy.core.window import Window
 from kivy.config import Config
 from kivy.metrics import Metrics, dp
 
+print("DENISTY: {}".format(Metrics.density))
+print("DPI: {}".format(Metrics.dpi))
+print("FONT_SCALE: {}".format(Metrics.fontscale))
+
 SIZE = 3 / Metrics.density / Metrics.density
 F_SIZE = 3 / Metrics.density
 
@@ -62,6 +66,7 @@ class StyledLabel(Label):
     def __init__(self, **kwargs):
         super(StyledLabel, self).__init__(**kwargs)
         self.font_size = dp(10*F_SIZE)
+        self.font_name = 'RobotoMono-Regular'
         self.width = dp(40*F_SIZE)
         self.size_hint = (None, 1)
         print("Label: {} {}".format(self.text, self.font_size))
@@ -84,6 +89,7 @@ class StyledButton(Button):
     def __init__(self, **kwargs):
         super(StyledButton, self).__init__(**kwargs)
         self.font_size = dp(10*F_SIZE)
+        self.font_name = 'RobotoMono-Regular'
         self.width = dp(80*F_SIZE)
         self.size_hint = (None, 1)
 
@@ -217,14 +223,16 @@ class Blog2EpubKivyWindow(BoxLayout):
         about_content.add_widget(Button(
             text = 'github.com/bohdanbobrowski/blogspot2epub',
             font_size = dp(8*F_SIZE),
+            font_name = 'RobotoMono-Regular',
             size_hint = (1, 0.1),
             on_press = about_url_click
         ))
         about_popup = Popup(
             title = 'Blog2Epub',
             title_size = dp(10*F_SIZE),
+            title_font = 'RobotoMono-Regular',
             content = about_content,
-            size_hint = (None, None), size=(dp(200*F_SIZE), dp(200*F_SIZE)),            
+            size_hint = (None, None), size=(dp(210*F_SIZE), dp(180*F_SIZE)),            
         )
         about_popup.open()
 
@@ -234,6 +242,7 @@ class AboutPopupLabel(Label):
     def __init__(self, **kwargs):
         super(AboutPopupLabel, self).__init__(**kwargs)
         self.font_size = dp(8*F_SIZE)
+        self.font_name = 'RobotoMono-Regular'
         self.size_hint = (1, 0.1)
 
 
@@ -319,6 +328,7 @@ class Blog2EpubKivy(App):
 
     def __init__(self, **kwargs):
         super(Blog2EpubKivy, self).__init__(**kwargs)
+        self.title = 'blog2epub - v. {}'.format(Blog2Epub.VERSION)
         self.icon = get_image_file('blog2epub.icns')
 
     def build(self):
@@ -329,3 +339,4 @@ class Blog2EpubKivy(App):
 
 def main():
     Blog2EpubKivy().run()
+
