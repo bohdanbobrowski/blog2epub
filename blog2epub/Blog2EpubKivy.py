@@ -63,6 +63,7 @@ class StyledLabel(Label):
         self.font_size = dp(10*SIZE)
         self.width = dp(40*SIZE)
         self.size_hint = (None, 1)
+        print("Label: {} {}".format(self.text, self.font_size))
 
 
 class StyledTextInput(TextInput):
