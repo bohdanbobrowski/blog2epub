@@ -26,7 +26,7 @@ from kivy.uix.textinput import TextInput
 from kivy.uix.popup import Popup
 from kivy.core.window import Window
 from kivy.config import Config
-from kivy.metrics import pt
+from kivy.metrics import Metrics, pt
 
 Config.set('graphics', 'resizable', False)
 Config.set('graphics', 'width', pt(600))
@@ -320,7 +320,9 @@ class Blog2EpubKivy(App):
 
     def build(self):
         Window.resizable = False
-        print("DPI: {}".format(Window.dpi))
+        print("DPI: {}".format(Metrics.dpi))
+        print("DPI ROUNDED: {}".format(Metrics.dpi_rounded))
+        print("DENSITY: {}".format(Metrics.density))
         Window.size = (pt(300), pt(200))
         return Blog2EpubKivyWindow()
 
