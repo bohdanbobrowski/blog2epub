@@ -3,8 +3,12 @@ options = [ ('v', None, 'OPTION')]
 block_cipher = None
 
 a = Analysis(
-    ['blog2epubkivy.py'],
-    pathex=['./venv/', './venv.'],
+    [
+        'blog2epubkivy.py'
+    ],
+    pathex=[
+        './venv/'    
+    ],
     binaries=[],
     datas=[],
     hiddenimports=[],
@@ -16,19 +20,18 @@ a = Analysis(
     cipher=block_cipher,
     noarchive=False
 )
-
 pyz = PYZ(
     a.pure,
     a.zipped_data,
     cipher=block_cipher
 )
-
 exe = EXE(
     pyz,
     a.scripts,
     a.binaries,
     a.zipfiles,
     a.datas,
+    [],
     name='blog2epub',
     debug=False,
     strip=False,
@@ -38,5 +41,6 @@ exe = EXE(
     disable_windowed_traceback=False,
     target_arch=None,
     codesign_identity=None,
-    entitlements_file=None    
+    entitlements_file=None, 
+    icon='blog2epub.icns'   
 )

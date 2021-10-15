@@ -6,7 +6,9 @@ a = Analysis(
     [
         'blog2epubkivy.py'
     ],
-    pathex=['.'],
+    pathex=[
+        './venv/'    
+    ],
     binaries=[],
     datas=[],
     hiddenimports=[],
@@ -19,7 +21,8 @@ a = Analysis(
     noarchive=False
 )
 pyz = PYZ(
-    a.pure, a.zipped_data,
+    a.pure,
+    a.zipped_data,
     cipher=block_cipher
 )
 exe = EXE(
@@ -31,12 +34,14 @@ exe = EXE(
     [],
     name='blog2epub',
     debug=False,
-    bootloader_ignore_signals=False,
     strip=False,
     upx=True,
-    upx_exclude=[],
     runtime_tmpdir=None,
-    console=False,
+    console=False
+    disable_windowed_traceback=False,
+    target_arch=None,
+    codesign_identity=None,
+    entitlements_file=None, 
     icon='blog2epub.icns'
 )
 info_plist = {
