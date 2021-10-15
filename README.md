@@ -75,11 +75,11 @@ Convert selected blogspot.com blog to epub using single command. After months of
 
 ## Release notes
 
-### [1.2.0](#) - IN DEVELOPMENT
+### [1.2.0](https://github.com/bohdanbobrowski/blogspot2epub) - IN DEVELOPMENT (but you can run it from the sources)
 
 - migration to Kivy :-)
-- deliver Windows build
-- what bout Android app?
+- minor bugfixes in crawler
+- I would try to deliver OSX, Linux and Windows build
 
 ### [1.1.0](https://github.com/bohdanbobrowski/blogspot2epub/releases/tag/v1.1.0)
 

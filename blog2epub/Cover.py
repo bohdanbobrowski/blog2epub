@@ -83,15 +83,16 @@ class Cover(object):
                 return self.end.strftime('%d %B %Y') + " - " + self.start.strftime('%d %B %Y')
 
     def _get_fonts_path(self, font_name):
-        path = os.path.dirname(sys.executable)
-        if os.path.isfile(os.path.join(path, font_name)):
-            return os.path.join(path, font_name)
-        elif os.path.isfile(font_name):
-            return font_name
-        path = os.path.dirname(__file__)
-        if os.path.isfile(os.path.join(path, 'assets', font_name)):
-            return os.path.join(path, 'assets', font_name)
-        self.interface.print("Font not found: " + os.path.join(path, 'assets', font_name))
+        in_osx_app = os.path.join(
+            os.path.dirname(sys.executable).replace('/Contents/MacOS','/Contents/Resources'),
+            font_name
+        )
+        in_sources = os.path.join(Path(__file__).parent.resolve(), 'assets', font_name)
+        if os.path.isfile(in_osx_app):
+            return in_osx_app
+        if os.path.isfile(in_sources):
+            return in_sources
+        self.interface.print("Font not found: " + in_sources)
         return False
 
     def _draw_text(self, cover_image):

@@ -5,7 +5,6 @@ import os
 import platform
 import yaml
 import subprocess
-import pathlib
 import logging
 from pathlib import Path
 from urllib import parse
@@ -28,10 +27,6 @@ from kivy.core.window import Window
 from kivy.config import Config
 from kivy.metrics import Metrics, dp
 
-print("DENISTY: {}".format(Metrics.density))
-print("DPI: {}".format(Metrics.dpi))
-print("FONT_SCALE: {}".format(Metrics.fontscale))
-
 SIZE = 3 / Metrics.density / Metrics.density
 F_SIZE = 3 / Metrics.density
 
@@ -51,14 +46,19 @@ logging.basicConfig(
 )
 
 
-def get_image_file(filename):    
-    in_binaries = os.path.join(os.path.dirname(sys.executable), filename)
-    in_sources = os.path.join(pathlib.Path(__file__).parent.resolve(), '..', 'images', filename)
-    if os.path.isfile(in_binaries):
-        return in_binaries
+def get_image_file(filename):
+    in_osx_app = os.path.join(
+        os.path.dirname(sys.executable).replace('/Contents/MacOS','/Contents/Resources'),
+        filename
+    )
+    in_sources = os.path.join(Path(__file__).parent.resolve(), '..', 'images', filename)
+    result = False
+    if os.path.isfile(in_osx_app):
+        result = in_osx_app
     if os.path.isfile(in_sources):
-        return in_sources        
-    return False
+        result = in_sources
+    print(result)
+    return result
 
 
 class StyledLabel(Label):
@@ -69,7 +69,6 @@ class StyledLabel(Label):
         self.font_name = 'RobotoMono-Regular'
         self.width = dp(40*F_SIZE)
         self.size_hint = (None, 1)
-        print("Label: {} {}".format(self.text, self.font_size))
 
 
 class StyledTextInput(TextInput):

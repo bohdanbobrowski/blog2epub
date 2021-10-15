@@ -1,1 +1,1 @@
-pyinstaller --onefile blog2epubgui.py
+pyinstaller --onefile blog2epub.py
