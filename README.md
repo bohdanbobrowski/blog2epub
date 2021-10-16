@@ -21,12 +21,15 @@ Convert selected blogspot.com blog to epub using single command.
 
 ## Example covers
 
-<p align="left">
-<img src="https://raw.githubusercontent.com/bohdanbobrowski/blogspot2epub/master/images/cover_1.jpg" align="left" style="margin:0 10px 10px 0" />
-<img src="https://raw.githubusercontent.com/bohdanbobrowski/blogspot2epub/master/images/cover_2.jpg" align="left" style="margin:0 10px 10px 0" />
-<img src="https://raw.githubusercontent.com/bohdanbobrowski/blogspot2epub/master/images/cover_3.jpg" align="left" style="margin:0 10px 10px 0" />
-<img src="https://raw.githubusercontent.com/bohdanbobrowski/blogspot2epub/master/images/cover_4.jpg" align="left" style="margin:0 10px 10px 0" />
-</p>
+<table style="width:100%;text-align:center;"><tr><td>
+<img src="https://raw.githubusercontent.com/bohdanbobrowski/blogspot2epub/master/images/cover_1.jpg" width="200" style="margin:0 10px 10px 0" />
+</td><td>
+<img src="https://raw.githubusercontent.com/bohdanbobrowski/blogspot2epub/master/images/cover_2.jpg" width="200" style="margin:0 10px 10px 0" />
+</td></tr><tr><td>
+<img src="https://raw.githubusercontent.com/bohdanbobrowski/blogspot2epub/master/images/cover_3.jpg" width="200" style="margin:0 10px 10px 0" />
+</td><td>
+<img src="https://raw.githubusercontent.com/bohdanbobrowski/blogspot2epub/master/images/cover_4.jpg" width="200" style="margin:0 10px 10px 0;" />
+</td></tr></table>
 
 ## Installation
 
