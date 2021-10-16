@@ -415,7 +415,11 @@ class Article(object):
                 self.date = str(datetime.now())
         else:
             self.date = self._translate_month(self.date)
-        self.date = dateutil.parser.parse(self.date)
+        print("DATA: {}".format(self.date))
+        try:
+            self.date = dateutil.parser.parse(self.date)
+        except:
+            self.interface.print("Date not parsed: {}".format(self.date))
 
     def _translate_month(self, date):
         # TODO: need to be refactored, or moved as parameter to dateutil parser function
@@ -433,6 +437,18 @@ class Article(object):
             date = date.replace('października', 'october')
             date = date.replace('listopada', 'november')
             date = date.replace('grudnia', 'december')
+            date = date.replace(' sty ', ' january ')
+            date = date.replace(' lut ', ' february ')
+            date = date.replace(' mar ', ' march ')
+            date = date.replace(' kwi ', ' april ')
+            date = date.replace(' maj ', ' may ')
+            date = date.replace(' cze ', ' june ')
+            date = date.replace(' lip ', ' july ')
+            date = date.replace(' sier ', ' august ')
+            date = date.replace(' wrz ', ' september ')
+            date = date.replace(' paź ', ' october ')
+            date = date.replace(' lis ', ' november ')
+            date = date.replace(' gru ', ' december ')
         if self.language == 'ru':
             date = date.replace('января', 'january')
             date = date.replace('февраля', 'february')

@@ -17,7 +17,16 @@ Convert selected blogspot.com blog to epub using single command.
 - downloads images, resizes them (to 400x300px) and converts to grayscale,
 - one post = one epub chapter,
 - chapters are sorted by date ascending,
-- cover is generated automatically from downloaded images (see readme header).
+- cover is generated automatically from downloaded images.
+
+## Example covers
+
+<p align="left">
+<img src="https://raw.githubusercontent.com/bohdanbobrowski/blogspot2epub/master/images/cover_1.jpg" align="left" style="margin:0 10px 10px 0" />
+<img src="https://raw.githubusercontent.com/bohdanbobrowski/blogspot2epub/master/images/cover_2.jpg" align="left" style="margin:0 10px 10px 0" />
+<img src="https://raw.githubusercontent.com/bohdanbobrowski/blogspot2epub/master/images/cover_3.jpg" align="left" style="margin:0 10px 10px 0" />
+<img src="https://raw.githubusercontent.com/bohdanbobrowski/blogspot2epub/master/images/cover_4.jpg" align="left" style="margin:0 10px 10px 0" />
+</p>
 
 ## Installation
 
