@@ -7,7 +7,7 @@
 [![Maintenance](https://img.shields.io/badge/Maintained%3F-yes-green.svg)](https://github.com/bohdanbobrowski/blogspot2epub/graphs/commit-activity) [![MIT license](https://img.shields.io/badge/License-MIT-blue.svg)](https://lbesson.mit-license.org/)
 
 
-Convert selected blogspot.com blog to epub using single command. After months of struggle, finnally I've uploaded and merged new, deeply refactored version. It is still not perfect and have some bugs... but, hey! I'm still developing it! ;-)
+Convert selected blogspot.com blog to epub using single command.
 
 ## Main features
 
@@ -15,9 +15,9 @@ Convert selected blogspot.com blog to epub using single command. After months of
 - downloads all text contents of selected blog to epub file,
 - downloads post comments,
 - downloads images, resizes them (to 400x300px) and converts to grayscale,
-- one post = one chapter,
+- one post = one epub chapter,
 - chapters are sorted by date ascending,
-- cover is generated automatically
+- cover is generated automatically from downloaded images (see readme header).
 
 ## Installation
 
@@ -79,14 +79,16 @@ Convert selected blogspot.com blog to epub using single command. After months of
 
 - migration to Kivy :-)
 - minor bugfixes in crawler
-- I would try to deliver OSX, Linux and Windows build
+- I would try to deliver macOS, Linux and maybe Windows install package
+- however running python in Windows is pain in private parts!
+- I'm experimenting right now with cython to make macOS app smaller and faster
 
 ### [1.1.0](https://github.com/bohdanbobrowski/blogspot2epub/releases/tag/v1.1.0)
 
 - migration to Gtk (for better support on multiple platforms)
 - requirements cleanup
 - about dialog
-- osx dmg installer included
+- macOS dmg installer included
 
 ### [1.0.5](https://github.com/bohdanbobrowski/blogspot2epub/releases/tag/v1.0.5)
 
