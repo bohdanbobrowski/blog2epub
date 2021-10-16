@@ -23,7 +23,6 @@ setup(
         "beautifulsoup4",
         "lxml",
         "Pillow",
-        "pycurl",
         "six",
         "python-dateutil",
         "atoma",
@@ -31,7 +30,7 @@ setup(
         "fake-useragent",
         "PyYAML",
         "pycairo",
-        "PyGObject"
+        "Kivy"
     ],
     entry_points={
         'console_scripts': [

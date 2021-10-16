@@ -7,12 +7,11 @@ import re
 import dateutil.parser
 from pathlib import Path
 from datetime import datetime
-import urllib
 import gzip
-import requests, pickle
+import requests
 import atoma
 from urllib import request
-from http.cookiejar import Cookie, CookieJar
+from http.cookiejar import CookieJar
 from lxml.html import tostring 
 from lxml.html.soupparser import fromstring 
 from lxml.ElementInclude import etree
