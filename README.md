@@ -90,10 +90,10 @@ Convert selected blogspot.com blog to epub using single command.
 ### [1.2.0](https://github.com/bohdanbobrowski/blogspot2epub) - IN DEVELOPMENT (but you can run it from the sources)
 
 - migration to Kivy :-)
-- minor bugfixes in crawler
+- some bugfixes in crawler
 - I would try to deliver macOS, Linux and maybe Windows install package
-- however running python in Windows is pain in private parts!
 - I'm experimenting right now with cython to make macOS app smaller and faster
+- wordpress.com support!
 
 ### [1.1.0](https://github.com/bohdanbobrowski/blogspot2epub/releases/tag/v1.1.0)
 
