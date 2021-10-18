@@ -66,5 +66,10 @@ class Blog2EpubCli(object):
                 params['images_quality'] = int(arg.replace('--quality=', ''))
         return params
 
+
 def main():
     Blog2EpubCli()
+
+
+if __name__ == "__main__":
+    main()

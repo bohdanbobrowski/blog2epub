@@ -339,3 +339,6 @@ class Blog2EpubKivy(App):
 def main():
     Blog2EpubKivy().run()
 
+
+if __name__ == "__main__":
+    main()

@@ -12,8 +12,7 @@ import requests
 import atoma
 from urllib import request
 from http.cookiejar import CookieJar
-from lxml.html import tostring 
-from lxml.html.soupparser import fromstring 
+from lxml.html.soupparser import fromstring
 from lxml.ElementInclude import etree
 from PIL import Image
 from fake_useragent import UserAgent
@@ -149,14 +148,18 @@ class Crawler(object):
             for art in articles_list:
                 output.append(Article(art[0], art[1], self))
         if not output:
-            # try to load atom
-            atom_content = self.downloader.get_content('http://' + self.url + '/feeds/posts/default')
-            try:            
-                feed = atoma.parse_atom_bytes(bytes(atom_content, encoding="utf-8"))
-                self.atom_feed = feed
-            except Exception:
-                pass
+            self._get_atom_content()
         return output
+
+    def _get_atom_content(self):
+        """ Try to load atom
+        """
+        atom_content = self.downloader.get_content('https://' + self.url + '/feeds/posts/default')
+        try:
+            feed = atoma.parse_atom_bytes(bytes(atom_content, encoding="utf-8"))
+            self.atom_feed = feed
+        except Exception as e:
+            self.interface.print(e)
 
     def _get_url_to_crawl(self, tree):
         url_to_crawl = None
@@ -221,16 +224,13 @@ class Crawler(object):
     def _prepare_content(self, content):
         return content
 
-
-
     def _crawl(self):
         while self.url_to_crawl:
             content = self.downloader.get_content(self.url_to_crawl)
-
             tree = fromstring(content)
             if len(self.articles) == 0:
                 self._set_blog_language(content)
-                self.images = self.images +self._get_header_images(tree)
+                self.images = self.images + self._get_header_images(tree)
                 self.description = self._get_blog_description(tree)
                 self.title = self._get_blog_title(content)
             content = self._prepare_content(content)
@@ -240,8 +240,11 @@ class Crawler(object):
 
     def save(self):
         self._crawl()
-        self.book = Book(self)
-        self.book.save()
+        if self.articles:
+            self.book = Book(self)
+            self.book.save()
+        else:
+            self.interface.print("No articles found.")
 
 
 class Dirs(object):
