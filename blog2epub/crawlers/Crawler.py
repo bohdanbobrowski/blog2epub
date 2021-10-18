@@ -25,7 +25,8 @@ class Crawler(object):
     """
     Universal blog crawler.
     """
-    
+
+    content_xpath = "//div[contains(concat(' ',normalize-space(@class),' '),'post-body')]"
     images_regex = r'<table[^>]*><tbody>[\s]*<tr><td[^>]*><a href="([^"]*)"[^>]*><img[^>]*></a></td></tr>[\s]*<tr><td class="tr-caption" style="[^"]*">([^<]*)'
     articles_regex = r'<h3 class=\'post-title entry-title\' itemprop=\'name\'>[\s]*<a href=\'([^\']*)\'>([^>^<]*)</a>[\s]*</h3>'
 
@@ -147,8 +148,6 @@ class Crawler(object):
             articles_list = re.findall(self.articles_regex, content)
             for art in articles_list:
                 output.append(Article(art[0], art[1], self))
-        if not output:
-            self._get_atom_content()
         return output
 
     def _get_atom_content(self):
@@ -156,10 +155,11 @@ class Crawler(object):
         """
         atom_content = self.downloader.get_content('https://' + self.url + '/feeds/posts/default')
         try:
-            feed = atoma.parse_atom_bytes(bytes(atom_content, encoding="utf-8"))
-            self.atom_feed = feed
+            self.atom_feed = atoma.parse_atom_bytes(bytes(atom_content, encoding="utf-8"))
+            return True
         except Exception as e:
             self.interface.print(e)
+        return False
 
     def _get_url_to_crawl(self, tree):
         url_to_crawl = None
@@ -174,48 +174,48 @@ class Crawler(object):
             else:
                 self.tags[tag] = 1
 
-    # TODO: This method should be refactored - atom feed logic should be moved to another crawler
-    def _articles_loop(self, content):
-        articles = self._get_articles(content)
-        if self.atom_feed:
-            for item in self.atom_feed.entries:
-                try:
-                    self.article_counter += 1
-                    art = Article(item.links[0].href, item.title.value, self)
-                    self.interface.print(str(len(self.articles) + 1) + '. ' + art.title)
-                    art.date = item.updated
-                    if self.start:
-                        self.end = art.date
-                    else:
-                        self.start = art.date
-                    art.set_content(item.content.value)
-                    art.get_images()
-                    art.set_content(art.html)
-                    self.images = self.images + art.images
-                    self.articles.append(art)
-                    self._add_tags(art.tags)
-                    if self.limit and len(self.articles) >= self.limit:
-                        break
-                except Exception:
-                    self.interface.print("[article not recognized - skipping]")
-        elif articles:        
-            for art in articles:
+    def _atom_feed_loop(self):
+        self.url_to_crawl = None
+        for item in self.atom_feed.entries:
+            try:
                 self.article_counter += 1
-                if not self.skip or self.article_counter > self.skip:
-                    art.process()
-                    self.images = self.images + art.images
-                    self.interface.print(str(len(self.articles) + 1) + '. ' + art.title)
-                    if self.start:
-                        self.end = art.date
-                    else:
-                        self.start = art.date
-                    self.articles.append(art)
-                    self._add_tags(art.tags)
-                    self._check_limit()                
+                art = Article(item.links[0].href, item.title.value, self)
+                self.interface.print(str(len(self.articles) + 1) + '. ' + art.title)
+                art.date = item.updated
+                if self.start:
+                    self.end = art.date
                 else:
-                    self.interface.print('[skipping] ' + art.title)
-                if not self.url_to_crawl:
+                    self.start = art.date
+                if item.content:
+                    art.set_content(item.content.value)
+                art.get_images()
+                art.set_content(art.html)
+                self.images = self.images + art.images
+                self.articles.append(art)
+                self._add_tags(art.tags)
+                if self.limit and len(self.articles) >= self.limit:
                     break
+            except Exception as e:
+                self.interface.print("[article not recognized - skipping]")
+
+    def _articles_loop(self, content):
+        for art in self._get_articles(content):
+            self.article_counter += 1
+            if not self.skip or self.article_counter > self.skip:
+                art.process()
+                self.images = self.images + art.images
+                self.interface.print(str(len(self.articles) + 1) + '. ' + art.title)
+                if self.start:
+                    self.end = art.date
+                else:
+                    self.start = art.date
+                self.articles.append(art)
+                self._add_tags(art.tags)
+                self._check_limit()
+            else:
+                self.interface.print('[skipping] ' + art.title)
+            if not self.url_to_crawl:
+                break
 
     def _check_limit(self):
         if self.limit and len(self.articles) >= self.limit:
@@ -228,14 +228,16 @@ class Crawler(object):
         while self.url_to_crawl:
             content = self.downloader.get_content(self.url_to_crawl)
             tree = fromstring(content)
-            if len(self.articles) == 0:
-                self._set_blog_language(content)
-                self.images = self.images + self._get_header_images(tree)
-                self.description = self._get_blog_description(tree)
-                self.title = self._get_blog_title(content)
-            content = self._prepare_content(content)
-            self._articles_loop(content)
-            self.url_to_crawl = self._get_url_to_crawl(tree)
+            self._set_blog_language(content)
+            self.images = self.images + self._get_header_images(tree)
+            self.description = self._get_blog_description(tree)
+            self.title = self._get_blog_title(content)
+            if self._get_atom_content():
+                self._atom_feed_loop()
+            else:
+                content = self._prepare_content(content)
+                self._articles_loop(content)
+                self.url_to_crawl = self._get_url_to_crawl(tree)
             self._check_limit()
 
     def save(self):
@@ -388,6 +390,7 @@ class Article(object):
         self.dirs = crawler.dirs
         self.comments = ''
         self.include_images = crawler.include_images
+        self.content_xpath = crawler.content_xpath
         self.images_regex = crawler.images_regex
         self.language = crawler.language
         self.images = []
@@ -538,7 +541,8 @@ class Article(object):
             self.html = self.html.replace('#blog2epubimage#' + image + '#', image_html)
 
     def _get_content(self):
-        self.content = self.tree.xpath("//div[contains(concat(' ',normalize-space(@class),' '),'post-body')]")
+        self.content = self.tree.xpath(self.content_xpath)
+        self.content = self.tree.xpath(self.content_xpath)
         if len(self.content) == 1:
             self.content = self.content[0]
             self.content = etree.tostring(self.content)
