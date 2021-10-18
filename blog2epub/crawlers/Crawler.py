@@ -449,7 +449,7 @@ class Article(object):
             date = date.replace(' maj ', ' may ')
             date = date.replace(' cze ', ' june ')
             date = date.replace(' lip ', ' july ')
-            date = date.replace(' sier ', ' august ')
+            date = date.replace(' sie ', ' august ')
             date = date.replace(' wrz ', ' september ')
             date = date.replace(' paź ', ' october ')
             date = date.replace(' lis ', ' november ')
