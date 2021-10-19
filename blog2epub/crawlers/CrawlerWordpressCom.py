@@ -3,11 +3,15 @@
 from blog2epub.crawlers.Crawler import Crawler, Article
 import atoma
 import html
+from lxml.html.soupparser import fromstring
+from lxml.ElementInclude import etree
 
 class CrawlerWordpressCom(Crawler):
     """
     Wordpress.com crawler.
     """
+
+    article_class = "ArticleWordpressCom"
 
     content_xpath = "//div[contains(concat(' ',normalize-space(@class),' '),'type-post')]"
     images_regex = r'<table[^>]*><tbody>[\s]*<tr><td[^>]*><a href="([^"]*)"[^>]*><img[^>]*></a></td></tr>[\s]*<tr><td class="tr-caption" style="[^"]*">([^<]*)'
@@ -32,7 +36,7 @@ class CrawlerWordpressCom(Crawler):
         for item in self.atom_feed.entries:
             try:
                 self.article_counter += 1
-                art = Article(item.links[0].href, html.unescape(item.title.value), self)
+                art = eval(self.article_class)(item.links[0].href, html.unescape(item.title.value), self)
                 self.interface.print(str(len(self.articles) + 1) + '. ' + art.title)
                 art.date = item.updated
                 if self.start:
@@ -56,3 +60,21 @@ class CrawlerWordpressCom(Crawler):
                     break
             except Exception as e:
                 self.interface.print("[article not recognized - skipping]")
+
+
+class ArticleWordpressCom(Article):
+
+    def get_images(self):
+        super(ArticleWordpressCom, self).get_images()
+        """
+        images_c = self.tree.xpath('//div[@class="wp-caption aligncenter"]')
+        for img in images_c:
+            img_tr = fromstring(etree.tostring(img))
+            img_url = img_tr.xpath('//img/@src')[0]
+            img_hash = self.downloader.download_image(img_url)
+            if img_hash:
+                self.html(etree.tostring(img), '')
+                self.images.append(img_hash)
+                self.images_captions.append(caption)
+        self.get_tree()
+        """

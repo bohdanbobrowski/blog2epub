@@ -26,6 +26,8 @@ class Crawler(object):
     Universal blog crawler.
     """
 
+    article_class = "Article"
+
     content_xpath = "//div[contains(concat(' ',normalize-space(@class),' '),'post-body')]"
     images_regex = r'<table[^>]*><tbody>[\s]*<tr><td[^>]*><a href="([^"]*)"[^>]*><img[^>]*></a></td></tr>[\s]*<tr><td class="tr-caption" style="[^"]*">([^<]*)'
     articles_regex = r'<h3 class=\'post-title entry-title\' itemprop=\'name\'>[\s]*<a href=\'([^\']*)\'>([^>^<]*)</a>[\s]*</h3>'
@@ -143,11 +145,11 @@ class Crawler(object):
         output = []
         if art_urls and len(art_urls) == len(art_titles):
             for i in range(len(art_urls)):
-                output.append(Article(art_urls[i], art_titles[i], self))
+                output.append(eval(self.article_class)(art_urls[i], art_titles[i], self))
         else:
             articles_list = re.findall(self.articles_regex, content)
             for art in articles_list:
-                output.append(Article(art[0], art[1], self))
+                output.append(eval(self.article_class)(art[0], art[1], self))
         return output
 
     def _get_atom_content(self):
@@ -179,7 +181,7 @@ class Crawler(object):
         for item in self.atom_feed.entries:
             try:
                 self.article_counter += 1
-                art = Article(item.links[0].href, item.title.value, self)
+                art = eval(self.article_class)(item.links[0].href, item.title.value, self)
                 self.interface.print(str(len(self.articles) + 1) + '. ' + art.title)
                 art.date = item.updated
                 if self.start:
@@ -474,49 +476,50 @@ class Article(object):
         return re.findall(self.images_regex, self.html)
 
     @staticmethod
-    def _default_ripper(img, img_hash, html):
+    def _default_ripper(img, img_hash, art_html):
         im_regex = '<table[^>]*><tbody>[\s]*<tr><td[^>]*><a href="' + img.replace("+", "\+") +\
                    '"[^>]*><img[^>]*></a></td></tr>[\s]*<tr><td class="tr-caption" style="[^"]*">[^<]*</td></tr>[\s]*</tbody></table>'
         try:
-            return re.sub(im_regex, ' #blog2epubimage#' + img_hash + '# ', html)
+            return re.sub(im_regex, ' #blog2epubimage#' + img_hash + '# ', art_html)
         except Exception as e:
             print(e)
 
     @staticmethod
-    def _nocaption_ripper(img, img_hash, html):
+    def _nocaption_ripper(img, img_hash, art_html):
         im_regex = '<a href="' + img.replace("+", "\+") + '" imageanchor="1"[^<]*<img.*?></a>'
         try:
-            return re.sub(im_regex, ' #blog2epubimage#' + img_hash + '# ', html)
+            return re.sub(im_regex, ' #blog2epubimage#' + img_hash + '# ', art_html)
         except Exception as e:
             print(e)
 
     @staticmethod
-    def _bloggerphoto_ripper(img, img_hash, html):
+    def _bloggerphoto_ripper(img, img_hash, art_html):
         im_regex = '<a href="[^"]+"><img.*?id="BLOGGER_PHOTO_ID_[0-9]+".*?src="' + img.replace("+", "\+") + '".*?/a>'
         try:
-            return re.sub(im_regex, ' #blog2epubimage#' + img_hash + '# ', html)
+            return re.sub(im_regex, ' #blog2epubimage#' + img_hash + '# ', art_html)
         except Exception as e:
             print(e)
 
     @staticmethod
-    def _img_ripper(img, img_hash, html):
+    def _img_ripper(img, img_hash, art_html):
         im_regex = '<img.*?src="' + img.replace("+", "\+") + '".*?>'
         try:
-            return re.sub(im_regex, ' #blog2epubimage#' + img_hash + '# ', html)
+            return re.sub(im_regex, ' #blog2epubimage#' + img_hash + '# ', art_html)
         except Exception as e:
             print(e)
 
     def _process_images(self, images, ripper):
         for image in images:
+            caption = ''
             if isinstance(image, str):
                 img = image
-                caption = ''
-            else:
+            elif isinstance(image, list):
                 img = image[0]
-                caption = image[1]
+                if image[1]:
+                    caption = image[1]
             img_hash = self.downloader.download_image(img)
             if img_hash:
-                self.html = ripper(img=img, img_hash=img_hash, html=self.html)
+                self.html = ripper(img=img, img_hash=img_hash, art_html=self.html)
                 self.images.append(img_hash)
                 self.images_captions.append(caption)
         self.get_tree()
