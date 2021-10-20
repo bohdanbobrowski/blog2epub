@@ -5,6 +5,7 @@ import atoma
 import html
 from lxml.html.soupparser import fromstring
 from lxml.ElementInclude import etree
+import re
 
 class CrawlerWordpressCom(Crawler):
     """
@@ -48,11 +49,7 @@ class CrawlerWordpressCom(Crawler):
                     art.get_images()
                 else:
                     art.html = self.downloader.get_content(art.url)
-                    art.get_tree()
-                    art.get_images()
-                    art._get_tags()
-                    art._get_content()
-                    art._get_comments()
+                    art.process()
                 self.images = self.images + art.images
                 self.articles.append(art)
                 self._add_tags(art.tags)
@@ -65,16 +62,24 @@ class CrawlerWordpressCom(Crawler):
 class ArticleWordpressCom(Article):
 
     def get_images(self):
-        super(ArticleWordpressCom, self).get_images()
-        """
         images_c = self.tree.xpath('//div[@class="wp-caption aligncenter"]')
         for img in images_c:
-            img_tr = fromstring(etree.tostring(img))
+            img_html = etree.tostring(img).decode("utf-8")
+            img_tr = fromstring(img_html)
             img_url = img_tr.xpath('//img/@src')[0]
+            img_caption = img_tr.xpath('//p[@class="wp-caption-text"]/text()').pop()
             img_hash = self.downloader.download_image(img_url)
-            if img_hash:
-                self.html(etree.tostring(img), '')
-                self.images.append(img_hash)
-                self.images_captions.append(caption)
+            self.html.replace(img_html, ' #blog2epubimage#' + img_hash + '# ')
+            self.images.append(img_hash)
+            self.images_captions.append(img_caption)
         self.get_tree()
-        """
+
+    def _get_content(self):
+        try:
+            article_header = re.findall(r"(<h1 class=\"entry-title\">[^<]*<\/h1>)", self.html)[0]
+            article_footer = re.findall(r"(<div id=\"atatags-[a-z0-9\-]*\"></div>)", self.html)[0]
+            self.html = self.html.split(article_header)[1]
+            self.html = self.html.split(article_footer)[0]
+            self.content = self.html.strip()
+        except Exception as e:
+            self.interface.print("{}: {}".forma(__file__, e))

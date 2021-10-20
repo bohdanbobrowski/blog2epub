@@ -407,6 +407,8 @@ class Article(object):
         self.title = html.unescape(self.title.strip())
 
     def _get_date(self):
+        if isinstance(self.date, datetime):
+            return
         date = self.tree.xpath('//abbr[@itemprop="datePublished"]/@title')
         if date:
             self.date = date[0]
