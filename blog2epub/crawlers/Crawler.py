@@ -591,9 +591,9 @@ class Article(object):
         self.get_tree()
         self._get_title()
         self._get_date()
+        self._get_content()
         self.get_images()
         self._get_tags()
-        self._get_content()
         self._get_comments()
 
 

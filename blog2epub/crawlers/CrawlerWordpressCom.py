@@ -7,6 +7,7 @@ from lxml.html.soupparser import fromstring
 from lxml.ElementInclude import etree
 import re
 
+
 class CrawlerWordpressCom(Crawler):
     """
     Wordpress.com crawler.
@@ -80,6 +81,6 @@ class ArticleWordpressCom(Article):
             article_footer = re.findall(r"(<div id=\"atatags-[a-z0-9\-]*\"></div>)", self.html)[0]
             self.html = self.html.split(article_header)[1]
             self.html = self.html.split(article_footer)[0]
-            self.content = self.html.strip()
+            self.content = self.html = self.html.strip()
         except Exception as e:
             self.interface.print("{}: {}".forma(__file__, e))
