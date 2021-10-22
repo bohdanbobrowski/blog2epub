@@ -3,8 +3,7 @@
 from blog2epub.crawlers.Crawler import Crawler
 
 class CrawlerBlogspot(Crawler):
-    """
-    Blogspot.com crawler.   
+    """ Blogspot.com crawler.
     """
 
     content_xpath = "//div[contains(concat(' ',normalize-space(@class),' '),'post-body')]"

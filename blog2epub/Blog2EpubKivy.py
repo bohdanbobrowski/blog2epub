@@ -103,9 +103,9 @@ class Blog2EpubKivyWindow(BoxLayout):
         self.settings = Blog2EpubSettings()
 
         self.row1 = BoxLayout(
-            orientation = 'horizontal',
-            size_hint = (1, 0.1),
-            spacing = dp(2*SIZE)
+            orientation='horizontal',
+            size_hint=(1, 0.1),
+            spacing=dp(2*SIZE)
         )
         self.add_widget(self.row1)
 
@@ -116,13 +116,13 @@ class Blog2EpubKivyWindow(BoxLayout):
         )        
         self.row1.add_widget(self.url_entry)
         self.download_button = StyledButton(text='Download')
-        self.download_button.bind(on_press = self.download)
+        self.download_button.bind(on_press=self.download)
         self.row1.add_widget(self.download_button)
 
         self.row2 = BoxLayout(
-            orientation = 'horizontal',
-            size_hint = (1, 0.1),
-            spacing = dp(2*SIZE)
+            orientation='horizontal',
+            size_hint=(1, 0.1),
+            spacing=dp(2*SIZE)
         )
         self.add_widget(self.row2)
 
@@ -135,16 +135,16 @@ class Blog2EpubKivyWindow(BoxLayout):
         self.row2.add_widget(self.skip_entry)
 
         self.about_button = StyledButton(text='About')
-        self.about_button.bind(on_press = self.about_popup)
+        self.about_button.bind(on_press=self.about_popup)
         self.row2.add_widget(self.about_button)
 
         self.console_output = TextInput(
-            font_size = dp(6*F_SIZE),
-            font_name = 'RobotoMono-Regular',
-            background_color = 'black',
-            foreground_color = 'white',
-            size_hint = (1, 0.88),            
-            readonly = True
+            font_size=dp(6*F_SIZE),
+            font_name='RobotoMono-Regular',
+            background_color='black',
+            foreground_color='white',
+            size_hint=(1, 0.88),
+            readonly=True
         )
         self.add_widget(self.console_output)
         self.interface = KivyInterface(self.console_output)
@@ -220,18 +220,19 @@ class Blog2EpubKivyWindow(BoxLayout):
             webbrowser.open("https://github.com/bohdanbobrowski/blogspot2epub")
 
         about_content.add_widget(Button(
-            text = 'github.com/bohdanbobrowski/blogspot2epub',
-            font_size = dp(8*F_SIZE),
-            font_name = 'RobotoMono-Regular',
-            size_hint = (1, 0.1),
-            on_press = about_url_click
+            text='github.com/bohdanbobrowski/blogspot2epub',
+            font_size=dp(8*F_SIZE),
+            font_name='RobotoMono-Regular',
+            size_hint=(1, 0.1),
+            on_press=about_url_click
         ))
         about_popup = Popup(
-            title = 'Blog2Epub',
-            title_size = dp(10*F_SIZE),
-            title_font = 'RobotoMono-Regular',
-            content = about_content,
-            size_hint = (None, None), size=(dp(210*F_SIZE), dp(180*F_SIZE)),            
+            title='Blog2Epub',
+            title_size=dp(10*F_SIZE),
+            title_font='RobotoMono-Regular',
+            content=about_content,
+            size_hint=(None, None),
+            size=(dp(210*F_SIZE), dp(180*F_SIZE)),
         )
         about_popup.open()
 
@@ -255,7 +256,7 @@ class KivyInterface(EmptyInterface):
         self.console.text = self.console.text + text + "\n"
  
     def notify(self, title, subtitle, message, cover):
-        if(platform.system() == "Darwin"):
+        if platform.system() == "Darwin":
             command = [
                 'terminal-notifier',
                 '-title {!r}'.format(title),
@@ -267,7 +268,7 @@ class KivyInterface(EmptyInterface):
                 '-open file:{!r}'.format(message),
             ]
             os.system('terminal-notifier {}'.format(' '.join(command)))            
-        if(platform.system() == "Linux"):
+        if platform.system() == "Linux":
             subprocess.Popen(['notify-send', subtitle + ': ' + message])
 
     def exception(self, e):

@@ -11,8 +11,7 @@ from blog2epub.Cover import Cover
 
 
 class Book(object):
-    """
-    Book class used in Blogspot2Epub class.
+    """ Book class used in Blogspot2Epub class.
     """
 
     style = """
@@ -62,7 +61,6 @@ class Book(object):
     </svg></div>
     </body>
     </html>"""
-
 
     def __init__(self, crawler):
         """
@@ -129,8 +127,8 @@ class Book(object):
                 for i, d in enumerate(end_date):
                     if d != start_date[i]:
                         ed.append(d)
-            ed = ' '.join(ed)
-            cover_title = cover_title + ed + '-' + self.start
+                ed = ' '.join(ed)
+                cover_title = cover_title + ed + '-' + self.start
         return cover_title
 
     def _add_cover(self):
@@ -155,7 +153,6 @@ class Book(object):
             zf.writestr(cover_html_fn, cover_html)
             zf.write(cover_file_full_path, 'EPUB/' + cover_file_name)
             zf.writestr(content_opf_fn, self._upgrade_opf(content_opf, cover_file_name))
-        # os.remove(cover_file_full_path)
         try:
             self.interface.notify('blog2epub', 'Epub created', self.file_full_path, cover_file_full_path)
         except Exception:
@@ -233,6 +230,3 @@ class Chapter(object):
         for tag in article.tags:
             tags.append('<span epub:type="keyword">' + tag + '<span>')
         return "<h5>{}</h5>".format(', '.join(tags))
-
-        
-

@@ -41,7 +41,7 @@ class Cover(object):
         return verified_images
 
     def _make_thumb(self, img, size):
-        cropped_img = self._crop_image(img, size)
+        cropped_img = self._crop_image(img)
         cropped_img.thumbnail(size, Image.ANTIALIAS)
         return cropped_img
 
@@ -65,7 +65,7 @@ class Cover(object):
             lower_y = int((height / 2) + (width / 2))
             return upper_x, upper_y, lower_x, lower_y
 
-    def _crop_image(self, img, size):
+    def _crop_image(self, img):
         upper_x, upper_y, lower_x, lower_y = self._box_params_center(img.size[0], img.size[1])
         box = (upper_x, upper_y, lower_x, lower_y)
         region = img.crop(box)
