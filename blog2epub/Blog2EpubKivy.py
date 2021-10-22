@@ -217,10 +217,10 @@ class Blog2EpubKivyWindow(BoxLayout):
         ))   
 
         def about_url_click(instance):
-            webbrowser.open("https://github.com/bohdanbobrowski/blogspot2epub")
+            webbrowser.open("https://github.com/bohdanbobrowski/blog2epub")
 
         about_content.add_widget(Button(
-            text='github.com/bohdanbobrowski/blogspot2epub',
+            text='github.com/bohdanbobrowski/blog2epub',
             font_size=dp(8*F_SIZE),
             font_name='RobotoMono-Regular',
             size_hint=(1, 0.1),

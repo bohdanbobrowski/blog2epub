@@ -11,7 +11,7 @@ from blog2epub.Cover import Cover
 
 
 class Book(object):
-    """ Book class used in Blogspot2Epub class.
+    """ Book class used in blog2epub class.
     """
 
     style = """

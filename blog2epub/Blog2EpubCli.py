@@ -43,7 +43,7 @@ class Blog2EpubCli(object):
             params['url'] = self.getUrl()
         except Exception as e:
             print(e)
-            print("usage: blogspot2epub <blog_name> [params...]")
+            print("usage: blog2epub <blog_name> [params...]")
             exit()
 
         params['url'] = sys.argv[1]

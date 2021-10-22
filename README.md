@@ -1,10 +1,10 @@
 <p align="center">
-<img src="https://raw.githubusercontent.com/bohdanbobrowski/blogspot2epub/master/images/blog2epub.png" width="128" height="128" />
+<img src="https://raw.githubusercontent.com/bohdanbobrowski/blog2epub/master/images/blog2epub.png" width="128" height="128" />
 </p>
 
-# blogspot2epub
+# blog2epub
 
-[![Maintenance](https://img.shields.io/badge/Maintained%3F-yes-green.svg)](https://github.com/bohdanbobrowski/blogspot2epub/graphs/commit-activity) [![MIT license](https://img.shields.io/badge/License-MIT-blue.svg)](https://lbesson.mit-license.org/)
+[![Maintenance](https://img.shields.io/badge/Maintained%3F-yes-green.svg)](https://github.com/bohdanbobrowski/blog2epub/graphs/commit-activity) [![MIT license](https://img.shields.io/badge/License-MIT-blue.svg)](https://lbesson.mit-license.org/)
 
 
 Convert selected blogspot.com blog to epub using single command.
@@ -22,24 +22,24 @@ Convert selected blogspot.com blog to epub using single command.
 ## Example covers
 
 <table style="width:100%;text-align:center;"><tr><td>
-<img src="https://raw.githubusercontent.com/bohdanbobrowski/blogspot2epub/master/images/cover_1.jpg" width="200" style="margin:0 10px 10px 0" />
+<img src="https://raw.githubusercontent.com/bohdanbobrowski/blog2epub/master/images/cover_1.jpg" width="200" style="margin:0 10px 10px 0" />
 </td><td>
-<img src="https://raw.githubusercontent.com/bohdanbobrowski/blogspot2epub/master/images/cover_2.jpg" width="200" style="margin:0 10px 10px 0" />
+<img src="https://raw.githubusercontent.com/bohdanbobrowski/blog2epub/master/images/cover_2.jpg" width="200" style="margin:0 10px 10px 0" />
 </td></tr><tr><td>
-<img src="https://raw.githubusercontent.com/bohdanbobrowski/blogspot2epub/master/images/cover_3.jpg" width="200" style="margin:0 10px 10px 0" />
+<img src="https://raw.githubusercontent.com/bohdanbobrowski/blog2epub/master/images/cover_3.jpg" width="200" style="margin:0 10px 10px 0" />
 </td><td>
-<img src="https://raw.githubusercontent.com/bohdanbobrowski/blogspot2epub/master/images/cover_4.jpg" width="200" style="margin:0 10px 10px 0;" />
+<img src="https://raw.githubusercontent.com/bohdanbobrowski/blog2epub/master/images/cover_4.jpg" width="200" style="margin:0 10px 10px 0;" />
 </td></tr></table>
 
 ## Installation
 
-- for macOS users: available [app](https://github.com/bohdanbobrowski/blogspot2epub/releases)
+- for macOS users: available [app](https://github.com/bohdanbobrowski/blog2epub/releases)
 - python3 setup.py install
 
 ### Running froum sources
 
-    git clone git@github.com:bohdanbobrowski/blogspot2epub.git
-    cd blogspot2epub
+    git clone git@github.com:bohdanbobrowski/blog2epub.git
+    cd blog2epub
     python -m venv venv
     source ./venv/bin/activate
     pip install -r ./requirements.txt
@@ -50,13 +50,13 @@ Convert selected blogspot.com blog to epub using single command.
 ### linux
 
 <p align="center">
-<img src="https://raw.githubusercontent.com/bohdanbobrowski/blogspot2epub/master/images/blog2epub_linux_screenshot_v1.2.0.png"  width="500px" />
+<img src="https://raw.githubusercontent.com/bohdanbobrowski/blog2epub/master/images/blog2epub_linux_screenshot_v1.2.0.png"  width="500px" />
 </p>
 
 ### macOS
 
 <p align="center">
-<img src="https://raw.githubusercontent.com/bohdanbobrowski/blogspot2epub/master/images/blog2epub_osx_screenshot_v1.2.0.png" width="600px" />
+<img src="https://raw.githubusercontent.com/bohdanbobrowski/blog2epub/master/images/blog2epub_osx_screenshot_v1.2.0.png" width="600px" />
 </p>
 
 ## CLI
@@ -87,7 +87,7 @@ Convert selected blogspot.com blog to epub using single command.
 
 ## Release notes
 
-### [1.2.0](https://github.com/bohdanbobrowski/blogspot2epub) - IN DEVELOPMENT (but you can run it from the sources)
+### [1.2.0](https://github.com/bohdanbobrowski/blog2epub) - IN DEVELOPMENT (but you can run it from the sources)
 
 - migration to Kivy :-)
 - some bugfixes in crawler
@@ -95,25 +95,25 @@ Convert selected blogspot.com blog to epub using single command.
 - I'm experimenting right now with cython to make macOS app smaller and faster
 - wordpress.com support!
 
-### [1.1.0](https://github.com/bohdanbobrowski/blogspot2epub/releases/tag/v1.1.0)
+### [1.1.0](https://github.com/bohdanbobrowski/blog2epub/releases/tag/v1.1.0)
 
 - migration to Gtk (for better support on multiple platforms)
 - requirements cleanup
 - about dialog
 - macOS dmg installer included
 
-### [1.0.5](https://github.com/bohdanbobrowski/blogspot2epub/releases/tag/v1.0.5)
+### [1.0.5](https://github.com/bohdanbobrowski/blog2epub/releases/tag/v1.0.5)
 
 - gzip html in cache folder
 - atom feed parsing
 - better system notifications, also under linux
 
-### [1.0.4](https://github.com/bohdanbobrowski/blogspot2epub/releases/tag/v1.0.4)
+### [1.0.4](https://github.com/bohdanbobrowski/blog2epub/releases/tag/v1.0.4)
 
 - improved saving GUI settings
 - system notification on finished download
 
-### [1.0.3](https://github.com/bohdanbobrowski/blogspot2epub/releases/tag/v1.0.3)
+### [1.0.3](https://github.com/bohdanbobrowski/blog2epub/releases/tag/v1.0.3)
 
 - saving GUI settings to yaml file
 - first macOS builds (--py2app--pyinstaller)

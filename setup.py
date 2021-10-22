@@ -10,7 +10,7 @@ setup(
     name='blog2epub',
     version=VERSION,
     description="Blog To Epub Downloader",
-    url="https://github.com/bohdanbobrowski/blogspot2epub",
+    url="https://github.com/bohdanbobrowski/blog2epub",
     author="Bohdan Bobrowski",
     author_email="bohdanbobrowski@gmail.com",
     license="MIT",
