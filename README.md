@@ -7,9 +7,14 @@
 [![Maintenance](https://img.shields.io/badge/Maintained%3F-yes-green.svg)](https://github.com/bohdanbobrowski/blog2epub/graphs/commit-activity) [![MIT license](https://img.shields.io/badge/License-MIT-blue.svg)](https://lbesson.mit-license.org/)
 
 
-Convert selected blogspot.com blog to epub using single command.
+Convert blog to epub using command line or GUI.
 
-## Main features
+### Supported blogs:
+- *.wordpress.com and some blogs based on Wordpress
+- *.blogspot.com
+
+
+### Main features
 
 - command line (CLI) and graphic user interface (GUI)
 - downloads all text contents of selected blog to epub file,
@@ -19,7 +24,7 @@ Convert selected blogspot.com blog to epub using single command.
 - chapters are sorted by date ascending,
 - cover is generated automatically from downloaded images.
 
-## Example covers
+### Example covers
 
 <table style="width:100%;text-align:center;"><tr><td>
 <img src="https://raw.githubusercontent.com/bohdanbobrowski/blog2epub/master/images/cover_1.jpg" width="200" style="margin:0 10px 10px 0" />
@@ -45,9 +50,9 @@ Convert selected blogspot.com blog to epub using single command.
     pip install -r ./requirements.txt
     ./blog2epubgui.py
 
-## GUI
+## Screenshots of GUI
 
-### linux
+### Linux
 
 <p align="center">
 <img src="https://raw.githubusercontent.com/bohdanbobrowski/blog2epub/master/images/blog2epub_linux_screenshot_v1.2.0.png"  width="500px" />
