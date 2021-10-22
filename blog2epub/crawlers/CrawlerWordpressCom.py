@@ -5,6 +5,7 @@ import atoma
 import html
 from lxml.html.soupparser import fromstring
 from lxml.ElementInclude import etree
+# from lxml.etree import etree
 import re
 
 
@@ -60,14 +61,16 @@ class CrawlerWordpressCom(Crawler):
 class ArticleWordpressCom(Article):
 
     def get_images(self):
-        images_c = self.tree.xpath('//div[@class="wp-caption aligncenter"]')
+        images_c = self.tree.xpath('//div[contains(@class, "wp-caption")]')
         for img in images_c:
             img_html = etree.tostring(img).decode("utf-8")
             img_tr = fromstring(img_html)
             img_url = img_tr.xpath('//img/@src')[0]
             img_caption = img_tr.xpath('//p[@class="wp-caption-text"]/text()').pop()
             img_hash = self.downloader.download_image(img_url)
-            self.html.replace(img_html, ' #blog2epubimage#' + img_hash + '# ')
+            img_parent = img.getparent()
+            img_parent.replace(img, etree.Comment("#blog2epubimage#{}#".format(img_hash)))
+            self.html = etree.tostring(self.tree).decode("utf-8")
             self.images.append(img_hash)
             self.images_captions.append(img_caption)
         self.get_tree()
