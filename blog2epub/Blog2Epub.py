@@ -5,8 +5,7 @@ from blog2epub.crawlers.CrawlerWordpressCom import *
 from blog2epub.crawlers.CrawlerNrdblog import *
 
 class Blog2Epub(object):
-    """
-    Main Blog2Epub class.
+    """ Main Blog2Epub class.
     """
     
     VERSION = '1.2.0'

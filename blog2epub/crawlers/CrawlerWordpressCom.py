@@ -9,8 +9,7 @@ import re
 
 
 class CrawlerWordpressCom(Crawler):
-    """
-    Wordpress.com crawler.
+    """ Wordpress.com crawler.
     """
 
     article_class = "ArticleWordpressCom"
@@ -23,8 +22,6 @@ class CrawlerWordpressCom(Crawler):
         super(CrawlerWordpressCom, self).__init__(**kwargs)
 
     def _get_atom_content(self):
-        """ Try to load atom
-        """
         atom_content = self.downloader.get_content('https://' + self.url + '/feed/atom/')
         try:
             self.atom_feed = atoma.parse_atom_bytes(bytes(atom_content, encoding="utf-8"))
