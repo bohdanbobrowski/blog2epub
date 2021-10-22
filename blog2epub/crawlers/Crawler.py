@@ -403,10 +403,10 @@ class Article(object):
         self.tree = None        
         self.downloader = Downloader(crawler)
 
-    def _get_title(self):
+    def get_title(self):
         self.title = html.unescape(self.title.strip())
 
-    def _get_date(self):
+    def get_date(self):
         if isinstance(self.date, datetime):
             return
         date = self.tree.xpath('//abbr[@itemprop="datePublished"]/@title')
@@ -510,7 +510,7 @@ class Article(object):
         except Exception as e:
             print(e)
 
-    def _process_images(self, images, ripper):
+    def process_images(self, images, ripper):
         for image in images:
             caption = ''
             if isinstance(image, str):
@@ -527,11 +527,11 @@ class Article(object):
         self.get_tree()
 
     def get_images(self):        
-        self._process_images(self._find_images(), self._default_ripper)
-        self._process_images(self.tree.xpath('//a[@imageanchor="1"]/@href'), self._nocaption_ripper)
-        self._process_images(self.tree.xpath('//img[contains(@id,"BLOGGER_PHOTO_ID_")]/@src'), self._bloggerphoto_ripper)
-        self._process_images(self.tree.xpath('//img/@src'), self._img_ripper)
-        self._replace_images()
+        self.process_images(self._find_images(), self._default_ripper)
+        self.process_images(self.tree.xpath('//a[@imageanchor="1"]/@href'), self._nocaption_ripper)
+        self.process_images(self.tree.xpath('//img[contains(@id,"BLOGGER_PHOTO_ID_")]/@src'), self._bloggerphoto_ripper)
+        self.process_images(self.tree.xpath('//img/@src'), self._img_ripper)
+        self.replace_images()
         self.get_tree()
 
     def set_content(self, content):
@@ -539,28 +539,26 @@ class Article(object):
         self.html = content
         self.get_tree()
 
-    def _replace_images(self):
+    def replace_images(self):
         for key, image in enumerate(self.images):
             image_caption = self.images_captions[key]
             image_html = '<table align="center" cellpadding="0" cellspacing="0" class="tr-caption-container" style="margin-left: auto; margin-right: auto; text-align: center; background: #FFF; box-shadow: 1px 1px 5px rgba(0, 0, 0, 0.5); padding: 8px;"><tbody><tr><td style="text-align: center;"><img border="0" src="images/' + image + '" /></td></tr><tr><td class="tr-caption" style="text-align: center;">' + image_caption + '</td></tr></tbody></table>'
             self.html = self.html.replace('#blog2epubimage#' + image + '#', image_html)
 
-    def _get_content(self):
-        self.content = self.tree.xpath(self.content_xpath)
+    def get_content(self):
         self.content = self.tree.xpath(self.content_xpath)
         if len(self.content) == 1:
             self.content = self.content[0]
             self.content = etree.tostring(self.content)
             self.content = re.sub('style="[^"]*"', '', self.content.decode("utf-8"))
             self.content = re.sub('class="[^"]*"', '', self.content)
-            iframe_srcs = re.findall('<iframe.+? src="([^?= ]*)', self.content)
-            for src in iframe_srcs:
+            for src in re.findall('<iframe.+? src="([^?= ]*)', self.content):
                 self.content = re.sub('<iframe.+?%s.+?/>' % src, '<a href="%s">%s</a>' % (src, src), self.content)
 
     def get_tree(self):
         self.tree = fromstring(self.html)
 
-    def _get_tags(self):
+    def get_tags(self):
         tags = self.tree.xpath('//a[@rel="tag"]//text()')        
         output = []
         for t in tags:
@@ -568,11 +566,7 @@ class Article(object):
             output.append(t)
         self.tags = output
             
-    def _get_comments(self):
-        """
-        :param article: Article class
-        :return:
-        """
+    def get_comments(self):
         headers = self.tree.xpath('//div[@id="comments"]/h4/text()')
         self.comments = ''
         if len(headers) == 1:
@@ -589,17 +583,16 @@ class Article(object):
     def process(self):
         self.html = self.downloader.get_content(self.url)
         self.get_tree()
-        self._get_title()
-        self._get_date()
-        self._get_content()
+        self.get_title()
+        self.get_date()
         self.get_images()
-        self._get_tags()
-        self._get_comments()
+        self.get_content()
+        self.get_tags()
+        self.get_comments()
 
 
 class EmptyInterface(object):
-    """
-    Emty interface for script output.
+    """ Empty interface for script output.
     """
 
     @staticmethod
