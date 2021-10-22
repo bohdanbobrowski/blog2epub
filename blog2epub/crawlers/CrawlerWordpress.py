@@ -5,11 +5,10 @@ import atoma
 import html
 from lxml.html.soupparser import fromstring
 from lxml.ElementInclude import etree
-# from lxml.etree import etree
 import re
 
 
-class CrawlerWordpressCom(Crawler):
+class CrawlerWordpress(Crawler):
     """ Wordpress.com crawler.
     """
 
@@ -22,8 +21,12 @@ class CrawlerWordpressCom(Crawler):
     def __init__(self, **kwargs):
         super(CrawlerWordpressCom, self).__init__(**kwargs)
 
-    def _get_atom_content(self):
-        atom_content = self.downloader.get_content('https://' + self.url + '/feed/atom/')
+    def _get_atom_content(self, page=1):
+        url = 'https://' + self.url + '/feed/atom/'
+        if page > 1:
+            url = url + '?paged={}'.format(page)
+            self.interface.print("[downloading next page: {}]".format(url))
+        atom_content = self.downloader.get_content(url)
         try:
             self.atom_feed = atoma.parse_atom_bytes(bytes(atom_content, encoding="utf-8"))
             return True
@@ -33,30 +36,37 @@ class CrawlerWordpressCom(Crawler):
 
     def _atom_feed_loop(self):
         self.url_to_crawl = None
-        for item in self.atom_feed.entries:
-            try:
-                self.article_counter += 1
-                art = eval(self.article_class)(item.links[0].href, html.unescape(item.title.value), self)
-                self.interface.print(str(len(self.articles) + 1) + '. ' + art.title)
-                art.date = item.updated
-                if self.start:
-                    self.end = art.date
-                else:
-                    self.start = art.date
-                if item.content:
-                    art.set_content(item.content.value)
-                    art.get_images()
-                else:
-                    art.html = self.downloader.get_content(art.url)
-                    art.process()
-                self.images = self.images + art.images
-                self.articles.append(art)
-                self._add_tags(art.tags)
-                if self.limit and len(self.articles) >= self.limit:
-                    break
-            except Exception as e:
-                print(e)
-                self.interface.print("[article not recognized - skipping]")
+        next_page = 2
+        while next_page:
+            for item in self.atom_feed.entries:
+                try:
+                    self.article_counter += 1
+                    art = eval(self.article_class)(item.links[0].href, html.unescape(item.title.value), self)
+                    self.interface.print(str(len(self.articles) + 1) + '. ' + art.title)
+                    art.date = item.updated
+                    if self.start:
+                        self.end = art.date
+                    else:
+                        self.start = art.date
+                    if item.content:
+                        art.set_content(item.content.value)
+                        art.get_images()
+                    else:
+                        art.html = self.downloader.get_content(art.url)
+                        art.process()
+                    for category in item.categories:
+                        art.tags.append(category.term)
+                    self.images = self.images + art.images
+                    self.articles.append(art)
+                    self._add_tags(art.tags)
+                    if self.limit and len(self.articles) >= self.limit:
+                        next_page = None
+                        break
+                except Exception as e:
+                    self.interface.print(e)
+            if next_page:
+                self._get_atom_content(next_page)
+                next_page = next_page + 1
 
 
 class ArticleWordpressCom(Article):
@@ -116,3 +126,5 @@ class ArticleWordpressCom(Article):
             self.interface.print("{}: {}".format(__file__, e))
         self.get_tree()
 
+    def get_tags(self):
+        pass
