@@ -61,6 +61,25 @@ class CrawlerWordpressCom(Crawler):
 class ArticleWordpressCom(Article):
 
     def get_images(self):
+        self._get_images_with_captions()
+        self._get_single_images()
+        # self._replace_images()
+        self.get_tree()
+
+    def _get_single_images(self):
+        images_s = self.tree.xpath('//img[contains(@class, "size-full")]')
+        for img in images_s:
+            img_url = img.attrib.get('src')
+            img_caption = img.attrib.get('title')
+            img_hash = self.downloader.download_image(img_url)
+            img_parent = img.getparent()
+            img_parent.replace(img, etree.Comment("#blog2epubimage#{}#".format(img_hash)))
+            new_html = etree.tostring(self.tree).decode("utf-8")
+            self.html = new_html
+            self.images.append(img_hash)
+            self.images_captions.append(img_caption)
+
+    def _get_images_with_captions(self):
         images_c = self.tree.xpath('//div[contains(@class, "wp-caption")]')
         for img in images_c:
             img_html = etree.tostring(img).decode("utf-8")
@@ -70,10 +89,18 @@ class ArticleWordpressCom(Article):
             img_hash = self.downloader.download_image(img_url)
             img_parent = img.getparent()
             img_parent.replace(img, etree.Comment("#blog2epubimage#{}#".format(img_hash)))
-            self.html = etree.tostring(self.tree).decode("utf-8")
+            new_html = etree.tostring(self.tree).decode("utf-8")
+            self.html = new_html
             self.images.append(img_hash)
             self.images_captions.append(img_caption)
-        self.get_tree()
+
+    def _replace_images(self):
+        for key, image in enumerate(self.images):
+            image_caption = ""
+            if self.images_captions[key]:
+                image_caption = self.images_captions[key]
+            image_html = '<table align="center" cellpadding="0" cellspacing="0" class="tr-caption-container" style="margin-left: auto; margin-right: auto; text-align: center; background: #F00; box-shadow: 1px 1px 5px rgba(0, 0, 0, 0.5); padding: 8px;"><tbody><tr><td style="text-align: center;"><img border="0" src="images/' + image + '" /></td></tr><tr><td class="tr-caption" style="text-align: center;">' + image_caption + '</td></tr></tbody></table>'
+            self.html = self.html.replace('<!-- #blog2epubimage#' + image + '# -->', image_html)
 
     def _get_content(self):
         try:
