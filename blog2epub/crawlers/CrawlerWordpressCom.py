@@ -100,7 +100,7 @@ class ArticleWordpressCom(Article):
             image_caption = ""
             if self.images_captions[key]:
                 image_caption = self.images_captions[key]
-            image_html = '<table align="center" cellpadding="0" cellspacing="0" class="tr-caption-container" style="margin-left: auto; margin-right: auto; text-align: center; background: #F00; box-shadow: 1px 1px 5px rgba(0, 0, 0, 0.5); padding: 8px;"><tbody><tr><td style="text-align: center;"><img border="0" src="images/' + image + '" /></td></tr><tr><td class="tr-caption" style="text-align: center;">' + image_caption + '</td></tr></tbody></table>'
+            image_html = '<table align="center" cellpadding="0" cellspacing="0" class="tr-caption-container" style="margin-left: auto; margin-right: auto; text-align: center; background: #FFF; box-shadow: 1px 1px 5px rgba(0, 0, 0, 0.5); padding: 8px;"><tbody><tr><td style="text-align: center;"><img border="0" src="images/' + image + '" /></td></tr><tr><td class="tr-caption" style="text-align: center;">' + image_caption + '</td></tr></tbody></table>'
             self.html = self.html.replace('<!--#blog2epubimage#' + image + '#-->', image_html)
 
     def get_content(self):
@@ -108,7 +108,7 @@ class ArticleWordpressCom(Article):
             article_header = re.findall(r"(<h1 class=\"entry-title\">[^<]*<\/h1>)", self.html)
             if article_header:
                 self.html = self.html.split(article_header[0])[1]
-            article_footer = re.findall(r"(<div id=\"atatags-[a-z0-9\-]*\"></div>)", self.html)
+            article_footer = re.findall(r"(<div id=\"atatags-[^\"]*\")", self.html)
             if article_footer:
                 self.html = self.html.split(article_footer[0])[0]
             self.content = self.html = self.html.strip()
