@@ -6,20 +6,18 @@
 
 [![Maintenance](https://img.shields.io/badge/Maintained%3F-yes-green.svg)](https://github.com/bohdanbobrowski/blog2epub/graphs/commit-activity) [![MIT license](https://img.shields.io/badge/License-MIT-blue.svg)](https://lbesson.mit-license.org/)
 
-
 Convert blog to epub using command line or GUI.
 
 ### Supported blogs:
 - *.wordpress.com and some blogs based on Wordpress
 - *.blogspot.com
 
-
 ### Main features
 
 - command line (CLI) and graphic user interface (GUI)
-- downloads all text contents of selected blog to epub file,
-- downloads post comments,
-- downloads images, resizes them (to 400x300px) and converts to grayscale,
+- script downloads all text contents of selected blog to epub file,
+- if it's possible, it includes post comments,
+- images are resized (to 400x300px) and converted to grayscale,
 - one post = one epub chapter,
 - chapters are sorted by date ascending,
 - cover is generated automatically from downloaded images.
@@ -82,13 +80,12 @@ Convert blog to epub using command line or GUI.
     blog2epub poznanskiehistorie.blogspot.com -q=100
     blog2epub classicameras.blogspot.com --limit=10 --no-images
 
-## TODO list / Plannned features
+## TODO list / Planned features
 
-- crossplatform GUI (currently under development)
-- windows build
-- linux build
-- mobile app
-- more blog engines and templates supported (worpress.com etc.)
+- cross-platform GUI (Kivy)
+- macos, linux (and maybe windows) app/package
+- mobile app (android)
+- more blog engines and templates supported (wordpress.com etc.)
 
 ## Release notes
 
@@ -96,9 +93,9 @@ Convert blog to epub using command line or GUI.
 
 - migration to Kivy :-)
 - some bugfixes in crawler
-- I would try to deliver macOS, Linux and maybe Windows install package
-- I'm experimenting right now with cython to make macOS app smaller and faster
 - wordpress.com support!
+- I'll try to provide the macOS, Linux and (less and less likely, but not giving up yet) Windows installer package
+- I'm experimenting right now with cython to make macOS app smaller and faster
 
 ### [1.1.0](https://github.com/bohdanbobrowski/blog2epub/releases/tag/v1.1.0)
 
@@ -121,4 +118,4 @@ Convert blog to epub using command line or GUI.
 ### [1.0.3](https://github.com/bohdanbobrowski/blog2epub/releases/tag/v1.0.3)
 
 - saving GUI settings to yaml file
-- first macOS builds (--py2app--pyinstaller)
+- first macOS builds (pyinstaller)

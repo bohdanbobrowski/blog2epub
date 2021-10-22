@@ -198,6 +198,7 @@ class Crawler(object):
                 if self.limit and len(self.articles) >= self.limit:
                     break
             except Exception as e:
+                self.interface.print(e)
                 self.interface.print("[article not recognized - skipping]")
 
     def _articles_loop(self, content):
