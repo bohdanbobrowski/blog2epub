@@ -1,6 +1,6 @@
+/.buildozer
 /.idea
 /.vscode
-/#EPUB
 /*.egg-info
 /build
 /dist
