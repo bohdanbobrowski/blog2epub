@@ -28,13 +28,30 @@ class Crawler(object):
 
     article_class = "Article"
 
-    content_xpath = "//div[contains(concat(' ',normalize-space(@class),' '),'post-body')]"
+    content_xpath = (
+        "//div[contains(concat(' ',normalize-space(@class),' '),'post-body')]"
+    )
     images_regex = r'<table[^>]*><tbody>[\s]*<tr><td[^>]*><a href="([^"]*)"[^>]*><img[^>]*></a></td></tr>[\s]*<tr><td class="tr-caption" style="[^"]*">([^<]*)'
-    articles_regex = r'<h3 class=\'post-title entry-title\' itemprop=\'name\'>[\s]*<a href=\'([^\']*)\'>([^>^<]*)</a>[\s]*</h3>'
+    articles_regex = r"<h3 class=\'post-title entry-title\' itemprop=\'name\'>[\s]*<a href=\'([^\']*)\'>([^>^<]*)</a>[\s]*</h3>"
 
-    def __init__(self, url, include_images=True, images_height=800, images_width=600, images_quality=40, start=None,
-                 end=None, limit=None, skip=False, force_download=False, file_name=None, destination_folder='./',
-                 cache_folder=None, language=None, interface=None):
+    def __init__(
+        self,
+        url,
+        include_images=True,
+        images_height=800,
+        images_width=600,
+        images_quality=40,
+        start=None,
+        end=None,
+        limit=None,
+        skip=False,
+        force_download=False,
+        file_name=None,
+        destination_folder="./",
+        cache_folder=None,
+        language=None,
+        interface=None,
+    ):
 
         self.url = self._prepare_url(url)
         self.url_to_crawl = self._prepare_url_to_crawl(self.url)
@@ -43,7 +60,7 @@ class Crawler(object):
         self.destination_folder = destination_folder
         self.cache_folder = cache_folder
         if cache_folder is None:
-            self.cache_folder = os.path.join(str(Path.home()), '.blog2epub')
+            self.cache_folder = os.path.join(str(Path.home()), ".blog2epub")
         self.include_images = include_images
         self.images_quality = images_quality
         self.images_height = images_height
@@ -54,7 +71,7 @@ class Crawler(object):
         self.skip = skip
         self.force_download = force_download
         self.interface = self._get_the_interface(interface)
-        self.dirs = Dirs(self.cache_folder, self.url.replace('/', '_'))
+        self.dirs = Dirs(self.cache_folder, self.url.replace("/", "_"))
         self.book = None
         self.title = None
         self.description = None
@@ -67,15 +84,15 @@ class Crawler(object):
         self.tags = {}
 
     def _prepare_url(self, url):
-        return url.replace('http:', '').replace('https:', '').strip('/')
+        return url.replace("http:", "").replace("https:", "").strip("/")
 
     def _prepare_file_name(self, file_name, url):
         if file_name:
             return file_name
-        return url.replace('/', '_')
+        return url.replace("/", "_")
 
     def _prepare_url_to_crawl(self, url):
-        r = request.urlopen('http://' + url)
+        r = request.urlopen("http://" + url)
         return r.geturl()
 
     def _prepare_port(self, url):
@@ -91,46 +108,60 @@ class Crawler(object):
             return EmptyInterface()
 
     def get_cover_title(self):
-        cover_title = self.title + ' '
+        cover_title = self.title + " "
         if self.start == self.end:
             cover_title = cover_title + str(self.start)
         else:
-            end_date = self.end.split(' ')
-            start_date = self.start.split(' ')
+            end_date = self.end.split(" ")
+            start_date = self.start.split(" ")
             if len(end_date) == len(start_date):
                 ed = []
                 for i, d in enumerate(end_date):
                     if d != start_date[i]:
                         ed.append(d)
-            ed = ' '.join(ed)
-            cover_title = cover_title + ed + '-' + self.start
+            ed = " ".join(ed)
+            cover_title = cover_title + ed + "-" + self.start
         return cover_title
 
     @staticmethod
     def get_date(str_date):
-        return re.sub('[^\,]*, ', '', str_date)
+        return re.sub("[^\,]*, ", "", str_date)
 
     def _set_blog_language(self, content):
         if self.language is None and re.search("'lang':[\s]*'([a-z^']+)'", content):
-            self.language = re.search("'lang':[\s]*'([a-z^']+)'", content).group(1).strip()
-        if self.language is None and re.search('lang=[\'"]([a-z]+)[\'"]', content):
-            self.language = re.search('lang=[\'"]([a-z]+)[\'"]', content).group(1).strip()
-        if self.language is None and re.search('locale[\'"]:[\s]*[\'"]([a-z]+)[\'"]', content):
-            self.language = re.search('locale[\'"]:[\s]*[\'"]([a-z]+)[\'"]', content).group(1).strip()
+            self.language = (
+                re.search("'lang':[\s]*'([a-z^']+)'", content).group(1).strip()
+            )
+        if self.language is None and re.search("lang=['\"]([a-z]+)['\"]", content):
+            self.language = (
+                re.search("lang=['\"]([a-z]+)['\"]", content).group(1).strip()
+            )
+        if self.language is None and re.search(
+            "locale['\"]:[\s]*['\"]([a-z]+)['\"]", content
+        ):
+            self.language = (
+                re.search("locale['\"]:[\s]*['\"]([a-z]+)['\"]", content)
+                .group(1)
+                .strip()
+            )
         if self.language is None:
-            self.language = 'en'
+            self.language = "en"
 
     def _get_blog_title(self, content):
         if re.search("<title>([^>^<]*)</title>", content):
             return re.search("<title>([^>^<]*)</title>", content).group(1).strip()
-        return ''
+        return ""
 
     def _get_blog_description(self, tree):
-        return tree.xpath('//div[@id="header"]/div/div/div/p[@class="description"]/span/text()')
+        return tree.xpath(
+            '//div[@id="header"]/div/div/div/p[@class="description"]/span/text()'
+        )
 
     def _get_header_images(self, tree):
         header_images = []
-        for img in tree.xpath('//div[@id="header"]/div/div/div/p[@class="description"]/span/img/@src'):
+        for img in tree.xpath(
+            '//div[@id="header"]/div/div/div/p[@class="description"]/span/img/@src'
+        ):
             header_images.append(self.downloader.download_image(img))
         return header_images
 
@@ -145,7 +176,9 @@ class Crawler(object):
         output = []
         if art_urls and len(art_urls) == len(art_titles):
             for i in range(len(art_urls)):
-                output.append(eval(self.article_class)(art_urls[i], art_titles[i], self))
+                output.append(
+                    eval(self.article_class)(art_urls[i], art_titles[i], self)
+                )
         else:
             articles_list = re.findall(self.articles_regex, content)
             for art in articles_list:
@@ -153,11 +186,14 @@ class Crawler(object):
         return output
 
     def _get_atom_content(self):
-        """ Try to load atom
-        """
-        atom_content = self.downloader.get_content('https://' + self.url + '/feeds/posts/default')
+        """Try to load atom"""
+        atom_content = self.downloader.get_content(
+            "https://" + self.url + "/feeds/posts/default"
+        )
         try:
-            self.atom_feed = atoma.parse_atom_bytes(bytes(atom_content, encoding="utf-8"))
+            self.atom_feed = atoma.parse_atom_bytes(
+                bytes(atom_content, encoding="utf-8")
+            )
             return True
         except Exception as e:
             self.interface.print(e)
@@ -172,7 +208,7 @@ class Crawler(object):
     def _add_tags(self, tags):
         for tag in tags:
             if tag in self.tags:
-                self.tags[tag] = self.tags[tag]+1
+                self.tags[tag] = self.tags[tag] + 1
             else:
                 self.tags[tag] = 1
 
@@ -181,8 +217,10 @@ class Crawler(object):
         for item in self.atom_feed.entries:
             try:
                 self.article_counter += 1
-                art = eval(self.article_class)(item.links[0].href, item.title.value, self)
-                self.interface.print(str(len(self.articles) + 1) + '. ' + art.title)
+                art = eval(self.article_class)(
+                    item.links[0].href, item.title.value, self
+                )
+                self.interface.print(str(len(self.articles) + 1) + ". " + art.title)
                 art.date = item.updated
                 if self.start:
                     self.end = art.date
@@ -207,7 +245,7 @@ class Crawler(object):
             if not self.skip or self.article_counter > self.skip:
                 art.process()
                 self.images = self.images + art.images
-                self.interface.print(str(len(self.articles) + 1) + '. ' + art.title)
+                self.interface.print(str(len(self.articles) + 1) + ". " + art.title)
                 if self.start:
                     self.end = art.date
                 else:
@@ -216,7 +254,7 @@ class Crawler(object):
                 self._add_tags(art.tags)
                 self._check_limit()
             else:
-                self.interface.print('[skipping] ' + art.title)
+                self.interface.print("[skipping] " + art.title)
             if not self.url_to_crawl:
                 break
 
@@ -265,15 +303,17 @@ class Dirs(object):
 
     def __init__(self, cache_folder, name):
         self.path = os.path.join(cache_folder, name)
-        self.html = os.path.join(self.path, 'html')
-        self.images = os.path.join(self.path, 'images')
-        self.originals = os.path.join(self.path, 'originals')
-        self.assets = os.path.join(str(os.path.realpath(blog2epub.__file__).replace('__init__.py','')), 'assets')
+        self.html = os.path.join(self.path, "html")
+        self.images = os.path.join(self.path, "images")
+        self.originals = os.path.join(self.path, "originals")
+        self.assets = os.path.join(
+            str(os.path.realpath(blog2epub.__file__).replace("__init__.py", "")),
+            "assets",
+        )
         self._prepare_directories()
 
 
 class Downloader(object):
-
     def __init__(self, crawler):
         self.dirs = crawler.dirs
         self.crawler_url = crawler.url
@@ -287,40 +327,40 @@ class Downloader(object):
         self.session = requests.session()
         ua = UserAgent()
         self.headers = {
-            'User-Agent': ua.chrome,
+            "User-Agent": ua.chrome,
         }
 
     def get_urlhash(self, url):
         m = hashlib.md5()
-        m.update(url.encode('utf-8'))
+        m.update(url.encode("utf-8"))
         return m.hexdigest()
 
     def file_write(self, contents, filepath):
         filepath = filepath + ".gz"
-        with gzip.open(filepath, 'wb') as f:
-            f.write(contents.encode('utf-8'))
+        with gzip.open(filepath, "wb") as f:
+            f.write(contents.encode("utf-8"))
 
     def file_read(self, filepath):
         if os.path.isfile(filepath + ".gz"):
-            with gzip.open(filepath + ".gz", 'rb') as f:
-                contents = f.read().decode('utf-8')
-        else:            
-            with open(filepath, 'rb') as html_file:
-                contents = html_file.read().decode('utf-8')
+            with gzip.open(filepath + ".gz", "rb") as f:
+                contents = f.read().decode("utf-8")
+        else:
+            with open(filepath, "rb") as html_file:
+                contents = html_file.read().decode("utf-8")
             self.file_write(contents, filepath)
             os.remove(filepath)
         return contents
 
     def get_filepath(self, url):
-        return os.path.join(self.dirs.html, self.get_urlhash(url) + '.html')
+        return os.path.join(self.dirs.html, self.get_urlhash(url) + ".html")
 
     def file_download(self, url, filepath):
-        self.dirs._prepare_directories()                
-        response = self.session.get(url, cookies=self.cookies, headers=self.headers)        
+        self.dirs._prepare_directories()
+        response = self.session.get(url, cookies=self.cookies, headers=self.headers)
         self.cookies = response.cookies
         data = response.content
         try:
-            contents = data.decode('utf-8')
+            contents = data.decode("utf-8")
         except Exception as e:
             contents = data
             self.interface.print(e)
@@ -330,8 +370,8 @@ class Downloader(object):
     def image_download(self, url, filepath):
         try:
             self.dirs._prepare_directories()
-            f = open(filepath, 'wb')                        
-            response = self.session.get(url, cookies=self.cookies, headers=self.headers)        
+            f = open(filepath, "wb")
+            response = self.session.get(url, cookies=self.cookies, headers=self.headers)
             f.write(response.content)
             f.close()
             return True
@@ -339,23 +379,30 @@ class Downloader(object):
             return False
 
     def checkInterstitial(self, contents):
-        interstitial = re.findall('interstitial=([^"]+)', contents)        
+        interstitial = re.findall('interstitial=([^"]+)', contents)
         if interstitial:
             return interstitial[0]
         else:
             return False
 
     def get_content(self, url):
-        filepath = self.get_filepath(url) 
-        if self.force_download or (not os.path.isfile(filepath) and not os.path.isfile(filepath + ".gz")):
+        filepath = self.get_filepath(url)
+        if self.force_download or (
+            not os.path.isfile(filepath) and not os.path.isfile(filepath + ".gz")
+        ):
             contents = self.file_download(url, filepath)
-        else:            
+        else:
             contents = self.file_read(filepath)
         interstitial = self.checkInterstitial(contents)
         if interstitial:
-            interstitial_url = "http://" + self.crawler_url + "?interstitial="+interstitial
+            interstitial_url = (
+                "http://" + self.crawler_url + "?interstitial=" + interstitial
+            )
             self.file_download(interstitial_url, self.get_filepath(interstitial_url))
-            contents = self.file_download("http://" + self.crawler_url, self.get_filepath("http://" + self.crawler_url));
+            contents = self.file_download(
+                "http://" + self.crawler_url,
+                self.get_filepath("http://" + self.crawler_url),
+            )
         return contents
 
     def download_image(self, img):
@@ -370,10 +417,15 @@ class Downloader(object):
         if os.path.isfile(original_fn):
             try:
                 picture = Image.open(original_fn)
-                if picture.size[0] > self.images_width or picture.size[1] > self.images_height:
-                    picture.thumbnail([self.images_width, self.images_height], Image.ANTIALIAS)
-                picture = picture.convert('L')
-                picture.save(resized_fn, format='JPEG', quality=self.images_quality)
+                if (
+                    picture.size[0] > self.images_width
+                    or picture.size[1] > self.images_height
+                ):
+                    picture.thumbnail(
+                        [self.images_width, self.images_height], Image.ANTIALIAS
+                    )
+                picture = picture.convert("L")
+                picture.save(resized_fn, format="JPEG", quality=self.images_quality)
             except Exception:
                 return None
             os.remove(original_fn)
@@ -391,7 +443,7 @@ class Article(object):
         self.tags = []
         self.interface = crawler.interface
         self.dirs = crawler.dirs
-        self.comments = ''
+        self.comments = ""
         self.include_images = crawler.include_images
         self.content_xpath = crawler.content_xpath
         self.images_regex = crawler.images_regex
@@ -401,7 +453,7 @@ class Article(object):
         self.html = None
         self.content = None
         self.date = None
-        self.tree = None        
+        self.tree = None
         self.downloader = Downloader(crawler)
 
     def get_title(self):
@@ -416,9 +468,9 @@ class Article(object):
         else:
             date = self.tree.xpath('//h2[@class="date-header"]/span/text()')
             if len(date) > 0:
-                self.date = re.sub('(.*?, )', '', date[0])
+                self.date = re.sub("(.*?, )", "", date[0])
         if self.date is None:
-            d = self.url.split('/')
+            d = self.url.split("/")
             if len(d) > 4:
                 self.date = "%s-%s-01 00:00" % (d[3], d[4])
             else:
@@ -434,45 +486,45 @@ class Article(object):
     def _translate_month(self, date):
         # TODO: need to be refactored, or moved as parameter to dateutil parser function
         date = date.lower()
-        if self.language == 'pl':
-            date = date.replace('stycznia', 'january')
-            date = date.replace('lutego', 'february')
-            date = date.replace('marca', 'march')
-            date = date.replace('kwietnia', 'april')
-            date = date.replace('maja', 'may')
-            date = date.replace('czerwca', 'june')
-            date = date.replace('lipca', 'july')
-            date = date.replace('sierpnia', 'august')
-            date = date.replace('września', 'september')
-            date = date.replace('października', 'october')
-            date = date.replace('listopada', 'november')
-            date = date.replace('grudnia', 'december')
-            date = date.replace(' sty ', ' january ')
-            date = date.replace(' lut ', ' february ')
-            date = date.replace(' mar ', ' march ')
-            date = date.replace(' kwi ', ' april ')
-            date = date.replace(' maj ', ' may ')
-            date = date.replace(' cze ', ' june ')
-            date = date.replace(' lip ', ' july ')
-            date = date.replace(' sie ', ' august ')
-            date = date.replace(' wrz ', ' september ')
-            date = date.replace(' paź ', ' october ')
-            date = date.replace(' lis ', ' november ')
-            date = date.replace(' gru ', ' december ')
-        if self.language == 'ru':
-            date = date.replace('января', 'january')
-            date = date.replace('февраля', 'february')
-            date = date.replace('марта', 'march')
-            date = date.replace('апреля', 'april')
-            date = date.replace('мая', 'may')
-            date = date.replace('июня', 'june')
-            date = date.replace('июля', 'july')
-            date = date.replace('августа', 'august')
-            date = date.replace('сентября', 'september')
-            date = date.replace('октября', 'october')
-            date = date.replace('ноября', 'november')
-            date = date.replace('декабря', 'december')
-            date = re.sub(' г.$', '', date)
+        if self.language == "pl":
+            date = date.replace("stycznia", "january")
+            date = date.replace("lutego", "february")
+            date = date.replace("marca", "march")
+            date = date.replace("kwietnia", "april")
+            date = date.replace("maja", "may")
+            date = date.replace("czerwca", "june")
+            date = date.replace("lipca", "july")
+            date = date.replace("sierpnia", "august")
+            date = date.replace("września", "september")
+            date = date.replace("października", "october")
+            date = date.replace("listopada", "november")
+            date = date.replace("grudnia", "december")
+            date = date.replace(" sty ", " january ")
+            date = date.replace(" lut ", " february ")
+            date = date.replace(" mar ", " march ")
+            date = date.replace(" kwi ", " april ")
+            date = date.replace(" maj ", " may ")
+            date = date.replace(" cze ", " june ")
+            date = date.replace(" lip ", " july ")
+            date = date.replace(" sie ", " august ")
+            date = date.replace(" wrz ", " september ")
+            date = date.replace(" paź ", " october ")
+            date = date.replace(" lis ", " november ")
+            date = date.replace(" gru ", " december ")
+        if self.language == "ru":
+            date = date.replace("января", "january")
+            date = date.replace("февраля", "february")
+            date = date.replace("марта", "march")
+            date = date.replace("апреля", "april")
+            date = date.replace("мая", "may")
+            date = date.replace("июня", "june")
+            date = date.replace("июля", "july")
+            date = date.replace("августа", "august")
+            date = date.replace("сентября", "september")
+            date = date.replace("октября", "october")
+            date = date.replace("ноября", "november")
+            date = date.replace("декабря", "december")
+            date = re.sub(" г.$", "", date)
         return date
 
     def _find_images(self):
@@ -480,26 +532,35 @@ class Article(object):
 
     @staticmethod
     def _default_ripper(img, img_hash, art_html):
-        im_regex = '<table[^>]*><tbody>[\s]*<tr><td[^>]*><a href="' + img.replace("+", "\+") +\
-                   '"[^>]*><img[^>]*></a></td></tr>[\s]*<tr><td class="tr-caption" style="[^"]*">[^<]*</td></tr>[\s]*</tbody></table>'
+        im_regex = (
+            '<table[^>]*><tbody>[\s]*<tr><td[^>]*><a href="'
+            + img.replace("+", "\+")
+            + '"[^>]*><img[^>]*></a></td></tr>[\s]*<tr><td class="tr-caption" style="[^"]*">[^<]*</td></tr>[\s]*</tbody></table>'
+        )
         try:
-            return re.sub(im_regex, ' #blog2epubimage#' + img_hash + '# ', art_html)
+            return re.sub(im_regex, " #blog2epubimage#" + img_hash + "# ", art_html)
         except Exception as e:
             print(e)
 
     @staticmethod
     def _nocaption_ripper(img, img_hash, art_html):
-        im_regex = '<a href="' + img.replace("+", "\+") + '" imageanchor="1"[^<]*<img.*?></a>'
+        im_regex = (
+            '<a href="' + img.replace("+", "\+") + '" imageanchor="1"[^<]*<img.*?></a>'
+        )
         try:
-            return re.sub(im_regex, ' #blog2epubimage#' + img_hash + '# ', art_html)
+            return re.sub(im_regex, " #blog2epubimage#" + img_hash + "# ", art_html)
         except Exception as e:
             print(e)
 
     @staticmethod
     def _bloggerphoto_ripper(img, img_hash, art_html):
-        im_regex = '<a href="[^"]+"><img.*?id="BLOGGER_PHOTO_ID_[0-9]+".*?src="' + img.replace("+", "\+") + '".*?/a>'
+        im_regex = (
+            '<a href="[^"]+"><img.*?id="BLOGGER_PHOTO_ID_[0-9]+".*?src="'
+            + img.replace("+", "\+")
+            + '".*?/a>'
+        )
         try:
-            return re.sub(im_regex, ' #blog2epubimage#' + img_hash + '# ', art_html)
+            return re.sub(im_regex, " #blog2epubimage#" + img_hash + "# ", art_html)
         except Exception as e:
             print(e)
 
@@ -507,13 +568,13 @@ class Article(object):
     def _img_ripper(img, img_hash, art_html):
         im_regex = '<img.*?src="' + img.replace("+", "\+") + '".*?>'
         try:
-            return re.sub(im_regex, ' #blog2epubimage#' + img_hash + '# ', art_html)
+            return re.sub(im_regex, " #blog2epubimage#" + img_hash + "# ", art_html)
         except Exception as e:
             print(e)
 
     def process_images(self, images, ripper):
         for image in images:
-            caption = ''
+            caption = ""
             if isinstance(image, str):
                 img = image
             elif isinstance(image, list):
@@ -527,11 +588,16 @@ class Article(object):
                 self.images_captions.append(caption)
         self.get_tree()
 
-    def get_images(self):        
+    def get_images(self):
         self.process_images(self._find_images(), self._default_ripper)
-        self.process_images(self.tree.xpath('//a[@imageanchor="1"]/@href'), self._nocaption_ripper)
-        self.process_images(self.tree.xpath('//img[contains(@id,"BLOGGER_PHOTO_ID_")]/@src'), self._bloggerphoto_ripper)
-        self.process_images(self.tree.xpath('//img/@src'), self._img_ripper)
+        self.process_images(
+            self.tree.xpath('//a[@imageanchor="1"]/@href'), self._nocaption_ripper
+        )
+        self.process_images(
+            self.tree.xpath('//img[contains(@id,"BLOGGER_PHOTO_ID_")]/@src'),
+            self._bloggerphoto_ripper,
+        )
+        self.process_images(self.tree.xpath("//img/@src"), self._img_ripper)
         self.replace_images()
         self.get_tree()
 
@@ -543,43 +609,55 @@ class Article(object):
     def replace_images(self):
         for key, image in enumerate(self.images):
             image_caption = self.images_captions[key]
-            image_html = '<table align="center" cellpadding="0" cellspacing="0" class="tr-caption-container" style="margin-left: auto; margin-right: auto; text-align: center; background: #FFF; box-shadow: 1px 1px 5px rgba(0, 0, 0, 0.5); padding: 8px;"><tbody><tr><td style="text-align: center;"><img border="0" src="images/' + image + '" /></td></tr><tr><td class="tr-caption" style="text-align: center;">' + image_caption + '</td></tr></tbody></table>'
-            self.html = self.html.replace('#blog2epubimage#' + image + '#', image_html)
+            image_html = (
+                '<table align="center" cellpadding="0" cellspacing="0" class="tr-caption-container" style="margin-left: auto; margin-right: auto; text-align: center; background: #FFF; box-shadow: 1px 1px 5px rgba(0, 0, 0, 0.5); padding: 8px;"><tbody><tr><td style="text-align: center;"><img border="0" src="images/'
+                + image
+                + '" /></td></tr><tr><td class="tr-caption" style="text-align: center;">'
+                + image_caption
+                + "</td></tr></tbody></table>"
+            )
+            self.html = self.html.replace("#blog2epubimage#" + image + "#", image_html)
 
     def get_content(self):
         self.content = self.tree.xpath(self.content_xpath)
         if len(self.content) == 1:
             self.content = self.content[0]
             self.content = etree.tostring(self.content)
-            self.content = re.sub('style="[^"]*"', '', self.content.decode("utf-8"))
-            self.content = re.sub('class="[^"]*"', '', self.content)
+            self.content = re.sub('style="[^"]*"', "", self.content.decode("utf-8"))
+            self.content = re.sub('class="[^"]*"', "", self.content)
             for src in re.findall('<iframe.+? src="([^?= ]*)', self.content):
-                self.content = re.sub('<iframe.+?%s.+?/>' % src, '<a href="%s">%s</a>' % (src, src), self.content)
+                self.content = re.sub(
+                    "<iframe.+?%s.+?/>" % src,
+                    '<a href="%s">%s</a>' % (src, src),
+                    self.content,
+                )
 
     def get_tree(self):
         self.tree = fromstring(self.html)
 
     def get_tags(self):
-        tags = self.tree.xpath('//a[@rel="tag"]//text()')        
+        tags = self.tree.xpath('//a[@rel="tag"]//text()')
         output = []
         for t in tags:
             t = t.strip()
             output.append(t)
         self.tags = output
-            
+
     def get_comments(self):
         headers = self.tree.xpath('//div[@id="comments"]/h4/text()')
-        self.comments = ''
+        self.comments = ""
         if len(headers) == 1:
-            self.comments = '<hr/><h3>' + headers[0] + '</h3>'
+            self.comments = "<hr/><h3>" + headers[0] + "</h3>"
         comments_in_article = self.tree.xpath('//div[@class="comment-block"]//text()')
-        tag = 'h6'
+        tag = "h6"
         for c in comments_in_article:
             c = c.strip()
-            if c != 'Odpowiedz' and c != 'Usuń':
-                self.comments = self.comments + '<' + tag + '>' + c + '</' + tag + '>'
-                if tag == 'h6': tag = 'p'
-            if c == 'Usuń': tag = 'h6'
+            if c != "Odpowiedz" and c != "Usuń":
+                self.comments = self.comments + "<" + tag + ">" + c + "</" + tag + ">"
+                if tag == "h6":
+                    tag = "p"
+            if c == "Usuń":
+                tag = "h6"
 
     def process(self):
         self.html = self.downloader.get_content(self.url)
@@ -593,8 +671,7 @@ class Article(object):
 
 
 class EmptyInterface(object):
-    """ Empty interface for script output.
-    """
+    """Empty interface for script output."""
 
     @staticmethod
     def print(self):

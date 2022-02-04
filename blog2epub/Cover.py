@@ -26,10 +26,10 @@ class Cover(object):
         self.description = book.description
         self.title = book.title
         self.images = self._check_image_size(book.images)
-        self.destination_folder = os.path.join(str(Path.home()), '.blog2epub')
+        self.destination_folder = os.path.join(str(Path.home()), ".blog2epub")
         self.start = book.start
         self.end = book.end
-        
+
     def _check_image_size(self, images):
         verified_images = []
         for image in set(images):
@@ -66,28 +66,38 @@ class Cover(object):
             return upper_x, upper_y, lower_x, lower_y
 
     def _crop_image(self, img):
-        upper_x, upper_y, lower_x, lower_y = self._box_params_center(img.size[0], img.size[1])
+        upper_x, upper_y, lower_x, lower_y = self._box_params_center(
+            img.size[0], img.size[1]
+        )
         box = (upper_x, upper_y, lower_x, lower_y)
         region = img.crop(box)
         return region
 
     def _get_cover_date(self):
         if self.end is None:
-            return self.start.strftime('%d %B %Y')
+            return self.start.strftime("%d %B %Y")
         else:
-            if self.start.strftime('%Y.%m') == self.end.strftime('%Y.%m'):
-                return self.end.strftime('%d') + "-" + self.start.strftime('%d %B %Y')
-            elif self.start.strftime('%Y.%m') == self.end.strftime('%Y.%m'):
-                return self.end.strftime('%d %B') + " - " + self.start.strftime('%d %B %Y')
+            if self.start.strftime("%Y.%m") == self.end.strftime("%Y.%m"):
+                return self.end.strftime("%d") + "-" + self.start.strftime("%d %B %Y")
+            elif self.start.strftime("%Y.%m") == self.end.strftime("%Y.%m"):
+                return (
+                    self.end.strftime("%d %B") + " - " + self.start.strftime("%d %B %Y")
+                )
             else:
-                return self.end.strftime('%d %B %Y') + " - " + self.start.strftime('%d %B %Y')
+                return (
+                    self.end.strftime("%d %B %Y")
+                    + " - "
+                    + self.start.strftime("%d %B %Y")
+                )
 
     def _get_fonts_path(self, font_name):
         in_osx_app = os.path.join(
-            os.path.dirname(sys.executable).replace('/Contents/MacOS','/Contents/Resources'),
-            font_name
+            os.path.dirname(sys.executable).replace(
+                "/Contents/MacOS", "/Contents/Resources"
+            ),
+            font_name,
         )
-        in_sources = os.path.join(Path(__file__).parent.resolve(), 'assets', font_name)
+        in_sources = os.path.join(Path(__file__).parent.resolve(), "assets", font_name)
         if os.path.isfile(in_osx_app):
             return in_osx_app
         if os.path.isfile(in_sources):
@@ -101,15 +111,30 @@ class Cover(object):
         lato_italic = self._get_fonts_path("Lato-Italic.ttf")
         if lato_bold and lato_italic and lato_regular:
             cover_draw = ImageDraw.Draw(cover_image)
-            cover_draw.text((15, 635), self.title, (255, 255, 255), font=ImageFont.truetype(lato_bold, 30))
-            cover_draw.text((15, 760), self.file_name_prefix, (255, 255, 255), font=ImageFont.truetype(lato_regular, 20))
-            cover_draw.text((15, 670), self._get_cover_date(), (150, 150, 150), font=ImageFont.truetype(lato_italic, 20))
+            cover_draw.text(
+                (15, 635),
+                self.title,
+                (255, 255, 255),
+                font=ImageFont.truetype(lato_bold, 30),
+            )
+            cover_draw.text(
+                (15, 760),
+                self.file_name_prefix,
+                (255, 255, 255),
+                font=ImageFont.truetype(lato_regular, 20),
+            )
+            cover_draw.text(
+                (15, 670),
+                self._get_cover_date(),
+                (150, 150, 150),
+                font=ImageFont.truetype(lato_italic, 20),
+            )
         return cover_image
 
-    def generate(self):        
+    def generate(self):
         tiles_count_y = 5
         tiles_count_x = 7
-        cover_image = Image.new('RGB', (600, 800))
+        cover_image = Image.new("RGB", (600, 800))
         dark_factor = 1
         if len(self.images) > 0:
             shuffle(self.images)
@@ -118,19 +143,22 @@ class Cover(object):
                 for y in range(0, tiles_count_y):
                     try:
                         img_file = os.path.join(self.dirs.images, self.images[i - 1])
-                        thumb = self._make_thumb(Image.open(img_file), (self.tile_size, self.tile_size))
+                        thumb = self._make_thumb(
+                            Image.open(img_file), (self.tile_size, self.tile_size)
+                        )
                         thumb = thumb.point(lambda p: p * dark_factor)
                         dark_factor = dark_factor - 0.03
-                        cover_image.paste(thumb, (y * self.tile_size, x * self.tile_size))
+                        cover_image.paste(
+                            thumb, (y * self.tile_size, x * self.tile_size)
+                        )
                         i = i + 1
                     except Exception as e:
                         print(e)
                     if i > len(self.images):
                         i = 1
         cover_image = self._draw_text(cover_image)
-        cover_image = cover_image.convert('L')
-        cover_file_name = self.file_name + '.jpg'
+        cover_image = cover_image.convert("L")
+        cover_file_name = self.file_name + ".jpg"
         cover_file_full_path = os.path.join(self.destination_folder, cover_file_name)
-        cover_image.save(cover_file_full_path, format='JPEG', quality=100)
+        cover_image.save(cover_file_full_path, format="JPEG", quality=100)
         return cover_file_name, cover_file_full_path
-

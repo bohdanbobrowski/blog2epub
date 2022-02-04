@@ -4,10 +4,10 @@
 
 from distutils.core import setup
 
-VERSION = '1.2.0'
+VERSION = "1.2.0"
 
 setup(
-    name='blog2epub',
+    name="blog2epub",
     version=VERSION,
     description="Blog To Epub Downloader",
     url="https://github.com/bohdanbobrowski/blog2epub",
@@ -30,20 +30,12 @@ setup(
         "fake-useragent",
         "PyYAML",
         "pycairo",
-        "Kivy"
+        "Kivy",
     ],
     entry_points={
-        'console_scripts': [
-            'blog2epub = blog2epub.Blog2EpubCli:main'
-        ],
-        'gui_scripts': [
-            'blog2epubgui = blog2epub.Blog2EpubKivy:main'
-        ]
+        "console_scripts": ["blog2epub = blog2epub.Blog2EpubCli:main"],
+        "gui_scripts": ["blog2epubgui = blog2epub.Blog2EpubKivy:main"],
     },
-    package_data={
-        'blog2epub': [
-            'assets/*.ttf'
-        ]
-    },
+    package_data={"blog2epub": ["assets/*.ttf"]},
     include_package_data=True,
 )
