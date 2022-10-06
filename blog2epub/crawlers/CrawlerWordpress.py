@@ -84,7 +84,9 @@ class ArticleWordpressCom(Article):
         self.get_tree()
 
     def get_single_images(self):
-        images_s = self.tree.xpath('//img[contains(@class, "size-full")]')
+        images_s = self.tree.xpath(
+            '//img[contains(@class, "size-full")]'
+        ) + self.tree.xpath('//figure[contains(@class, "wp-block-image")]//img')
         for img in images_s:
             img_url = img.attrib.get("src")
             img_caption = img.attrib.get("title")
