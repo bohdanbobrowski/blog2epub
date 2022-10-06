@@ -48,7 +48,7 @@ class CrawlerWordpress(Crawler):
                         item.links[0].href, html.unescape(item.title.value), self
                     )
                     self.interface.print(str(len(self.articles) + 1) + ". " + art.title)
-                    art.date = item.updated
+                    art.date = item.published
                     if self.start:
                         self.end = art.date
                     else:
