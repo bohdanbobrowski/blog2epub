@@ -235,8 +235,8 @@ class Crawler(object):
                 self._add_tags(art.tags)
                 if self.limit and len(self.articles) >= self.limit:
                     break
-            except Exception as e:
-                self.interface.print(e)
+            except AttributeError as e:
+                self.interface.print(str(e))
                 self.interface.print("[article not recognized - skipping]")
 
     def _articles_loop(self, content):

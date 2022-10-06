@@ -71,6 +71,8 @@ class CrawlerWordpress(Crawler):
                     self.interface.print(e)
             if next_page:
                 self._get_atom_content(next_page)
+                if not self.atom_feed or not self.atom_feed.entries:
+                    break
                 next_page = next_page + 1
 
 
