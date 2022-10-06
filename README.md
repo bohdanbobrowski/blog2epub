@@ -89,13 +89,11 @@ Convert blog to epub using command line or GUI.
 
 ## Release notes
 
-### [1.2.0](https://github.com/bohdanbobrowski/blog2epub) - IN DEVELOPMENT (but you can run it from the sources)
+### [1.2.0](https://github.com/bohdanbobrowski/blog2epub/releases/tag/v1.2.0)
 
 - migration to Kivy :-)
 - some bugfixes in crawler
 - wordpress.com support!
-- I'll try to provide the macOS, Linux and (less and less likely, but not giving up yet) Windows installer package
-- I'm experimenting right now with cython to make macOS app smaller and faster
 
 ### [1.1.0](https://github.com/bohdanbobrowski/blog2epub/releases/tag/v1.1.0)
 
