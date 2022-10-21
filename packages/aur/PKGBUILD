@@ -1,0 +1,24 @@
+# Maintainer: Bohdan Bobrowski <bohdanbobrowski (a) gmail.com>
+
+pkgname=blog2epub
+pkgver=1.2.1
+pkgrel=1
+pkgdesc="Convert blog to epub using command line or GUI."
+arch=('any')
+url="https://github.com/bohdanbobrowski/blog2epub"
+license=('MIT')
+depends=('python')
+makedepends=('sip')
+source=("$pkgname-$pkgver.tar.gz::https://github.com/bohdanbobrowski/blog2epub/archive/v${pkgver}.tar.gz")
+sha256sums=('4caf209ed2b313960da175191f01f8602828f7e08ea4382e6db4d8055eb7a2ac')
+
+package() {
+  cd $pkgname-$pkgver
+  python setup.py install --root $pkgdir
+
+  # Desktop icon
+  install -Dm644 $pkgname.desktop $pkgdir/usr/share/applications/$pkgname.desktop
+  
+  # fix executable
+  # sed -i "s|krop==0.6.0|krop|g" $pkgdir/usr/bin/krop
+}
