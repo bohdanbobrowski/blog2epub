@@ -225,6 +225,9 @@ class Crawler(object):
                 art = eval(self.article_class)(
                     item.links[0].href, item.title.value, self
                 )
+                if self.skip and self.article_counter < self.skip:
+                    self.interface.print("[skipping] " + art.title)
+                    continue
                 self.interface.print(str(len(self.articles) + 1) + ". " + art.title)
                 art.date = item.updated
                 if self.start:
@@ -247,7 +250,7 @@ class Crawler(object):
     def _articles_loop(self, content):
         for art in self._get_articles(content):
             self.article_counter += 1
-            if not self.skip or self.article_counter > self.skip:
+            if not self.skip and self.article_counter > self.skip:
                 art.process()
                 self.images = self.images + art.images
                 self.interface.print(str(len(self.articles) + 1) + ". " + art.title)

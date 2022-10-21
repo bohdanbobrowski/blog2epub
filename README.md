@@ -92,6 +92,7 @@ Convert blog to epub using command line or GUI.
 ### [1.2.1](https://github.com/bohdanbobrowski/blog2epub/releases/tag/v1.2.1)
 
 - Kivy threading fix
+- skip parameter fix
 - Linux build (now I'm working on adding package to various linux package repositories)
 
 ### [1.2.0](https://github.com/bohdanbobrowski/blog2epub/releases/tag/v1.2.0)
