@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Copyright 2015-2022 Armin Straub <bohdanbobrowski+blog2epub@gmail.com> -->
+<component>
+  <id>pl.com.bobrowski.blog2epub</id>
+  <launchable type="desktop-id">pl.com.bobrowski.blog2epub.desktop</launchable>
+  <metadata_license>CC0-1.0</metadata_license>
+  <project_license>MIT</project_license>
+  <name>blog2epub</name>
+  <summary>Convert blog to epub using command line or GUI.</summary>
+  <description>
+    <p>Supported blogs:</p>
+      <ul>
+        <li>*.wordpress.com and some blogs based on Wordpress</li>
+        <li>*.blogspot.com</li>
+      </ul>
+    <p>Main features</p>
+      <ul>
+        <li>command line (CLI) and graphic user interface (GUI)</li>
+        <li>script downloads all text contents of selected blog to epub file,</li>
+        <li>if it's possible, it includes post comments,</li>
+        <li>images are resized (to 400x300px) and converted to grayscale,</li>
+        <li>one post = one epub chapter,</li>
+        <li>chapters are sorted by date ascending,</li>
+        <li>cover is generated automatically from downloaded images.</li>
+      </ul>
+  </description>
+  <keywords>
+    <keyword>epub</keyword>
+    <keyword>blog</keyword>
+    <keyword>blogger</keyword>
+    <keyword>blogspot</keyword>
+    <keyword>wordpress</keyword>
+    <keyword>ereader</keyword>
+    <keyword>kindle</keyword>
+    <keyword>pocketbook</keyword>
+  </keywords>
+  <screenshots>
+    <screenshot type="default">
+      <image type="source" width="940" height="702">https://raw.githubusercontent.com/bohdanbobrowski/blog2epub/master/images/blog2epub_linux_screenshot_v1.2.0.png</image>
+    </screenshot>
+  </screenshots>
+  <url type="homepage">https://github.com/bohdanbobrowski/blog2epub</url>
+  <url type="bugtracker">https://github.com/bohdanbobrowski/blog2epub/issues</url>
+  <update_contact>bohdanbobrowski+blog2epub@gmail.com</update_contact>
+</component>

@@ -5,11 +5,13 @@ from typing import Dict
 from blog2epub.crawlers.CrawlerBlogspot import *
 from blog2epub.crawlers.CrawlerWordpress import *
 
+VERSION = '1.2.1'
+
 
 class Blog2Epub(object):
     """Main Blog2Epub class."""
 
-    VERSION = "1.2.0"
+    version = VERSION
 
     def __init__(self, params: Dict):
         self.crawler = self.select_crawler(params)

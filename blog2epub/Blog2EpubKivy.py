@@ -51,7 +51,7 @@ logging.basicConfig(
 )
 
 
-def get_image_file(filename):
+def get_image_file(filename: str) -> str:
     in_osx_app = os.path.join(
         os.path.dirname(sys.executable).replace(
             "/Contents/MacOS", "/Contents/Resources"
@@ -64,7 +64,7 @@ def get_image_file(filename):
         result = in_osx_app
     if os.path.isfile(in_sources):
         result = in_sources
-    print(result)
+    logging.info(f"Loading image: {result}")
     return result
 
 
@@ -222,7 +222,7 @@ class Blog2EpubKivyWindow(BoxLayout):
             )
         )
         about_content.add_widget(
-            AboutPopupLabel(text="v. {}".format(Blog2Epub.VERSION))
+            AboutPopupLabel(text="v. {}".format(Blog2Epub.version))
         )
         about_content.add_widget(AboutPopupLabel(text="by Bohdan Bobrowski"))
 
@@ -336,8 +336,11 @@ class Blog2EpubSettings(object):
 class Blog2EpubKivy(App):
     def __init__(self, **kwargs):
         super(Blog2EpubKivy, self).__init__(**kwargs)
-        self.title = "blog2epub - v. {}".format(Blog2Epub.VERSION)
-        self.icon = get_image_file("blog2epub.icns")
+        self.title = "blog2epub - v. {}".format(Blog2Epub.version)
+        if platform.system() == "Darwin":
+            self.icon = get_image_file("blog2epub.icns")
+        else:
+            self.icon = get_image_file("blog2epub.svg")
 
     def build(self):
         Window.resizable = False
