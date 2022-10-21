@@ -37,19 +37,19 @@ class Crawler(object):
     def __init__(
         self,
         url,
-        include_images=True,
-        images_height=800,
-        images_width=600,
-        images_quality=40,
+        include_images: bool = True,
+        images_height: int = 800,
+        images_width: int = 600,
+        images_quality: int = 40,
         start=None,
         end=None,
-        limit=None,
-        skip=False,
-        force_download=False,
-        file_name=None,
-        destination_folder="./",
-        cache_folder=None,
-        language=None,
+        limit: int = None,
+        skip: int = None,
+        force_download: bool = False,
+        file_name: str = None,
+        destination_folder: str = "./",
+        cache_folder: str = None,
+        language: str = None,
         interface=None,
     ):
 
@@ -83,25 +83,30 @@ class Crawler(object):
         self.downloader = Downloader(self)
         self.tags = {}
 
-    def _prepare_url(self, url):
+    @staticmethod
+    def _prepare_url(url: str) -> str:
         return url.replace("http:", "").replace("https:", "").strip("/")
 
-    def _prepare_file_name(self, file_name, url):
+    @staticmethod
+    def _prepare_file_name(file_name: str, url: str) -> str:
         if file_name:
             return file_name
         return url.replace("/", "_")
 
-    def _prepare_url_to_crawl(self, url):
-        r = request.urlopen("http://" + url)
+    @staticmethod
+    def _prepare_url_to_crawl(url: str) -> str:
+        r = request.urlopen("https://" + url)
         return r.geturl()
 
-    def _prepare_port(self, url):
+    @staticmethod
+    def _prepare_port(url):
         if url.startswith("https://"):
             return 443
         else:
             return 80
 
-    def _get_the_interface(self, interface):
+    @staticmethod
+    def _get_the_interface(interface):
         if interface:
             return interface
         else:

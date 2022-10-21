@@ -3,6 +3,8 @@
 import sys
 import os
 import platform
+from typing import Dict, Optional
+
 import yaml
 import subprocess
 import logging
@@ -11,6 +13,8 @@ from urllib import parse
 from datetime import datetime
 import threading
 import webbrowser
+
+from kivy.clock import mainthread
 
 from blog2epub.Blog2Epub import Blog2Epub
 from blog2epub.crawlers.Crawler import EmptyInterface
@@ -132,7 +136,7 @@ class Blog2EpubKivyWindow(BoxLayout):
         self.about_button.bind(on_press=self.about_popup)
         self.row2.add_widget(self.about_button)
 
-        self.console_output = TextInput(
+        self.console = TextInput(
             font_size=dp(6 * F_SIZE),
             font_name="RobotoMono-Regular",
             background_color="black",
@@ -140,8 +144,16 @@ class Blog2EpubKivyWindow(BoxLayout):
             size_hint=(1, 0.88),
             readonly=True,
         )
-        self.add_widget(self.console_output)
-        self.interface = KivyInterface(self.console_output)
+        self.add_widget(self.console)
+        self.interface = KivyInterface(self.console_output, self.console_clear)
+
+    @mainthread
+    def console_output(self, text: str):
+        self.console.text = self.console.text + str(text) + "\n"
+
+    @mainthread
+    def console_clear(self):
+        self.console.text = ""
 
     def _get_url(self):
         if parse.urlparse(self.url_entry.text):
@@ -149,11 +161,11 @@ class Blog2EpubKivyWindow(BoxLayout):
         raise Exception("Blog url is not valid.")
 
     @staticmethod
-    def _is_int(value):
+    def _is_int(value) -> Optional[int]:
         try:
             int(value)
             return int(value)
-        except:
+        except ValueError:
             return None
 
     def _get_params(self):
@@ -183,7 +195,7 @@ class Blog2EpubKivyWindow(BoxLayout):
         self.interface.clear()
         self.download_button.disabled = True
         try:
-            self.saveSettings()
+            self.save_settings()
             download_thread = threading.Thread(
                 target=self._download_ebook,
                 kwargs={"blog2epub": Blog2Epub(self._get_params())},
@@ -193,13 +205,14 @@ class Blog2EpubKivyWindow(BoxLayout):
             self.download_button.disabled = False
             self.interface.exception(e)
 
-    def saveSettings(self):
+    def save_settings(self):
         self.settings.set("url", self.url_entry.text)
         self.settings.set("limit", self.limit_entry.text)
         self.settings.set("skip", self.skip_entry.text)
         self.settings.save()
 
-    def about_popup(self, instance):
+    @staticmethod
+    def about_popup(instance):
         about_content = BoxLayout(orientation="vertical")
         about_content.add_widget(
             Image(
@@ -213,7 +226,7 @@ class Blog2EpubKivyWindow(BoxLayout):
         )
         about_content.add_widget(AboutPopupLabel(text="by Bohdan Bobrowski"))
 
-        def about_url_click(instance):
+        def about_url_click(inst):
             webbrowser.open("https://github.com/bohdanbobrowski/blog2epub")
 
         about_content.add_widget(
@@ -245,12 +258,14 @@ class AboutPopupLabel(Label):
 
 
 class KivyInterface(EmptyInterface):
-    def __init__(self, console):
-        self.console = console
+    def __init__(self, console_output, console_clear):
+        self.console_output = console_output
+        self.console_clear = console_clear
 
-    def print(self, text):
+    def print(self, text: str):
         logging.info(text)
-        self.console.text = self.console.text + text + "\n"
+        self.console_output(text)
+
 
     def notify(self, title, subtitle, message, cover):
         if platform.system() == "Darwin":
@@ -275,7 +290,7 @@ class KivyInterface(EmptyInterface):
         self.print("Exception: " + str(e))
 
     def clear(self):
-        self.console.text = ""
+        self.console_clear()
 
 
 class Blog2EpubSettings(object):
@@ -301,7 +316,7 @@ class Blog2EpubSettings(object):
                     data[k] = data_in_file[k]
         return data
 
-    def _get_default(self):
+    def _get_default(self) -> Dict:
         return {"url": "", "limit": "", "skip": ""}
 
     def save(self):
