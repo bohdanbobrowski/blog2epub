@@ -10,7 +10,7 @@ license=('MIT')
 depends=('python')
 makedepends=('sip')
 source=("$pkgname-$pkgver.tar.gz::https://github.com/bohdanbobrowski/blog2epub/archive/v${pkgver}.tar.gz")
-sha256sums=('4caf209ed2b313960da175191f01f8602828f7e08ea4382e6db4d8055eb7a2ac')
+sha256sums=('1c9a91f2a699a5380e205a6a4816b119a6879d12fda90c912aa6d0d171347974')
 
 package() {
   cd $pkgname-$pkgver
