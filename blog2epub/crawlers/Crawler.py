@@ -2,8 +2,11 @@
 # -*- coding : utf-8 -*-
 import hashlib
 import html
+import imghdr
 import os
 import re
+from typing import Optional
+
 import dateutil.parser
 import time
 from pathlib import Path
@@ -401,16 +404,22 @@ class Downloader(object):
             )
         return contents
 
-    def download_image(self, img):
+    def download_image(self, img: str) -> Optional[str]:
         if img.startswith("//"):
             img = "http:" + img
         img_hash = self.get_urlhash(img)
         img_type = os.path.splitext(img)[1].lower()
+        if img_type not in [".jpeg", ".jpg", ".png", ".bmp", ".gif", ".webp"]:
+            return None
         original_fn = os.path.join(self.dirs.originals, img_hash + "." + img_type)
         resized_fn = os.path.join(self.dirs.images, img_hash + ".jpg")
         if not os.path.isfile(resized_fn) or self.force_download:
             self.image_download(img, original_fn)
         if os.path.isfile(original_fn):
+            original_img_type = imghdr.what(original_fn)
+            if original_img_type is None:
+                os.remove(original_fn)
+                return None
             picture = Image.open(original_fn)
             if (
                 picture.size[0] > self.images_width
@@ -422,7 +431,9 @@ class Downloader(object):
             picture = picture.convert("L")
             picture.save(resized_fn, format="JPEG", quality=self.images_quality)
             os.remove(original_fn)
-        return img_hash + ".jpg"
+            return img_hash + ".jpg"
+        else:
+            return None
 
 
 class Article(object):

@@ -33,11 +33,12 @@ class Cover(object):
     def _check_image_size(self, images):
         verified_images = []
         for image in set(images):
-            img_file = os.path.join(self.dirs.images, image)
-            if os.path.isfile(img_file):
-                img = Image.open(img_file)
-                if img.size[0] >= self.tile_size and img.size[1] >= self.tile_size:
-                    verified_images.append(image)
+            if image:
+                img_file = os.path.join(self.dirs.images, image)
+                if os.path.isfile(img_file):
+                    img = Image.open(img_file)
+                    if img.size[0] >= self.tile_size and img.size[1] >= self.tile_size:
+                        verified_images.append(image)
         return verified_images
 
     def _make_thumb(self, img, size):

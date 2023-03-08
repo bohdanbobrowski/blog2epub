@@ -19,6 +19,7 @@ class CrawlerWordpress(Crawler):
     images_regex = r'<table[^>]*><tbody>[\s]*<tr><td[^>]*><a href="([^"]*)"[^>]*><img[^>]*></a></td></tr>[\s]*<tr><td class="tr-caption" style="[^"]*">([^<]*)'
     articles_regex = r"<h3 class=\'post-title entry-title\' itemprop=\'name\'>[\s]*<a href=\'([^\']*)\'>([^>^<]*)</a>[\s]*</h3>"
 
+
     def __init__(self, **kwargs):
         super(CrawlerWordpress, self).__init__(**kwargs)
 
@@ -70,39 +71,49 @@ class CrawlerWordpress(Crawler):
 
 
 class ArticleWordpressCom(Article):
+
+    images_xpaths = [
+        '//img[contains(@class, "size-full")]',
+        '//figure[contains(@class, "wp-block-image")]//img',
+        '//div[contains(@class, "wp-block-image")]//img',
+        '//img'
+    ]
+
     def get_images(self):
         self.get_images_with_captions()
-        self.get_single_images()
+        for x in self.images_xpaths:
+            self.interface.print(f" *** XPATH {x}")
+            self.get_single_images(self.tree.xpath(x))
         self.replace_images()
         self.get_tree()
 
-    def get_single_images(self):
-        images_s = self.tree.xpath(
-            '//img[contains(@class, "size-full")]'
-        ) + self.tree.xpath('//*[contains(@class, "wp-block-image")]//img')
-        for img in images_s:
+    def get_single_images(self, images) -> None:
+        for img in images:
             img_url = img.attrib.get("data-orig-file")
             if not img_url:
                 img_url = img.attrib.get("src")
             if img_url:
                 img_url = img_url.split("?")[0]
+                self.interface.print(img_url)
+                img_caption = img.attrib.get("data-image-title")
+                if not img_caption:
+                    img_caption = img.attrib.get("title")
+                if not img_caption:
+                    img_caption = img.attrib.get("alt")
+                img_hash = self.downloader.download_image(img_url)
 
-            img_caption = img.attrib.get("data-image-title")
-            if not img_caption:
-                img_caption = img.attrib.get("title")
-            if not img_caption:
-                img_caption = img.attrib.get("alt")
-            img_hash = self.downloader.download_image(img_url)
-
-            img_parent = img.getparent()
-            if img_parent:
-                img_parent.replace(
-                    img, etree.Comment(f"#blog2epubimage#{img_hash}#")
-                )
-                self.tree = img_parent.getroottree()
-            self.html = etree.tostring(self.tree).decode("utf-8")
-            self.images.append(img_hash)
-            self.images_captions.append(img_caption)
+                if img_hash:
+                    img_parent = img.getparent()
+                    if img_parent:
+                        if img_hash:
+                            blog2epub_img = f"#blog2epubimage#{img_hash}#"
+                            img_parent.text = blog2epub_img
+                        else:
+                            img_parent.text = ""
+                        self.tree = img_parent.getroottree()
+                    self.html = etree.tostring(self.tree).decode("utf-8")
+                    self.images.append(img_hash)
+                    self.images_captions.append(img_caption)
 
     def get_images_with_captions(self):
         images_c = self.tree.xpath('//div[contains(@class, "wp-caption")]')
@@ -113,9 +124,7 @@ class ArticleWordpressCom(Article):
             img_caption = img_tr.xpath('//p[@class="wp-caption-text"]/text()').pop()
             img_hash = self.downloader.download_image(img_url)
             img_parent = img.getparent()
-            img_parent.replace(
-                img, etree.Comment(f"#blog2epubimage#{img_hash}")
-            )
+            img_parent.replace(img, etree.Comment(f"#blog2epubimage#{img_hash}"))
             self.tree = img_parent.getroottree()
             self.html = etree.tostring(self.tree).decode("utf-8")
             self.images.append(img_hash)
@@ -123,19 +132,20 @@ class ArticleWordpressCom(Article):
 
     def replace_images(self):
         for key, image in enumerate(self.images):
-            image_caption = ""
-            if self.images_captions[key]:
-                image_caption = self.images_captions[key]
-            image_html = (
-                '<table align="center" cellpadding="0" cellspacing="0" class="tr-caption-container" style="margin-left: auto; margin-right: auto; text-align: center; background: #FFF; box-shadow: 1px 1px 5px rgba(0, 0, 0, 0.5); padding: 8px;"><tbody><tr><td style="text-align: center;"><img border="0" src="images/'
-                + image
-                + '" /></td></tr><tr><td class="tr-caption" style="text-align: center;">'
-                + image_caption
-                + "</td></tr></tbody></table>"
-            )
-            self.html = self.html.replace(
-                "<!--#blog2epubimage#" + image + "#-->", image_html
-            )
+            if image:
+                image_caption = ""
+                if self.images_captions[key]:
+                    image_caption = self.images_captions[key]
+                image_html = (
+                    '<table align="center" cellpadding="0" cellspacing="0" class="tr-caption-container" style="margin-left: auto; margin-right: auto; text-align: center; background: #FFF; box-shadow: 1px 1px 5px rgba(0, 0, 0, 0.5); padding: 8px;"><tbody><tr><td style="text-align: center;"><img border="0" src="images/'
+                    + image
+                    + '" /></td></tr><tr><td class="tr-caption" style="text-align: center;">'
+                    + image_caption
+                    + "</td></tr></tbody></table>"
+                )
+                self.html = self.html.replace(
+                    "<!--#blog2epubimage#" + image + "#-->", image_html
+                )
 
     def get_content(self):
         article_header = re.findall(
