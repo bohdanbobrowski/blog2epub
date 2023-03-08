@@ -16,7 +16,7 @@ import webbrowser
 
 from kivy.clock import mainthread
 
-from blog2epub.Blog2Epub import Blog2Epub
+from blog2epub.Blog2Epub import Blog2Epub, BadUrlException
 from blog2epub.crawlers.Crawler import EmptyInterface
 
 from kivy.app import App
@@ -158,7 +158,7 @@ class Blog2EpubKivyWindow(BoxLayout):
     def _get_url(self):
         if parse.urlparse(self.url_entry.text):
             return self.url_entry.text
-        raise Exception("Blog url is not valid.")
+        raise BadUrlException("Blog url is not valid.")
 
     @staticmethod
     def _is_int(value) -> Optional[int]:
@@ -265,7 +265,6 @@ class KivyInterface(EmptyInterface):
     def print(self, text: str):
         logging.info(text)
         self.console_output(text)
-
 
     def notify(self, title, subtitle, message, cover):
         if platform.system() == "Darwin":

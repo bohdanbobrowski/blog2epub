@@ -2,7 +2,7 @@
 # -*- coding : utf-8 -*-
 import sys
 
-from blog2epub.Blog2Epub import Blog2Epub
+from blog2epub.Blog2Epub import Blog2Epub, BadUrlException, NotEnoughCommandsException
 from blog2epub.crawlers.Crawler import EmptyInterface
 from urllib import parse
 
@@ -29,15 +29,15 @@ class Blog2EpubCli(object):
         if len(sys.argv) > 1:
             if parse.urlparse(sys.argv[1]):
                 return sys.argv[1]
-            raise Exception("Blog url is not valid.")
-        raise Exception("Not enough command line parameters.")
+            raise BadUrlException("Blog url is not valid.")
+        raise NotEnoughCommandsException("Not enough command line parameters.")
 
     def parseParameters(self):
         params = {"interface": CliInterface()}
 
         try:
             params["url"] = self.getUrl()
-        except Exception as e:
+        except BadUrlException or NotEnoughCommandsException as e:
             print(e)
             print("usage: blog2epub <blog_name> [params...]")
             exit()

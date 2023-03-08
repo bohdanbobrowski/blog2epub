@@ -5,7 +5,19 @@ from typing import Dict
 from blog2epub.crawlers.CrawlerBlogspot import *
 from blog2epub.crawlers.CrawlerWordpress import *
 
-VERSION = '1.2.1'
+VERSION = "1.2.1"
+
+
+class NoCrawlerDetectedError(Exception):
+    pass
+
+
+class BadUrlException(Exception):
+    pass
+
+
+class NotEnoughCommandsException(Exception):
+    pass
 
 
 class Blog2Epub(object):
@@ -16,7 +28,7 @@ class Blog2Epub(object):
     def __init__(self, params: Dict):
         self.crawler = self.select_crawler(params)
         if self.crawler is None:
-            raise Exception("No crawler detected")
+            raise NoCrawlerDetectedError("No crawler detected")
 
     @staticmethod
     def select_crawler(params: Dict) -> Crawler:
