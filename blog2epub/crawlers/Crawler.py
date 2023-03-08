@@ -5,6 +5,7 @@ import html
 import os
 import re
 import dateutil.parser
+import time
 from pathlib import Path
 from datetime import datetime
 import gzip
@@ -52,7 +53,6 @@ class Crawler(object):
         language: str = None,
         interface=None,
     ):
-
         self.url = self._prepare_url(url)
         self.url_to_crawl = self._prepare_url_to_crawl(self.url)
         self.port = self._prepare_port(self.url_to_crawl)
@@ -190,27 +190,21 @@ class Crawler(object):
                 output.append(eval(self.article_class)(art[0], art[1], self))
         return output
 
-    def _get_atom_content(self):
+    def _get_atom_content(self) -> bool:
         """Try to load atom"""
         atom_content = self.downloader.get_content(
             "https://" + self.url + "/feeds/posts/default"
         )
-        try:
-            self.atom_feed = atoma.parse_atom_bytes(
-                bytes(atom_content, encoding="utf-8")
-            )
-            return True
-        except Exception as e:
-            self.interface.print(e)
-        return False
+        self.atom_feed = atoma.parse_atom_bytes(bytes(atom_content, encoding="utf-8"))
+        return True
 
-    def _get_url_to_crawl(self, tree):
+    def _get_url_to_crawl(self, tree) -> str:
         url_to_crawl = None
         if tree.xpath('//a[@class="blog-pager-older-link"]/@href'):
             url_to_crawl = tree.xpath('//a[@class="blog-pager-older-link"]/@href')[0]
         return url_to_crawl
 
-    def _add_tags(self, tags):
+    def _add_tags(self, tags) -> None:
         for tag in tags:
             if tag in self.tags:
                 self.tags[tag] = self.tags[tag] + 1
@@ -303,7 +297,7 @@ class Dirs(object):
     Tiny class to temporary directories configurations.
     """
 
-    def _prepare_directories(self):
+    def prepare_directories(self):
         paths = [self.html, self.images, self.originals]
         for p in paths:
             if not os.path.exists(p):
@@ -318,7 +312,7 @@ class Dirs(object):
             str(os.path.realpath(blog2epub.__file__).replace("__init__.py", "")),
             "assets",
         )
-        self._prepare_directories()
+        self.prepare_directories()
 
 
 class Downloader(object):
@@ -362,29 +356,23 @@ class Downloader(object):
     def get_filepath(self, url):
         return os.path.join(self.dirs.html, self.get_urlhash(url) + ".html")
 
-    def file_download(self, url, filepath):
-        self.dirs._prepare_directories()
+    def file_download(self, url: str, filepath: str) -> str:
+        self.dirs.prepare_directories()
         response = self.session.get(url, cookies=self.cookies, headers=self.headers)
         self.cookies = response.cookies
         data = response.content
-        try:
-            contents = data.decode("utf-8")
-        except Exception as e:
-            contents = data
-            self.interface.print(e)
+        contents = data.decode("utf-8")
         self.file_write(contents, filepath)
         return contents
 
-    def image_download(self, url, filepath):
-        try:
-            self.dirs._prepare_directories()
-            f = open(filepath, "wb")
-            response = self.session.get(url, cookies=self.cookies, headers=self.headers)
-            f.write(response.content)
-            f.close()
-            return True
-        except Exception:
-            return False
+    def image_download(self, url: str, filepath: str) -> bool:
+        self.dirs.prepare_directories()
+        f = open(filepath, "wb")
+        response = self.session.get(url, cookies=self.cookies, headers=self.headers)
+        f.write(response.content)
+        f.close()
+        time.sleep(1)
+        return True
 
     def checkInterstitial(self, contents):
         interstitial = re.findall('interstitial=([^"]+)', contents)
@@ -423,19 +411,16 @@ class Downloader(object):
         if not os.path.isfile(resized_fn) or self.force_download:
             self.image_download(img, original_fn)
         if os.path.isfile(original_fn):
-            try:
-                picture = Image.open(original_fn)
-                if (
-                    picture.size[0] > self.images_width
-                    or picture.size[1] > self.images_height
-                ):
-                    picture.thumbnail(
-                        [self.images_width, self.images_height], Image.ANTIALIAS
-                    )
-                picture = picture.convert("L")
-                picture.save(resized_fn, format="JPEG", quality=self.images_quality)
-            except Exception:
-                return None
+            picture = Image.open(original_fn)
+            if (
+                picture.size[0] > self.images_width
+                or picture.size[1] > self.images_height
+            ):
+                picture.thumbnail(
+                    [self.images_width, self.images_height], Image.ANTIALIAS
+                )
+            picture = picture.convert("L")
+            picture.save(resized_fn, format="JPEG", quality=self.images_quality)
             os.remove(original_fn)
         return img_hash + ".jpg"
 
@@ -491,7 +476,7 @@ class Article(object):
         except:
             self.interface.print("Date not parsed: {}".format(self.date))
 
-    def _translate_month(self, date):
+    def _translate_month(self, date: str) -> str:
         # TODO: need to be refactored, or moved as parameter to dateutil parser function
         date = date.lower()
         if self.language == "pl":
@@ -545,40 +530,28 @@ class Article(object):
             + img.replace("+", "\+")
             + '"[^>]*><img[^>]*></a></td></tr>[\s]*<tr><td class="tr-caption" style="[^"]*">[^<]*</td></tr>[\s]*</tbody></table>'
         )
-        try:
-            return re.sub(im_regex, " #blog2epubimage#" + img_hash + "# ", art_html)
-        except Exception as e:
-            print(e)
+        return re.sub(im_regex, " #blog2epubimage#" + img_hash + "# ", art_html)
 
     @staticmethod
-    def _nocaption_ripper(img, img_hash, art_html):
+    def _nocaption_ripper(img: str, img_hash: str, art_html: str) -> str:
         im_regex = (
             '<a href="' + img.replace("+", "\+") + '" imageanchor="1"[^<]*<img.*?></a>'
         )
-        try:
-            return re.sub(im_regex, " #blog2epubimage#" + img_hash + "# ", art_html)
-        except Exception as e:
-            print(e)
+        return re.sub(im_regex, " #blog2epubimage#" + img_hash + "# ", art_html)
 
     @staticmethod
-    def _bloggerphoto_ripper(img, img_hash, art_html):
+    def _bloggerphoto_ripper(img: str, img_hash: str, art_html: str) -> str:
         im_regex = (
             '<a href="[^"]+"><img.*?id="BLOGGER_PHOTO_ID_[0-9]+".*?src="'
             + img.replace("+", "\+")
             + '".*?/a>'
         )
-        try:
-            return re.sub(im_regex, " #blog2epubimage#" + img_hash + "# ", art_html)
-        except Exception as e:
-            print(e)
+        return re.sub(im_regex, " #blog2epubimage#" + img_hash + "# ", art_html)
 
     @staticmethod
     def _img_ripper(img, img_hash, art_html):
         im_regex = '<img.*?src="' + img.replace("+", "\+") + '".*?>'
-        try:
-            return re.sub(im_regex, " #blog2epubimage#" + img_hash + "# ", art_html)
-        except Exception as e:
-            print(e)
+        return re.sub(im_regex, " #blog2epubimage#" + img_hash + "# ", art_html)
 
     def process_images(self, images, ripper):
         for image in images:

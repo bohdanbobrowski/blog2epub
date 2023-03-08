@@ -39,7 +39,7 @@ Config.set("input", "mouse", "mouse,multitouch_on_demand")
 now = datetime.now()
 date_time = now.strftime("%Y-%m-%d[%H.%M.%S]")
 logging_filename = os.path.join(
-    str(Path.home()), ".blog2epub", "blog2epub_{}.log".format(date_time)
+    str(Path.home()), ".blog2epub", f"blog2epub_{date_time}.log"
 )
 
 
@@ -186,7 +186,7 @@ class Blog2EpubKivyWindow(BoxLayout):
             "destination_folder": str(Path.home()),
         }
 
-    def _download_ebook(self, blog2epub):
+    def _download_ebook(self, blog2epub: Blog2Epub):
         self.interface.print("Downloading...")
         blog2epub.download()
         self.download_button.disabled = False
@@ -194,16 +194,14 @@ class Blog2EpubKivyWindow(BoxLayout):
     def download(self, instance):
         self.interface.clear()
         self.download_button.disabled = True
-        try:
-            self.save_settings()
-            download_thread = threading.Thread(
-                target=self._download_ebook,
-                kwargs={"blog2epub": Blog2Epub(self._get_params())},
-            )
-            download_thread.start()
-        except Exception as e:
-            self.download_button.disabled = False
-            self.interface.exception(e)
+        self.save_settings()
+        download_thread = threading.Thread(
+            target=self._download_ebook,
+            kwargs={"blog2epub": Blog2Epub(self._get_params())},
+        )
+        download_thread.start()
+
+        self.download_button.disabled = False
 
     def save_settings(self):
         self.settings.set("url", self.url_entry.text)
@@ -222,7 +220,7 @@ class Blog2EpubKivyWindow(BoxLayout):
             )
         )
         about_content.add_widget(
-            AboutPopupLabel(text="v. {}".format(Blog2Epub.version))
+            AboutPopupLabel(text=f"v. {Blog2Epub.version}")
         )
         about_content.add_widget(AboutPopupLabel(text="by Bohdan Bobrowski"))
 
@@ -266,7 +264,8 @@ class KivyInterface(EmptyInterface):
         logging.info(text)
         self.console_output(text)
 
-    def notify(self, title, subtitle, message, cover):
+    @staticmethod
+    def notify(title, subtitle, message, cover):
         if platform.system() == "Darwin":
             command = [
                 "terminal-notifier",
@@ -280,7 +279,8 @@ class KivyInterface(EmptyInterface):
                 ),
                 "-open file:{!r}".format(message),
             ]
-            os.system("terminal-notifier {}".format(" ".join(command)))
+            cmd = " ".join(command)
+            os.system(f"terminal-notifier {cmd}")
         if platform.system() == "Linux":
             subprocess.Popen(["notify-send", subtitle + ": " + message])
 

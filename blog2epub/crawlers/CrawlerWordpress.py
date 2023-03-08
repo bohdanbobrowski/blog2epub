@@ -25,16 +25,12 @@ class CrawlerWordpress(Crawler):
     def _get_atom_content(self, page=1):
         url = "https://" + self.url + "/feed/atom/"
         if page > 1:
-            url = url + "?paged={}".format(page)
-            self.interface.print("[downloading next page: {}]".format(url))
+            url = url + f"?paged={page}"
+            self.interface.print(f"[downloading next page: {url}]")
         atom_content = self.downloader.get_content(url)
-        try:
-            self.atom_feed = atoma.parse_atom_bytes(
-                bytes(atom_content, encoding="utf-8")
-            )
-            return True
-        except Exception as e:
-            self.interface.print(e)
+        self.atom_feed = atoma.parse_atom_bytes(bytes(atom_content, encoding="utf-8"))
+        return True
+        self.interface.print(e)
         return False
 
     def _atom_feed_loop(self):
@@ -42,33 +38,30 @@ class CrawlerWordpress(Crawler):
         next_page = 2
         while next_page:
             for item in self.atom_feed.entries:
-                try:
-                    self.article_counter += 1
-                    art = eval(self.article_class)(
-                        item.links[0].href, html.unescape(item.title.value), self
-                    )
-                    self.interface.print(str(len(self.articles) + 1) + ". " + art.title)
-                    art.date = item.published
-                    if self.start:
-                        self.end = art.date
-                    else:
-                        self.start = art.date
-                    if item.content:
-                        art.set_content(item.content.value)
-                        art.get_images()
-                    else:
-                        art.html = self.downloader.get_content(art.url)
-                        art.process()
-                    for category in item.categories:
-                        art.tags.append(category.term)
-                    self.images = self.images + art.images
-                    self.articles.append(art)
-                    self._add_tags(art.tags)
-                    if self.limit and len(self.articles) >= self.limit:
-                        next_page = None
-                        break
-                except Exception as e:
-                    self.interface.print(e)
+                self.article_counter += 1
+                art = eval(self.article_class)(
+                    item.links[0].href, html.unescape(item.title.value), self
+                )
+                self.interface.print(str(len(self.articles) + 1) + ". " + art.title)
+                art.date = item.published
+                if self.start:
+                    self.end = art.date
+                else:
+                    self.start = art.date
+                if item.content:
+                    art.set_content(item.content.value)
+                    art.get_images()
+                else:
+                    art.html = self.downloader.get_content(art.url)
+                    art.process()
+                for category in item.categories:
+                    art.tags.append(category.term)
+                self.images = self.images + art.images
+                self.articles.append(art)
+                self._add_tags(art.tags)
+                if self.limit and len(self.articles) >= self.limit:
+                    next_page = None
+                    break
             if next_page:
                 self._get_atom_content(next_page)
                 if not self.atom_feed or not self.atom_feed.entries:
@@ -86,16 +79,27 @@ class ArticleWordpressCom(Article):
     def get_single_images(self):
         images_s = self.tree.xpath(
             '//img[contains(@class, "size-full")]'
-        ) + self.tree.xpath('//figure[contains(@class, "wp-block-image")]//img')
+        ) + self.tree.xpath('//*[contains(@class, "wp-block-image")]//img')
         for img in images_s:
-            img_url = img.attrib.get("src")
-            img_caption = img.attrib.get("title")
+            img_url = img.attrib.get("data-orig-file")
+            if not img_url:
+                img_url = img.attrib.get("src")
+            if img_url:
+                img_url = img_url.split("?")[0]
+
+            img_caption = img.attrib.get("data-image-title")
+            if not img_caption:
+                img_caption = img.attrib.get("title")
+            if not img_caption:
+                img_caption = img.attrib.get("alt")
             img_hash = self.downloader.download_image(img_url)
+
             img_parent = img.getparent()
-            img_parent.replace(
-                img, etree.Comment("#blog2epubimage#{}#".format(img_hash))
-            )
-            self.tree = img_parent.getroottree()
+            if img_parent:
+                img_parent.replace(
+                    img, etree.Comment(f"#blog2epubimage#{img_hash}#")
+                )
+                self.tree = img_parent.getroottree()
             self.html = etree.tostring(self.tree).decode("utf-8")
             self.images.append(img_hash)
             self.images_captions.append(img_caption)
@@ -110,7 +114,7 @@ class ArticleWordpressCom(Article):
             img_hash = self.downloader.download_image(img_url)
             img_parent = img.getparent()
             img_parent.replace(
-                img, etree.Comment("#blog2epubimage#{}#".format(img_hash))
+                img, etree.Comment(f"#blog2epubimage#{img_hash}")
             )
             self.tree = img_parent.getroottree()
             self.html = etree.tostring(self.tree).decode("utf-8")
@@ -134,18 +138,15 @@ class ArticleWordpressCom(Article):
             )
 
     def get_content(self):
-        try:
-            article_header = re.findall(
-                r"(<h1 class=\"entry-title\">[^<]*<\/h1>)", self.html
-            )
-            if article_header:
-                self.html = self.html.split(article_header[0])[1]
-            article_footer = re.findall(r"(<div id=\"atatags-[^\"]*\")", self.html)
-            if article_footer:
-                self.html = self.html.split(article_footer[0])[0]
-            self.content = self.html = self.html.strip()
-        except Exception as e:
-            self.interface.print("{}: {}".format(__file__, e))
+        article_header = re.findall(
+            r"(<h1 class=\"entry-title\">[^<]*<\/h1>)", self.html
+        )
+        if article_header:
+            self.html = self.html.split(article_header[0])[1]
+        article_footer = re.findall(r"(<div id=\"atatags-[^\"]*\")", self.html)
+        if article_footer:
+            self.html = self.html.split(article_footer[0])[0]
+        self.content = self.html = self.html.strip()
         self.get_tree()
 
     def get_tags(self):
