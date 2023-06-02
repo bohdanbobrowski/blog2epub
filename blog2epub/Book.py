@@ -189,8 +189,10 @@ class Book(object):
         images_included = []
         if self.include_images:
             for i, image in enumerate(self.images, start=1):
-                if image and image not in images_included and os.path.isfile(
-                    os.path.join(self.dirs.images, image)
+                if (
+                    image
+                    and image not in images_included
+                    and os.path.isfile(os.path.join(self.dirs.images, image))
                 ):
                     epub_img = epub.EpubItem(
                         uid="img%s" % i,

@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding : utf-8 -*-
+import logging
+
 from blog2epub.crawlers.Crawler import Crawler, Article
 import atoma
 import html
@@ -18,7 +20,6 @@ class CrawlerWordpress(Crawler):
     )
     images_regex = r'<table[^>]*><tbody>[\s]*<tr><td[^>]*><a href="([^"]*)"[^>]*><img[^>]*></a></td></tr>[\s]*<tr><td class="tr-caption" style="[^"]*">([^<]*)'
     articles_regex = r"<h3 class=\'post-title entry-title\' itemprop=\'name\'>[\s]*<a href=\'([^\']*)\'>([^>^<]*)</a>[\s]*</h3>"
-
 
     def __init__(self, **kwargs):
         super(CrawlerWordpress, self).__init__(**kwargs)
@@ -71,19 +72,18 @@ class CrawlerWordpress(Crawler):
 
 
 class ArticleWordpressCom(Article):
-
     images_xpaths = [
         '//img[contains(@class, "size-full")]',
         '//figure[contains(@class, "wp-block-image")]//img',
         '//div[contains(@class, "wp-block-image")]//img',
-        '//img'
+        "//img",
     ]
 
     def get_images(self):
         self.get_images_with_captions()
         for x in self.images_xpaths:
-            self.interface.print(f" *** XPATH {x}")
-            self.get_single_images(self.tree.xpath(x))
+            imgs = self.tree.xpath(x)
+            self.get_single_images(imgs)
         self.replace_images()
         self.get_tree()
 

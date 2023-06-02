@@ -219,9 +219,7 @@ class Blog2EpubKivyWindow(BoxLayout):
                 size_hint=(1, 0.7),
             )
         )
-        about_content.add_widget(
-            AboutPopupLabel(text=f"v. {Blog2Epub.version}")
-        )
+        about_content.add_widget(AboutPopupLabel(text=f"v. {Blog2Epub.version}"))
         about_content.add_widget(AboutPopupLabel(text="by Bohdan Bobrowski"))
 
         def about_url_click(inst):
