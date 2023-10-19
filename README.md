@@ -93,6 +93,7 @@ Convert blog to epub using command line or GUI.
 
 - Empty images list bug
 - Fixing macOS build (works on my machine - Ventura 13.3.1)
+- Improving macOS build - dmg now contains Applications folder shortcut to ease installation
 
 ### [1.2.1](https://github.com/bohdanbobrowski/blog2epub/releases/tag/v1.2.1)
 
