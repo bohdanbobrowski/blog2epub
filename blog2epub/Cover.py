@@ -5,8 +5,6 @@ from random import shuffle
 
 from PIL import Image, ImageDraw, ImageFont
 
-from Book import Book
-
 
 class Cover:
     """
@@ -15,7 +13,7 @@ class Cover:
 
     tile_size = 120
 
-    def __init__(self, book: Book):
+    def __init__(self, book):
         """
         :param crawler: intance of Book class
         """
@@ -136,6 +134,7 @@ class Cover:
         tiles_count_y = 5
         tiles_count_x = 7
         cover_image = Image.new("RGB", (600, 800))
+        self.interface.print(f"Generating cover (800px*600px) from {len(self.images)} images.")
         dark_factor = 1
         if len(self.images) > 0:
             shuffle(self.images)

@@ -413,6 +413,8 @@ class Downloader:
             return None
         original_fn = os.path.join(self.dirs.originals, img_hash + "." + img_type)
         resized_fn = os.path.join(self.dirs.images, img_hash + ".jpg")
+        if os.path.isfile(resized_fn):
+            return img_hash + ".jpg"
         if not os.path.isfile(resized_fn) or self.force_download:
             self.image_download(img, original_fn)
         if os.path.isfile(original_fn):
