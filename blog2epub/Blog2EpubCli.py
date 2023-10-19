@@ -15,26 +15,26 @@ class CliInterface(EmptyInterface):
         print(e)
 
 
-class Blog2EpubCli(object):
+class Blog2EpubCli:
     """Command line interface for Blog2Epub class."""
 
     def __init__(self, defaults={}):
-        params = {**defaults, **self.parseParameters()}
+        params = {**defaults, **self.parse_parameters()}
         blog2epub = Blog2Epub(params)
         blog2epub.download()
 
-    def getUrl(self):
+    @staticmethod
+    def get_url():
         if len(sys.argv) > 1:
             if parse.urlparse(sys.argv[1]):
                 return sys.argv[1]
             raise BadUrlException("Blog url is not valid.")
         raise NotEnoughCommandsException("Not enough command line parameters.")
 
-    def parseParameters(self):
+    def parse_parameters(self):
         params = {"interface": CliInterface()}
-
         try:
-            params["url"] = self.getUrl()
+            params["url"] = self.get_url()
         except BadUrlException or NotEnoughCommandsException as e:
             print(e)
             print("usage: blog2epub <blog_name> [params...]")

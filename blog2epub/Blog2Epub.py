@@ -18,7 +18,7 @@ class NotEnoughCommandsException(Exception):
     pass
 
 
-class Blog2Epub(object):
+class Blog2Epub:
     """Main Blog2Epub class."""
 
     version = VERSION

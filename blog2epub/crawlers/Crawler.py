@@ -25,7 +25,7 @@ import blog2epub
 from blog2epub.Book import Book
 
 
-class Crawler(object):
+class Crawler:
     """
     Universal blog crawler.
     """
@@ -295,7 +295,7 @@ class Crawler(object):
             self.interface.print("No articles found.")
 
 
-class Dirs(object):
+class Dirs:
     """
     Tiny class to temporary directories configurations.
     """
@@ -318,7 +318,7 @@ class Dirs(object):
         self.prepare_directories()
 
 
-class Downloader(object):
+class Downloader:
     def __init__(self, crawler):
         self.dirs = crawler.dirs
         self.crawler_url = crawler.url
@@ -436,7 +436,7 @@ class Downloader(object):
             return None
 
 
-class Article(object):
+class Article:
     """
     Blog post, article which became book chapter...
     """
@@ -664,7 +664,7 @@ class Article(object):
         self.get_comments()
 
 
-class EmptyInterface(object):
+class EmptyInterface:
     """Empty interface for script output."""
 
     @staticmethod

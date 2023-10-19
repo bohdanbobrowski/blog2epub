@@ -286,7 +286,7 @@ class KivyInterface(EmptyInterface):
         self.console_clear()
 
 
-class Blog2EpubSettings(object):
+class Blog2EpubSettings:
     def __init__(self):
         self.path = os.path.join(str(Path.home()), ".blog2epub")
         self._prepare_path()

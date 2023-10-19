@@ -5,15 +5,17 @@ from random import shuffle
 
 from PIL import Image, ImageDraw, ImageFont
 
+from Book import Book
 
-class Cover(object):
+
+class Cover:
     """
     Cover class used in Blog2Epub class.
     """
 
     tile_size = 120
 
-    def __init__(self, book):
+    def __init__(self, book: Book):
         """
         :param crawler: intance of Book class
         """

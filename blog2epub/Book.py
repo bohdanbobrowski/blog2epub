@@ -8,7 +8,7 @@ from ebooklib import epub
 from blog2epub.Cover import Cover
 
 
-class Book(object):
+class Book:
     """Book class used in blog2epub class."""
 
     style = """
@@ -95,6 +95,7 @@ class Book(object):
             self.interface.print(f"Locale set as {self.locale}")
         except locale.Error as e:
             self.interface.print(f"Can't set locale as {self.locale}, but nevermind.")
+
     def update_file_name(self):
         file_name = self.file_name_prefix
         if self.start:
@@ -222,7 +223,7 @@ class Book(object):
         self._add_cover()
 
 
-class Chapter(object):
+class Chapter:
     def __init__(self, article, number, language):
         """
         :param article: Article class
