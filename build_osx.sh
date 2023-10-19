@@ -2,7 +2,7 @@
 
 rm -rf ./build
 rm -rf ./dist
-pyinstaller --onefile --windowed blog2epub_osx.spec
+pyinstaller blog2epub_osx.spec
 if [ -d "./dist/blog2epub.app" ]; then
   cp -v ./blog2epub/assets/*.ttf ./dist/blog2epub.app/Contents/Resources
   cp -v ./images/blog2epub.png ./dist/blog2epub.app/Contents/Resources
