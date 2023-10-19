@@ -9,7 +9,7 @@
 Convert blog to epub using command line or GUI.
 
 ### Supported blogs:
-- *.wordpress.com and some blogs based on Wordpress
+- *.wordpress.com and some blogs based on WordPress
 - *.blogspot.com
 
 ### Main features
@@ -59,7 +59,7 @@ Convert blog to epub using command line or GUI.
 ### macOS
 
 <p align="center">
-<img src="https://raw.githubusercontent.com/bohdanbobrowski/blog2epub/master/images/blog2epub_osx_screenshot_v1.2.0.png" width="600px" />
+<img src="https://raw.githubusercontent.com/bohdanbobrowski/blog2epub/master/images/blog2epub_macos_screenshot_v1.2.2.png" width="600px" />
 </p>
 
 ## CLI
@@ -82,12 +82,17 @@ Convert blog to epub using command line or GUI.
 
 ## TODO list / Planned features
 
-- cross-platform GUI (Kivy)
-- macos, linux (and maybe windows) app/package
-- mobile app (android)
+- code needs some refactor: classes are too "nested" within each other
+- Windows, linux app/package
+- mobile app (but rather only Android)
 - more blog engines and templates supported (wordpress.com etc.)
 
 ## Release notes
+
+### [1.2.2](https://github.com/bohdanbobrowski/blog2epub/releases/tag/v1.2.2)
+
+- Empty images list bug
+- Fixing macOS build (works on my machine - Ventura 13.3.1)
 
 ### [1.2.1](https://github.com/bohdanbobrowski/blog2epub/releases/tag/v1.2.1)
 
