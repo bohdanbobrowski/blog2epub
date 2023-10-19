@@ -90,8 +90,11 @@ class Book(object):
             self.locale = self.language + "_" + self.language.upper() + ".UTF-8"
         else:
             self.locale = "en_US.UTF-8"
-        locale.setlocale(locale.LC_TIME, self.locale)
-        self.interface.print(f"Locale setted as {self.locale}")
+        try:
+            locale.setlocale(locale.LC_TIME, self.locale)
+            self.interface.print(f"Locale set as {self.locale}")
+        except locale.Error as e:
+            self.interface.print(f"Can't set locale as {self.locale}, but nevermind.")
     def update_file_name(self):
         file_name = self.file_name_prefix
         if self.start:

@@ -566,6 +566,7 @@ class Article(object):
 
     def process_images(self, images, ripper):
         for image in images:
+            img = None
             caption = ""
             if isinstance(image, str):
                 img = image
@@ -573,11 +574,12 @@ class Article(object):
                 img = image[0]
                 if image[1]:
                     caption = image[1]
-            img_hash = self.downloader.download_image(img)
-            if img_hash:
-                self.html = ripper(img=img, img_hash=img_hash, art_html=self.html)
-                self.images.append(img_hash)
-                self.images_captions.append(caption)
+            if img:
+                img_hash = self.downloader.download_image(img)
+                if img_hash:
+                    self.html = ripper(img=img, img_hash=img_hash, art_html=self.html)
+                    self.images.append(img_hash)
+                    self.images_captions.append(caption)
         self.get_tree()
 
     def get_images(self):
