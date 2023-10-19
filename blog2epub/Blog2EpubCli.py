@@ -1,10 +1,8 @@
-#!/usr/bin/env python3
-# -*- coding : utf-8 -*-
 import sys
+from urllib import parse
 
 from blog2epub.Blog2Epub import Blog2Epub, BadUrlException, NotEnoughCommandsException
 from blog2epub.crawlers.Crawler import EmptyInterface
-from urllib import parse
 
 
 class CliInterface(EmptyInterface):

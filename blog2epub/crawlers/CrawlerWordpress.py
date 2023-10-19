@@ -1,13 +1,14 @@
 #!/usr/bin/env python3
 # -*- coding : utf-8 -*-
-import logging
+
+import html
+import re
+
+import atoma
+from lxml.ElementInclude import etree
+from lxml.html.soupparser import fromstring
 
 from blog2epub.crawlers.Crawler import Crawler, Article
-import atoma
-import html
-from lxml.html.soupparser import fromstring
-from lxml.ElementInclude import etree
-import re
 
 
 class CrawlerWordpress(Crawler):

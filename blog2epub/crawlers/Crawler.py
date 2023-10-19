@@ -1,25 +1,25 @@
 #!/usr/bin/env python3
 # -*- coding : utf-8 -*-
+import gzip
 import hashlib
 import html
 import imghdr
 import os
 import re
-from typing import Optional
-
-import dateutil.parser
 import time
-from pathlib import Path
 from datetime import datetime
-import gzip
-import requests
-import atoma
-from urllib import request
 from http.cookiejar import CookieJar
-from lxml.html.soupparser import fromstring
-from lxml.ElementInclude import etree
+from pathlib import Path
+from typing import Optional
+from urllib import request
+
+import atoma
+import dateutil.parser
+import requests
 from PIL import Image
 from fake_useragent import UserAgent
+from lxml.ElementInclude import etree
+from lxml.html.soupparser import fromstring
 
 import blog2epub
 from blog2epub.Book import Book

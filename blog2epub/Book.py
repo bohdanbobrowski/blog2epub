@@ -1,12 +1,10 @@
-#!/usr/bin/env python3
-# -*- coding : utf-8 -*-
-from dateutil.parser import parse
+import locale
 import os
 import tempfile
 import zipfile
-import locale
 
 from ebooklib import epub
+
 from blog2epub.Cover import Cover
 
 
@@ -92,12 +90,8 @@ class Book(object):
             self.locale = self.language + "_" + self.language.upper() + ".UTF-8"
         else:
             self.locale = "en_US.UTF-8"
-        try:
-            locale.setlocale(locale.LC_TIME, self.locale)
-            self.interface.print("Locale setted as %s" % self.locale)
-        except Exception:
-            self.interface.print("Can't set locale to %s" % self.locale)
-
+        locale.setlocale(locale.LC_TIME, self.locale)
+        self.interface.print(f"Locale setted as {self.locale}")
     def update_file_name(self):
         file_name = self.file_name_prefix
         if self.start:
@@ -152,14 +146,11 @@ class Book(object):
             zf.writestr(cover_html_fn, cover_html)
             zf.write(cover_file_full_path, "EPUB/" + cover_file_name)
             zf.writestr(content_opf_fn, self._upgrade_opf(content_opf, cover_file_name))
-        try:
+        if os.path.isfile(self.file_full_path):
             self.interface.notify(
                 "blog2epub", "Epub created", self.file_full_path, cover_file_full_path
             )
-        except Exception:
-            pass
-        if os.path.isfile(self.file_full_path):
-            self.interface.print("Epub created: %s" % self.file_full_path)
+            self.interface.print(f"Epub created: {self.file_full_path}")
 
     def _upgrade_opf(self, content_opt, cover_file_name):
         new_manifest = """<manifest>

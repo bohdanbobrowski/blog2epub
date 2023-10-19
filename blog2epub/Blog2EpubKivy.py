@@ -1,34 +1,30 @@
-#!/usr/bin/env python3
-# -*- coding : utf-8 -*-
-import sys
+import logging
 import os
 import platform
-from typing import Dict, Optional
-
-import yaml
 import subprocess
-import logging
-from pathlib import Path
-from urllib import parse
-from datetime import datetime
+import sys
 import threading
 import webbrowser
+from datetime import datetime
+from pathlib import Path
+from typing import Dict, Optional
+from urllib import parse
 
+import yaml
+from kivy.app import App
 from kivy.clock import mainthread
+from kivy.config import Config
+from kivy.core.window import Window
+from kivy.metrics import Metrics, dp
+from kivy.uix.boxlayout import BoxLayout
+from kivy.uix.button import Button
+from kivy.uix.image import Image
+from kivy.uix.label import Label
+from kivy.uix.popup import Popup
+from kivy.uix.textinput import TextInput
 
 from blog2epub.Blog2Epub import Blog2Epub, BadUrlException
 from blog2epub.crawlers.Crawler import EmptyInterface
-
-from kivy.app import App
-from kivy.uix.image import Image
-from kivy.uix.button import Button
-from kivy.uix.boxlayout import BoxLayout
-from kivy.uix.label import Label
-from kivy.uix.textinput import TextInput
-from kivy.uix.popup import Popup
-from kivy.core.window import Window
-from kivy.config import Config
-from kivy.metrics import Metrics, dp
 
 SIZE = 3 / Metrics.density / Metrics.density
 F_SIZE = 3 / Metrics.density

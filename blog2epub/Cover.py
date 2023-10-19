@@ -1,9 +1,7 @@
-#!/usr/bin/env python3
-# -*- coding : utf-8 -*-
 import os
 import sys
-from random import shuffle
 from pathlib import Path
+from random import shuffle
 
 from PIL import Image, ImageDraw, ImageFont
 
