@@ -2,7 +2,7 @@
 
 block_cipher = None
 
-a = Analysis(['blog2epubgui.py'],
+a = Analysis(['blog2epubkivy.py'],
              pathex=['.'],
              binaries=[],
              datas=[],
@@ -29,12 +29,12 @@ exe = EXE(pyz,
           upx=True,
           upx_exclude=[],
           runtime_tmpdir=None,
-          console=False , icon='blog2epub.icns')
+          console=False , icon='images/blog2epub.ico')
 info_plist = {
     "NSHighResolutionCapable": True,
 }
 app = BUNDLE(exe,
-             name='blog2epub.app',
-             icon='images/blog2epub.icns',
+             name='blog2epub.exe',
+             icon='images/blog2epub.ico',
              bundle_identifier=None,
              info_plist=info_plist)

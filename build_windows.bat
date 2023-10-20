@@ -1,1 +1,1 @@
-pyinstaller --onefile blog2epub.py
+pyinstaller blog2epub_windows.spec
