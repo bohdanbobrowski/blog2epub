@@ -261,17 +261,16 @@ class KivyInterface(EmptyInterface):
     @staticmethod
     def notify(title, subtitle, message, cover):
         if platform.system() == "Darwin":
+            app_icon = os.path.join(os.path.dirname(sys.executable), "blogspot.png")
             command = [
                 "terminal-notifier",
-                "-title {!r}".format(title),
-                "-subtitle {!r}".format(subtitle),
-                "-message {!r}".format(message),
-                "-contentImage {!r}".format(cover),
-                "-sound chime",
-                "-appIcon {!r}".format(
-                    os.path.join(os.path.dirname(sys.executable), "blogspot.png")
-                ),
-                "-open file:{!r}".format(message),
+                f"-title {title}",
+                f"-subtitle {subtitle}",
+                f"-message {message}",
+                f"-contentImage {cover}",
+                f"-sound chime",
+                f"-appIcon {app_icon}",
+                f"-open file:{message}",
             ]
             cmd = " ".join(command)
             os.system(f"terminal-notifier {cmd}")
@@ -329,7 +328,7 @@ class Blog2EpubSettings:
 class Blog2EpubKivy(App):
     def __init__(self, **kwargs):
         super(Blog2EpubKivy, self).__init__(**kwargs)
-        self.title = "blog2epub - v. {}".format(Blog2Epub.version)
+        self.title = f"blog2epub - v. {Blog2Epub.version}"
         if platform.system() == "Darwin":
             self.icon = get_image_file("blog2epub.icns")
         else:

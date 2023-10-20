@@ -3,11 +3,11 @@ import sys
 import pathlib
 import subprocess
 
-originalPicture = "blog2epub.png"
+original_picture = "blog2epub.png"
 
-fname = pathlib.Path(originalPicture).stem
-ext = pathlib.Path(originalPicture).suffix
-destDir = pathlib.Path(originalPicture).parent
+fname = pathlib.Path(original_picture).stem
+ext = pathlib.Path(original_picture).suffix
+destDir = pathlib.Path(original_picture).parent
 
 iconsetDir = os.path.join(destDir, f"{fname}.iconset")
 if not (os.path.exists(iconsetDir)):
@@ -55,7 +55,7 @@ for ip in ListOfIconParameters:
             "-z",
             str(ip.width),
             str(ip.width),
-            originalPicture,
+            original_picture,
             "--out",
             os.path.join(iconsetDir, ip.getIconName()),
         ]

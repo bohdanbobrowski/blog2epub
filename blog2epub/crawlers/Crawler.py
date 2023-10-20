@@ -105,15 +105,13 @@ class Crawler:
     def _prepare_port(url):
         if url.startswith("https://"):
             return 443
-        else:
-            return 80
+        return 80
 
     @staticmethod
     def _get_the_interface(interface):
         if interface:
             return interface
-        else:
-            return EmptyInterface()
+        return EmptyInterface()
 
     def get_cover_title(self):
         cover_title = self.title + " "
@@ -483,11 +481,10 @@ class Article:
                 self.date = str(datetime.now())
         else:
             self.date = self._translate_month(self.date)
-        print("DATA: {}".format(self.date))
         try:
             self.date = dateutil.parser.parse(self.date)
         except:
-            self.interface.print("Date not parsed: {}".format(self.date))
+            self.interface.print(f"Date not parsed: {self.date}")
 
     def _translate_month(self, date: str) -> str:
         # TODO: need to be refactored, or moved as parameter to dateutil parser function

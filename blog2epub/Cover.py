@@ -47,8 +47,7 @@ class Cover:
     def _is_landscape(self, width, height):
         if width >= height:
             return True
-        else:
-            return False
+        return False
 
     def _box_params_center(self, width, height):
         if self._is_landscape(width, height):
@@ -57,12 +56,11 @@ class Cover:
             lower_x = int((width / 2) + (height / 2))
             lower_y = height
             return upper_x, upper_y, lower_x, lower_y
-        else:
-            upper_x = 0
-            upper_y = int((height / 2) - (width / 2))
-            lower_x = width
-            lower_y = int((height / 2) + (width / 2))
-            return upper_x, upper_y, lower_x, lower_y
+        upper_x = 0
+        upper_y = int((height / 2) - (width / 2))
+        lower_x = width
+        lower_y = int((height / 2) + (width / 2))
+        return upper_x, upper_y, lower_x, lower_y
 
     def _crop_image(self, img):
         upper_x, upper_y, lower_x, lower_y = self._box_params_center(
@@ -75,19 +73,17 @@ class Cover:
     def _get_cover_date(self):
         if self.end is None:
             return self.start.strftime("%d %B %Y")
-        else:
-            if self.start.strftime("%Y.%m") == self.end.strftime("%Y.%m"):
-                return self.end.strftime("%d") + "-" + self.start.strftime("%d %B %Y")
-            elif self.start.strftime("%Y.%m") == self.end.strftime("%Y.%m"):
-                return (
-                    self.end.strftime("%d %B") + " - " + self.start.strftime("%d %B %Y")
-                )
-            else:
-                return (
-                    self.end.strftime("%d %B %Y")
-                    + " - "
-                    + self.start.strftime("%d %B %Y")
-                )
+        if self.start.strftime("%Y.%m") == self.end.strftime("%Y.%m"):
+            return self.end.strftime("%d") + "-" + self.start.strftime("%d %B %Y")
+        if self.start.strftime("%Y.%m") == self.end.strftime("%Y.%m"):
+            return (
+                self.end.strftime("%d %B") + " - " + self.start.strftime("%d %B %Y")
+            )
+        return (
+            self.end.strftime("%d %B %Y")
+            + " - "
+            + self.start.strftime("%d %B %Y")
+        )
 
     def _get_fonts_path(self, font_name):
         in_osx_app = os.path.join(

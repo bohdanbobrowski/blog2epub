@@ -93,7 +93,7 @@ class Book:
         try:
             locale.setlocale(locale.LC_TIME, self.locale)
             self.interface.print(f"Locale set as {self.locale}")
-        except locale.Error as e:
+        except locale.Error:
             self.interface.print(f"Can't set locale as {self.locale}, but nevermind.")
 
     def update_file_name(self):
@@ -157,11 +157,8 @@ class Book:
             self.interface.print(f"Epub created: {self.file_full_path}")
 
     def _upgrade_opf(self, content_opt, cover_file_name):
-        new_manifest = """<manifest>
-    <item href="cover.xhtml" id="cover" media-type="application/xhtml+xml"/>
-    <item href="{}" id="cover_img" media-type="image/jpeg"/>""".format(
-            cover_file_name
-        )
+        new_manifest = "<manifest><item href=\"cover.xhtml\" id=\"cover\" media-type=\"application/xhtml+xml\"/>" + \
+        f"<item href=\"{cover_file_name}\" id=\"cover_img\" media-type=\"image/jpeg\"/>"
         content_opt = content_opt.decode("utf-8").replace("<manifest>", new_manifest)
         return content_opt
 
@@ -189,13 +186,13 @@ class Book:
                     and image not in images_included
                     and os.path.isfile(os.path.join(self.dirs.images, image))
                 ):
+                    with open(os.path.join(self.dirs.images, image), "rb") as f:
+                        image_content = f.read()
                     epub_img = epub.EpubItem(
                         uid="img%s" % i,
                         file_name="images/" + image,
                         media_type="image/jpeg",
-                        content=open(
-                            os.path.join(self.dirs.images, image), "rb"
-                        ).read(),
+                        content=image_content,
                     )
                     self.book.add_item(epub_img)
                     images_included.append(image)
@@ -233,13 +230,9 @@ class Chapter:
             title=article.title, uid=uid, file_name=uid + ".xhtml", lang=language
         )
         tags = self._print_tags(article)
-        self.epub.content = '<h2>{}</h2>{}{}<p><i><a href="{}">{}</a></i></p>'.format(
-            article.title,
-            tags,
-            article.date.strftime("%d %B %Y, %H:%M"),
-            article.url,
-            article.url,
-        )
+        art_date = article.date.strftime("%d %B %Y, %H:%M")
+        self.epub.content = f"<h2>{article.title}</h2>{tags}{art_date}" + \
+        f"<p><i><a href=\"{article.url}\">{article.url}</a></i></p>"
         self.epub.content = (
             "<div>" + self.epub.content + article.content + article.comments + "</div>"
         )
@@ -250,4 +243,5 @@ class Chapter:
         tags = []
         for tag in article.tags:
             tags.append('<span epub:type="keyword">' + tag + "<span>")
-        return "<h5>{}</h5>".format(", ".join(tags))
+        tags = ", ".join(tags)
+        return f"<h5>{tags}</h5>"

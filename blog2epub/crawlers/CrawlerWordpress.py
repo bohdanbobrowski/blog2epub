@@ -32,9 +32,6 @@ class CrawlerWordpress(Crawler):
             self.interface.print(f"[downloading next page: {url}]")
         atom_content = self.downloader.get_content(url)
         self.atom_feed = atoma.parse_atom_bytes(bytes(atom_content, encoding="utf-8"))
-        return True
-        self.interface.print(e)
-        return False
 
     def _atom_feed_loop(self):
         self.url_to_crawl = None
