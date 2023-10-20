@@ -59,13 +59,13 @@ Convert blog to epub using command line or GUI.
 ### macOS
 
 <p align="center">
-<img src="https://raw.githubusercontent.com/bohdanbobrowski/blog2epub/master/images/blog2epub_macos_screenshot_v1.2.2.png" width="600px" />
+<img src="https://raw.githubusercontent.com/bohdanbobrowski/blog2epub/master/images/blog2epub_macos_screenshot_v1.2.2.png" width="700px" />
 </p>
 
 ### Linux
 
 <p align="center">
-<img src="https://raw.githubusercontent.com/bohdanbobrowski/blog2epub/master/images/blog2epub_linux_screenshot_v1.2.0.png"  width="500px" />
+<img src="https://raw.githubusercontent.com/bohdanbobrowski/blog2epub/master/images/blog2epub_linux_screenshot_v1.2.0.png"  width="600px" />
 </p>
 
 ## CLI
