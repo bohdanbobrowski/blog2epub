@@ -1,7 +1,7 @@
 from typing import Dict
 
-from blog2epub.crawlers.CrawlerBlogspot import *
-from blog2epub.crawlers.CrawlerWordpress import *
+from blog2epub.crawlers.CrawlerBlogspot import Crawler, CrawlerBlogspot
+from blog2epub.crawlers.CrawlerWordpress import CrawlerWordpress
 
 VERSION = "1.2.2"
 
