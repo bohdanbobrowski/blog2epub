@@ -157,8 +157,10 @@ class Book:
             self.interface.print(f"Epub created: {self.file_full_path}")
 
     def _upgrade_opf(self, content_opt, cover_file_name):
-        new_manifest = "<manifest><item href=\"cover.xhtml\" id=\"cover\" media-type=\"application/xhtml+xml\"/>" + \
-        f"<item href=\"{cover_file_name}\" id=\"cover_img\" media-type=\"image/jpeg\"/>"
+        new_manifest = (
+            '<manifest><item href="cover.xhtml" id="cover" media-type="application/xhtml+xml"/>'
+            + f'<item href="{cover_file_name}" id="cover_img" media-type="image/jpeg"/>'
+        )
         content_opt = content_opt.decode("utf-8").replace("<manifest>", new_manifest)
         return content_opt
 
@@ -231,8 +233,10 @@ class Chapter:
         )
         tags = self._print_tags(article)
         art_date = article.date.strftime("%d %B %Y, %H:%M")
-        self.epub.content = f"<h2>{article.title}</h2>{tags}{art_date}" + \
-        f"<p><i><a href=\"{article.url}\">{article.url}</a></i></p>"
+        self.epub.content = (
+            f"<h2>{article.title}</h2>{tags}{art_date}"
+            + f'<p><i><a href="{article.url}">{article.url}</a></i></p>'
+        )
         self.epub.content = (
             "<div>" + self.epub.content + article.content + article.comments + "</div>"
         )

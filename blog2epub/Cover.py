@@ -76,14 +76,8 @@ class Cover:
         if self.start.strftime("%Y.%m") == self.end.strftime("%Y.%m"):
             return self.end.strftime("%d") + "-" + self.start.strftime("%d %B %Y")
         if self.start.strftime("%Y.%m") == self.end.strftime("%Y.%m"):
-            return (
-                self.end.strftime("%d %B") + " - " + self.start.strftime("%d %B %Y")
-            )
-        return (
-            self.end.strftime("%d %B %Y")
-            + " - "
-            + self.start.strftime("%d %B %Y")
-        )
+            return self.end.strftime("%d %B") + " - " + self.start.strftime("%d %B %Y")
+        return self.end.strftime("%d %B %Y") + " - " + self.start.strftime("%d %B %Y")
 
     def _get_fonts_path(self, font_name):
         in_osx_app = os.path.join(
@@ -130,7 +124,9 @@ class Cover:
         tiles_count_y = 5
         tiles_count_x = 7
         cover_image = Image.new("RGB", (600, 800))
-        self.interface.print(f"Generating cover (800px*600px) from {len(self.images)} images.")
+        self.interface.print(
+            f"Generating cover (800px*600px) from {len(self.images)} images."
+        )
         dark_factor = 1
         if len(self.images) > 0:
             shuffle(self.images)

@@ -1,17 +1,16 @@
 import os
-import sys
 import pathlib
 import subprocess
 
-original_picture = "blog2epub.png"
+ORIGINAL_PICTURE = "blog2epub.png"
 
-fname = pathlib.Path(original_picture).stem
-ext = pathlib.Path(original_picture).suffix
-destDir = pathlib.Path(original_picture).parent
+f_name = pathlib.Path(ORIGINAL_PICTURE).stem
+ext = pathlib.Path(ORIGINAL_PICTURE).suffix
+destDir = pathlib.Path(ORIGINAL_PICTURE).parent
 
-iconsetDir = os.path.join(destDir, f"{fname}.iconset")
-if not (os.path.exists(iconsetDir)):
-    pathlib.Path(iconsetDir).mkdir(parents=False, exist_ok=True)
+icons_dir = os.path.join(destDir, f"{f_name}.iconset")
+if not (os.path.exists(icons_dir)):
+    pathlib.Path(icons_dir).mkdir(parents=False, exist_ok=True)
 
 
 class IconParameters:
@@ -22,11 +21,10 @@ class IconParameters:
         self.width = width
         self.scale = scale
 
-    def getIconName(self):
+    def get_icon_name(self):
         if self.scale != 1:
             return f"icon_{self.width}x{self.width}{ext}"
-        else:
-            return f"icon_{self.width//2}x{self.width//2}@2x{ext}"
+        return f"icon_{self.width//2}x{self.width//2}@2x{ext}"
 
 
 # https://developer.apple.com/design/human-interface-guidelines/macos/icons-and-images/app-icon#app-icon-sizes
@@ -55,14 +53,20 @@ for ip in ListOfIconParameters:
             "-z",
             str(ip.width),
             str(ip.width),
-            original_picture,
+            ORIGINAL_PICTURE,
             "--out",
-            os.path.join(iconsetDir, ip.getIconName()),
+            os.path.join(icons_dir, ip.get_icon_name()),
         ]
     )
-    # print(f"Generated {ip.getIconName()}")
 
 # convert iconset to icns file
 subprocess.call(
-    ["iconutil", "-c", "icns", iconsetDir, "-o", os.path.join(destDir, f"{fname}.icns")]
+    [
+        "iconutil",
+        "-c",
+        "icns",
+        icons_dir,
+        "-o",
+        os.path.join(destDir, f"{f_name}.icns"),
+    ]
 )
