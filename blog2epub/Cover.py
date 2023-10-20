@@ -41,7 +41,7 @@ class Cover:
 
     def _make_thumb(self, img, size):
         cropped_img = self._crop_image(img)
-        cropped_img.thumbnail(size, Image.ANTIALIAS)
+        cropped_img.thumbnail(size, Image.LANCZOS)
         return cropped_img
 
     def _is_landscape(self, width, height):

@@ -428,7 +428,7 @@ class Downloader:
                 or picture.size[1] > self.images_height
             ):
                 picture.thumbnail(
-                    [self.images_width, self.images_height], Image.ANTIALIAS
+                    [self.images_width, self.images_height], Image.LANCZOS
                 )
             picture = picture.convert("L")
             picture.save(resized_fn, format="JPEG", quality=self.images_quality)
