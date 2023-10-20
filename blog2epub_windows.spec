@@ -22,19 +22,20 @@ exe = EXE(pyz,
           a.zipfiles,
           a.datas,
           [],
-          name='blog2epubgui',
+          name='blog2epub.exe',
           debug=False,
           bootloader_ignore_signals=False,
-          strip=False,
+          strip=None,
           upx=True,
           upx_exclude=[],
           runtime_tmpdir=None,
-          console=False , icon='images/blog2epub.ico')
+          console=False,
+          icon='images\\blog2epub.ico')
 info_plist = {
     "NSHighResolutionCapable": True,
 }
 app = BUNDLE(exe,
              name='blog2epub.exe',
-             icon='images/blog2epub.ico',
+             icon='images\\blog2epub.ico',
              bundle_identifier=None,
              info_plist=info_plist)
