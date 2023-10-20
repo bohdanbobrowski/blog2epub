@@ -95,6 +95,10 @@ Convert blog to epub using command line or GUI.
 
 ## Release notes
 
+### 1.2.3 - in development
+
+- Windows and macOS build
+
 ### [1.2.2](https://github.com/bohdanbobrowski/blog2epub/releases/tag/v1.2.2)
 
 - Empty images list bug
