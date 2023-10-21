@@ -17,7 +17,6 @@ import atoma
 import dateutil.parser
 import requests
 from PIL import Image
-from fake_useragent import UserAgent
 from lxml.ElementInclude import etree
 from lxml.html.soupparser import fromstring
 
@@ -328,9 +327,7 @@ class Downloader:
         self.images_quality = crawler.images_quality
         self.cookies = CookieJar()
         self.session = requests.session()
-        ua = UserAgent()
         self.headers = {
-            "User-Agent": ua.chrome,
         }
 
     def get_urlhash(self, url):

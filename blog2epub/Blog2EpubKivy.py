@@ -10,6 +10,9 @@ from pathlib import Path
 from typing import Dict, Optional
 from urllib import parse
 
+if sys.__stdout__ is None or sys.__stderr__ is None:
+    os.environ['KIVY_NO_CONSOLELOG'] = '1'
+
 import yaml
 from kivy.app import App
 from kivy.clock import mainthread
@@ -31,7 +34,6 @@ F_SIZE = 3 / Metrics.density
 
 Config.set("input", "mouse", "mouse,multitouch_on_demand")
 
-
 now = datetime.now()
 date_time = now.strftime("%Y-%m-%d[%H.%M.%S]")
 logging_filename = os.path.join(
@@ -47,19 +49,26 @@ logging.basicConfig(
 )
 
 
-def get_image_file(filename: str) -> str:
-    in_osx_app = os.path.join(
-        os.path.dirname(sys.executable).replace(
-            "/Contents/MacOS", "/Contents/Resources"
-        ),
-        filename,
-    )
-    in_sources = os.path.join(Path(__file__).parent.resolve(), "..", "images", filename)
-    result = False
-    if os.path.isfile(in_osx_app):
-        result = in_osx_app
-    if os.path.isfile(in_sources):
-        result = in_sources
+def resource_path(filename: str) -> str:
+    if platform.system() == "Windows":
+        try:
+            base_path = sys._MEIPASS
+        except AttributeError:
+            base_path = os.path.abspath("./images/")
+        result = os.path.join(base_path, filename)
+    else:
+        in_osx_app = os.path.join(
+            os.path.dirname(sys.executable).replace(
+                "/Contents/MacOS", "/Contents/Resources"
+            ),
+            filename,
+        )
+        in_sources = os.path.join(Path(__file__).parent.resolve(), "..", "images", filename)
+        result = False
+        if os.path.isfile(in_osx_app):
+            result = in_osx_app
+        if os.path.isfile(in_sources):
+            result = in_sources
     logging.info(f"Loading image: {result}")
     return result
 
@@ -205,12 +214,12 @@ class Blog2EpubKivyWindow(BoxLayout):
         self.settings.set("skip", self.skip_entry.text)
         self.settings.save()
 
-    @staticmethod
-    def about_popup(instance):
+    def about_popup(self, instance):
         about_content = BoxLayout(orientation="vertical")
+        self.interface.print(resource_path("blog2epub.png"))
         about_content.add_widget(
             Image(
-                source=get_image_file("blog2epub.png"),
+                source=resource_path("blog2epub.png"),
                 allow_stretch=True,
                 size_hint=(1, 0.7),
             )
@@ -330,9 +339,11 @@ class Blog2EpubKivy(App):
         super(Blog2EpubKivy, self).__init__(**kwargs)
         self.title = f"blog2epub - v. {Blog2Epub.version}"
         if platform.system() == "Darwin":
-            self.icon = get_image_file("blog2epub.icns")
+            self.icon = resource_path("blog2epub.icns")
+        elif platform.system() == "Windows":
+            self.icon = resource_path("blog2epub_256px.png")
         else:
-            self.icon = get_image_file("blog2epub.svg")
+            self.icon = resource_path("blog2epub.svg")
 
     def build(self):
         Window.resizable = False
