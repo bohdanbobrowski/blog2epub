@@ -11,7 +11,7 @@ from typing import Dict, Optional
 from urllib import parse
 
 if sys.__stdout__ is None or sys.__stderr__ is None:
-    os.environ['KIVY_NO_CONSOLELOG'] = '1'
+    os.environ["KIVY_NO_CONSOLELOG"] = "1"
 
 import yaml
 from kivy.app import App
@@ -50,6 +50,7 @@ logging.basicConfig(
 
 
 def resource_path(filename: str) -> str:
+    # TODO: this needs refactor
     if platform.system() == "Windows":
         try:
             base_path = sys._MEIPASS
@@ -63,7 +64,9 @@ def resource_path(filename: str) -> str:
             ),
             filename,
         )
-        in_sources = os.path.join(Path(__file__).parent.resolve(), "..", "images", filename)
+        in_sources = os.path.join(
+            Path(__file__).parent.resolve(), "..", "images", filename
+        )
         result = False
         if os.path.isfile(in_osx_app):
             result = in_osx_app

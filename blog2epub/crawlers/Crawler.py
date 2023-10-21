@@ -327,8 +327,7 @@ class Downloader:
         self.images_quality = crawler.images_quality
         self.cookies = CookieJar()
         self.session = requests.session()
-        self.headers = {
-        }
+        self.headers = {}
 
     def get_urlhash(self, url):
         m = hashlib.md5()
