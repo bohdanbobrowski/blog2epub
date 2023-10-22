@@ -78,7 +78,7 @@ class Cover:
             return self.end.strftime("%d") + "-" + self.start.strftime("%d %B %Y")
         if self.start.strftime("%Y.%m") == self.end.strftime("%Y.%m"):
             return self.end.strftime("%d %B") + " - " + self.start.strftime("%d %B %Y")
-        return self.end.strftime("%d %B %Y") + " - " + self.start.strftime("%d %B %Y")
+        return self.end.strftime("%d %M %Y") + " - " + self.start.strftime("%d %B %Y")
 
     def _draw_text(self, cover_image):
         lato_bold = asset_path("Lato-Bold.ttf")

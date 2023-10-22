@@ -42,12 +42,12 @@ exe = EXE(pyz,
           upx_exclude=[],
           runtime_tmpdir=None,
           console=False,
-          icon='./images/blog2epub_256px.png')
+          icon='./assets/blog2epub_256px.png')
 info_plist = {
     "NSHighResolutionCapable": True,
 }
 app = BUNDLE(exe,
              name='blog2epub.exe',
-             icon='./images/blog2epub.ico',
+             icon='./assets/blog2epub.ico',
              bundle_identifier=None,
              info_plist=info_plist)

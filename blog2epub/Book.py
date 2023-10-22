@@ -91,7 +91,7 @@ class Book:
         else:
             self.locale = "en_US.UTF-8"
         try:
-            locale.setlocale(locale.LC_TIME, self.locale)
+            locale.setlocale(locale.LC_ALL, self.locale)
             self.interface.print(f"Locale set as {self.locale}")
         except locale.Error:
             self.interface.print(f"Can't set locale as {self.locale}, but nevermind.")
