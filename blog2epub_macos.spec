@@ -8,10 +8,16 @@ a = Analysis(
         'blog2epubkivy.py'
     ],
     pathex=[
-        './venv/'    
+        './venv/'
     ],
-    # binaries=[],
-    datas=[],
+    datas=[
+        ('./images/blog2epub.icns', '.'),
+        ('./images/blog2epub_256px.png', '.'),
+        ('./images/blog2epub.png', '.'),
+        ('./assets/Lato-Bold.ttf', '.'),
+        ('./assets/Lato-Italic.ttf', '.'),
+        ('./assets/Lato-Regular.ttf', '.'),
+    ],
     hookspath=[],
     runtime_hooks=[],
     win_no_prefer_redirects=False,
