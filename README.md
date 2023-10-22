@@ -36,7 +36,7 @@ Convert blog to epub using command line or GUI.
 
 ## Installation
 
-- for macOS users: available [app](https://github.com/bohdanbobrowski/blog2epub/releases)
+- for Windows and macOS users: available [builds](https://github.com/bohdanbobrowski/blog2epub/releases)
 - python3 setup.py install
 
 ### Running froum sources
@@ -53,7 +53,7 @@ Convert blog to epub using command line or GUI.
 ### Windows 10
 
 <p align="center">
-<img src="https://raw.githubusercontent.com/bohdanbobrowski/blog2epub/master/assets/blog2epub_win10_screenshot_v1.2.2.png" width="600px" />
+<img src="https://raw.githubusercontent.com/bohdanbobrowski/blog2epub/master/assets/blog2epub_win10_screenshot_v1.2.3.png" width="600px" />
 </p>
 
 ### macOS
