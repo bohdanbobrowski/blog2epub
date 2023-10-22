@@ -11,9 +11,9 @@ a = Analysis(
         './venv/'
     ],
     datas=[
-        ('./images/blog2epub.icns', '.'),
-        ('./images/blog2epub_256px.png', '.'),
-        ('./images/blog2epub.png', '.'),
+        ('./assets/blog2epub.icns', '.'),
+        ('./assets/blog2epub_256px.png', '.'),
+        ('./assets/blog2epub.png', '.'),
         ('./assets/Lato-Bold.ttf', '.'),
         ('./assets/Lato-Italic.ttf', '.'),
         ('./assets/Lato-Regular.ttf', '.'),
