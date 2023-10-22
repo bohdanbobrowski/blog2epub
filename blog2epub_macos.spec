@@ -57,7 +57,7 @@ info_plist = {
 app = BUNDLE(
     exe,
     name='blog2epub.app',
-    icon='images/blog2epub.icns',
+    icon='assets/blog2epub.icns',
     bundle_identifier=None,
     info_plist=info_plist
 )
