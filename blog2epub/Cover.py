@@ -1,9 +1,10 @@
 import os
-import sys
 from pathlib import Path
 from random import shuffle
 
 from PIL import Image, ImageDraw, ImageFont
+
+from blog2epub.Common import asset_path
 
 
 class Cover:
@@ -79,25 +80,10 @@ class Cover:
             return self.end.strftime("%d %B") + " - " + self.start.strftime("%d %B %Y")
         return self.end.strftime("%d %B %Y") + " - " + self.start.strftime("%d %B %Y")
 
-    def _get_fonts_path(self, font_name):
-        in_osx_app = os.path.join(
-            os.path.dirname(sys.executable).replace(
-                "/Contents/MacOS", "/Contents/Resources"
-            ),
-            font_name,
-        )
-        in_sources = os.path.join(Path(__file__).parent.resolve(), "assets", font_name)
-        if os.path.isfile(in_osx_app):
-            return in_osx_app
-        if os.path.isfile(in_sources):
-            return in_sources
-        self.interface.print("Font not found: " + in_sources)
-        return False
-
     def _draw_text(self, cover_image):
-        lato_bold = self._get_fonts_path("Lato-Bold.ttf")
-        lato_regular = self._get_fonts_path("Lato-Regular.ttf")
-        lato_italic = self._get_fonts_path("Lato-Italic.ttf")
+        lato_bold = asset_path("Lato-Bold.ttf")
+        lato_regular = asset_path("Lato-Regular.ttf")
+        lato_italic = asset_path("Lato-Italic.ttf")
         if lato_bold and lato_italic and lato_regular:
             cover_draw = ImageDraw.Draw(cover_image)
             cover_draw.text(

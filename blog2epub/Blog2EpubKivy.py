@@ -27,6 +27,7 @@ from kivy.uix.popup import Popup
 from kivy.uix.textinput import TextInput
 
 from blog2epub.Blog2Epub import Blog2Epub, BadUrlException
+from blog2epub.Common import asset_path
 from blog2epub.crawlers.Crawler import EmptyInterface
 
 SIZE = 3 / Metrics.density / Metrics.density
@@ -47,33 +48,6 @@ logging.basicConfig(
     level=logging.DEBUG,
     format="%(asctime)s - %(levelname)s - %(message)s",
 )
-
-
-def resource_path(filename: str) -> str:
-    # TODO: this needs refactor
-    if platform.system() == "Windows":
-        try:
-            base_path = sys._MEIPASS
-        except AttributeError:
-            base_path = os.path.abspath("./images/")
-        result = os.path.join(base_path, filename)
-    else:
-        in_osx_app = os.path.join(
-            os.path.dirname(sys.executable).replace(
-                "/Contents/MacOS", "/Contents/Resources"
-            ),
-            filename,
-        )
-        in_sources = os.path.join(
-            Path(__file__).parent.resolve(), "..", "images", filename
-        )
-        result = False
-        if os.path.isfile(in_osx_app):
-            result = in_osx_app
-        if os.path.isfile(in_sources):
-            result = in_sources
-    logging.info(f"Loading image: {result}")
-    return result
 
 
 class StyledLabel(Label):
@@ -219,10 +193,10 @@ class Blog2EpubKivyWindow(BoxLayout):
 
     def about_popup(self, instance):
         about_content = BoxLayout(orientation="vertical")
-        self.interface.print(resource_path("blog2epub.png"))
+        self.interface.print(asset_path("blog2epub.png"))
         about_content.add_widget(
             Image(
-                source=resource_path("blog2epub.png"),
+                source=asset_path("blog2epub.png"),
                 allow_stretch=True,
                 size_hint=(1, 0.7),
             )
@@ -342,11 +316,11 @@ class Blog2EpubKivy(App):
         super(Blog2EpubKivy, self).__init__(**kwargs)
         self.title = f"blog2epub - v. {Blog2Epub.version}"
         if platform.system() == "Darwin":
-            self.icon = resource_path("blog2epub.icns")
+            self.icon = asset_path("blog2epub.icns")
         elif platform.system() == "Windows":
-            self.icon = resource_path("blog2epub_256px.png")
+            self.icon = asset_path("blog2epub_256px.png")
         else:
-            self.icon = resource_path("blog2epub.svg")
+            self.icon = asset_path("blog2epub.svg")
 
     def build(self):
         Window.resizable = False
