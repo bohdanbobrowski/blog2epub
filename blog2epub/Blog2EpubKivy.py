@@ -26,7 +26,7 @@ from kivy.uix.label import Label
 from kivy.uix.popup import Popup
 from kivy.uix.textinput import TextInput
 
-from blog2epub.Blog2Epub import Blog2Epub, BadUrlException
+from blog2epub.Blog2Epub import BadUrlException, Blog2Epub
 from blog2epub.Common import asset_path
 from blog2epub.crawlers.Crawler import EmptyInterface
 
@@ -193,7 +193,6 @@ class Blog2EpubKivyWindow(BoxLayout):
 
     def about_popup(self, instance):
         about_content = BoxLayout(orientation="vertical")
-        self.interface.print(asset_path("blog2epub.png"))
         about_content.add_widget(
             Image(
                 source=asset_path("blog2epub.png"),

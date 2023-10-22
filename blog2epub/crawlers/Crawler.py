@@ -16,9 +16,9 @@ from urllib import request
 import atoma
 import dateutil.parser
 import requests
-from PIL import Image
 from lxml.ElementInclude import etree
 from lxml.html.soupparser import fromstring
+from PIL import Image
 
 import blog2epub
 from blog2epub.Book import Book

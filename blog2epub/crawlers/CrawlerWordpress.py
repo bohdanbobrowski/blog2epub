@@ -8,7 +8,7 @@ import atoma
 from lxml.ElementInclude import etree
 from lxml.html.soupparser import fromstring
 
-from blog2epub.crawlers.Crawler import Crawler, Article
+from blog2epub.crawlers.Crawler import Article, Crawler
 
 
 class CrawlerWordpress(Crawler):
