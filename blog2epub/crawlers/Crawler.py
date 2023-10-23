@@ -220,7 +220,8 @@ class Crawler:
                 if self.skip and self.article_counter < self.skip:
                     self.interface.print("[skipping] " + art.title)
                     continue
-                self.interface.print(str(len(self.articles) + 1) + ". " + art.title)
+                art_no = len(self.articles) + 1
+                self.interface.print(f"{art_no}. {art.title}")
                 art.date = item.updated
                 if self.start:
                     self.end = art.date
@@ -242,7 +243,7 @@ class Crawler:
     def _articles_loop(self, content):
         for art in self._get_articles(content):
             self.article_counter += 1
-            if not self.skip and self.article_counter > self.skip:
+            if not self.skip or self.article_counter > self.skip:
                 art.process()
                 self.images = self.images + art.images
                 self.interface.print(str(len(self.articles) + 1) + ". " + art.title)
@@ -273,12 +274,15 @@ class Crawler:
             self.images = self.images + self._get_header_images(tree)
             self.description = self._get_blog_description(tree)
             self.title = self._get_blog_title(content)
+            """
+            TODO: Fix atom feed loop
             if self._get_atom_content():
                 self._atom_feed_loop()
             else:
-                content = self._prepare_content(content)
-                self._articles_loop(content)
-                self.url_to_crawl = self._get_url_to_crawl(tree)
+            """
+            content = self._prepare_content(content)
+            self._articles_loop(content)
+            self.url_to_crawl = self._get_url_to_crawl(tree)
             self._check_limit()
 
     def save(self):
