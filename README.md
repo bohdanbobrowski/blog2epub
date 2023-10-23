@@ -17,7 +17,7 @@ Convert blog to epub using command line or GUI.
 - command line (CLI) and graphic user interface (GUI)
 - script downloads all text contents of selected blog to epub file,
 - if it's possible, it includes post comments,
-- images are resized (to 400x300px) and converted to grayscale,
+- images are downsized (to maximum 800/600px) and converted to grayscale,
 - one post = one epub chapter,
 - chapters are sorted by date ascending,
 - cover is generated automatically from downloaded images.
@@ -25,13 +25,13 @@ Convert blog to epub using command line or GUI.
 ### Example covers
 
 <table style="width:100%;text-align:center;"><tr><td>
-<img src="https://raw.githubusercontent.com/bohdanbobrowski/blog2epub/master/assets/cover_1.jpg" width="200" style="margin:0 10px 10px 0" />
+<img src="https://raw.githubusercontent.com/bohdanbobrowski/blog2epub/master/assets/cover_1.jpg" width="400" style="margin:0 10px 10px 0" />
 </td><td>
-<img src="https://raw.githubusercontent.com/bohdanbobrowski/blog2epub/master/assets/cover_2.jpg" width="200" style="margin:0 10px 10px 0" />
+<img src="https://raw.githubusercontent.com/bohdanbobrowski/blog2epub/master/assets/cover_2.jpg" width="400" style="margin:0 10px 10px 0" />
 </td></tr><tr><td>
-<img src="https://raw.githubusercontent.com/bohdanbobrowski/blog2epub/master/assets/cover_3.jpg" width="200" style="margin:0 10px 10px 0" />
+<img src="https://raw.githubusercontent.com/bohdanbobrowski/blog2epub/master/assets/cover_3.jpg" width="400" style="margin:0 10px 10px 0" />
 </td><td>
-<img src="https://raw.githubusercontent.com/bohdanbobrowski/blog2epub/master/assets/cover_4.jpg" width="200" style="margin:0 10px 10px 0;" />
+<img src="https://raw.githubusercontent.com/bohdanbobrowski/blog2epub/master/assets/cover_4.jpg" width="400" style="margin:0 10px 10px 0;" />
 </td></tr></table>
 
 ## Installation

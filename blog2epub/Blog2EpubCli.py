@@ -1,8 +1,7 @@
 import sys
 from urllib import parse
 
-from blog2epub.Blog2Epub import (BadUrlException, Blog2Epub,
-                                 NotEnoughCommandsException)
+from blog2epub.Blog2Epub import BadUrlException, Blog2Epub, NotEnoughCommandsException
 from blog2epub.crawlers.Crawler import EmptyInterface
 
 

@@ -41,8 +41,7 @@ class Crawler:
         self,
         url,
         include_images: bool = True,
-        images_height: int = 800,
-        images_width: int = 600,
+        images_size: tuple = (600, 800),
         images_quality: int = 40,
         start=None,
         end=None,
@@ -65,8 +64,7 @@ class Crawler:
             self.cache_folder = os.path.join(str(Path.home()), ".blog2epub")
         self.include_images = include_images
         self.images_quality = images_quality
-        self.images_height = images_height
-        self.images_width = images_width
+        self.images_size = images_size
         self.start = start
         self.end = end
         self.limit = limit
@@ -322,8 +320,7 @@ class Downloader:
         self.crawler_port = crawler.port
         self.interface = crawler.interface
         self.force_download = crawler.force_download
-        self.images_width = crawler.images_width
-        self.images_height = crawler.images_height
+        self.images_size = crawler.images_size
         self.images_quality = crawler.images_quality
         self.cookies = CookieJar()
         self.session = requests.session()
@@ -418,12 +415,10 @@ class Downloader:
                 return None
             picture = Image.open(original_fn)
             if (
-                picture.size[0] > self.images_width
-                or picture.size[1] > self.images_height
+                picture.size[0] > self.images_size[0]
+                or picture.size[1] > self.images_size[1]
             ):
-                picture.thumbnail(
-                    [self.images_width, self.images_height], Image.LANCZOS
-                )
+                picture.thumbnail(self.images_size, Image.LANCZOS)
             picture = picture.convert("L")
             picture.save(resized_fn, format="JPEG", quality=self.images_quality)
             os.remove(original_fn)
