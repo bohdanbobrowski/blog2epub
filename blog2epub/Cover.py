@@ -4,7 +4,7 @@ from random import shuffle
 
 from PIL import Image, ImageDraw, ImageFont
 
-from blog2epub.Common import asset_path
+from common.assets import asset_path
 
 
 class Cover:

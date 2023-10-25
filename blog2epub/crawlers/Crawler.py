@@ -23,7 +23,12 @@ from PIL import Image
 
 import blog2epub
 from blog2epub.Book import Book
-from blog2epub.common.crawler import prepare_url, prepare_url_to_crawl, prepare_port, prepare_file_name
+from blog2epub.common.crawler import (
+    prepare_url,
+    prepare_url_to_crawl,
+    prepare_port,
+    prepare_file_name,
+)
 from blog2epub.common.interfaces import EmptyInterface
 
 

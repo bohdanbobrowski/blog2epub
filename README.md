@@ -95,7 +95,7 @@ Convert blog to epub using command line or GUI.
 
 ## Release notes
 
-### [1.2.4](https://github.com/bohdanbobrowski/blog2epub/releases/tag/v1.2.3)
+### [1.2.4](https://github.com/bohdanbobrowski/blog2epub/releases/tag/v1.2.4)
 
 - article loop fix (crawler was reading by default from atomfeed, and returning maximum 25 articles)
 - refactor, as usual

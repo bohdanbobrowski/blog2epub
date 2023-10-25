@@ -29,7 +29,7 @@ from kivy.uix.popup import Popup
 from kivy.uix.textinput import TextInput
 
 from blog2epub.Blog2Epub import BadUrlException, Blog2Epub
-from blog2epub.Common import asset_path
+from common.assets import asset_path
 from blog2epub.common.interfaces import EmptyInterface
 
 SIZE = 3 / Metrics.density / Metrics.density
