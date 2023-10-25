@@ -1,7 +1,7 @@
 beautifulsoup4==4.7.1
 EbookLib==0.17.1
-lxml>=4.6.3
-Pillow>=6.2.0
+lxml>=4.9.3
+Pillow>=10.1.0
 six==1.12.0
 python-dateutil==2.8.0
 atoma>=0.0.17

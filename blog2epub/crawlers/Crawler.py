@@ -7,6 +7,7 @@ import imghdr
 import os
 import re
 import time
+import logging
 from datetime import datetime
 from http.cookiejar import CookieJar
 from pathlib import Path
@@ -22,6 +23,7 @@ from PIL import Image
 
 import blog2epub
 from blog2epub.Book import Book
+from blog2epub.common.interfaces import EmptyInterface
 
 
 class Crawler:
@@ -274,14 +276,11 @@ class Crawler:
             self.images = self.images + self._get_header_images(tree)
             self.description = self._get_blog_description(tree)
             self.title = self._get_blog_title(content)
-            """
-            TODO: Fix atom feed loop
-            if self._get_atom_content():
-                self._atom_feed_loop()
-            else:
-            """
             content = self._prepare_content(content)
             self._articles_loop(content)
+            if len(self.articles) == 0:
+                self._get_atom_content()
+                self._atom_feed_loop()
             self.url_to_crawl = self._get_url_to_crawl(tree)
             self._check_limit()
 
@@ -482,47 +481,47 @@ class Article:
             self.interface.print(f"Date not parsed: {self.date}")
 
     def _translate_month(self, date: str) -> str:
-        # TODO: need to be refactored, or moved as parameter to dateutil parser function
         date = date.lower()
         if self.language == "pl":
-            date = date.replace("stycznia", "january")
-            date = date.replace("lutego", "february")
-            date = date.replace("marca", "march")
-            date = date.replace("kwietnia", "april")
-            date = date.replace("maja", "may")
-            date = date.replace("czerwca", "june")
-            date = date.replace("lipca", "july")
-            date = date.replace("sierpnia", "august")
-            date = date.replace("września", "september")
-            date = date.replace("października", "october")
-            date = date.replace("listopada", "november")
-            date = date.replace("grudnia", "december")
-            date = date.replace(" sty ", " january ")
-            date = date.replace(" lut ", " february ")
-            date = date.replace(" mar ", " march ")
-            date = date.replace(" kwi ", " april ")
-            date = date.replace(" maj ", " may ")
-            date = date.replace(" cze ", " june ")
-            date = date.replace(" lip ", " july ")
-            date = date.replace(" sie ", " august ")
-            date = date.replace(" wrz ", " september ")
-            date = date.replace(" paź ", " october ")
-            date = date.replace(" lis ", " november ")
-            date = date.replace(" gru ", " december ")
+            replace_dict = {
+                "stycznia": "january",
+                "lutego": "february",
+                "marca": "march",
+                "kwietnia": "april",
+                "maja": "may",
+                "czerwca": "june",
+                "lipca": "july",
+                "sierpnia": "august",
+                "września": "september",
+                "października": "october",
+                "listopada": "november",
+                "grudnia": "december",
+            }
+            replace_dict_short = {}
+            for key, val in replace_dict.items():
+                date = date.replace(key, val)
+                replace_dict_short[f" {key[0:3]} "] = f" {val} "
+            for key, val in replace_dict_short.items():
+                date = date.replace(key, val)
         if self.language == "ru":
-            date = date.replace("января", "january")
-            date = date.replace("февраля", "february")
-            date = date.replace("марта", "march")
-            date = date.replace("апреля", "april")
-            date = date.replace("мая", "may")
-            date = date.replace("июня", "june")
-            date = date.replace("июля", "july")
-            date = date.replace("августа", "august")
-            date = date.replace("сентября", "september")
-            date = date.replace("октября", "october")
-            date = date.replace("ноября", "november")
-            date = date.replace("декабря", "december")
-            date = re.sub(" г.$", "", date)
+            replace_dict = {
+                "января": "january",
+                "февраля": "february",
+                "марта": "march",
+                "апреля": "april",
+                "мая": "may",
+                "июня": "june",
+                "июля": "july",
+                "августа": "august",
+                "сентября": "september",
+                "октября": "october",
+                "ноября": "november",
+                "декабря": "december",
+            }
+            for key, val in replace_dict.items():
+                date = date.replace(key, val)
+            date = re.sub("\sг.$", "", date)
+        logging.debug(f"Date: {date}")
         return date
 
     def _find_images(self):
@@ -656,15 +655,3 @@ class Article:
         self.get_content()
         self.get_tags()
         self.get_comments()
-
-
-class EmptyInterface:
-    """Empty interface for script output."""
-
-    @staticmethod
-    def print(self):
-        pass
-
-    @staticmethod
-    def exception(e):
-        pass
