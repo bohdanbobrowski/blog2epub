@@ -10,6 +10,8 @@ from pathlib import Path
 from typing import Dict, Optional
 from urllib import parse
 
+from blog2epub.common.crawler import prepare_url
+
 if sys.__stdout__ is None or sys.__stderr__ is None:
     os.environ["KIVY_NO_CONSOLELOG"] = "1"
 
@@ -139,6 +141,7 @@ class Blog2EpubKivyWindow(BoxLayout):
 
     def _get_url(self):
         if parse.urlparse(self.url_entry.text):
+            self.url_entry.text = prepare_url(self.url_entry.text)
             return self.url_entry.text
         raise BadUrlException("Blog url is not valid.")
 
@@ -185,7 +188,7 @@ class Blog2EpubKivyWindow(BoxLayout):
         self.download_button.disabled = False
 
     def save_settings(self):
-        self.settings.set("url", self.url_entry.text)
+        self.settings.set("url", prepare_url(self.url_entry.text))
         self.settings.set("limit", self.limit_entry.text)
         self.settings.set("skip", self.skip_entry.text)
         self.settings.save()
@@ -293,9 +296,15 @@ class Blog2EpubSettings:
         return data
 
     def _get_default(self) -> Dict:
-        return {"url": "", "limit": "", "skip": ""}
+        return {"url": "", "limit": "", "skip": "", "history": []}
+
+    def _save_history(self):
+        if self._data["url"] and self._data["url"] not in self._data["history"]:
+            self._data["history"].append(self._data["url"])
+            sorted(self._data["history"])
 
     def save(self):
+        self._save_history()
         with open(self.fname, "w") as outfile:
             yaml.dump(self._data, outfile, default_flow_style=False)
 

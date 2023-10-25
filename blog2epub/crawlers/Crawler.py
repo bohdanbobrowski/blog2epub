@@ -23,6 +23,7 @@ from PIL import Image
 
 import blog2epub
 from blog2epub.Book import Book
+from blog2epub.common.crawler import prepare_url, prepare_url_to_crawl, prepare_port, prepare_file_name
 from blog2epub.common.interfaces import EmptyInterface
 
 
@@ -56,10 +57,10 @@ class Crawler:
         language: str = None,
         interface=None,
     ):
-        self.url = self._prepare_url(url)
-        self.url_to_crawl = self._prepare_url_to_crawl(self.url)
-        self.port = self._prepare_port(self.url_to_crawl)
-        self.file_name = self._prepare_file_name(file_name, self.url)
+        self.url = prepare_url(url)
+        self.url_to_crawl = prepare_url_to_crawl(self.url)
+        self.port = prepare_port(self.url_to_crawl)
+        self.file_name = prepare_file_name(file_name, self.url)
         self.destination_folder = destination_folder
         self.cache_folder = cache_folder
         if cache_folder is None:
@@ -84,27 +85,6 @@ class Crawler:
         self.images = []
         self.downloader = Downloader(self)
         self.tags = {}
-
-    @staticmethod
-    def _prepare_url(url: str) -> str:
-        return url.replace("http:", "").replace("https:", "").strip("/")
-
-    @staticmethod
-    def _prepare_file_name(file_name: str, url: str) -> str:
-        if file_name:
-            return file_name
-        return url.replace("/", "_")
-
-    @staticmethod
-    def _prepare_url_to_crawl(url: str) -> str:
-        r = request.urlopen("https://" + url)
-        return r.geturl()
-
-    @staticmethod
-    def _prepare_port(url):
-        if url.startswith("https://"):
-            return 443
-        return 80
 
     @staticmethod
     def _get_the_interface(interface):

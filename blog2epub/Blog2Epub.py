@@ -3,7 +3,7 @@ from typing import Dict
 from blog2epub.crawlers.CrawlerBlogspot import Crawler, CrawlerBlogspot
 from blog2epub.crawlers.CrawlerWordpress import CrawlerWordpress
 
-VERSION = "1.2.3"
+VERSION = "1.2.4"
 
 
 class NoCrawlerDetectedError(Exception):
