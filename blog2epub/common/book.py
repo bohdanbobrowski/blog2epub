@@ -5,7 +5,7 @@ import zipfile
 
 from ebooklib import epub
 
-from blog2epub.Cover import Cover
+from blog2epub.common.cover import Cover
 
 
 class Book:

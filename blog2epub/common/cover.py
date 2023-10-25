@@ -2,9 +2,8 @@ import os
 from pathlib import Path
 from random import shuffle
 
+from blog2epub.common.assets import asset_path
 from PIL import Image, ImageDraw, ImageFont
-
-from common.assets import asset_path
 
 
 class Cover:

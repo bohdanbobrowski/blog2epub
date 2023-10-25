@@ -4,15 +4,14 @@ import gzip
 import hashlib
 import html
 import imghdr
+import logging
 import os
 import re
 import time
-import logging
 from datetime import datetime
 from http.cookiejar import CookieJar
 from pathlib import Path
 from typing import Optional
-from urllib import request
 
 import atoma
 import dateutil.parser
@@ -21,13 +20,12 @@ from lxml.ElementInclude import etree
 from lxml.html.soupparser import fromstring
 from PIL import Image
 
-import blog2epub
-from blog2epub.Book import Book
+from blog2epub.common.book import Book
 from blog2epub.common.crawler import (
+    prepare_file_name,
+    prepare_port,
     prepare_url,
     prepare_url_to_crawl,
-    prepare_port,
-    prepare_file_name,
 )
 from blog2epub.common.interfaces import EmptyInterface
 
@@ -294,10 +292,6 @@ class Dirs:
         self.html = os.path.join(self.path, "html")
         self.images = os.path.join(self.path, "images")
         self.originals = os.path.join(self.path, "originals")
-        self.assets = os.path.join(
-            str(os.path.realpath(blog2epub.__file__).replace("__init__.py", "")),
-            "assets",
-        )
         self.prepare_directories()
 
 
@@ -349,10 +343,9 @@ class Downloader:
 
     def image_download(self, url: str, filepath: str) -> bool:
         self.dirs.prepare_directories()
-        f = open(filepath, "wb")
-        response = self.session.get(url, cookies=self.cookies, headers=self.headers)
-        f.write(response.content)
-        f.close()
+        with open(filepath, "wb") as f:
+            response = self.session.get(url, cookies=self.cookies, headers=self.headers)
+            f.write(response.content)
         time.sleep(1)
         return True
 
@@ -411,8 +404,7 @@ class Downloader:
             picture.save(resized_fn, format="JPEG", quality=self.images_quality)
             os.remove(original_fn)
             return img_hash + ".jpg"
-        else:
-            return None
+        return None
 
 
 class Article:
@@ -624,7 +616,7 @@ class Article:
         tag = "h6"
         for c in comments_in_article:
             c = c.strip()
-            if c != "Odpowiedz" and c != "Usuń":
+            if c not in ("Odpowiedz", "Usuń"):
                 self.comments = self.comments + "<" + tag + ">" + c + "</" + tag + ">"
                 if tag == "h6":
                     tag = "p"

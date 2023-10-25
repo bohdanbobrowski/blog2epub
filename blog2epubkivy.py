@@ -2,6 +2,6 @@
 # -*- coding : utf-8 -*-
 # Author: Bohdan Bobrowski
 
-from blog2epub import Blog2EpubKivy
+from blog2epub import blog2epub_kivy
 
-Blog2EpubKivy.main()
+blog2epub_kivy.main()

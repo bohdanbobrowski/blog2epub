@@ -2,7 +2,7 @@ class EmptyInterface:
     """Empty interface for script output."""
 
     @staticmethod
-    def print(self):
+    def print(content):
         pass
 
     @staticmethod

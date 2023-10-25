@@ -1,21 +1,10 @@
 from typing import Dict
 
-from blog2epub.crawlers.CrawlerBlogspot import Crawler, CrawlerBlogspot
-from blog2epub.crawlers.CrawlerWordpress import CrawlerWordpress
+from blog2epub.common.exceptions import NoCrawlerDetectedError
+from blog2epub.crawlers.blogspot import CrawlerBlogspot
+from blog2epub.crawlers.wordpress import CrawlerWordpress
 
 VERSION = "1.2.4"
-
-
-class NoCrawlerDetectedError(Exception):
-    pass
-
-
-class BadUrlException(Exception):
-    pass
-
-
-class NotEnoughCommandsException(Exception):
-    pass
 
 
 class Blog2Epub:
@@ -29,7 +18,7 @@ class Blog2Epub:
             raise NoCrawlerDetectedError("No crawler detected")
 
     @staticmethod
-    def select_crawler(params: Dict) -> Crawler:
+    def select_crawler(params: Dict):
         if params["url"].find(".blogspot.") > -1:
             return CrawlerBlogspot(**params)
         return CrawlerWordpress(**params)

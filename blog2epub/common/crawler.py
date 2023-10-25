@@ -12,8 +12,9 @@ def prepare_file_name(file_name: str, url: str) -> str:
 
 
 def prepare_url_to_crawl(url: str) -> str:
-    r = request.urlopen("https://" + url)
-    return r.geturl()
+    with request.urlopen("https://" + url) as r:
+        response = r.geturl()
+    return response
 
 
 def prepare_port(url):

@@ -10,8 +10,6 @@ from pathlib import Path
 from typing import Dict, Optional
 from urllib import parse
 
-from blog2epub.common.crawler import prepare_url
-
 if sys.__stdout__ is None or sys.__stderr__ is None:
     os.environ["KIVY_NO_CONSOLELOG"] = "1"
 
@@ -28,9 +26,12 @@ from kivy.uix.label import Label
 from kivy.uix.popup import Popup
 from kivy.uix.textinput import TextInput
 
-from blog2epub.Blog2Epub import BadUrlException, Blog2Epub
-from common.assets import asset_path
+from blog2epub import Blog2Epub
+from blog2epub.common.assets import asset_path
+from blog2epub.common.crawler import prepare_url
+from blog2epub.common.exceptions import BadUrlException
 from blog2epub.common.interfaces import EmptyInterface
+
 
 SIZE = 3 / Metrics.density / Metrics.density
 F_SIZE = 3 / Metrics.density
@@ -230,7 +231,7 @@ class Blog2EpubKivyWindow(BoxLayout):
 
 class AboutPopupLabel(Label):
     def __init__(self, **kwargs):
-        super(AboutPopupLabel, self).__init__(**kwargs)
+        Label.__init__(self, **kwargs)
         self.font_size = dp(8 * F_SIZE)
         self.font_name = "RobotoMono-Regular"
         self.size_hint = (1, 0.1)
@@ -320,7 +321,7 @@ class Blog2EpubSettings:
 
 class Blog2EpubKivy(App):
     def __init__(self, **kwargs):
-        super(Blog2EpubKivy, self).__init__(**kwargs)
+        App.__init__(self, **kwargs)
         self.title = f"blog2epub - v. {Blog2Epub.version}"
         if platform.system() == "Darwin":
             self.icon = asset_path("blog2epub.icns")
