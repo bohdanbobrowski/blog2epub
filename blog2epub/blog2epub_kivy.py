@@ -228,6 +228,38 @@ class Blog2EpubKivyWindow(BoxLayout):
         )
         about_popup.open()
 
+    def sucess_popup(self, instance, cover_image_path: str, ebook_path: str):
+        sucess_content = BoxLayout(orientation="vertical")
+        sucess_content.add_widget(AboutPopupLabel(text="Ebook generated sucessfully:"))
+        sucess_content.add_widget(
+            Image(
+                source=asset_path(cover_image_path),
+                allow_stretch=True,
+                size_hint=(1, 0.7),
+            )
+        )
+
+        def sucess_url_click(inst):
+            webbrowser.open("https://github.com/bohdanbobrowski/blog2epub")
+        sucess_content.add_widget(
+            Button(
+                text="github.com/bohdanbobrowski/blog2epub",
+                font_size=dp(8 * F_SIZE),
+                font_name="RobotoMono-Regular",
+                size_hint=(1, 0.1),
+                on_press=sucess_url_click,
+            )
+        )
+        sucess_popup = Popup(
+            title="Blog2Epub",
+            title_size=dp(10 * F_SIZE),
+            title_font="RobotoMono-Regular",
+            content=sucess_content,
+            size_hint=(None, None),
+            size=(dp(210 * F_SIZE), dp(180 * F_SIZE)),
+        )
+        sucess_popup.open()
+
 
 class AboutPopupLabel(Label):
     def __init__(self, **kwargs):
