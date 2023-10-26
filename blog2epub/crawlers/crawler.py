@@ -8,6 +8,7 @@ import logging
 import os
 import re
 import time
+from abc import ABC, abstractmethod
 from datetime import datetime
 from http.cookiejar import CookieJar
 from pathlib import Path
@@ -16,9 +17,9 @@ from typing import Optional
 import atoma
 import dateutil.parser
 import requests
+from PIL import Image
 from lxml.ElementInclude import etree
 from lxml.html.soupparser import fromstring
-from PIL import Image
 
 from blog2epub.common.book import Book
 from blog2epub.common.crawler import (
@@ -30,7 +31,14 @@ from blog2epub.common.crawler import (
 from blog2epub.common.interfaces import EmptyInterface
 
 
-class Crawler:
+class AbstractCrawler(ABC):
+
+    @abstractmethod
+    def save(self):
+        pass
+
+
+class Crawler(AbstractCrawler):
     """
     Universal blog crawler.
     """
