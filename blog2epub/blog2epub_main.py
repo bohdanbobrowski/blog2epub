@@ -1,10 +1,11 @@
+import os.path
 from typing import Dict
 
 from blog2epub.common.exceptions import NoCrawlerDetectedError
 from blog2epub.crawlers.blogspot import CrawlerBlogspot
 from blog2epub.crawlers.wordpress import CrawlerWordpress
 
-VERSION = "1.2.4"
+VERSION = "1.2.5"
 
 
 class Blog2Epub:
@@ -23,5 +24,13 @@ class Blog2Epub:
             return CrawlerBlogspot(**params)
         return CrawlerWordpress(**params)
 
-    def download(self):
+    def download(self) -> list:
         self.crawler.save()
+        cover_image_path = os.path.join(
+            self.crawler.book.cover.destination_folder,
+            self.crawler.book.cover.file_name + ".jpg",
+        )
+        generated_ebook_path = os.path.join(
+            self.crawler.book.destination_folder, self.crawler.book.file_name
+        )
+        return [cover_image_path, generated_ebook_path]

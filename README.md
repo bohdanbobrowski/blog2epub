@@ -96,9 +96,9 @@ Convert blog to epub using command line or GUI.
 ## Release notes
 
 ### [1.2.5](#in-development)
-- utilize GitHub Pages for this project documentation
-- save url textfield history and suggest blogs downloaded in the past
-- add popup similar to about dialog after finished ebook generation 
+- [ ] utilize GitHub Pages for this project documentation
+- [ ] save url textfield history and suggest blogs downloaded in the past
+- [x] add popup similar to about dialog after finished ebook generation
 
 ### [1.2.4](https://github.com/bohdanbobrowski/blog2epub/releases/tag/v1.2.4)
 - article loop fix (crawler was reading by default from atomfeed, and returning maximum 25 articles)

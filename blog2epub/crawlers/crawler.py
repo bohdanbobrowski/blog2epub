@@ -17,9 +17,9 @@ from typing import Optional
 import atoma
 import dateutil.parser
 import requests
-from PIL import Image
 from lxml.ElementInclude import etree
 from lxml.html.soupparser import fromstring
+from PIL import Image
 
 from blog2epub.common.book import Book
 from blog2epub.common.crawler import (
@@ -32,7 +32,6 @@ from blog2epub.common.interfaces import EmptyInterface
 
 
 class AbstractCrawler(ABC):
-
     @abstractmethod
     def save(self):
         pass

@@ -3,10 +3,10 @@ import os
 import platform
 import subprocess
 import sys
-import threading
 import webbrowser
 from datetime import datetime
 from pathlib import Path
+from threading import Thread
 from typing import Dict, Optional
 from urllib import parse
 
@@ -27,11 +27,10 @@ from kivy.uix.popup import Popup
 from kivy.uix.textinput import TextInput
 
 from blog2epub import Blog2Epub
-from blog2epub.common.assets import asset_path
+from blog2epub.common.assets import asset_path, open_file
 from blog2epub.common.crawler import prepare_url
 from blog2epub.common.exceptions import BadUrlException
 from blog2epub.common.interfaces import EmptyInterface
-
 
 SIZE = 3 / Metrics.density / Metrics.density
 F_SIZE = 3 / Metrics.density
@@ -82,6 +81,23 @@ class StyledButton(Button):
         self.size_hint = (None, 1)
 
 
+class ThreadWithReturnValue(Thread):
+    # https://stackoverflow.com/questions/6893968/how-to-get-the-return-value-from-a-thread
+    def __init__(
+        self, group=None, target=None, name=None, args=(), kwargs={}, Verbose=None
+    ):
+        Thread.__init__(self, group, target, name, args, kwargs)
+        self._return = None
+
+    def run(self):
+        if self._target is not None:
+            self._return = self._target(*self._args, **self._kwargs)
+
+    def join(self, *args):
+        Thread.join(self, *args)
+        return self._return
+
+
 class Blog2EpubKivyWindow(BoxLayout):
     def __init__(self, **kwargs):
         super(Blog2EpubKivyWindow, self).__init__(**kwargs)
@@ -118,7 +134,7 @@ class Blog2EpubKivyWindow(BoxLayout):
         self.row2.add_widget(self.skip_entry)
 
         self.about_button = StyledButton(text="About")
-        self.about_button.bind(on_press=self.about_popup)
+        self.about_button.bind(on_press=self.about)
         self.row2.add_widget(self.about_button)
 
         self.console = TextInput(
@@ -173,20 +189,19 @@ class Blog2EpubKivyWindow(BoxLayout):
 
     def _download_ebook(self, blog2epub: Blog2Epub):
         self.interface.print("Downloading...")
-        blog2epub.download()
+        cover_image_path, generated_ebook_path = blog2epub.download()
         self.download_button.disabled = False
+        self.popup_success(cover_image_path, generated_ebook_path)
 
     def download(self, instance):
         self.interface.clear()
         self.download_button.disabled = True
         self.save_settings()
-        download_thread = threading.Thread(
+        download_thread = Thread(
             target=self._download_ebook,
             kwargs={"blog2epub": Blog2Epub(self._get_params())},
         )
         download_thread.start()
-
-        self.download_button.disabled = False
 
     def save_settings(self):
         self.settings.set("url", prepare_url(self.url_entry.text))
@@ -194,7 +209,7 @@ class Blog2EpubKivyWindow(BoxLayout):
         self.settings.set("skip", self.skip_entry.text)
         self.settings.save()
 
-    def about_popup(self, instance):
+    def about(self, instance):
         about_content = BoxLayout(orientation="vertical")
         about_content.add_widget(
             Image(
@@ -228,10 +243,13 @@ class Blog2EpubKivyWindow(BoxLayout):
         )
         about_popup.open()
 
-    def sucess_popup(self, instance, cover_image_path: str, ebook_path: str):
-        sucess_content = BoxLayout(orientation="vertical")
-        sucess_content.add_widget(AboutPopupLabel(text="Ebook generated sucessfully:"))
-        sucess_content.add_widget(
+    @mainthread
+    def popup_success(self, cover_image_path: str, generated_ebook_path: str):
+        self.success(cover_image_path, generated_ebook_path)
+
+    def success(self, cover_image_path: str, generated_ebook_path: str):
+        success_content = BoxLayout(orientation="vertical")
+        success_content.add_widget(
             Image(
                 source=asset_path(cover_image_path),
                 allow_stretch=True,
@@ -239,26 +257,27 @@ class Blog2EpubKivyWindow(BoxLayout):
             )
         )
 
-        def sucess_url_click(inst):
-            webbrowser.open("https://github.com/bohdanbobrowski/blog2epub")
-        sucess_content.add_widget(
+        def success_url_click(inst):
+            open_file(generated_ebook_path)
+
+        success_content.add_widget(
             Button(
-                text="github.com/bohdanbobrowski/blog2epub",
+                text="Click here to open epub",
                 font_size=dp(8 * F_SIZE),
                 font_name="RobotoMono-Regular",
                 size_hint=(1, 0.1),
-                on_press=sucess_url_click,
+                on_press=success_url_click,
             )
         )
-        sucess_popup = Popup(
-            title="Blog2Epub",
+        success_popup = Popup(
+            title="Ebook generated successfully:",
             title_size=dp(10 * F_SIZE),
             title_font="RobotoMono-Regular",
-            content=sucess_content,
+            content=success_content,
             size_hint=(None, None),
             size=(dp(210 * F_SIZE), dp(180 * F_SIZE)),
         )
-        sucess_popup.open()
+        success_popup.open()
 
 
 class AboutPopupLabel(Label):
