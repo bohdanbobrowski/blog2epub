@@ -10,3 +10,4 @@ fake-useragent>=0.1.11
 PyYAML>=5.3.1
 pycairo>=1.2.0
 Kivy>=2.0.0
+pydantic>=2.4.2
