@@ -25,13 +25,13 @@ Convert blog to epub using command line or GUI.
 ### Example covers
 
 <table style="width:100%;text-align:center;"><tr><td>
-<img src="https://raw.githubusercontent.com/bohdanbobrowski/blog2epub/master/assets/cover_1.jpg" width="400" style="margin:0 10px 10px 0" />
+<img src="/assets/cover_1.jpg" width="400" style="margin:0 10px 10px 0" />
 </td><td>
-<img src="https://raw.githubusercontent.com/bohdanbobrowski/blog2epub/master/assets/cover_2.jpg" width="400" style="margin:0 10px 10px 0" />
+<img src="/assets/cover_2.jpg" width="400" style="margin:0 10px 10px 0" />
 </td></tr><tr><td>
-<img src="https://raw.githubusercontent.com/bohdanbobrowski/blog2epub/master/assets/cover_3.jpg" width="400" style="margin:0 10px 10px 0" />
+<img src="/assets/cover_3.jpg" width="400" style="margin:0 10px 10px 0" />
 </td><td>
-<img src="https://raw.githubusercontent.com/bohdanbobrowski/blog2epub/master/assets/cover_4.jpg" width="400" style="margin:0 10px 10px 0;" />
+<img src="/assets/cover_4.jpg" width="400" style="margin:0 10px 10px 0;" />
 </td></tr></table>
 
 ## Installation
@@ -53,19 +53,19 @@ Convert blog to epub using command line or GUI.
 ### Windows 10
 
 <p align="center">
-<img src="https://raw.githubusercontent.com/bohdanbobrowski/blog2epub/master/assets/blog2epub_win10_screenshot.png" width="600px" />
+<img src="/assets/blog2epub_win10_screenshot.png" width="600px" />
 </p>
 
 ### macOS
 
 <p align="center">
-<img src="https://raw.githubusercontent.com/bohdanbobrowski/blog2epub/master/assets/blog2epub_macos_screenshot.png" width="600px" />
+<img src="/assets/blog2epub_macos_screenshot.png" width="600px" />
 </p>
 
 ### Linux
 
 <p align="center">
-<img src="https://raw.githubusercontent.com/bohdanbobrowski/blog2epub/master/assets/blog2epub_linux_screenshot.png"  width="600px" />
+<img src="/assets/blog2epub_linux_screenshot.png"  width="600px" />
 </p>
 
 ## CLI
