@@ -47,6 +47,13 @@ URL_HISTORY = SETTINGS.get("history")
 URL_HISTORY_ITERATOR = cycle(URL_HISTORY)
 
 
+def get_previous():
+    if len(URL_HISTORY) > 2:
+        for x in range(0, len(URL_HISTORY)-2):
+            next(URL_HISTORY_ITERATOR)
+    return next(URL_HISTORY_ITERATOR)
+
+
 now = datetime.now()
 date_time = now.strftime("%Y-%m-%d[%H.%M.%S]")
 logging_filename = os.path.join(
@@ -87,8 +94,31 @@ class StyledTextInput(TextInput):
 
 class UrlTextInput(StyledTextInput):
     def keyboard_on_key_down(self, window, keycode, text, modifiers):
+        # ↑ up
+        if keycode[0] == 273 and (self.text == "" or self.text in URL_HISTORY):
+            self.text = get_previous()
+        # ↓ down
         if keycode[0] == 274 and (self.text == "" or self.text in URL_HISTORY):
             self.text = next(URL_HISTORY_ITERATOR)
+        return super().keyboard_on_key_down(window, keycode, text, modifiers)
+
+
+class NumberTextInput(StyledTextInput):
+    def keyboard_on_key_down(self, window, keycode, text, modifiers):
+        try:
+            value = int(self.text)
+        except ValueError:
+            value = 0
+        # ↑ up
+        if keycode[0] == 273:
+            value += 1
+        # ↓ down
+        if keycode[0] == 274:
+            value -= 1
+        if value > 0:
+            self.text = str(value)
+        else:
+            self.text = ""
         return super().keyboard_on_key_down(window, keycode, text, modifiers)
 
 
@@ -117,7 +147,7 @@ class Blog2EpubKivyWindow(BoxLayout):
 
         hint_text = ""
         if SETTINGS.get("history"):
-            hint_text = "Press down to browse in url history"
+            hint_text = "Press ↑↓ to browse in url history"
 
         self.url_entry = UrlTextInput(
             size_hint=(0.8, 1),
@@ -137,15 +167,15 @@ class Blog2EpubKivyWindow(BoxLayout):
         self.add_widget(self.row2)
 
         self.row2.add_widget(StyledLabel(text="Limit:"))
-        self.limit_entry = StyledTextInput(
-            text=SETTINGS.get("limit"), input_type="number"
+        self.limit_entry = NumberTextInput(
+            text=SETTINGS.get("limit"), input_type="number", hint_text="0"
         )
         self.limit_entry.bind(text=self._allow_only_numbers)
         self.row2.add_widget(self.limit_entry)
 
         self.row2.add_widget(StyledLabel(text="Skip:"))
-        self.skip_entry = StyledTextInput(
-            text=SETTINGS.get("skip"), input_type="number"
+        self.skip_entry = NumberTextInput(
+            text=SETTINGS.get("skip"), input_type="number", hint_text="0"
         )
         self.skip_entry.bind(text=self._allow_only_numbers)
         self.row2.add_widget(self.skip_entry)
