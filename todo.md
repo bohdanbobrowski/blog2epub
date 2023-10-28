@@ -1,3 +1,8 @@
+---
+title: TODO list / Planned features
+description:
+---
+
 ## TODO list / Planned features
 
 - code needs some refactor: classes are too "nested" within each other

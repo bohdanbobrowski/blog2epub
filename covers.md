@@ -1,3 +1,8 @@
+---
+title: Covers
+description: Example covers of generated epubs
+---
+
 ## Example covers
 
 <table style="width:100%;text-align:center;"><tr><td>

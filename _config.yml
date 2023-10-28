@@ -29,6 +29,7 @@ defaults:
       layout: page
 
 exclude:
+  - blog2epub/
   - vendor/
   - Gemfile
   - LICENSE

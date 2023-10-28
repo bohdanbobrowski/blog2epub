@@ -1,3 +1,8 @@
+---
+title: Release notes
+description:
+---
+
 ## Release notes
 
 ### [1.2.5](#in-development)

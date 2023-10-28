@@ -1,4 +1,9 @@
-## Screenshots of GUI
+---
+title: Screenshots
+description: Windows 10, macOS and Linux screenshots 
+---
+
+## Screenshots
 
 ### Windows 10
 
