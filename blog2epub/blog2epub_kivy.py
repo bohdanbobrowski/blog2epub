@@ -38,7 +38,7 @@ from blog2epub.common.interfaces import EmptyInterface
 
 SIZE = 3 / Metrics.density / Metrics.density
 F_SIZE = 3 / Metrics.density
-FONT_NAME = asset_path("MartianMono-Regular.ttf")
+UI_FONT_NAME = asset_path("MartianMono-Regular.ttf")
 
 now = datetime.now()
 date_time = now.strftime("%Y-%m-%d[%H.%M.%S]")
@@ -59,7 +59,7 @@ class StyledLabel(Label):
     def __init__(self, **kwargs):
         super(StyledLabel, self).__init__(**kwargs)
         self.font_size = dp(6 * F_SIZE)
-        self.font_name = FONT_NAME
+        self.font_name = UI_FONT_NAME
         self.width = dp(40 * F_SIZE)
         self.size_hint = (None, 1)
 
@@ -68,9 +68,11 @@ class StyledTextInput(TextInput):
     def __init__(self, **kwargs):
         super(StyledTextInput, self).__init__(**kwargs)
         self.font_size = dp(6 * F_SIZE)
-        self.font_name = FONT_NAME
-        self.halign = "center"
+        self.font_name = UI_FONT_NAME
+        self.halign = "left"
         self.valign = "middle"
+        self.padding_y = [15, 15]
+        self.padding_x = [15, 15]
         self.size_hint = kwargs.get("size_hint", (0.25, 1))
         self.text = kwargs.get("text", "")
 
@@ -79,26 +81,9 @@ class StyledButton(Button):
     def __init__(self, **kwargs):
         super(StyledButton, self).__init__(**kwargs)
         self.font_size = dp(6 * F_SIZE)
-        self.font_name = FONT_NAME
+        self.font_name = UI_FONT_NAME
         self.width = dp(80 * F_SIZE)
         self.size_hint = (None, 1)
-
-
-class ThreadWithReturnValue(Thread):
-    # https://stackoverflow.com/questions/6893968/how-to-get-the-return-value-from-a-thread
-    def __init__(
-        self, group=None, target=None, name=None, args=(), kwargs={}, Verbose=None
-    ):
-        Thread.__init__(self, group, target, name, args, kwargs)
-        self._return = None
-
-    def run(self):
-        if self._target is not None:
-            self._return = self._target(*self._args, **self._kwargs)
-
-    def join(self, *args):
-        Thread.join(self, *args)
-        return self._return
 
 
 class Blog2EpubKivyWindow(BoxLayout):
@@ -142,7 +127,7 @@ class Blog2EpubKivyWindow(BoxLayout):
 
         self.console = TextInput(
             font_size=dp(6 * F_SIZE),
-            font_name=FONT_NAME,
+            font_name=UI_FONT_NAME,
             background_color="black",
             foreground_color="white",
             size_hint=(1, 0.88),
@@ -231,7 +216,7 @@ class Blog2EpubKivyWindow(BoxLayout):
             Button(
                 text="github.com/bohdanbobrowski/blog2epub",
                 font_size=dp(6 * F_SIZE),
-                font_name=FONT_NAME,
+                font_name=UI_FONT_NAME,
                 size_hint=(1, 0.1),
                 on_press=about_url_click,
             )
@@ -239,7 +224,7 @@ class Blog2EpubKivyWindow(BoxLayout):
         about_popup = Popup(
             title="Blog2Epub",
             title_size=dp(10 * F_SIZE),
-            title_font=FONT_NAME,
+            font_name=UI_FONT_NAME,
             content=about_content,
             size_hint=(None, None),
             size=(dp(210 * F_SIZE), dp(180 * F_SIZE)),
@@ -267,7 +252,7 @@ class Blog2EpubKivyWindow(BoxLayout):
             Button(
                 text="Click here to open epub",
                 font_size=dp(6 * F_SIZE),
-                font_name=FONT_NAME,
+                font_name=UI_FONT_NAME,
                 size_hint=(1, 0.1),
                 on_press=success_url_click,
             )
@@ -275,7 +260,7 @@ class Blog2EpubKivyWindow(BoxLayout):
         success_popup = Popup(
             title="Ebook generated successfully:",
             title_size=dp(10 * F_SIZE),
-            title_font=FONT_NAME,
+            title_font=UI_FONT_NAME,
             content=success_content,
             size_hint=(None, None),
             size=(dp(210 * F_SIZE), dp(180 * F_SIZE)),
@@ -287,7 +272,7 @@ class AboutPopupLabel(Label):
     def __init__(self, **kwargs):
         Label.__init__(self, **kwargs)
         self.font_size = dp(6 * F_SIZE)
-        self.font_name = FONT_NAME
+        self.font_name = UI_FONT_NAME
         self.size_hint = (1, 0.1)
 
 
