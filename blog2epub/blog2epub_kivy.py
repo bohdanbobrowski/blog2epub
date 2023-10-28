@@ -1,6 +1,7 @@
 import logging
 import os
 import platform
+import re
 import subprocess
 import sys
 import webbrowser
@@ -9,9 +10,6 @@ from pathlib import Path
 from threading import Thread
 from typing import Dict, Optional
 from urllib import parse
-
-from kivy.properties import BooleanProperty
-from kivy.uix.dropdown import DropDown
 
 if sys.__stdout__ is None or sys.__stderr__ is None:
     os.environ["KIVY_NO_CONSOLELOG"] = "1"
@@ -74,6 +72,8 @@ class StyledTextInput(TextInput):
         self.font_name = UI_FONT_NAME
         self.halign = "left"
         self.valign = "middle"
+        self.write_tab = False
+        self.multiline = False
         self.padding_y = [15, 15]
         self.padding_x = [15, 15]
         self.size_hint = kwargs.get("size_hint", (0.25, 1))
@@ -87,29 +87,6 @@ class StyledButton(Button):
         self.font_name = UI_FONT_NAME
         self.width = dp(80 * F_SIZE)
         self.size_hint = (None, 1)
-
-
-class CustomDropDown(DropDown):
-    force_below = BooleanProperty(False)
-
-    def __init__(self, **kwargs):
-        super(CustomDropDown, self).__init__(**kwargs)
-        self.do_not_reposition = False
-
-    def _reposition(self, *largs):
-        if self.do_not_reposition:
-            return
-        super(CustomDropDown, self)._reposition(*largs)
-        if self.force_below:
-            self.make_drop_below()
-
-    def make_drop_below(self):
-        self.do_not_reposition = True
-        if self.attach_to is not None:
-            wx, wy = self.to_window(*self.attach_to.pos)
-            self.height = wy
-            self.top = wy
-        self.do_not_reposition = False
 
 
 class Blog2EpubKivyWindow(BoxLayout):
@@ -126,16 +103,17 @@ class Blog2EpubKivyWindow(BoxLayout):
         self.add_widget(self.row1)
 
         self.row1.add_widget(StyledLabel(text="Url:"))
-        # self.url_entry = StyledTextInput(
-        #    size_hint=(0.8, 1), text=self.settings.get("url")
-        # )
-        self.url_entry = CustomDropDown(force_below=True, size_hint=(0.8, 1))
-        notes = [self.settings.get("url")]
-        for note in notes:
-            btn = Button(text='%r' % note, size_hint=(0.8, 1), height=30)
-            btn.bind(on_release=lambda btn: self.url_entry.select(btn.text))
-            self.url_entry.add_widget(btn)
+        # on_key_down(key, scancode=None, codepoint=None, modifier=None, **kwargs)
+
+        self.url_entry = StyledTextInput(
+            size_hint=(0.8, 1),
+            text=self.settings.get("url"),
+            hint_text=self.settings.get("url"),
+            input_type="url",
+        )
+        self.url_entry.bind(text=self._on_foucus_url_textinput)
         self.row1.add_widget(self.url_entry)
+
         self.download_button = StyledButton(text="Download")
         self.download_button.bind(on_press=self.download)
         self.row1.add_widget(self.download_button)
@@ -146,11 +124,13 @@ class Blog2EpubKivyWindow(BoxLayout):
         self.add_widget(self.row2)
 
         self.row2.add_widget(StyledLabel(text="Limit:"))
-        self.limit_entry = StyledTextInput(text=self.settings.get("limit"))
+        self.limit_entry = StyledTextInput(text=self.settings.get("limit"), input_type="number")
+        self.limit_entry.bind(text=self._allow_only_numbers)
         self.row2.add_widget(self.limit_entry)
 
         self.row2.add_widget(StyledLabel(text="Skip:"))
-        self.skip_entry = StyledTextInput(text=self.settings.get("skip"))
+        self.skip_entry = StyledTextInput(text=self.settings.get("skip"), input_type="number")
+        self.skip_entry.bind(text=self._allow_only_numbers)
         self.row2.add_widget(self.skip_entry)
 
         self.about_button = StyledButton(text="About")
@@ -167,6 +147,13 @@ class Blog2EpubKivyWindow(BoxLayout):
         )
         self.add_widget(self.console)
         self.interface = KivyInterface(self.console_output, self.console_clear)
+
+    def _on_foucus_url_textinput(self, *kwargs):
+        print(kwargs)
+        print("ONFOCUS")
+
+    def _allow_only_numbers(self, input_widget, text):
+        input_widget.text = " ".join(re.findall(r'\d+', text))
 
     @mainthread
     def console_output(self, text: str):
@@ -208,20 +195,28 @@ class Blog2EpubKivyWindow(BoxLayout):
         }
 
     def _download_ebook(self, blog2epub: Blog2Epub):
-        self.interface.print("Downloading...")
         cover_image_path, generated_ebook_path = blog2epub.download()
-        self.download_button.disabled = False
+        self._enable_download_button()
         self.popup_success(cover_image_path, generated_ebook_path)
 
     def download(self, instance):
         self.interface.clear()
-        self.download_button.disabled = True
+        self._disable_download_button()
         self.save_settings()
         download_thread = Thread(
             target=self._download_ebook,
             kwargs={"blog2epub": Blog2Epub(self._get_params())},
         )
         download_thread.start()
+
+    def _disable_download_button(self):
+        self.interface.print("Downloading...")
+        self.download_button.disabled = True
+        self.download_button.text = "Downloading..."
+
+    def _enable_download_button(self):
+        self.download_button.disabled = False
+        self.download_button.text = "Download"
 
     def save_settings(self):
         self.settings.set("url", prepare_url(self.url_entry.text))
