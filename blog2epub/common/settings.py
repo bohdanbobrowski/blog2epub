@@ -49,5 +49,3 @@ class Blog2EpubSettings:
             return self._data[key]
         else:
             return None
-
-SETTINGS = Blog2EpubSettings()

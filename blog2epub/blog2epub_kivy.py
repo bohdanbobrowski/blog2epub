@@ -10,6 +10,7 @@ from pathlib import Path
 from threading import Thread
 from typing import Optional
 from urllib import parse
+from itertools import cycle
 
 from blog2epub.common.settings import Blog2EpubSettings
 
@@ -42,6 +43,8 @@ SIZE = 3 / Metrics.density / Metrics.density
 F_SIZE = 3 / Metrics.density
 UI_FONT_NAME = asset_path("MartianMono-Regular.ttf")
 SETTINGS = Blog2EpubSettings()
+URL_HISTORY = SETTINGS.get("history")
+URL_HISTORY_ITERATOR = cycle(URL_HISTORY)
 
 
 now = datetime.now()
@@ -81,15 +84,11 @@ class StyledTextInput(TextInput):
         self.size_hint = kwargs.get("size_hint", (0.25, 1))
         self.text = kwargs.get("text", "")
 
+
 class UrlTextInput(StyledTextInput):
-
-    def insert_text(self, substring, from_undo=False):
-        print(substring)
-        s = substring
-        return super().insert_text(s, from_undo=from_undo)
-
     def keyboard_on_key_down(self, window, keycode, text, modifiers):
-        print(keycode)
+        if keycode[0] == 274 and (self.text == "" or self.text in URL_HISTORY):
+            self.text = next(URL_HISTORY_ITERATOR)
         return super().keyboard_on_key_down(window, keycode, text, modifiers)
 
 
@@ -115,15 +114,17 @@ class Blog2EpubKivyWindow(BoxLayout):
         self.add_widget(self.row1)
 
         self.row1.add_widget(StyledLabel(text="Url:"))
-        # on_key_down(key, scancode=None, codepoint=None, modifier=None, **kwargs)
+
+        hint_text = ""
+        if SETTINGS.get("history"):
+            hint_text = "Press down to browse in url history"
 
         self.url_entry = UrlTextInput(
             size_hint=(0.8, 1),
             text=SETTINGS.get("url"),
-            hint_text=SETTINGS.get("url"),
+            hint_text=hint_text,
             input_type="url",
         )
-        # self.url_entry.bind(key=self._suggest_history)
         self.row1.add_widget(self.url_entry)
 
         self.download_button = StyledButton(text="Download")
@@ -136,12 +137,16 @@ class Blog2EpubKivyWindow(BoxLayout):
         self.add_widget(self.row2)
 
         self.row2.add_widget(StyledLabel(text="Limit:"))
-        self.limit_entry = StyledTextInput(text=SETTINGS.get("limit"), input_type="number")
+        self.limit_entry = StyledTextInput(
+            text=SETTINGS.get("limit"), input_type="number"
+        )
         self.limit_entry.bind(text=self._allow_only_numbers)
         self.row2.add_widget(self.limit_entry)
 
         self.row2.add_widget(StyledLabel(text="Skip:"))
-        self.skip_entry = StyledTextInput(text=SETTINGS.get("skip"), input_type="number")
+        self.skip_entry = StyledTextInput(
+            text=SETTINGS.get("skip"), input_type="number"
+        )
         self.skip_entry.bind(text=self._allow_only_numbers)
         self.row2.add_widget(self.skip_entry)
 
@@ -164,7 +169,7 @@ class Blog2EpubKivyWindow(BoxLayout):
         print(kwargs)
 
     def _allow_only_numbers(self, input_widget, text):
-        input_widget.text = " ".join(re.findall(r'\d+', text))
+        input_widget.text = " ".join(re.findall(r"\d+", text))
 
     @mainthread
     def console_output(self, text: str):
