@@ -87,23 +87,39 @@ class Cover:
 
     def _draw_text(self, cover_image):
         cover_draw = ImageDraw.Draw(cover_image)
-        cover_draw.text(
-            (15, 635),
-            self.title,
-            (255, 255, 255),
-            font=ImageFont.truetype(TITLE_FONT_NAME, 30),
-        )
+        title_font = ImageFont.truetype(TITLE_FONT_NAME, 30)
+        subtitle_font = ImageFont.truetype(SUBTITLE_FONT_NAME, 20)
+        generator_font = ImageFont.truetype(GENERATOR_FONT_NAME, 10)
+        title_length = title_font.getlength(self.title)
+        title_height = title_font.getlength(self.title)
+        if title_length <= 570:
+            cover_draw.text(
+                (15, 635),
+                self.title,
+                (255, 255, 255),
+                font=title_font,
+            )
+        else:
+            title = self.title.split(" - ")
+            buffer = 35 * len(title)
+            title = "\n".join(title)
+            cover_draw.text(
+                (15, 635 - buffer),
+                title,
+                (255, 255, 255),
+                font=title_font,
+            )
         cover_draw.text(
             (15, 670),
             self._get_cover_date(),
             (150, 150, 150),
-            font=ImageFont.truetype(SUBTITLE_FONT_NAME, 20),
+            font=subtitle_font,
         )
         cover_draw.text(
             (15, 750),
             f"Generated with blog2epub v{VERSION}\nfrom {self.file_name_prefix}",
             (155, 155, 155),
-            font=ImageFont.truetype(GENERATOR_FONT_NAME, 10),
+            font=generator_font,
         )
         return cover_image
 
