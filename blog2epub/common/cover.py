@@ -91,7 +91,6 @@ class Cover:
         subtitle_font = ImageFont.truetype(SUBTITLE_FONT_NAME, 20)
         generator_font = ImageFont.truetype(GENERATOR_FONT_NAME, 10)
         title_length = title_font.getlength(self.title)
-        title_height = title_font.getlength(self.title)
         if title_length <= 570:
             cover_draw.text(
                 (15, 635),
