@@ -1,7 +1,49 @@
-title: blog2epub
-logo: /assets/blog2epub_256px.png
-description: Convert blog to epub using command line or GUI.
-theme: jekyll-theme-architect
+### Site metadata
+
+# Don't make the title longer than this, otherwise it gets covered in mobile view.
+title: Jekyll Blog Demo
+description: Starter for a static website or blog - built with Jekyll, a minimal theme and GH Pages
+
+email:
+twitter_username:
+github_username: MichaelCurrin
+rss: RSS
+
+### Build settings
+
+url: https://michaelcurrin.github.io
+baseurl: /jekyll-blog-demo
+
+permalink: pretty
+
+theme: minima
 
 plugins:
+  - jekyll-feed
   - jekyll-sitemap
+
+collections:
+  tools:
+    output: true
+  languages:
+    output: true
+
+defaults:
+  - scope:
+      path: ""
+    values:
+      layout: page
+
+exclude:
+  - docs/
+  - vendor/
+  - Gemfile # Gemfile.lock is implied because of how matching works.
+  - LICENSE
+  - Makefile
+  - README.md
+  - sample*.png
+
+liquid:
+  error_mode: strict
+
+strict_front_matter: true

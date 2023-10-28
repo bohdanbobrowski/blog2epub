@@ -1,0 +1,25 @@
+<ul>
+    {% for collection in site.collections %}
+        {% unless collection.label == "posts" %}
+            <li>
+                {%- assign key = collection.label | append: '.md' -%}
+                {%- assign title_page = site.pages | where: 'name', key | first -%}
+
+                <h3>
+                    <a href="{{ title_page.url | relative_url }}">
+                    {{ title_page.title }}
+                    </a>
+                </h3>
+                <ul>
+                    {%- for c in collection.docs %}
+                        <li>
+                            <a href="{{ c.url | relative_url }}">
+                                {{ c.title }}
+                            </a>
+                        </li>
+                    {% endfor -%}
+                </ul>
+            </li>
+        {% endunless %}
+    {% endfor %}
+</ul>
