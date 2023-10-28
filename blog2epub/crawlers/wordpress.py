@@ -92,7 +92,6 @@ class ArticleWordpressCom(Article):
                 img_url = img.attrib.get("src")
             if img_url:
                 img_url = img_url.split("?")[0]
-                self.interface.print(img_url)
                 img_caption = img.attrib.get("data-image-title")
                 if not img_caption:
                     img_caption = img.attrib.get("title")
