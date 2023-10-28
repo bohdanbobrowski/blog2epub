@@ -16,25 +16,23 @@ plugins:
   - jekyll-feed
   - jekyll-sitemap
 
-collections:
-  tools:
-    output: true
-  languages:
-    output: true
-
 defaults:
   - scope:
       path: ""
     values:
       layout: page
+  - scope:
+      path: "assets"
+    values:
+      image: true
 
 exclude:
-  - blog2epub/
   - vendor/
   - Gemfile
   - LICENSE
   - Makefile
   - README.md
+  - blog2epub
   - sample*.png
 
 liquid:
