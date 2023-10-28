@@ -97,7 +97,7 @@ Convert blog to epub using command line or GUI.
 
 ### [1.2.5](#in-development)
 - [ ] utilize GitHub Pages for this project documentation
-- [ ] save url textfield history and suggest blogs downloaded in the past
+- [x] save url textfield history and allow easily choose from these urls
 - [x] change font from Lato (nice but large files) to much smaller ([Alegreya](https://github.com/huertatipografica/Alegreya) and [Martian Mono](https://github.com/evilmartians/mono) for UI)
 - [x] make program window not resizable
 - [x] add popup similar to about dialog after finished ebook generation
