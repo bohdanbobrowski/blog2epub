@@ -12,8 +12,6 @@ from typing import Optional
 from urllib import parse
 from itertools import cycle
 
-from blog2epub.common.settings import Blog2EpubSettings
-
 if sys.__stdout__ is None or sys.__stderr__ is None:
     os.environ["KIVY_NO_CONSOLELOG"] = "1"
 
@@ -38,6 +36,8 @@ from blog2epub.common.assets import asset_path, open_file
 from blog2epub.common.crawler import prepare_url
 from blog2epub.common.exceptions import BadUrlException
 from blog2epub.common.interfaces import EmptyInterface
+from blog2epub.common.settings import Blog2EpubSettings
+
 
 SIZE = 3 / Metrics.density / Metrics.density
 F_SIZE = 3 / Metrics.density

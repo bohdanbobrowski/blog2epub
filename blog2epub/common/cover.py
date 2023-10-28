@@ -135,19 +135,16 @@ class Cover:
             i = 1
             for x in range(0, tiles_count_x):
                 for y in range(0, tiles_count_y):
-                    try:
-                        img_file = os.path.join(self.dirs.images, self.images[i - 1])
-                        thumb = self._make_thumb(
-                            Image.open(img_file), (self.tile_size, self.tile_size)
-                        )
-                        thumb = thumb.point(lambda p: p * dark_factor)
-                        dark_factor = dark_factor - 0.03
-                        cover_image.paste(
-                            thumb, (y * self.tile_size, x * self.tile_size)
-                        )
-                        i = i + 1
-                    except Exception as e:
-                        print(e)
+                    img_file = os.path.join(self.dirs.images, self.images[i - 1])
+                    thumb = self._make_thumb(
+                        Image.open(img_file), (self.tile_size, self.tile_size)
+                    )
+                    thumb = thumb.point(lambda p: p * dark_factor)
+                    dark_factor = dark_factor - 0.03
+                    cover_image.paste(
+                        thumb, (y * self.tile_size, x * self.tile_size)
+                    )
+                    i = i + 1
                     if i > len(self.images):
                         i = 1
         cover_image = self._draw_text(cover_image)
