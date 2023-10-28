@@ -10,6 +10,9 @@ from threading import Thread
 from typing import Dict, Optional
 from urllib import parse
 
+from kivy.properties import BooleanProperty
+from kivy.uix.dropdown import DropDown
+
 if sys.__stdout__ is None or sys.__stderr__ is None:
     os.environ["KIVY_NO_CONSOLELOG"] = "1"
 
@@ -86,6 +89,29 @@ class StyledButton(Button):
         self.size_hint = (None, 1)
 
 
+class CustomDropDown(DropDown):
+    force_below = BooleanProperty(False)
+
+    def __init__(self, **kwargs):
+        super(CustomDropDown, self).__init__(**kwargs)
+        self.do_not_reposition = False
+
+    def _reposition(self, *largs):
+        if self.do_not_reposition:
+            return
+        super(CustomDropDown, self)._reposition(*largs)
+        if self.force_below:
+            self.make_drop_below()
+
+    def make_drop_below(self):
+        self.do_not_reposition = True
+        if self.attach_to is not None:
+            wx, wy = self.to_window(*self.attach_to.pos)
+            self.height = wy
+            self.top = wy
+        self.do_not_reposition = False
+
+
 class Blog2EpubKivyWindow(BoxLayout):
     def __init__(self, **kwargs):
         super(Blog2EpubKivyWindow, self).__init__(**kwargs)
@@ -100,9 +126,15 @@ class Blog2EpubKivyWindow(BoxLayout):
         self.add_widget(self.row1)
 
         self.row1.add_widget(StyledLabel(text="Url:"))
-        self.url_entry = StyledTextInput(
-            size_hint=(0.8, 1), text=self.settings.get("url")
-        )
+        # self.url_entry = StyledTextInput(
+        #    size_hint=(0.8, 1), text=self.settings.get("url")
+        # )
+        self.url_entry = CustomDropDown(force_below=True, size_hint=(0.8, 1))
+        notes = [self.settings.get("url")]
+        for note in notes:
+            btn = Button(text='%r' % note, size_hint=(0.8, 1), height=30)
+            btn.bind(on_release=lambda btn: self.url_entry.select(btn.text))
+            self.url_entry.add_widget(btn)
         self.row1.add_widget(self.url_entry)
         self.download_button = StyledButton(text="Download")
         self.download_button.bind(on_press=self.download)
