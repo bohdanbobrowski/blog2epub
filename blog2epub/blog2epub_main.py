@@ -2,10 +2,9 @@ import os.path
 from typing import Dict
 
 from blog2epub.common.exceptions import NoCrawlerDetectedError
+from blog2epub.common.globals import VERSION
 from blog2epub.crawlers.blogspot import CrawlerBlogspot
 from blog2epub.crawlers.wordpress import CrawlerWordpress
-
-VERSION = "1.2.5"
 
 
 class Blog2Epub:

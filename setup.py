@@ -4,7 +4,7 @@
 
 from distutils.core import setup
 
-from blog2epub.blog2epub_main import VERSION
+from blog2epub.common.globals import VERSION
 
 setup(
     name="blog2epub",

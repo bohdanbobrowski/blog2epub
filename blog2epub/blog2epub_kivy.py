@@ -14,9 +14,13 @@ if sys.__stdout__ is None or sys.__stderr__ is None:
     os.environ["KIVY_NO_CONSOLELOG"] = "1"
 
 import yaml
+from kivy.config import Config
+
+Config.set("input", "mouse", "mouse,multitouch_on_demand")
+Config.set("graphics", "resizable", False)
+
 from kivy.app import App
 from kivy.clock import mainthread
-from kivy.config import Config
 from kivy.core.window import Window
 from kivy.metrics import Metrics, dp
 from kivy.uix.boxlayout import BoxLayout
@@ -34,8 +38,7 @@ from blog2epub.common.interfaces import EmptyInterface
 
 SIZE = 3 / Metrics.density / Metrics.density
 F_SIZE = 3 / Metrics.density
-
-Config.set("input", "mouse", "mouse,multitouch_on_demand")
+FONT_NAME = asset_path("MartianMono-Regular.ttf")
 
 now = datetime.now()
 date_time = now.strftime("%Y-%m-%d[%H.%M.%S]")
@@ -55,8 +58,8 @@ logging.basicConfig(
 class StyledLabel(Label):
     def __init__(self, **kwargs):
         super(StyledLabel, self).__init__(**kwargs)
-        self.font_size = dp(10 * F_SIZE)
-        self.font_name = "RobotoMono-Regular"
+        self.font_size = dp(6 * F_SIZE)
+        self.font_name = FONT_NAME
         self.width = dp(40 * F_SIZE)
         self.size_hint = (None, 1)
 
@@ -64,8 +67,8 @@ class StyledLabel(Label):
 class StyledTextInput(TextInput):
     def __init__(self, **kwargs):
         super(StyledTextInput, self).__init__(**kwargs)
-        self.font_size = dp(8 * F_SIZE)
-        self.font_name = "RobotoMono-Regular"
+        self.font_size = dp(6 * F_SIZE)
+        self.font_name = FONT_NAME
         self.halign = "center"
         self.valign = "middle"
         self.size_hint = kwargs.get("size_hint", (0.25, 1))
@@ -75,8 +78,8 @@ class StyledTextInput(TextInput):
 class StyledButton(Button):
     def __init__(self, **kwargs):
         super(StyledButton, self).__init__(**kwargs)
-        self.font_size = dp(10 * F_SIZE)
-        self.font_name = "RobotoMono-Regular"
+        self.font_size = dp(6 * F_SIZE)
+        self.font_name = FONT_NAME
         self.width = dp(80 * F_SIZE)
         self.size_hint = (None, 1)
 
@@ -139,7 +142,7 @@ class Blog2EpubKivyWindow(BoxLayout):
 
         self.console = TextInput(
             font_size=dp(6 * F_SIZE),
-            font_name="RobotoMono-Regular",
+            font_name=FONT_NAME,
             background_color="black",
             foreground_color="white",
             size_hint=(1, 0.88),
@@ -227,8 +230,8 @@ class Blog2EpubKivyWindow(BoxLayout):
         about_content.add_widget(
             Button(
                 text="github.com/bohdanbobrowski/blog2epub",
-                font_size=dp(8 * F_SIZE),
-                font_name="RobotoMono-Regular",
+                font_size=dp(6 * F_SIZE),
+                font_name=FONT_NAME,
                 size_hint=(1, 0.1),
                 on_press=about_url_click,
             )
@@ -236,7 +239,7 @@ class Blog2EpubKivyWindow(BoxLayout):
         about_popup = Popup(
             title="Blog2Epub",
             title_size=dp(10 * F_SIZE),
-            title_font="RobotoMono-Regular",
+            title_font=FONT_NAME,
             content=about_content,
             size_hint=(None, None),
             size=(dp(210 * F_SIZE), dp(180 * F_SIZE)),
@@ -263,8 +266,8 @@ class Blog2EpubKivyWindow(BoxLayout):
         success_content.add_widget(
             Button(
                 text="Click here to open epub",
-                font_size=dp(8 * F_SIZE),
-                font_name="RobotoMono-Regular",
+                font_size=dp(6 * F_SIZE),
+                font_name=FONT_NAME,
                 size_hint=(1, 0.1),
                 on_press=success_url_click,
             )
@@ -272,7 +275,7 @@ class Blog2EpubKivyWindow(BoxLayout):
         success_popup = Popup(
             title="Ebook generated successfully:",
             title_size=dp(10 * F_SIZE),
-            title_font="RobotoMono-Regular",
+            title_font=FONT_NAME,
             content=success_content,
             size_hint=(None, None),
             size=(dp(210 * F_SIZE), dp(180 * F_SIZE)),
@@ -283,8 +286,8 @@ class Blog2EpubKivyWindow(BoxLayout):
 class AboutPopupLabel(Label):
     def __init__(self, **kwargs):
         Label.__init__(self, **kwargs)
-        self.font_size = dp(8 * F_SIZE)
-        self.font_name = "RobotoMono-Regular"
+        self.font_size = dp(6 * F_SIZE)
+        self.font_name = FONT_NAME
         self.size_hint = (1, 0.1)
 
 

@@ -5,6 +5,11 @@ from random import shuffle
 from PIL import Image, ImageDraw, ImageFont
 
 from blog2epub.common.assets import asset_path
+from blog2epub.common.globals import VERSION
+
+TITLE_FONT_NAME = asset_path("Alegreya-Regular.otf")
+SUBTITLE_FONT_NAME = asset_path("Alegreya-Italic.otf")
+GENERATOR_FONT_NAME = asset_path("MartianMono-Regular.ttf")
 
 
 class Cover:
@@ -81,29 +86,25 @@ class Cover:
         return self.end.strftime("%d %B %Y") + " - " + self.start.strftime("%d %B %Y")
 
     def _draw_text(self, cover_image):
-        lato_bold = asset_path("Lato-Bold.ttf")
-        lato_regular = asset_path("Lato-Regular.ttf")
-        lato_italic = asset_path("Lato-Italic.ttf")
-        if lato_bold and lato_italic and lato_regular:
-            cover_draw = ImageDraw.Draw(cover_image)
-            cover_draw.text(
-                (15, 635),
-                self.title,
-                (255, 255, 255),
-                font=ImageFont.truetype(lato_bold, 30),
-            )
-            cover_draw.text(
-                (15, 760),
-                self.file_name_prefix,
-                (255, 255, 255),
-                font=ImageFont.truetype(lato_regular, 20),
-            )
-            cover_draw.text(
-                (15, 670),
-                self._get_cover_date(),
-                (150, 150, 150),
-                font=ImageFont.truetype(lato_italic, 20),
-            )
+        cover_draw = ImageDraw.Draw(cover_image)
+        cover_draw.text(
+            (15, 635),
+            self.title,
+            (255, 255, 255),
+            font=ImageFont.truetype(TITLE_FONT_NAME, 30),
+        )
+        cover_draw.text(
+            (15, 760),
+            f"Generated with blog2epub v{VERSION}\nfrom {self.file_name_prefix}",
+            (155, 155, 155),
+            font=ImageFont.truetype(GENERATOR_FONT_NAME, 12),
+        )
+        cover_draw.text(
+            (15, 670),
+            self._get_cover_date(),
+            (150, 150, 150),
+            font=ImageFont.truetype(SUBTITLE_FONT_NAME, 20),
+        )
         return cover_image
 
     def generate(self):
