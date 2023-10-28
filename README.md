@@ -1,5 +1,5 @@
 <p align="center">
-<img src="https://raw.githubusercontent.com/bohdanbobrowski/blog2epub/master/assets/blog2epub_256px.png" width="256" height="256" />
+<img src="/assets/blog2epub_256px.png" width="256" height="256" />
 </p>
 
 # blog2epub
