@@ -8,13 +8,14 @@ import webbrowser
 from datetime import datetime
 from pathlib import Path
 from threading import Thread
-from typing import Dict, Optional
+from typing import Optional
 from urllib import parse
+
+from blog2epub.common.settings import Blog2EpubSettings
 
 if sys.__stdout__ is None or sys.__stderr__ is None:
     os.environ["KIVY_NO_CONSOLELOG"] = "1"
 
-import yaml
 from kivy.config import Config
 
 Config.set("input", "mouse", "mouse,multitouch_on_demand")
@@ -40,13 +41,14 @@ from blog2epub.common.interfaces import EmptyInterface
 SIZE = 3 / Metrics.density / Metrics.density
 F_SIZE = 3 / Metrics.density
 UI_FONT_NAME = asset_path("MartianMono-Regular.ttf")
+SETTINGS = Blog2EpubSettings()
+
 
 now = datetime.now()
 date_time = now.strftime("%Y-%m-%d[%H.%M.%S]")
 logging_filename = os.path.join(
     str(Path.home()), ".blog2epub", f"blog2epub_{date_time}.log"
 )
-
 
 logging.basicConfig(
     filename=logging_filename,
@@ -79,6 +81,17 @@ class StyledTextInput(TextInput):
         self.size_hint = kwargs.get("size_hint", (0.25, 1))
         self.text = kwargs.get("text", "")
 
+class UrlTextInput(StyledTextInput):
+
+    def insert_text(self, substring, from_undo=False):
+        print(substring)
+        s = substring
+        return super().insert_text(s, from_undo=from_undo)
+
+    def keyboard_on_key_down(self, window, keycode, text, modifiers):
+        print(keycode)
+        return super().keyboard_on_key_down(window, keycode, text, modifiers)
+
 
 class StyledButton(Button):
     def __init__(self, **kwargs):
@@ -95,7 +108,6 @@ class Blog2EpubKivyWindow(BoxLayout):
         self.orientation = "vertical"
         self.padding = dp(6 * SIZE)
         self.spacing = dp(2 * SIZE)
-        self.settings = Blog2EpubSettings()
 
         self.row1 = BoxLayout(
             orientation="horizontal", size_hint=(1, 0.1), spacing=dp(2 * SIZE)
@@ -105,13 +117,13 @@ class Blog2EpubKivyWindow(BoxLayout):
         self.row1.add_widget(StyledLabel(text="Url:"))
         # on_key_down(key, scancode=None, codepoint=None, modifier=None, **kwargs)
 
-        self.url_entry = StyledTextInput(
+        self.url_entry = UrlTextInput(
             size_hint=(0.8, 1),
-            text=self.settings.get("url"),
-            hint_text=self.settings.get("url"),
+            text=SETTINGS.get("url"),
+            hint_text=SETTINGS.get("url"),
             input_type="url",
         )
-        self.url_entry.bind(text=self._on_foucus_url_textinput)
+        # self.url_entry.bind(key=self._suggest_history)
         self.row1.add_widget(self.url_entry)
 
         self.download_button = StyledButton(text="Download")
@@ -124,12 +136,12 @@ class Blog2EpubKivyWindow(BoxLayout):
         self.add_widget(self.row2)
 
         self.row2.add_widget(StyledLabel(text="Limit:"))
-        self.limit_entry = StyledTextInput(text=self.settings.get("limit"), input_type="number")
+        self.limit_entry = StyledTextInput(text=SETTINGS.get("limit"), input_type="number")
         self.limit_entry.bind(text=self._allow_only_numbers)
         self.row2.add_widget(self.limit_entry)
 
         self.row2.add_widget(StyledLabel(text="Skip:"))
-        self.skip_entry = StyledTextInput(text=self.settings.get("skip"), input_type="number")
+        self.skip_entry = StyledTextInput(text=SETTINGS.get("skip"), input_type="number")
         self.skip_entry.bind(text=self._allow_only_numbers)
         self.row2.add_widget(self.skip_entry)
 
@@ -148,9 +160,8 @@ class Blog2EpubKivyWindow(BoxLayout):
         self.add_widget(self.console)
         self.interface = KivyInterface(self.console_output, self.console_clear)
 
-    def _on_foucus_url_textinput(self, *kwargs):
+    def _suggest_history(self, *kwargs):
         print(kwargs)
-        print("ONFOCUS")
 
     def _allow_only_numbers(self, input_widget, text):
         input_widget.text = " ".join(re.findall(r'\d+', text))
@@ -219,10 +230,10 @@ class Blog2EpubKivyWindow(BoxLayout):
         self.download_button.text = "Download"
 
     def save_settings(self):
-        self.settings.set("url", prepare_url(self.url_entry.text))
-        self.settings.set("limit", self.limit_entry.text)
-        self.settings.set("skip", self.skip_entry.text)
-        self.settings.save()
+        SETTINGS.set("url", prepare_url(self.url_entry.text))
+        SETTINGS.set("limit", self.limit_entry.text)
+        SETTINGS.set("skip", self.skip_entry.text)
+        SETTINGS.save()
 
     def about(self, instance):
         about_content = BoxLayout(orientation="vertical")
@@ -337,52 +348,6 @@ class KivyInterface(EmptyInterface):
 
     def clear(self):
         self.console_clear()
-
-
-class Blog2EpubSettings:
-    def __init__(self):
-        self.path = os.path.join(str(Path.home()), ".blog2epub")
-        self._prepare_path()
-        self.fname = os.path.join(self.path, "blog2epub.yml")
-        self._data = self._read()
-
-    def _prepare_path(self):
-        if not os.path.exists(self.path):
-            os.makedirs(self.path)
-
-    def _read(self):
-        if not os.path.isfile(self.fname):
-            self._data = self._get_default()
-            self.save()
-        with open(self.fname, "rb") as stream:
-            data_in_file = yaml.safe_load(stream)
-            data = self._get_default()
-            for k, v in data.items():
-                if k in data_in_file:
-                    data[k] = data_in_file[k]
-        return data
-
-    def _get_default(self) -> Dict:
-        return {"url": "", "limit": "", "skip": "", "history": []}
-
-    def _save_history(self):
-        if self._data["url"] and self._data["url"] not in self._data["history"]:
-            self._data["history"].append(self._data["url"])
-            sorted(self._data["history"])
-
-    def save(self):
-        self._save_history()
-        with open(self.fname, "w") as outfile:
-            yaml.dump(self._data, outfile, default_flow_style=False)
-
-    def set(self, key, value):
-        self._data[key] = value
-
-    def get(self, key):
-        if key in self._data:
-            return self._data[key]
-        else:
-            return None
 
 
 class Blog2EpubKivy(App):
