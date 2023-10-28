@@ -3,7 +3,7 @@ logo: /assets/blog2epub_256px.png
 description: Convert blog to epub using command line or GUI.
 show_downloads: true
 google_analytics:
-theme: jekyll-theme-minimal
+theme: jekyll-theme-so-simple
 plugins:
   - jekyll-readme-index
 readme_index:
