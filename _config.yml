@@ -1,4 +1,5 @@
-title: blo2epub
+title: blog2epub
+logo: /assets/blog2epub.svg
 description: Convert blog to epub using command line or GUI
 
 email: bohdanbobrowski@gmail.com
