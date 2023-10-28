@@ -224,7 +224,7 @@ class Blog2EpubKivyWindow(BoxLayout):
         about_popup = Popup(
             title="Blog2Epub",
             title_size=dp(10 * F_SIZE),
-            font_name=UI_FONT_NAME,
+            title_font=UI_FONT_NAME,
             content=about_content,
             size_hint=(None, None),
             size=(dp(210 * F_SIZE), dp(180 * F_SIZE)),
