@@ -1,21 +1,14 @@
-### Site metadata
+title: blo2epub
+description: Convert blog to epub using command line or GUI
 
-# Don't make the title longer than this, otherwise it gets covered in mobile view.
-title: Jekyll Blog Demo
-description: Starter for a static website or blog - built with Jekyll, a minimal theme and GH Pages
-
-email:
+email: bohdanbobrowski@gmail.com
 twitter_username:
-github_username: MichaelCurrin
-rss: RSS
-
-### Build settings
+github_username: bohdanbobrowski
 
 url: https://michaelcurrin.github.io
-baseurl: /jekyll-blog-demo
+baseurl: /blog2epub
 
 permalink: pretty
-
 theme: minima
 
 plugins:
@@ -35,9 +28,8 @@ defaults:
       layout: page
 
 exclude:
-  - docs/
   - vendor/
-  - Gemfile # Gemfile.lock is implied because of how matching works.
+  - Gemfile
   - LICENSE
   - Makefile
   - README.md
