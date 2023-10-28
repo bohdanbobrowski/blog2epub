@@ -7,8 +7,8 @@ from PIL import Image, ImageDraw, ImageFont
 from blog2epub.common.assets import asset_path
 from blog2epub.common.globals import VERSION
 
-TITLE_FONT_NAME = asset_path("Alegreya-Regular.otf")
-SUBTITLE_FONT_NAME = asset_path("Alegreya-Italic.otf")
+TITLE_FONT_NAME = asset_path("Alegreya-Regular.ttf")
+SUBTITLE_FONT_NAME = asset_path("Alegreya-Italic.ttf")
 GENERATOR_FONT_NAME = asset_path("MartianMono-Regular.ttf")
 
 
@@ -94,16 +94,16 @@ class Cover:
             font=ImageFont.truetype(TITLE_FONT_NAME, 30),
         )
         cover_draw.text(
-            (15, 760),
-            f"Generated with blog2epub v{VERSION}\nfrom {self.file_name_prefix}",
-            (155, 155, 155),
-            font=ImageFont.truetype(GENERATOR_FONT_NAME, 12),
-        )
-        cover_draw.text(
             (15, 670),
             self._get_cover_date(),
             (150, 150, 150),
             font=ImageFont.truetype(SUBTITLE_FONT_NAME, 20),
+        )
+        cover_draw.text(
+            (15, 750),
+            f"Generated with blog2epub v{VERSION}\nfrom {self.file_name_prefix}",
+            (155, 155, 155),
+            font=ImageFont.truetype(GENERATOR_FONT_NAME, 10),
         )
         return cover_image
 
