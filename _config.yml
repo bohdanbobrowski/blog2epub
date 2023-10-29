@@ -23,8 +23,6 @@ plugins:
 defaults:
   - scope:
       path: ""
-    values:
-      layout: page
   - scope:
       path: "assets/"
   - scope:

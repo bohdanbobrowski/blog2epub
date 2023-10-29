@@ -1,4 +1,4 @@
 ---
 title: Changelog
-layout: blog
+# layout: blog
 ---
