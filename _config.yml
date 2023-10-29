@@ -2,12 +2,16 @@ title: blog2epub
 logo: /assets/blog2epub.svg
 description: Convert blog to epub using command line or GUI
 
-email: bohdanbobrowski@gmail.com
+author:
+  name: Bohdan Bobrowski
+  email: "bohdanbobrowski@gmail.com"
+
+email: "bohdanbobrowski@gmail.com"
 twitter_username: BohdanBobrowski
 github_username: bohdanbobrowski
 repository_name: blog2epub
 
-url: https://michaelcurrin.github.io
+url: https://bohdanbobrowski.github.io
 baseurl: /blog2epub
 
 permalink: pretty
@@ -40,6 +44,7 @@ liquid:
 strict_front_matter: true
 
 minima:
+  skin: solarized-dark
   social_links:
     - { platform: flickr,         user_url: "https://flickr.com/photos/bodzio" }
     - { platform: github,         user_url: "https://github.com/bohdanbobrowski" }
