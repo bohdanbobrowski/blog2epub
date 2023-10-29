@@ -86,12 +86,12 @@ Convert blog to epub using command line or GUI.
     blog2epub poznanskiehistorie.blogspot.com -q=100
     blog2epub classicameras.blogspot.com --limit=10 --no-images
 
-## TODO list / Planned features
+## Planned features and known bugs
 
-- code needs some refactor: classes are too "nested" within each other
-- Windows, linux app/package
-- mobile app (but rather only Android)
-- more blog engines and templates supported (wordpress.com etc.)
+- [ ] code needs some refactor: classes are too "nested" within each other
+- [ ] there are some bugs in wordpress.com crawler
+- [ ] Linux app/package(s)
+- [ ] mobile app (but rather only Android)
 
 ## Release notes
 
@@ -103,46 +103,46 @@ Convert blog to epub using command line or GUI.
 - [x] add popup similar to about dialog after finished ebook generation
 
 ### [1.2.4](https://github.com/bohdanbobrowski/blog2epub/releases/tag/v1.2.4)
-- article loop fix (crawler was reading by default from atomfeed, and returning maximum 25 articles)
-- refactor, as usual
-- url history saved into yaml file
+- [x] article loop fix (crawler was reading by default from atomfeed, and returning maximum 25 articles)
+- [x] refactor, as usual
+- [x] url history saved into yaml file
 
 ### [1.2.3](https://github.com/bohdanbobrowski/blog2epub/releases/tag/v1.2.3)
-- Windows and macOS (unsigned) builds
-- fixed encoding error in month name
-- some minor refactors and fixes
+- [x] Windows and macOS (unsigned) builds
+- [x] fixed encoding error in month name
+- [x] some minor refactors and fixes
 
 ### [1.2.2](https://github.com/bohdanbobrowski/blog2epub/releases/tag/v1.2.2)
-- Empty images list bug
-- Fixing macOS build (works on my machine - Ventura 13.3.1)
-- Improving macOS build - dmg now contains Applications folder shortcut to ease installation
+- [x] Empty images list bug
+- [x] Fixing macOS build (works on my machine - Ventura 13.3.1)
+- [x] Improving macOS build - dmg now contains Applications folder shortcut to ease installation
 
 ### [1.2.1](https://github.com/bohdanbobrowski/blog2epub/releases/tag/v1.2.1)
-- Kivy threading fix
-- skip parameter fix
-- Linux build (now I'm working on adding package to various linux package repositories)
+- [x] Kivy threading fix
+- [x] skip parameter fix
+- [x] Linux build (now I'm working on adding package to various linux package repositories)
 
 ### [1.2.0](https://github.com/bohdanbobrowski/blog2epub/releases/tag/v1.2.0)
-- migration to Kivy :-)
-- some bugfixes in crawler
-- wordpress.com support!
+- [x] migration to Kivy :-)
+- [x] some bugfixes in crawler
+- [x] wordpress.com support!
 
 ### [1.1.0](https://github.com/bohdanbobrowski/blog2epub/releases/tag/v1.1.0)
-- migration to Gtk (for better support on multiple platforms)
-- requirements cleanup
-- about dialog
-- macOS dmg installer included
+- [x] migration to Gtk (for better support on multiple platforms)
+- [x] requirements cleanup
+- [x] about dialog
+- [x] macOS dmg installer included
 
 ### [1.0.5](https://github.com/bohdanbobrowski/blog2epub/releases/tag/v1.0.5)
-- gzip html in cache folder
-- atom feed parsing
-- better system notifications, also under linux
+- [x] gzip html in cache folder
+- [x] atom feed parsing
+- [x] better system notifications, also under linux
 
 ### [1.0.4](https://github.com/bohdanbobrowski/blog2epub/releases/tag/v1.0.4)
-- improved saving GUI settings
-- system notification on finished download
+- [x] improved saving GUI settings
+- [x] system notification on finished download
 
 ### [1.0.3](https://github.com/bohdanbobrowski/blog2epub/releases/tag/v1.0.3)
 
-- saving GUI settings to yaml file
-- first macOS builds (pyinstaller)
+- [x] saving GUI settings to yaml file
+- [x] first macOS builds (pyinstaller)
