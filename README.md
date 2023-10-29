@@ -64,6 +64,8 @@ Convert blog to epub using command line or GUI.
 
 ### Linux
 
+Mint 21.2 Cinnamon
+
 <p align="center">
 <img src="./assets/blog2epub_linux_screenshot.png"  width="600px" />
 </p>
