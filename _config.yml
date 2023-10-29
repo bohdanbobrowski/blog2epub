@@ -1,50 +1,140 @@
-title: blog2epub
-logo: /assets/blog2epub.svg
-description: Convert blog to epub using command line or GUI
+text_skin: dark # "default" (default), "dark", "forest", "ocean", "chocolate", "orange"
+highlight_theme: default # "default" (default), "tomorrow", "tomorrow-night", "tomorrow-night-eighties", "tomorrow-night-blue", "tomorrow-night-bright"
+title : blog2epub
+description: > # this means to ignore newlines until "Language & timezone"
+  Convert blog to epub using command line or GUI
+
+lang: en
+timezone: # see https://en.wikipedia.org/wiki/List_of_tz_database_time_zones for the available values
 
 author:
+  type: person
   name: Bohdan Bobrowski
-  email: "bohdanbobrowski@gmail.com"
+  url:
+  avatar:
+  bio: Python developer.
+  email: bohdanbobrowski@gmail.com
+  twitter: BohdanBobrowski
+  linkedin: bohdanbobrowski
+  github: bohdanbobrowski
 
-email: "bohdanbobrowski@gmail.com"
 repository: bohdanbobrowski/blog2epub
+repository_tree: master
 
-url: https://bohdanbobrowski.github.io
-baseurl: /blog2epub
+paths:
+  root: # title link url, "/" (default)
+  home: # home layout url, "/" (default)
+  archive:  # "/archive.html" (default)
+  rss: # "/feed.xml" (default)
 
-permalink: pretty
-theme: jekyll-text-theme
-text_skin: dark
+excerpt_separator: <!--more-->
+
+license: CC-BY-NC-4.0 # "CC-BY-4.0", "CC-BY-SA-4.0", "CC-BY-NC-4.0", "CC-BY-ND-4.0"
+
+toc:
+  selectors: # "h1,h2,h3" (default)
+
+
+## => Markdown Enhancements
+##############################
+## Mathjax
+mathjax: # false (default), true
+mathjax_autoNumber: # false (default), true
+
+## Mermaid
+mermaid: # false (default), true
+
+## Chart
+chart: # false (default), true
+
+## => Paginate
+##############################
+paginate: 8
+paginate_path: /page:num # don't change this unless for special need
+
+## => Sources
+##############################
+sources: # bootcdn (default), unpkg
+
+## => Sharing
+##############################
+sharing:
+  provider: false # false (default), "addtoany", "addthis", "custom"
+  ## AddThis
+  addthis:
+    id: # AddThis pubid, e.g. ra-5xxxxxxxxxxx
+
+## => Pageview
+##############################
+pageview:
+  provider: false # false (default), "leancloud", "custom"
+
+  ## Leancloud
+  leancloud:
+    app_id    : # LeanCloud App id
+    app_key   : # LeanCloud App key
+    app_class : # LeanCloud App class
+
+
+## => Search
+##############################
+search:
+  provider: default # "default" (default), false, "google", "custom"
+
+  ## Google Custom Search Engine
+  google:
+    custom_search_engine_id: # Google Custom Search Engine ID
+
+
+## => Analytics
+##############################
+analytics:
+  provider: false # false (default), "google", "custom"
+
+  ## Google Analytics
+  google:
+    tracking_id : # Google Analytics id for the site
+    anonymize_ip: false # Anonymize IP tracking for Analytics
+
+
+## => Build
+##############################
+markdown    : kramdown
+highlighter : rouge
+permalink   : date
+
+exclude:
+  - CHANGELOG.md
+  - HOW_TO_RELEASE.md
+  - Gemfile
+  - Gemfile.lock
+  - LICENSE
+  - README.md
+  - gulpfile.js
+  - jekyll-text-theme.gemspec
+  - package-lock.json
+  - package.json
+  - /docs
+  - /assets
+  - /test
+  - /vendor
+
+defaults:
+  - scope:
+      path: ""
+      type: posts
+    values:
+      layout: article
+      sharing: true
+      license: true
+      aside:
+        toc: true
+      show_edit_on_github: true
+      show_subscribe: true
+      pageview: true
 
 plugins:
   - jekyll-feed
+  - jekyll-paginate
   - jekyll-sitemap
-
-exclude:
-  - vendor/
-  - Gemfile
-  - LICENSE
-  - Makefile
-  - README.md
-  - blog2epub
-  - sample*.png
-
-liquid:
-  error_mode: strict
-
-strict_front_matter: true
-
-header_pages:
-  - changelog.md
-  - covers.md
-  - screenshots.md
-  - todo.md
-
-minima:
-  social_links:
-    - { platform: flickr,         user_url: "https://flickr.com/photos/bodzio" }
-    - { platform: github,         user_url: "https://github.com/bohdanbobrowski" }
-    - { platform: instagram,      user_url: "https://instagram.com/bohdan.bobrowski/" }
-    - { platform: linkedin,       user_url: "https://linkedin.com/in/bohdanbobrowski/" }
-    - { platform: twitter,        user_url: "https://twitter.com/BohdanBobrowski" }
-    - { platform: youtube,        user_url: "https://youtube.com/channel/UCjCqjVqCoTIpzaa9fn2bpXQ" }
+  - jemoji
