@@ -1,9 +1,7 @@
 ---
 title: Release notes
-description:
+description: 
 ---
-
-## Release notes
 
 ### [1.2.5](#in-development)
 - [ ] utilize GitHub Pages for this project documentation

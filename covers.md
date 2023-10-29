@@ -3,8 +3,6 @@ title: Covers
 description: Example covers of generated epubs
 ---
 
-## Example covers
-
 <table style="width:100%;text-align:center;"><tr><td>
 <img src="/assets/cover_1.jpg" width="400" style="margin:0 10px 10px 0" />
 </td><td>

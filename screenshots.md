@@ -3,8 +3,6 @@ title: Screenshots
 description: Windows 10, macOS and Linux screenshots 
 ---
 
-## Screenshots
-
 ### Windows 10
 
 <p align="center">
