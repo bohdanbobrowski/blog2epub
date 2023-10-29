@@ -34,90 +34,51 @@ license: CC-BY-NC-4.0 # "CC-BY-4.0", "CC-BY-SA-4.0", "CC-BY-NC-4.0", "CC-BY-ND-4
 toc:
   selectors: # "h1,h2,h3" (default)
 
-
-## => Markdown Enhancements
-##############################
-## Mathjax
 mathjax: # false (default), true
 mathjax_autoNumber: # false (default), true
-
-## Mermaid
 mermaid: # false (default), true
-
-## Chart
 chart: # false (default), true
-
-## => Paginate
-##############################
 paginate: 8
 paginate_path: /page:num # don't change this unless for special need
-
-## => Sources
-##############################
 sources: # bootcdn (default), unpkg
 
-## => Sharing
-##############################
 sharing:
   provider: false # false (default), "addtoany", "addthis", "custom"
-  ## AddThis
   addthis:
     id: # AddThis pubid, e.g. ra-5xxxxxxxxxxx
 
-## => Pageview
-##############################
 pageview:
   provider: false # false (default), "leancloud", "custom"
-
-  ## Leancloud
   leancloud:
     app_id    : # LeanCloud App id
     app_key   : # LeanCloud App key
     app_class : # LeanCloud App class
 
-
-## => Search
-##############################
 search:
   provider: default # "default" (default), false, "google", "custom"
-
-  ## Google Custom Search Engine
   google:
     custom_search_engine_id: # Google Custom Search Engine ID
 
-
-## => Analytics
-##############################
 analytics:
   provider: false # false (default), "google", "custom"
-
-  ## Google Analytics
   google:
     tracking_id : # Google Analytics id for the site
     anonymize_ip: false # Anonymize IP tracking for Analytics
 
-
-## => Build
-##############################
 markdown    : kramdown
 highlighter : rouge
 permalink   : date
 
 exclude:
-  - CHANGELOG.md
-  - HOW_TO_RELEASE.md
   - Gemfile
   - Gemfile.lock
   - LICENSE
   - README.md
-  - gulpfile.js
-  - jekyll-text-theme.gemspec
   - package-lock.json
   - package.json
-  - /docs
   - /assets
-  - /test
-  - /vendor
+  - /blog2epub
+  - /packages
 
 defaults:
   - scope:
