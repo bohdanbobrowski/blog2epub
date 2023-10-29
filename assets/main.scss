@@ -1,7 +1,10 @@
 ---
+# Only the main Sass file needs front matter (the dashes are enough)
 ---
 
-@import "minima";
+@import
+  "minima/skins/{{ site.minima.skin | default: 'classic' }}",
+  "minima/initialize";
 
 @media screen and (max-width: 900px) {
   .site-nav {

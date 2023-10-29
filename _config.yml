@@ -47,3 +47,8 @@ minima:
     - { platform: linkedin,       user_url: "https://linkedin.com/in/bohdanbobrowski/" }
     - { platform: twitter,        user_url: "https://twitter.com/BohdanBobrowski" }
     - { platform: youtube,        user_url: "https://youtube.com/channel/UCjCqjVqCoTIpzaa9fn2bpXQ" }
+  header_pages:
+    - changelog.md
+    - covers.md
+    - screenshots.md
+    - todo.md
