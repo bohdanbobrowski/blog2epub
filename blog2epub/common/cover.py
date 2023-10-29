@@ -100,7 +100,7 @@ class Cover:
             )
         else:
             title = self.title.split(" - ")
-            buffer = 35 * len(title)
+            buffer = 35 * (len(title) - 1)
             title = "\n".join(title)
             cover_draw.text(
                 (15, 635 - buffer),
@@ -141,9 +141,7 @@ class Cover:
                     )
                     thumb = thumb.point(lambda p: p * dark_factor)
                     dark_factor = dark_factor - 0.03
-                    cover_image.paste(
-                        thumb, (y * self.tile_size, x * self.tile_size)
-                    )
+                    cover_image.paste(thumb, (y * self.tile_size, x * self.tile_size))
                     i = i + 1
                     if i > len(self.images):
                         i = 1

@@ -6,11 +6,11 @@ import subprocess
 import sys
 import webbrowser
 from datetime import datetime
+from itertools import cycle
 from pathlib import Path
 from threading import Thread
 from typing import Optional
 from urllib import parse
-from itertools import cycle
 
 if sys.__stdout__ is None or sys.__stderr__ is None:
     os.environ["KIVY_NO_CONSOLELOG"] = "1"
@@ -38,7 +38,6 @@ from blog2epub.common.exceptions import BadUrlException
 from blog2epub.common.interfaces import EmptyInterface
 from blog2epub.common.settings import Blog2EpubSettings
 
-
 SIZE = 3 / Metrics.density / Metrics.density
 F_SIZE = 3 / Metrics.density
 UI_FONT_NAME = asset_path("MartianMono-Regular.ttf")
@@ -49,7 +48,7 @@ URL_HISTORY_ITERATOR = cycle(URL_HISTORY)
 
 def get_previous():
     if len(URL_HISTORY) > 2:
-        for x in range(0, len(URL_HISTORY)-2):
+        for x in range(0, len(URL_HISTORY) - 2):
             next(URL_HISTORY_ITERATOR)
     return next(URL_HISTORY_ITERATOR)
 
