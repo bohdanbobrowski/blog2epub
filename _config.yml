@@ -7,15 +7,14 @@ author:
   email: "bohdanbobrowski@gmail.com"
 
 email: "bohdanbobrowski@gmail.com"
-twitter_username: BohdanBobrowski
-github_username: bohdanbobrowski
-repository_name: blog2epub
+repository: bohdanbobrowski/blog2epub
 
 url: https://bohdanbobrowski.github.io
 baseurl: /blog2epub
 
 permalink: pretty
-theme: minima
+theme: jekyll-text-theme
+text_skin: dark
 
 plugins:
   - jekyll-feed
@@ -28,6 +27,10 @@ defaults:
       layout: page
   - scope:
       path: "assets/"
+  - scope:
+      path: "changelog/"
+    values:
+      layout: archive
 
 exclude:
   - vendor/
@@ -43,7 +46,6 @@ liquid:
 
 strict_front_matter: true
 
-skin: solarized-dark
 header_pages:
   - changelog.md
   - covers.md
