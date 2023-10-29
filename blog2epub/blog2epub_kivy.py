@@ -67,6 +67,8 @@ logging.basicConfig(
 )
 
 
+
+
 class StyledLabel(Label):
     def __init__(self, **kwargs):
         super(StyledLabel, self).__init__(**kwargs)
@@ -388,6 +390,8 @@ class Blog2EpubKivy(App):
     def __init__(self, **kwargs):
         App.__init__(self, **kwargs)
         self.title = f"blog2epub - v. {Blog2Epub.version}"
+        logging.info(self.title)
+        logging.debug(f"Metrics.density = {Metrics.density}")
         if platform.system() == "Darwin":
             self.icon = asset_path("blog2epub.icns")
         elif platform.system() == "Windows":
