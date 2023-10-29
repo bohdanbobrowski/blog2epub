@@ -3,8 +3,6 @@ logo: /assets/blog2epub.svg
 description: Convert blog to epub using command line or GUI
 
 email: bohdanbobrowski@gmail.com
-twitter_username: BohdanBobrowski
-github_username: bohdanbobrowski
 
 url: https://michaelcurrin.github.io
 baseurl: /blog2epub
@@ -37,3 +35,12 @@ liquid:
   error_mode: strict
 
 strict_front_matter: true
+
+minima:
+  social_links:
+    - { platform: flickr,         user_url: "https://flickr.com/photos/bodzio" }
+    - { platform: github,         user_url: "https://github.com/bohdanbobrowski" }
+    - { platform: instagram,      user_url: "https://instagram.com/bohdan.bobrowski/" }
+    - { platform: linkedin,       user_url: "https://linkedin.com/in/bohdanbobrowski/" }
+    - { platform: twitter,        user_url: "https://twitter.com/BohdanBobrowski" }
+    - { platform: youtube,        user_url: "https://youtube.com/channel/UCjCqjVqCoTIpzaa9fn2bpXQ" }
