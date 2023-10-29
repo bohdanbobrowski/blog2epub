@@ -22,9 +22,7 @@ defaults:
     values:
       layout: page
   - scope:
-      path: "assets"
-    values:
-      image: true
+      path: "assets/"
 
 exclude:
   - vendor/
