@@ -1,11 +1,12 @@
 ---
-title: blog2epub 
-layout: home
+title: blog2epub
+description: Convert blog to epub using command line or GUI
 ---
 
 Convert blog to epub using command line or GUI.
 
 ### Supported blogs:
+
 - *.wordpress.com and some blogs based on WordPress
 - *.blogspot.com
 
