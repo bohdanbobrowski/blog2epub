@@ -20,16 +20,6 @@ plugins:
   - jekyll-feed
   - jekyll-sitemap
 
-defaults:
-  - scope:
-      path: ""
-  - scope:
-      path: "assets/"
-  - scope:
-      path: "changelog/"
-    values:
-      layout: archive
-
 exclude:
   - vendor/
   - Gemfile
