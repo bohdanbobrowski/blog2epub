@@ -4,7 +4,7 @@
 
 # blog2epub
 
-[![Maintenance](https://img.shields.io/badge/Maintained%3F-yes-green.svg)](https://github.com/bohdanbobrowski/blog2epub/graphs/commit-activity) [![MIT license](https://img.shields.io/badge/License-MIT-blue.svg)](https://lbesson.mit-license.org/)
+[![Maintenance](https://img.shields.io/badge/Maintained%3F-yes-green.svg)](https://github.com/bohdanbobrowski/blog2epub/graphs/commit-activity) [![MIT license](https://img.shields.io/badge/License-MIT-blue.svg)](https://lbesson.mit-license.org/) ![GitHub all releases](https://img.shields.io/github/downloads/bohdanbobrowski/blog2epub/total) ![GitHub release (with filter)](https://img.shields.io/github/v/release/bohdanbobrowski/blog2epub) ![GitHub Release Date - Published_At](https://img.shields.io/github/release-date/bohdanbobrowski/blog2epub)
 
 Convert blog to epub using command line or GUI.
 
@@ -36,7 +36,7 @@ Convert blog to epub using command line or GUI.
 
 ## Installation
 
-- for Windows and macOS users: available [builds](https://github.com/bohdanbobrowski/blog2epub/releases)
+- for __Windows__ and __macOS__ users: available [builds](https://github.com/bohdanbobrowski/blog2epub/releases)
 - python3 setup.py install
 
 ### Running froum sources
@@ -90,24 +90,21 @@ Mint 21.2 Cinnamon
 
 ## Planned features and known bugs
 
-- [ ] code needs some refactor: classes are too "nested" within each other
+- [ ] utilize GitHub Pages for this project documentation
 - [ ] there are some bugs in wordpress.com crawler
 - [ ] Linux app/package(s)
 - [ ] Android app
+- [ ] code needs some refactor: classes are too "nested" within each other
 - [ ] more crawlers (ex. GitHub Pages 🙃)
 - [ ] improve existing crawlers (allow)
 - [ ] improve GUI - configuration, allow to save in selected place etc.
-- [ ] utilize GitHub Pages for this project documentation
 
-## Current release
+## Change Log
 
-### [v1.2.5](#in-development) - Unreleased
+### [v1.2.5](https://github.com/bohdanbobrowski/blog2epub/releases/tag/v1.2.5) - 2023-10-30
 - [x] save url textfield history and allow easily choose from these urls
 - [x] change font from Lato (nice but large files) to much smaller ([Alegreya](https://github.com/huertatipografica/Alegreya) and [Martian Mono](https://github.com/evilmartians/mono) for UI)
 - [x] make program window not resizable
 - [x] add popup similar to about dialog after finished ebook generation
 
-### [v1.2.4](https://github.com/bohdanbobrowski/blog2epub/releases/tag/v1.2.4) - 2023-10-25
-- [x] article loop fix (crawler was reading by default from atomfeed, and returning maximum 25 articles)
-- [x] refactor, as usual
-- [x] url history saved into yaml file
+[&raquo; Complete Change Log here &laquo;](https://github.com/bohdanbobrowski/blog2epub/blob/master/CHANGELOG.md)
