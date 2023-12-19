@@ -230,6 +230,7 @@ class Blog2EpubKivyWindow(BoxLayout):
         about_content = BoxLayout(
             orientation="vertical",
         )
+        about_content.add_widget(AboutPopupLabel(text=""))
         about_content.add_widget(
             Image(
                 source=asset_path("blog2epub_white.png"),
