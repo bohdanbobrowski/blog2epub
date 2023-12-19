@@ -184,23 +184,29 @@ class Blog2EpubKivyWindow(BoxLayout):
         self.about_button.bind(on_press=self.about)
         self.row2.add_widget(self.about_button)
 
-        self.tabs = TabbedPanel()
+        self.tabs = TabbedPanel(
+            do_default_tab=False,
+        )
         self.console = TextInput(
             font_size=dp(6 * F_SIZE),
             font_name=UI_FONT_NAME,
             background_color="black",
             foreground_color="white",
-            size_hint=(1, 0.88),
+            size_hint=(1, 1),
             readonly=True,
         )
         self.tabs_console = TabbedPanelItem(
             text="Console",
+            font_size=dp(6 * F_SIZE),
+            font_name=UI_FONT_NAME,
         )
         self.tabs_console.add_widget(self.console)
         self.tabs.add_widget(self.tabs_console)
 
         self.tabs_articles = TabbedPanelItem(
             text="Articles",
+            font_size=dp(6 * F_SIZE),
+            font_name=UI_FONT_NAME,
         )
         self.tabs.add_widget(self.tabs_articles)
 
