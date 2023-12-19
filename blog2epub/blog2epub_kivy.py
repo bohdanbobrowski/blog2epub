@@ -29,6 +29,7 @@ from kivy.uix.button import Button
 from kivy.uix.image import Image
 from kivy.uix.label import Label
 from kivy.uix.popup import Popup
+from kivy.uix.tabbedpanel import TabbedPanel, TabbedPanelItem
 from kivy.uix.textinput import TextInput
 
 from blog2epub import Blog2Epub
@@ -65,8 +66,6 @@ logging.basicConfig(
     level=logging.DEBUG,
     format="%(asctime)s - %(levelname)s - %(message)s",
 )
-
-
 
 
 class StyledLabel(Label):
@@ -185,6 +184,7 @@ class Blog2EpubKivyWindow(BoxLayout):
         self.about_button.bind(on_press=self.about)
         self.row2.add_widget(self.about_button)
 
+        self.tabs = TabbedPanel()
         self.console = TextInput(
             font_size=dp(6 * F_SIZE),
             font_name=UI_FONT_NAME,
@@ -193,7 +193,18 @@ class Blog2EpubKivyWindow(BoxLayout):
             size_hint=(1, 0.88),
             readonly=True,
         )
-        self.add_widget(self.console)
+        self.tabs_console = TabbedPanelItem(
+            text="Console",
+        )
+        self.tabs_console.add_widget(self.console)
+        self.tabs.add_widget(self.tabs_console)
+
+        self.tabs_articles = TabbedPanelItem(
+            text="Articles",
+        )
+        self.tabs.add_widget(self.tabs_articles)
+
+        self.add_widget(self.tabs)
         self.interface = KivyInterface(self.console_output, self.console_clear)
 
     def _suggest_history(self, *kwargs):
