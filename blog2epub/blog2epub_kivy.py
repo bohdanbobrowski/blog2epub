@@ -12,6 +12,8 @@ from threading import Thread
 from typing import Optional
 from urllib import parse
 
+from kivy.uix.scrollview import ScrollView
+
 if sys.__stdout__ is None or sys.__stderr__ is None:
     os.environ["KIVY_NO_CONSOLELOG"] = "1"
 
@@ -26,6 +28,7 @@ from kivy.core.window import Window
 from kivy.metrics import Metrics, dp
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.button import Button
+from kivy.uix.checkbox import CheckBox
 from kivy.uix.image import Image
 from kivy.uix.label import Label
 from kivy.uix.popup import Popup
@@ -66,6 +69,17 @@ logging.basicConfig(
     level=logging.DEBUG,
     format="%(asctime)s - %(levelname)s - %(message)s",
 )
+
+
+class ArticleCheckbox(BoxLayout):
+    def __init__(self, title="", **kwargs):
+        super(ArticleCheckbox, self).__init__(**kwargs)
+        self.orientation = "horizontal"
+        self.size_hint_min = (1, 0.05)
+        self.check_box = CheckBox(active=True, size_hint=(0.2, 1))
+        self.add_widget(self.check_box)
+        self.label = StyledLabel(text=title, size_hint=(0.7, 1))
+        self.add_widget(self.label)
 
 
 class StyledLabel(Label):
@@ -232,25 +246,29 @@ class Blog2EpubKivyWindow(BoxLayout):
         )
         self.tabs_generate_layout.add_widget(row1)
         row1.add_widget(StyledLabel(text="Title:"))
-        self.book_title_entry = UrlTextInput(
-            size_hint=(0.8, 1),
-            text=""
-        )
+        self.book_title_entry = UrlTextInput(size_hint=(0.8, 1), text="")
         row1.add_widget(self.book_title_entry)
         row2 = BoxLayout(
             orientation="horizontal", size_hint=size_hint, spacing=dp(2 * SIZE)
         )
         self.tabs_generate_layout.add_widget(row2)
         row2.add_widget(StyledLabel(text="Sub title:"))
-        self.book_subtitle_entry = UrlTextInput(
-            size_hint=(0.8, 1),
-            text=""
-        )
+        self.book_subtitle_entry = UrlTextInput(size_hint=(0.8, 1), text="")
         row2.add_widget(self.book_subtitle_entry)
 
         generate_button = StyledButton(text="Generate")
         generate_button.bind(on_press=self.generate)
         row2.add_widget(generate_button)
+
+        art_list_container = ScrollView()
+        self.article_list = BoxLayout(
+            orientation="vertical", size_hint=(1, 0.8), spacing=dp(2 * SIZE)
+        )
+        art_list_container.add_widget(self.article_list)
+        self.tabs_generate_layout.add_widget(art_list_container)
+
+        for x in range(0, 20):
+            self.article_list.add_widget(ArticleCheckbox(title=f"Lorem ipsum dolor {x+1}"))
 
         self.tabs.add_widget(self.tabs_generate)
 
