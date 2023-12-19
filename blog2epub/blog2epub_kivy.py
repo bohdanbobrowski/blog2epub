@@ -137,6 +137,16 @@ class Blog2EpubKivyWindow(BoxLayout):
         self.orientation = "vertical"
         self.padding = dp(6 * SIZE)
         self.spacing = dp(2 * SIZE)
+
+        self._add_tabbed_layout()
+        self._add_download_tab()
+        self._add_generate_tab()
+        self._add_about_tab()
+
+        self.add_widget(self.tabs)
+        self.interface = KivyInterface(self.console_output, self.console_clear)
+
+    def _add_tabbed_layout(self):
         self.tabs = TabbedPanel(
             do_default_tab=False,
             tab_height=dp(25),
@@ -152,6 +162,8 @@ class Blog2EpubKivyWindow(BoxLayout):
             spacing=dp(2 * SIZE),
         )
         self.tabs_download.add_widget(self.tabs_download_layout)
+
+    def _add_download_tab(self):
         self.row1 = BoxLayout(
             orientation="horizontal", size_hint=(1, 0.1), spacing=dp(2 * SIZE)
         )
@@ -200,6 +212,7 @@ class Blog2EpubKivyWindow(BoxLayout):
         self.tabs_download_layout.add_widget(self.console)
         self.tabs.add_widget(self.tabs_download)
 
+    def _add_generate_tab(self):
         self.tabs_generate = TabbedPanelItem(
             text="Generate",
             font_size=dp(6 * F_SIZE),
@@ -207,6 +220,7 @@ class Blog2EpubKivyWindow(BoxLayout):
         )
         self.tabs.add_widget(self.tabs_generate)
 
+    def _add_about_tab(self):
         self.tabs_about = TabbedPanelItem(
             text="About",
             font_size=dp(6 * F_SIZE),
@@ -237,8 +251,6 @@ class Blog2EpubKivyWindow(BoxLayout):
         )
         self.tabs_about.add_widget(about_content)
         self.tabs.add_widget(self.tabs_about)
-        self.add_widget(self.tabs)
-        self.interface = KivyInterface(self.console_output, self.console_clear)
 
     def _suggest_history(self, *kwargs):
         print(kwargs)
