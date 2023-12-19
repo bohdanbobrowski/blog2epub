@@ -180,12 +180,9 @@ class Blog2EpubKivyWindow(BoxLayout):
         self.skip_entry.bind(text=self._allow_only_numbers)
         self.row2.add_widget(self.skip_entry)
 
-        self.about_button = StyledButton(text="About")
-        self.about_button.bind(on_press=self.about)
-        self.row2.add_widget(self.about_button)
-
         self.tabs = TabbedPanel(
             do_default_tab=False,
+            tab_height=dp(25),
         )
         self.console = TextInput(
             font_size=dp(6 * F_SIZE),
@@ -195,20 +192,51 @@ class Blog2EpubKivyWindow(BoxLayout):
             size_hint=(1, 1),
             readonly=True,
         )
-        self.tabs_console = TabbedPanelItem(
-            text="Console",
+        self.tabs_download = TabbedPanelItem(
+            text="1. Download",
             font_size=dp(6 * F_SIZE),
             font_name=UI_FONT_NAME,
         )
-        self.tabs_console.add_widget(self.console)
-        self.tabs.add_widget(self.tabs_console)
+        self.tabs_download.add_widget(self.console)
+        self.tabs.add_widget(self.tabs_download)
 
-        self.tabs_articles = TabbedPanelItem(
-            text="Articles",
+        self.tabs_generate = TabbedPanelItem(
+            text="2. Generate",
             font_size=dp(6 * F_SIZE),
             font_name=UI_FONT_NAME,
         )
-        self.tabs.add_widget(self.tabs_articles)
+        self.tabs.add_widget(self.tabs_generate)
+
+        self.tabs_about = TabbedPanelItem(
+            text="About",
+            font_size=dp(6 * F_SIZE),
+            font_name=UI_FONT_NAME,
+        )
+        about_content = BoxLayout(orientation="vertical")
+        about_content.add_widget(
+            Image(
+                source=asset_path("blog2epub.png"),
+                allow_stretch=True,
+                size_hint=(1, 0.7),
+            )
+        )
+        about_content.add_widget(AboutPopupLabel(text=f"v. {Blog2Epub.version}"))
+        about_content.add_widget(AboutPopupLabel(text="by Bohdan Bobrowski"))
+
+        def about_url_click(inst):
+            webbrowser.open("https://github.com/bohdanbobrowski/blog2epub")
+
+        about_content.add_widget(
+            Button(
+                text="github.com/bohdanbobrowski/blog2epub",
+                font_size=dp(6 * F_SIZE),
+                font_name=UI_FONT_NAME,
+                size_hint=(1, 0.1),
+                on_press=about_url_click,
+            )
+        )
+        self.tabs_about.add_widget(about_content)
+        self.tabs.add_widget(self.tabs_about)
 
         self.add_widget(self.tabs)
         self.interface = KivyInterface(self.console_output, self.console_clear)
@@ -287,40 +315,6 @@ class Blog2EpubKivyWindow(BoxLayout):
         SETTINGS.set("limit", self.limit_entry.text)
         SETTINGS.set("skip", self.skip_entry.text)
         SETTINGS.save()
-
-    def about(self, instance):
-        about_content = BoxLayout(orientation="vertical")
-        about_content.add_widget(
-            Image(
-                source=asset_path("blog2epub.png"),
-                allow_stretch=True,
-                size_hint=(1, 0.7),
-            )
-        )
-        about_content.add_widget(AboutPopupLabel(text=f"v. {Blog2Epub.version}"))
-        about_content.add_widget(AboutPopupLabel(text="by Bohdan Bobrowski"))
-
-        def about_url_click(inst):
-            webbrowser.open("https://github.com/bohdanbobrowski/blog2epub")
-
-        about_content.add_widget(
-            Button(
-                text="github.com/bohdanbobrowski/blog2epub",
-                font_size=dp(6 * F_SIZE),
-                font_name=UI_FONT_NAME,
-                size_hint=(1, 0.1),
-                on_press=about_url_click,
-            )
-        )
-        about_popup = Popup(
-            title="Blog2Epub",
-            title_size=dp(10 * F_SIZE),
-            title_font=UI_FONT_NAME,
-            content=about_content,
-            size_hint=(None, None),
-            size=(dp(210 * F_SIZE), dp(180 * F_SIZE)),
-        )
-        about_popup.open()
 
     @mainthread
     def popup_success(self, cover_image_path: str, generated_ebook_path: str):
