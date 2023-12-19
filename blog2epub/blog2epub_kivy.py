@@ -137,18 +137,29 @@ class Blog2EpubKivyWindow(BoxLayout):
         self.orientation = "vertical"
         self.padding = dp(6 * SIZE)
         self.spacing = dp(2 * SIZE)
-
+        self.tabs = TabbedPanel(
+            do_default_tab=False,
+            tab_height=dp(25),
+        )
+        self.tabs_download = TabbedPanelItem(
+            text="Download",
+            font_size=dp(6 * F_SIZE),
+            font_name=UI_FONT_NAME,
+        )
+        self.tabs_download_layout = BoxLayout(
+            orientation="vertical",
+            size_hint=(1, 1),
+            spacing=dp(2 * SIZE),
+        )
+        self.tabs_download.add_widget(self.tabs_download_layout)
         self.row1 = BoxLayout(
             orientation="horizontal", size_hint=(1, 0.1), spacing=dp(2 * SIZE)
         )
-        self.add_widget(self.row1)
-
+        self.tabs_download_layout.add_widget(self.row1)
         self.row1.add_widget(StyledLabel(text="Url:"))
-
         hint_text = ""
         if SETTINGS.get("history"):
             hint_text = "Press ↑↓ to browse in url history"
-
         self.url_entry = UrlTextInput(
             size_hint=(0.8, 1),
             text=SETTINGS.get("url"),
@@ -156,16 +167,10 @@ class Blog2EpubKivyWindow(BoxLayout):
             input_type="url",
         )
         self.row1.add_widget(self.url_entry)
-
-        self.download_button = StyledButton(text="Download")
-        self.download_button.bind(on_press=self.download)
-        self.row1.add_widget(self.download_button)
-
         self.row2 = BoxLayout(
             orientation="horizontal", size_hint=(1, 0.1), spacing=dp(2 * SIZE)
         )
-        self.add_widget(self.row2)
-
+        self.tabs_download_layout.add_widget(self.row2)
         self.row2.add_widget(StyledLabel(text="Limit:"))
         self.limit_entry = NumberTextInput(
             text=SETTINGS.get("limit"), input_type="number", hint_text="0"
@@ -180,28 +185,23 @@ class Blog2EpubKivyWindow(BoxLayout):
         self.skip_entry.bind(text=self._allow_only_numbers)
         self.row2.add_widget(self.skip_entry)
 
-        self.tabs = TabbedPanel(
-            do_default_tab=False,
-            tab_height=dp(25),
-        )
+        self.download_button = StyledButton(text="Download")
+        self.download_button.bind(on_press=self.download)
+        self.row2.add_widget(self.download_button)
+
         self.console = TextInput(
             font_size=dp(6 * F_SIZE),
             font_name=UI_FONT_NAME,
             background_color="black",
             foreground_color="white",
-            size_hint=(1, 1),
+            size_hint=(1, 0.6),
             readonly=True,
         )
-        self.tabs_download = TabbedPanelItem(
-            text="1. Download",
-            font_size=dp(6 * F_SIZE),
-            font_name=UI_FONT_NAME,
-        )
-        self.tabs_download.add_widget(self.console)
+        self.tabs_download_layout.add_widget(self.console)
         self.tabs.add_widget(self.tabs_download)
 
         self.tabs_generate = TabbedPanelItem(
-            text="2. Generate",
+            text="Generate",
             font_size=dp(6 * F_SIZE),
             font_name=UI_FONT_NAME,
         )
@@ -237,7 +237,6 @@ class Blog2EpubKivyWindow(BoxLayout):
         )
         self.tabs_about.add_widget(about_content)
         self.tabs.add_widget(self.tabs_about)
-
         self.add_widget(self.tabs)
         self.interface = KivyInterface(self.console_output, self.console_clear)
 
