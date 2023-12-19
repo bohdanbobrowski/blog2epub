@@ -150,6 +150,7 @@ class Blog2EpubKivyWindow(BoxLayout):
         self.tabs = TabbedPanel(
             do_default_tab=False,
             tab_height=dp(25),
+            background_color="black",
         )
         self.tabs_download = TabbedPanelItem(
             text="Download",
