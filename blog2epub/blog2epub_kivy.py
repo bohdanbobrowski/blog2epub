@@ -152,6 +152,9 @@ class Blog2EpubKivyWindow(BoxLayout):
             tab_height=dp(25),
             background_color="black",
         )
+
+    def _add_download_tab(self):
+        size_hint = (1, 0.07)
         self.tabs_download = TabbedPanelItem(
             text="Download",
             font_size=dp(6 * F_SIZE),
@@ -163,13 +166,11 @@ class Blog2EpubKivyWindow(BoxLayout):
             spacing=dp(2 * SIZE),
         )
         self.tabs_download.add_widget(self.tabs_download_layout)
-
-    def _add_download_tab(self):
-        self.row1 = BoxLayout(
-            orientation="horizontal", size_hint=(1, 0.1), spacing=dp(2 * SIZE)
+        row1 = BoxLayout(
+            orientation="horizontal", size_hint=size_hint, spacing=dp(2 * SIZE)
         )
-        self.tabs_download_layout.add_widget(self.row1)
-        self.row1.add_widget(StyledLabel(text="Url:"))
+        self.tabs_download_layout.add_widget(row1)
+        row1.add_widget(StyledLabel(text="Url:"))
         hint_text = ""
         if SETTINGS.get("history"):
             hint_text = "Press ↑↓ to browse in url history"
@@ -179,28 +180,28 @@ class Blog2EpubKivyWindow(BoxLayout):
             hint_text=hint_text,
             input_type="url",
         )
-        self.row1.add_widget(self.url_entry)
-        self.row2 = BoxLayout(
-            orientation="horizontal", size_hint=(1, 0.1), spacing=dp(2 * SIZE)
+        row1.add_widget(self.url_entry)
+        row2 = BoxLayout(
+            orientation="horizontal", size_hint=size_hint, spacing=dp(2 * SIZE)
         )
-        self.tabs_download_layout.add_widget(self.row2)
-        self.row2.add_widget(StyledLabel(text="Limit:"))
+        self.tabs_download_layout.add_widget(row2)
+        row2.add_widget(StyledLabel(text="Limit:"))
         self.limit_entry = NumberTextInput(
             text=SETTINGS.get("limit"), input_type="number", hint_text="0"
         )
         self.limit_entry.bind(text=self._allow_only_numbers)
-        self.row2.add_widget(self.limit_entry)
+        row2.add_widget(self.limit_entry)
 
-        self.row2.add_widget(StyledLabel(text="Skip:"))
+        row2.add_widget(StyledLabel(text="Skip:"))
         self.skip_entry = NumberTextInput(
             text=SETTINGS.get("skip"), input_type="number", hint_text="0"
         )
         self.skip_entry.bind(text=self._allow_only_numbers)
-        self.row2.add_widget(self.skip_entry)
+        row2.add_widget(self.skip_entry)
 
         self.download_button = StyledButton(text="Download")
         self.download_button.bind(on_press=self.download)
-        self.row2.add_widget(self.download_button)
+        row2.add_widget(self.download_button)
 
         self.console = TextInput(
             font_size=dp(6 * F_SIZE),
@@ -214,11 +215,39 @@ class Blog2EpubKivyWindow(BoxLayout):
         self.tabs.add_widget(self.tabs_download)
 
     def _add_generate_tab(self):
+        size_hint = (1, 0.07)
         self.tabs_generate = TabbedPanelItem(
             text="Generate",
             font_size=dp(6 * F_SIZE),
             font_name=UI_FONT_NAME,
         )
+        self.tabs_generate_layout = BoxLayout(
+            orientation="vertical",
+            size_hint=(1, 1),
+            spacing=dp(2 * SIZE),
+        )
+        self.tabs_generate.add_widget(self.tabs_generate_layout)
+        row1 = BoxLayout(
+            orientation="horizontal", size_hint=size_hint, spacing=dp(2 * SIZE)
+        )
+        self.tabs_generate_layout.add_widget(row1)
+        row1.add_widget(StyledLabel(text="Title:"))
+        self.book_title_entry = UrlTextInput(
+            size_hint=(0.8, 1),
+            text=""
+        )
+        row1.add_widget(self.book_title_entry)
+        row2 = BoxLayout(
+            orientation="horizontal", size_hint=size_hint, spacing=dp(2 * SIZE)
+        )
+        self.tabs_generate_layout.add_widget(row2)
+        row2.add_widget(StyledLabel(text="Sub title:"))
+        self.book_subtitle_entry = UrlTextInput(
+            size_hint=(0.8, 1),
+            text=""
+        )
+        row2.add_widget(self.book_subtitle_entry)
+
         self.tabs.add_widget(self.tabs_generate)
 
     def _add_about_tab(self):
