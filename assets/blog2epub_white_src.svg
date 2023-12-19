@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Generator: Adobe Illustrator 15.0.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
+
+<svg
+   version="1.1"
+   width="243.797"
+   height="215.80847"
+   viewBox="0 0 243.79699 215.80847"
+   id="svg10"
+   sodipodi:docname="blog2epub_white_src.svg"
+   inkscape:version="1.3.2 (091e20e, 2023-11-25, custom)"
+   inkscape:export-filename="/Users/bohdan/Downloads/blog2epub.png"
+   inkscape:export-xdpi="364.09"
+   inkscape:export-ydpi="364.09"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <metadata
+     id="metadata16">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <defs
+     id="defs14" />
+  <sodipodi:namedview
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1"
+     objecttolerance="10"
+     gridtolerance="10"
+     guidetolerance="10"
+     inkscape:pageopacity="0"
+     inkscape:pageshadow="2"
+     inkscape:window-width="3840"
+     inkscape:window-height="2080"
+     id="namedview12"
+     showgrid="false"
+     inkscape:zoom="1.5170655"
+     inkscape:cx="97.22718"
+     inkscape:cy="152.59723"
+     inkscape:window-x="-11"
+     inkscape:window-y="-11"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="svg10"
+     fit-margin-top="0"
+     fit-margin-left="0"
+     fit-margin-right="0"
+     fit-margin-bottom="0"
+     inkscape:showpageshadow="2"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1" />
+  <path
+     inkscape:connector-curvature="0"
+     style="fill:#008080"
+     id="path8"
+     d="m 131.13131,127.78625 -49.315999,-49.32 49.315999,-49.313 16.44,16.437 -32.88,32.876 16.439,16.44 49.316,-49.313 -42.96,-42.96 c -3.508,-3.511 -9.198,-3.511 -12.709,0 l -69.482999,69.483 c -3.508,3.508 -3.508,9.198 0,12.709 l 69.483999,69.481 c 3.511,3.511 9.201,3.511 12.709,0 l 69.484,-69.481 c 3.508,-3.511 3.508,-9.201 0,-12.709 l -10.087,-10.084 z" />
+  <text
+     id="text20"
+     y="205.2616"
+     x="-0.6796875"
+     style="font-style:normal;font-weight:normal;font-size:40px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none"
+     xml:space="preserve"><tspan
+       style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:48px;font-family:Rockwell;-inkscape-font-specification:'Rockwell Bold'"
+       y="205.2616"
+       x="-0.6796875"
+       id="tspan18"
+       sodipodi:role="line"><tspan
+         style="fill:#ffffff"
+         id="tspan1">blog</tspan><tspan
+         id="tspan22"
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:48px;font-family:Rockwell;-inkscape-font-specification:'Rockwell Bold';fill:#ff0000">2</tspan><tspan
+         id="tspan24"
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:48px;font-family:Rockwell;-inkscape-font-specification:'Rockwell Bold';fill:#008080">epub</tspan></tspan></text>
+</svg>

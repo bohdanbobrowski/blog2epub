@@ -227,10 +227,12 @@ class Blog2EpubKivyWindow(BoxLayout):
             font_size=dp(6 * F_SIZE),
             font_name=UI_FONT_NAME,
         )
-        about_content = BoxLayout(orientation="vertical")
+        about_content = BoxLayout(
+            orientation="vertical",
+        )
         about_content.add_widget(
             Image(
-                source=asset_path("blog2epub.png"),
+                source=asset_path("blog2epub_white.png"),
                 allow_stretch=True,
                 size_hint=(1, 0.7),
             )
