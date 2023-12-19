@@ -213,9 +213,9 @@ class Blog2EpubKivyWindow(BoxLayout):
         self.skip_entry.bind(text=self._allow_only_numbers)
         row2.add_widget(self.skip_entry)
 
-        download_button = StyledButton(text="Download")
-        download_button.bind(on_press=self.download)
-        row2.add_widget(download_button)
+        self.download_button = StyledButton(text="Download")
+        self.download_button.bind(on_press=self.download)
+        row2.add_widget(self.download_button)
 
         self.console = TextInput(
             font_size=dp(6 * F_SIZE),
@@ -256,9 +256,9 @@ class Blog2EpubKivyWindow(BoxLayout):
         self.book_subtitle_entry = UrlTextInput(size_hint=(0.8, 1), text="")
         row2.add_widget(self.book_subtitle_entry)
 
-        generate_button = StyledButton(text="Generate")
-        generate_button.bind(on_press=self.generate)
-        row2.add_widget(generate_button)
+        self.generate_button = StyledButton(text="Generate")
+        self.generate_button.bind(on_press=self.generate)
+        row2.add_widget(self.generate_button)
 
         art_list_container = ScrollView()
         self.article_list = BoxLayout(
