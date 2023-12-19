@@ -199,9 +199,9 @@ class Blog2EpubKivyWindow(BoxLayout):
         self.skip_entry.bind(text=self._allow_only_numbers)
         row2.add_widget(self.skip_entry)
 
-        self.download_button = StyledButton(text="Download")
-        self.download_button.bind(on_press=self.download)
-        row2.add_widget(self.download_button)
+        download_button = StyledButton(text="Download")
+        download_button.bind(on_press=self.download)
+        row2.add_widget(download_button)
 
         self.console = TextInput(
             font_size=dp(6 * F_SIZE),
@@ -248,9 +248,9 @@ class Blog2EpubKivyWindow(BoxLayout):
         )
         row2.add_widget(self.book_subtitle_entry)
 
-        self.generate_button = StyledButton(text="Generate")
-        self.generate_button.bind(on_press=self.generate)
-        row2.add_widget(self.download_button)
+        generate_button = StyledButton(text="Generate")
+        generate_button.bind(on_press=self.generate)
+        row2.add_widget(generate_button)
 
         self.tabs.add_widget(self.tabs_generate)
 
