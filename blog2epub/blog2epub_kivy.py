@@ -482,6 +482,8 @@ class Blog2EpubKivy(MDApp):
             self.icon = asset_path("blog2epub.svg")
 
     def build(self):
+        self.theme_cls.theme_style = "Dark"
+        self.theme_cls.primary_palette = "Red"
         Window.resizable = False
         Window.size = (dp(300 * SIZE), dp(200 * SIZE))
         return Blog2EpubKivyWindow()
