@@ -16,6 +16,7 @@ from typing import Optional
 
 import atoma
 import dateutil.parser
+import dateutil.ParserError
 import requests
 from lxml.ElementInclude import etree
 from lxml.html.soupparser import fromstring
@@ -461,7 +462,7 @@ class Article:
             self.date = self._translate_month(self.date)
         try:
             self.date = dateutil.parser.parse(self.date)
-        except:
+        except dateutil.ParserError:
             self.interface.print(f"Date not parsed: {self.date}")
 
     def _translate_month(self, date: str) -> str:

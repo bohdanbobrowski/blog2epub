@@ -22,25 +22,25 @@ from kivy.config import Config
 Config.set("input", "mouse", "mouse,multitouch_on_demand")
 Config.set("graphics", "resizable", False)
 
-from kivy.app import App
-from kivy.clock import mainthread
-from kivy.core.window import Window
-from kivy.metrics import Metrics, dp
-from kivy.uix.boxlayout import BoxLayout
-from kivy.uix.button import Button
-from kivy.uix.checkbox import CheckBox
-from kivy.uix.image import Image
-from kivy.uix.label import Label
-from kivy.uix.popup import Popup
-from kivy.uix.tabbedpanel import TabbedPanel, TabbedPanelItem
-from kivy.uix.textinput import TextInput
+from kivy.app import App  # noqa: E402
+from kivy.clock import mainthread  # noqa: E402
+from kivy.core.window import Window  # noqa: E402
+from kivy.metrics import Metrics, dp  # noqa: E402
+from kivy.uix.boxlayout import BoxLayout  # noqa: E402
+from kivy.uix.button import Button  # noqa: E402
+from kivy.uix.checkbox import CheckBox  # noqa: E402
+from kivy.uix.image import Image  # noqa: E402
+from kivy.uix.label import Label  # noqa: E402
+from kivy.uix.popup import Popup  # noqa: E402
+from kivy.uix.tabbedpanel import TabbedPanel, TabbedPanelItem  # noqa: E402
+from kivy.uix.textinput import TextInput  # noqa: E402
 
-from blog2epub import Blog2Epub
-from blog2epub.common.assets import asset_path, open_file
-from blog2epub.common.crawler import prepare_url
-from blog2epub.common.exceptions import BadUrlException
-from blog2epub.common.interfaces import EmptyInterface
-from blog2epub.common.settings import Blog2EpubSettings
+from blog2epub import Blog2Epub  # noqa: E402
+from blog2epub.common.assets import asset_path, open_file  # noqa: E402
+from blog2epub.common.crawler import prepare_url  # noqa: E402
+from blog2epub.common.exceptions import BadUrlException  # noqa: E402
+from blog2epub.common.interfaces import EmptyInterface  # noqa: E402
+from blog2epub.common.settings import Blog2EpubSettings  # noqa: E402
 
 SIZE = 3 / Metrics.density / Metrics.density
 F_SIZE = 3 / Metrics.density
@@ -268,7 +268,9 @@ class Blog2EpubKivyWindow(BoxLayout):
         self.tabs_generate_layout.add_widget(art_list_container)
 
         for x in range(0, 20):
-            self.article_list.add_widget(ArticleCheckbox(title=f"Lorem ipsum dolor {x+1}"))
+            self.article_list.add_widget(
+                ArticleCheckbox(title=f"Lorem ipsum dolor {x+1}")
+            )
 
         self.tabs.add_widget(self.tabs_generate)
 
@@ -449,7 +451,7 @@ class KivyInterface(EmptyInterface):
                 f"-subtitle {subtitle}",
                 f"-message {message}",
                 f"-contentImage {cover}",
-                f"-sound chime",
+                "-sound chime",
                 f"-appIcon {app_icon}",
                 f"-open file:{message}",
             ]
