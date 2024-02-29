@@ -26,8 +26,8 @@ from kivymd.app import MDApp  # noqa: E402
 from kivy.clock import mainthread  # noqa: E402
 from kivy.core.window import Window  # noqa: E402
 from kivy.metrics import Metrics, dp  # noqa: E402
-from kivy.uix.boxlayout import BoxLayout  # noqa: E402
-from kivy.uix.button import Button  # noqa: E402
+from kivymd.uix.boxlayout import MDBoxLayout  # noqa: E402
+from kivymd.uix.button import MDFlatButton  # noqa: E402
 from kivy.uix.checkbox import CheckBox  # noqa: E402
 from kivy.uix.image import Image  # noqa: E402
 from kivymd.uix.label import MDLabel  # noqa: E402
@@ -71,7 +71,7 @@ logging.basicConfig(
 )
 
 
-class ArticleCheckbox(BoxLayout):
+class ArticleCheckbox(MDBoxLayout):
     def __init__(self, title="", **kwargs):
         super(ArticleCheckbox, self).__init__(**kwargs)
         self.orientation = "horizontal"
@@ -136,7 +136,7 @@ class NumberTextInput(StyledTextInput):
         return super().keyboard_on_key_down(window, keycode, text, modifiers)
 
 
-class StyledButton(Button):
+class StyledButton(MDFlatButton):
     def __init__(self, **kwargs):
         super(StyledButton, self).__init__(**kwargs)
         self.font_size = dp(6 * F_SIZE)
@@ -145,7 +145,7 @@ class StyledButton(Button):
         self.size_hint = (None, 1)
 
 
-class Blog2EpubKivyWindow(BoxLayout):
+class Blog2EpubKivyWindow(MDBoxLayout):
     def __init__(self, **kwargs):
         super(Blog2EpubKivyWindow, self).__init__(**kwargs)
         self.orientation = "vertical"
@@ -174,13 +174,13 @@ class Blog2EpubKivyWindow(BoxLayout):
             font_size=dp(6 * F_SIZE),
             font_name=UI_FONT_NAME,
         )
-        self.tabs_download_layout = BoxLayout(
+        self.tabs_download_layout = MDBoxLayout(
             orientation="vertical",
             size_hint=(1, 1),
             spacing=dp(2 * SIZE),
         )
         self.tabs_download.add_widget(self.tabs_download_layout)
-        row1 = BoxLayout(
+        row1 = MDBoxLayout(
             orientation="horizontal", size_hint=size_hint, spacing=dp(2 * SIZE)
         )
         self.tabs_download_layout.add_widget(row1)
@@ -195,7 +195,7 @@ class Blog2EpubKivyWindow(BoxLayout):
             input_type="url",
         )
         row1.add_widget(self.url_entry)
-        row2 = BoxLayout(
+        row2 = MDBoxLayout(
             orientation="horizontal", size_hint=size_hint, spacing=dp(2 * SIZE)
         )
         self.tabs_download_layout.add_widget(row2)
@@ -235,20 +235,20 @@ class Blog2EpubKivyWindow(BoxLayout):
             font_size=dp(6 * F_SIZE),
             font_name=UI_FONT_NAME,
         )
-        self.tabs_generate_layout = BoxLayout(
+        self.tabs_generate_layout = MDBoxLayout(
             orientation="vertical",
             size_hint=(1, 1),
             spacing=dp(2 * SIZE),
         )
         self.tabs_generate.add_widget(self.tabs_generate_layout)
-        row1 = BoxLayout(
+        row1 = MDBoxLayout(
             orientation="horizontal", size_hint=size_hint, spacing=dp(2 * SIZE)
         )
         self.tabs_generate_layout.add_widget(row1)
         row1.add_widget(StyledLabel(text="Title:"))
         self.book_title_entry = UrlTextInput(size_hint=(0.8, 1), text="")
         row1.add_widget(self.book_title_entry)
-        row2 = BoxLayout(
+        row2 = MDBoxLayout(
             orientation="horizontal", size_hint=size_hint, spacing=dp(2 * SIZE)
         )
         self.tabs_generate_layout.add_widget(row2)
@@ -261,7 +261,7 @@ class Blog2EpubKivyWindow(BoxLayout):
         row2.add_widget(self.generate_button)
 
         art_list_container = MDScrollView()
-        self.article_list = BoxLayout(
+        self.article_list = MDBoxLayout(
             orientation="vertical", size_hint=(1, 0.8), spacing=dp(2 * SIZE)
         )
         art_list_container.add_widget(self.article_list)
@@ -280,7 +280,7 @@ class Blog2EpubKivyWindow(BoxLayout):
             font_size=dp(6 * F_SIZE),
             font_name=UI_FONT_NAME,
         )
-        about_content = BoxLayout(
+        about_content = MDBoxLayout(
             orientation="vertical",
         )
         about_content.add_widget(AboutPopupLabel(text=""))
@@ -298,7 +298,7 @@ class Blog2EpubKivyWindow(BoxLayout):
             webbrowser.open("https://github.com/bohdanbobrowski/blog2epub")
 
         about_content.add_widget(
-            Button(
+            MDFlatButton(
                 text="github.com/bohdanbobrowski/blog2epub",
                 font_size=dp(6 * F_SIZE),
                 font_name=UI_FONT_NAME,
@@ -392,7 +392,7 @@ class Blog2EpubKivyWindow(BoxLayout):
         self.success(cover_image_path, generated_ebook_path)
 
     def success(self, cover_image_path: str, generated_ebook_path: str):
-        success_content = BoxLayout(orientation="vertical")
+        success_content = MDBoxLayout(orientation="vertical")
         success_content.add_widget(
             Image(
                 source=asset_path(cover_image_path),
@@ -405,7 +405,7 @@ class Blog2EpubKivyWindow(BoxLayout):
             open_file(generated_ebook_path)
 
         success_content.add_widget(
-            Button(
+        MDFlatButton(
                 text="Click here to open epub",
                 font_size=dp(6 * F_SIZE),
                 font_name=UI_FONT_NAME,
