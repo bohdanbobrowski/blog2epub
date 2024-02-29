@@ -12,7 +12,7 @@ from threading import Thread
 from typing import Optional
 from urllib import parse
 
-from kivy.uix.scrollview import ScrollView
+from kivymd.uix.scrollview import MDScrollView
 
 if sys.__stdout__ is None or sys.__stderr__ is None:
     os.environ["KIVY_NO_CONSOLELOG"] = "1"
@@ -22,7 +22,7 @@ from kivy.config import Config
 Config.set("input", "mouse", "mouse,multitouch_on_demand")
 Config.set("graphics", "resizable", False)
 
-from kivy.app import App  # noqa: E402
+from kivymd.app import MDApp  # noqa: E402
 from kivy.clock import mainthread  # noqa: E402
 from kivy.core.window import Window  # noqa: E402
 from kivy.metrics import Metrics, dp  # noqa: E402
@@ -30,7 +30,7 @@ from kivy.uix.boxlayout import BoxLayout  # noqa: E402
 from kivy.uix.button import Button  # noqa: E402
 from kivy.uix.checkbox import CheckBox  # noqa: E402
 from kivy.uix.image import Image  # noqa: E402
-from kivy.uix.label import Label  # noqa: E402
+from kivymd.uix.label import MDLabel  # noqa: E402
 from kivy.uix.popup import Popup  # noqa: E402
 from kivy.uix.tabbedpanel import TabbedPanel, TabbedPanelItem  # noqa: E402
 from kivy.uix.textinput import TextInput  # noqa: E402
@@ -82,7 +82,7 @@ class ArticleCheckbox(BoxLayout):
         self.add_widget(self.label)
 
 
-class StyledLabel(Label):
+class StyledLabel(MDLabel):
     def __init__(self, **kwargs):
         super(StyledLabel, self).__init__(**kwargs)
         self.font_size = dp(6 * F_SIZE)
@@ -260,7 +260,7 @@ class Blog2EpubKivyWindow(BoxLayout):
         self.generate_button.bind(on_press=self.generate)
         row2.add_widget(self.generate_button)
 
-        art_list_container = ScrollView()
+        art_list_container = MDScrollView()
         self.article_list = BoxLayout(
             orientation="vertical", size_hint=(1, 0.8), spacing=dp(2 * SIZE)
         )
@@ -424,9 +424,9 @@ class Blog2EpubKivyWindow(BoxLayout):
         success_popup.open()
 
 
-class AboutPopupLabel(Label):
+class AboutPopupLabel(MDLabel):
     def __init__(self, **kwargs):
-        Label.__init__(self, **kwargs)
+        super().__init__(**kwargs)
         self.font_size = dp(6 * F_SIZE)
         self.font_name = UI_FONT_NAME
         self.size_hint = (1, 0.1)
@@ -468,9 +468,9 @@ class KivyInterface(EmptyInterface):
         self.console_clear()
 
 
-class Blog2EpubKivy(App):
-    def __init__(self, **kwargs):
-        App.__init__(self, **kwargs)
+class Blog2EpubKivy(MDApp):
+    def __init__(self):
+        super().__init__()
         self.title = f"blog2epub - v. {Blog2Epub.version}"
         logging.info(self.title)
         logging.debug(f"Metrics.density = {Metrics.density}")
