@@ -34,6 +34,7 @@ from kivymd.uix.label import MDLabel  # noqa: E402
 from kivy.uix.popup import Popup  # noqa: E402
 from kivy.uix.tabbedpanel import TabbedPanel, TabbedPanelItem  # noqa: E402
 from kivy.uix.textinput import TextInput  # noqa: E402
+from kivymd.uix.datatables import MDDataTable  # noqa: E402
 
 from blog2epub import Blog2Epub  # noqa: E402
 from blog2epub.common.assets import asset_path, open_file  # noqa: E402
@@ -246,14 +247,14 @@ class Blog2EpubKivyWindow(MDBoxLayout):
         )
         self.tabs_generate_layout.add_widget(row1)
         row1.add_widget(StyledLabel(text="Title:"))
-        self.book_title_entry = UrlTextInput(size_hint=(0.8, 1), text="")
+        self.book_title_entry = UrlTextInput(size_hint=(0.7, 1), text="")
         row1.add_widget(self.book_title_entry)
         row2 = MDBoxLayout(
             orientation="horizontal", size_hint=size_hint, spacing=dp(2 * SIZE)
         )
         self.tabs_generate_layout.add_widget(row2)
-        row2.add_widget(StyledLabel(text="Sub title:"))
-        self.book_subtitle_entry = UrlTextInput(size_hint=(0.8, 1), text="")
+        row2.add_widget(StyledLabel(text="Subtitle:"))
+        self.book_subtitle_entry = UrlTextInput(size_hint=(0.7, 1), text="")
         row2.add_widget(self.book_subtitle_entry)
 
         self.generate_button = StyledButton(text="Generate")
@@ -261,18 +262,119 @@ class Blog2EpubKivyWindow(MDBoxLayout):
         row2.add_widget(self.generate_button)
 
         art_list_container = MDScrollView()
-        self.article_list = MDBoxLayout(
-            orientation="vertical", size_hint=(1, 0.8), spacing=dp(2 * SIZE)
+        self.article_list = MDDataTable(
+            use_pagination=True,
+            check=True,
+            column_data=[
+                ("No.", dp(30)),
+                ("Status", dp(30)),
+                ("Signal Name", dp(60), self._sort_on_signal),
+                ("Severity", dp(30)),
+                ("Stage", dp(30)),
+                ("Schedule", dp(30), self._sort_on_schedule),
+                ("Team Lead", dp(30), self._sort_on_team),
+            ],
+            row_data=[
+                (
+                    "1",
+                    ("alert", [255 / 256, 165 / 256, 0, 1], "No Signal"),
+                    "Astrid: NE shared managed",
+                    "Medium",
+                    "Triaged",
+                    "0:33",
+                    "Chase Nguyen",
+                ),
+                (
+                    "2",
+                    ("alert-circle", [1, 0, 0, 1], "Offline"),
+                    "Cosmo: prod shared ares",
+                    "Huge",
+                    "Triaged",
+                    "0:39",
+                    "Brie Furman",
+                ),
+                (
+                    "3",
+                    (
+                        "checkbox-marked-circle",
+                        [39 / 256, 174 / 256, 96 / 256, 1],
+                        "Online",
+                    ),
+                    "Phoenix: prod shared lyra-lists",
+                    "Minor",
+                    "Not Triaged",
+                    "3:12",
+                    "Jeremy lake",
+                ),
+                (
+                    "4",
+                    (
+                        "checkbox-marked-circle",
+                        [39 / 256, 174 / 256, 96 / 256, 1],
+                        "Online",
+                    ),
+                    "Sirius: NW prod shared locations",
+                    "Negligible",
+                    "Triaged",
+                    "13:18",
+                    "Angelica Howards",
+                ),
+                (
+                    "5",
+                    (
+                        "checkbox-marked-circle",
+                        [39 / 256, 174 / 256, 96 / 256, 1],
+                        "Online",
+                    ),
+                    "Sirius: prod independent account",
+                    "Negligible",
+                    "Triaged",
+                    "22:06",
+                    "Diane Okuma",
+                ),
+            ],
+            sorted_on="Schedule",
+            sorted_order="ASC",
+            elevation=2,
         )
+        self.article_list.bind(on_row_press=self._on_row_press)
+        self.article_list.bind(on_check_press=self._on_check_press)
         art_list_container.add_widget(self.article_list)
         self.tabs_generate_layout.add_widget(art_list_container)
 
-        for x in range(0, 20):
-            self.article_list.add_widget(
-                ArticleCheckbox(title=f"Lorem ipsum dolor {x+1}")
-            )
-
         self.tabs.add_widget(self.tabs_generate)
+
+    @staticmethod
+    def _sort_on_signal(data):
+        return zip(*sorted(enumerate(data), key=lambda row: row[1][2]))
+
+    @staticmethod
+    def _sort_on_schedule(data):
+        return zip(
+            *sorted(
+                enumerate(data),
+                key=lambda row: sum(
+                    [
+                        int(row[1][-2].split(":")[0]) * 60,
+                        int(row[1][-2].split(":")[1]),
+                    ]
+                ),
+            )
+        )
+
+    @staticmethod
+    def _sort_on_team(data):
+        return zip(*sorted(enumerate(data), key=lambda row: row[1][-1]))
+
+    @staticmethod
+    def _on_row_press(instance_table, instance_row):
+        """Called when a table row is clicked."""
+        print(instance_table, instance_row)
+
+    @staticmethod
+    def _on_check_press(instance_table, current_row):
+        """Called when the checkbox in the table row is checked."""
+        print(instance_table, current_row)
 
     def _add_about_tab(self):
         self.tabs_about = TabbedPanelItem(
@@ -405,7 +507,7 @@ class Blog2EpubKivyWindow(MDBoxLayout):
             open_file(generated_ebook_path)
 
         success_content.add_widget(
-        MDFlatButton(
+            MDFlatButton(
                 text="Click here to open epub",
                 font_size=dp(6 * F_SIZE),
                 font_name=UI_FONT_NAME,
