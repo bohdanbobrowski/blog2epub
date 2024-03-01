@@ -300,6 +300,7 @@ class Crawler(AbstractCrawler):
             self.interface.print("No articles found.")
             return False
 
+
 class Dirs:
     """
     Tiny class to temporary directories configurations.

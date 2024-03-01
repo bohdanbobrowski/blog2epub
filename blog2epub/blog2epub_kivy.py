@@ -436,9 +436,7 @@ class Blog2EpubKivyWindow(MDBoxLayout):
         selected_articles = []
         for row in self.article_list.get_row_checks():
             try:
-                selected_articles.append(
-                    self.crawler.articles[int(row[0])-1]
-                )
+                selected_articles.append(self.crawler.articles[int(row[0]) - 1])
             except IndexError:
                 pass
         if self.crawler.generate_ebook(
