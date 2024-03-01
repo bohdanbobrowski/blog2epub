@@ -161,6 +161,7 @@ class Blog2EpubKivyWindow(MDBoxLayout):
         self.interface = KivyInterface(self.console_output, self.console_clear)
 
         self.crawler = None
+        self._articles_urls = []
 
     def _add_tabbed_layout(self):
         self.tabs = TabbedPanel(
@@ -264,17 +265,18 @@ class Blog2EpubKivyWindow(MDBoxLayout):
         row2.add_widget(self.generate_button)
 
         self.article_list = MDDataTable(
-            use_pagination=True,
+            use_pagination=False,
             check=True,
             column_data=[
                 ("Date", dp(30)),
-                ("Title", dp(90)),
-                ("Url", dp(90)),
+                ("Title", dp(60)),
+                ("Url", dp(30)),
             ],
             row_data=[],
             sorted_on="Date",
             sorted_order="ASC",
             elevation=2,
+            padding=0,
         )
         self.article_list.bind(on_row_press=self._on_row_press)
         self.article_list.bind(on_check_press=self._on_check_press)
@@ -290,15 +292,19 @@ class Blog2EpubKivyWindow(MDBoxLayout):
     def _sort_on_team(data):
         return zip(*sorted(enumerate(data), key=lambda row: row[1][-1]))
 
-    @staticmethod
-    def _on_row_press(instance_table, instance_row):
-        """Called when a table row is clicked."""
-        print(instance_table, instance_row)
+    def _on_row_press(self, instance_table, instance_row):
+        if self._get_article_url_by_cell_index(instance_row.index):
+            webbrowser.open(self._get_article_url_by_cell_index(instance_row.index))
+
+    def _get_article_url_by_cell_index(self, index: int) -> str:
+        try:
+            return self._articles_urls[index]
+        except IndexError:
+            return None
 
     @staticmethod
     def _on_check_press(instance_table, current_row):
-        """Called when the checkbox in the table row is checked."""
-        print(instance_table, current_row)
+        pass
 
     def _add_about_tab(self):
         self.tabs_about = TabbedPanelItem(
@@ -386,15 +392,19 @@ class Blog2EpubKivyWindow(MDBoxLayout):
         if blog2epub.crawler.articles:
             self.crawler = blog2epub.crawler
             row_data = []
+            self._articles_urls = []
             for art in blog2epub.crawler.articles:
-                row_data.append([art.date, art.title, art.url])
+                row_data.append(
+                    [
+                        art.date.strftime("%Y.%m.%d"),
+                        art.title,
+                        ("link-variant", [39 / 256, 174 / 256, 96 / 256, 1], "www"),
+                    ]
+                )
+                self._articles_urls += [None, None, art.url]
             self.article_list.row_data = row_data
+            self.article_list.table_data.select_all("active")
             self.tabs_generate.disabled = False
-            self._enable_generate_button()
-
-    def _generate_ebook(self):
-        cover_image_path, generated_ebook_path = self.crawler.generate()
-        self.popup_success(cover_image_path, generated_ebook_path)
 
     def download(self, instance):
         self.interface.clear()
@@ -407,10 +417,20 @@ class Blog2EpubKivyWindow(MDBoxLayout):
         download_thread.start()
 
     def generate(self, instance):
-        pass
+        self._disable_generate_button()
+        self.crawler.generate()
+        cover_image_path = os.path.join(
+            self.crawler.book.cover.destination_folder,
+            self.crawler.book.cover.file_name + ".jpg",
+        )
+        generated_ebook_path = os.path.join(
+            self.crawler.book.destination_folder, self.crawler.book.file_name
+        )
+        self.popup_success(cover_image_path, generated_ebook_path)
+        self._enable_generate_button()
 
     def _disable_download_button(self):
-        self.interface.print("Downloading...")
+        self.interface.print("Downloading web contents...")
         self.download_button.disabled = True
         self.download_button.text = "Downloading..."
 
@@ -420,12 +440,12 @@ class Blog2EpubKivyWindow(MDBoxLayout):
 
     def _disable_generate_button(self):
         self.interface.print("Generating e-book...")
-        self.download_button.disabled = True
-        self.download_button.text = "Generating e-book..."
+        self.generate_button.disabled = True
+        self.generate_button.text = "Generating..."
 
     def _enable_generate_button(self):
-        self.download_button.disabled = False
-        self.download_button.text = "Generate e-book"
+        self.generate_button.disabled = False
+        self.generate_button.text = "Generate"
 
     def save_settings(self):
         SETTINGS.set("url", prepare_url(self.url_entry.text))
