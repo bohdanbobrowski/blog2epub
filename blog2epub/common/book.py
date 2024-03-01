@@ -2,6 +2,7 @@ import locale
 import os
 import tempfile
 import zipfile
+from typing import Optional
 
 from ebooklib import epub
 
@@ -69,6 +70,7 @@ class Book:
         self.dirs = crawler.dirs
         self.start = crawler.start
         self.end = crawler.end
+        self.subtitle = self._get_subtitle()
         self.include_images = crawler.include_images
         self.images = crawler.images
         self.language = crawler.language
@@ -83,7 +85,6 @@ class Book:
         self.destination_folder = crawler.destination_folder
         self.cover = None
         self.book = None
-        self._add_chapters(crawler.articles)
 
     def _set_locale(self):
         if self.language:
@@ -96,18 +97,30 @@ class Book:
         except locale.Error:
             self.interface.print(f"Can't set locale as {self.locale}, but nevermind.")
 
-    def update_file_name(self):
-        file_name = self.file_name_prefix
-        if self.start:
-            start_date = self.start.strftime("%Y.%m.%d")
-            if self.end and self.start != self.end:
-                end_date = self.end.strftime("%Y.%m.%d")
-                file_name = file_name + "_" + end_date + "-" + start_date
-            else:
-                file_name = file_name + "_" + start_date
-        self.file_name = file_name + ".epub"
+    def _get_subtitle(self):
+        if self.end is None:
+            return self.start.strftime("%d %B %Y")
+        if self.start.strftime("%Y.%m") == self.end.strftime("%Y.%m"):
+            return self.end.strftime("%d") + "-" + self.start.strftime("%d %B %Y")
+        if self.start.strftime("%Y.%m") == self.end.strftime("%Y.%m"):
+            return self.end.strftime("%d %B") + " - " + self.start.strftime("%d %B %Y")
+        return self.end.strftime("%d %B %Y") + " - " + self.start.strftime("%d %B %Y")
+
+    def update_file_name(self, file_name: Optional[str] = None):
+        if file_name is None:
+            file_name = self.file_name_prefix
+            if self.start:
+                start_date = self.start.strftime("%Y.%m.%d")
+                if self.end and self.start != self.end:
+                    end_date = self.end.strftime("%Y.%m.%d")
+                    file_name = file_name + "_" + end_date + "-" + start_date
+                else:
+                    file_name = file_name + "_" + start_date
+            file_name += ".epub"
+        self.file_name = file_name
 
     def _add_chapters(self, articles):
+        self.chapters = []
         for article in articles:
             number = len(self.chapters) + 1
             self.chapters.append(Chapter(article, number, self.language))
@@ -199,15 +212,22 @@ class Book:
                     self.book.add_item(epub_img)
                     images_included.append(image)
 
-    def save(self):
-        self.update_file_name()
+    def save(
+        self,
+        articles,
+        destination_folder: Optional[str] = None,
+        file_name: Optional[str] = None,
+        title: Optional[str] = None,
+        subtitle: Optional[str] = None,
+    ):
+        self._add_chapters(articles)
+        self.update_file_name(file_name=file_name)
         self.book = epub.EpubBook()
         self.book.set_title(self.title)
         self.book.set_language(self.language)
         self.book.add_author(self.title + ", " + self.file_name_prefix)
         for chapter in self.chapters:
             self.book.add_item(chapter.epub)
-            self.book.spine.append(chapter.epub)
             self.table_of_contents.append(chapter.epub)
         self._add_table_of_contents()
         self._add_epub_css()
@@ -217,7 +237,10 @@ class Book:
         if len(self.description) > 0:
             self.book.add_metadata("DC", "description", "\n".join(self.description))
         self._include_images()
-        self.file_full_path = os.path.join(self.destination_folder, self.file_name)
+        if destination_folder is None:
+            self.file_full_path = os.path.join(self.destination_folder, self.file_name)
+        else:
+            self.file_full_path = os.path.join(destination_folder, self.file_name)
         epub.write_epub(self.file_full_path, self.book, {})
         self._add_cover()
 

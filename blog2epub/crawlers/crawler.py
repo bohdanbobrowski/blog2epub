@@ -12,7 +12,7 @@ from abc import ABC, abstractmethod
 from datetime import datetime
 from http.cookiejar import CookieJar
 from pathlib import Path
-from typing import Optional
+from typing import Optional, List
 
 import atoma
 import dateutil.parser
@@ -37,7 +37,7 @@ class AbstractCrawler(ABC):
         pass
 
     @abstractmethod
-    def generate(self):
+    def generate_ebook(self):
         pass
 
 
@@ -278,13 +278,27 @@ class Crawler(AbstractCrawler):
             self.url_to_crawl = self._get_url_to_crawl(tree)
             self._check_limit()
 
-    def generate(self):
-        if self.articles:
+    def generate_ebook(
+        self,
+        articles: List[int],
+        destination_folder: Optional[str] = None,
+        file_name: Optional[str] = None,
+        title: Optional[str] = None,
+        subtitle: Optional[str] = None,
+    ):
+        if articles:
             self.book = Book(self)
-            self.book.save()
+            self.book.save(
+                articles=articles,
+                destination_folder=destination_folder,
+                file_name=file_name,
+                title=title,
+                subtitle=subtitle,
+            )
+            return True
         else:
             self.interface.print("No articles found.")
-
+            return False
 
 class Dirs:
     """
