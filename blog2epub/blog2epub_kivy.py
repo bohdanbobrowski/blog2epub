@@ -261,106 +261,29 @@ class Blog2EpubKivyWindow(MDBoxLayout):
         self.generate_button.bind(on_press=self.generate)
         row2.add_widget(self.generate_button)
 
-        art_list_container = MDScrollView()
         self.article_list = MDDataTable(
             use_pagination=True,
             check=True,
             column_data=[
-                ("No.", dp(30)),
-                ("Status", dp(30)),
-                ("Signal Name", dp(60), self._sort_on_signal),
-                ("Severity", dp(30)),
-                ("Stage", dp(30)),
-                ("Schedule", dp(30), self._sort_on_schedule),
-                ("Team Lead", dp(30), self._sort_on_team),
+                ("Date", dp(30)),
+                ("Title", dp(90)),
+                ("Url", dp(90)),
             ],
             row_data=[
-                (
-                    "1",
-                    ("alert", [255 / 256, 165 / 256, 0, 1], "No Signal"),
-                    "Astrid: NE shared managed",
-                    "Medium",
-                    "Triaged",
-                    "0:33",
-                    "Chase Nguyen",
-                ),
-                (
-                    "2",
-                    ("alert-circle", [1, 0, 0, 1], "Offline"),
-                    "Cosmo: prod shared ares",
-                    "Huge",
-                    "Triaged",
-                    "0:39",
-                    "Brie Furman",
-                ),
-                (
-                    "3",
-                    (
-                        "checkbox-marked-circle",
-                        [39 / 256, 174 / 256, 96 / 256, 1],
-                        "Online",
-                    ),
-                    "Phoenix: prod shared lyra-lists",
-                    "Minor",
-                    "Not Triaged",
-                    "3:12",
-                    "Jeremy lake",
-                ),
-                (
-                    "4",
-                    (
-                        "checkbox-marked-circle",
-                        [39 / 256, 174 / 256, 96 / 256, 1],
-                        "Online",
-                    ),
-                    "Sirius: NW prod shared locations",
-                    "Negligible",
-                    "Triaged",
-                    "13:18",
-                    "Angelica Howards",
-                ),
-                (
-                    "5",
-                    (
-                        "checkbox-marked-circle",
-                        [39 / 256, 174 / 256, 96 / 256, 1],
-                        "Online",
-                    ),
-                    "Sirius: prod independent account",
-                    "Negligible",
-                    "Triaged",
-                    "22:06",
-                    "Diane Okuma",
-                ),
             ],
-            sorted_on="Schedule",
+            sorted_on="Date",
             sorted_order="ASC",
             elevation=2,
         )
         self.article_list.bind(on_row_press=self._on_row_press)
         self.article_list.bind(on_check_press=self._on_check_press)
-        art_list_container.add_widget(self.article_list)
-        self.tabs_generate_layout.add_widget(art_list_container)
+        self.tabs_generate_layout.add_widget(self.article_list)
 
         self.tabs.add_widget(self.tabs_generate)
 
     @staticmethod
     def _sort_on_signal(data):
         return zip(*sorted(enumerate(data), key=lambda row: row[1][2]))
-
-    @staticmethod
-    def _sort_on_schedule(data):
-        return zip(
-            *sorted(
-                enumerate(data),
-                key=lambda row: sum(
-                    [
-                        int(row[1][-2].split(":")[0]) * 60,
-                        int(row[1][-2].split(":")[1]),
-                    ]
-                ),
-            )
-        )
 
     @staticmethod
     def _sort_on_team(data):
