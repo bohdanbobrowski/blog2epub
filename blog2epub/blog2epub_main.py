@@ -24,7 +24,9 @@ class Blog2Epub:
         return CrawlerWordpress(**params)
 
     def download(self) -> list:
-        self.crawler.save()
+        self.crawler.crawl()
+
+    def generate(self):
         cover_image_path = os.path.join(
             self.crawler.book.cover.destination_folder,
             self.crawler.book.cover.file_name + ".jpg",

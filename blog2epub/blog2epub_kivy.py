@@ -161,6 +161,8 @@ class Blog2EpubKivyWindow(MDBoxLayout):
         self.add_widget(self.tabs)
         self.interface = KivyInterface(self.console_output, self.console_clear)
 
+        self.crawler = None
+
     def _add_tabbed_layout(self):
         self.tabs = TabbedPanel(
             do_default_tab=False,
@@ -233,6 +235,7 @@ class Blog2EpubKivyWindow(MDBoxLayout):
         size_hint = (1, 0.07)
         self.tabs_generate = TabbedPanelItem(
             text="Generate",
+            disabled=True,
             font_size=dp(6 * F_SIZE),
             font_name=UI_FONT_NAME,
         )
@@ -380,8 +383,23 @@ class Blog2EpubKivyWindow(MDBoxLayout):
         }
 
     def _download_ebook(self, blog2epub: Blog2Epub):
-        cover_image_path, generated_ebook_path = blog2epub.download()
+        blog2epub.download()
         self._enable_download_button()
+        if blog2epub.crawler.articles:
+            self.crawler = blog2epub.crawler
+            row_data = []
+            for art in blog2epub.crawler.articles:
+                row_data.append([
+                    art.date,
+                    art.title,
+                    art.url
+                ])
+            self.article_list.row_data = row_data
+            self.tabs_generate.disabled = False
+            self._enable_generate_button()
+
+    def _generate_ebook(self):
+        cover_image_path, generated_ebook_path = self.crawler.generate()
         self.popup_success(cover_image_path, generated_ebook_path)
 
     def download(self, instance):
@@ -405,6 +423,15 @@ class Blog2EpubKivyWindow(MDBoxLayout):
     def _enable_download_button(self):
         self.download_button.disabled = False
         self.download_button.text = "Download"
+
+    def _disable_generate_button(self):
+        self.interface.print("Generating e-book...")
+        self.download_button.disabled = True
+        self.download_button.text = "Generating e-book..."
+
+    def _enable_generate_button(self):
+        self.download_button.disabled = False
+        self.download_button.text = "Generate e-book"
 
     def save_settings(self):
         SETTINGS.set("url", prepare_url(self.url_entry.text))

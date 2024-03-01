@@ -33,7 +33,11 @@ from blog2epub.common.interfaces import EmptyInterface
 
 class AbstractCrawler(ABC):
     @abstractmethod
-    def save(self):
+    def crawl(self):
+        pass
+
+    @abstractmethod
+    def generate(self):
         pass
 
 
@@ -258,7 +262,7 @@ class Crawler(AbstractCrawler):
     def _prepare_content(self, content):
         return content
 
-    def _crawl(self):
+    def crawl(self):
         while self.url_to_crawl:
             content = self.downloader.get_content(self.url_to_crawl)
             tree = fromstring(content)
@@ -274,8 +278,7 @@ class Crawler(AbstractCrawler):
             self.url_to_crawl = self._get_url_to_crawl(tree)
             self._check_limit()
 
-    def save(self):
-        self._crawl()
+    def generate(self):
         if self.articles:
             self.book = Book(self)
             self.book.save()
