@@ -12,7 +12,6 @@ from threading import Thread
 from typing import Optional
 from urllib import parse
 
-from kivymd.uix.scrollview import MDScrollView
 
 if sys.__stdout__ is None or sys.__stderr__ is None:
     os.environ["KIVY_NO_CONSOLELOG"] = "1"
@@ -272,8 +271,7 @@ class Blog2EpubKivyWindow(MDBoxLayout):
                 ("Title", dp(90)),
                 ("Url", dp(90)),
             ],
-            row_data=[
-            ],
+            row_data=[],
             sorted_on="Date",
             sorted_order="ASC",
             elevation=2,
@@ -389,11 +387,7 @@ class Blog2EpubKivyWindow(MDBoxLayout):
             self.crawler = blog2epub.crawler
             row_data = []
             for art in blog2epub.crawler.articles:
-                row_data.append([
-                    art.date,
-                    art.title,
-                    art.url
-                ])
+                row_data.append([art.date, art.title, art.url])
             self.article_list.row_data = row_data
             self.tabs_generate.disabled = False
             self._enable_generate_button()
