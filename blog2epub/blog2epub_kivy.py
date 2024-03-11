@@ -73,7 +73,7 @@ logging.basicConfig(
 
 class ArticleCheckbox(MDBoxLayout):
     def __init__(self, title="", **kwargs):
-        super(ArticleCheckbox, self).__init__(**kwargs)
+        super().__init__(**kwargs)
         self.orientation = "horizontal"
         self.size_hint_min = (1, 0.05)
         self.check_box = CheckBox(active=True, size_hint=(0.2, 1))
@@ -84,7 +84,7 @@ class ArticleCheckbox(MDBoxLayout):
 
 class StyledLabel(MDLabel):
     def __init__(self, **kwargs):
-        super(StyledLabel, self).__init__(**kwargs)
+        super().__init__(**kwargs)
         self.font_size = dp(6 * F_SIZE)
         self.font_name = UI_FONT_NAME
         self.width = dp(40 * F_SIZE)
@@ -93,11 +93,11 @@ class StyledLabel(MDLabel):
 
 class StyledTextInput(TextInput):
     def __init__(self, **kwargs):
-        super(StyledTextInput, self).__init__(**kwargs)
+        super().__init__(**kwargs)
         self.font_size = dp(6 * F_SIZE)
         self.font_name = UI_FONT_NAME
         self.halign = "left"
-        self.valign = "middle"
+        self.valign = "center"
         self.write_tab = False
         self.multiline = False
         self.padding_y = [15, 15]
@@ -138,7 +138,7 @@ class NumberTextInput(StyledTextInput):
 
 class StyledButton(MDFlatButton):
     def __init__(self, **kwargs):
-        super(StyledButton, self).__init__(**kwargs)
+        super().__init__(**kwargs)
         self.font_size = dp(6 * F_SIZE)
         self.font_name = UI_FONT_NAME
         self.width = dp(80 * F_SIZE)
@@ -147,7 +147,7 @@ class StyledButton(MDFlatButton):
 
 class Blog2EpubKivyWindow(MDBoxLayout):
     def __init__(self, **kwargs):
-        super(Blog2EpubKivyWindow, self).__init__(**kwargs)
+        super().__init__(**kwargs)
         self.orientation = "vertical"
         self.padding = dp(6 * SIZE)
         self.spacing = dp(2 * SIZE)
@@ -270,15 +270,15 @@ class Blog2EpubKivyWindow(MDBoxLayout):
             use_pagination=True,
             check=True,
             column_data=[
-                ("#", dp(20)),
-                ("Date", dp(20)),
-                ("Title", dp(60)),
-                ("Url", dp(20)),
+                (f"[size={6*F_SIZE}dp][font={UI_FONT_NAME}]#[/font][/size]", dp(18)),
+                (f"[size={6*F_SIZE}dp][font={UI_FONT_NAME}]Date[/font][/size]", dp(20)),
+                (f"[size={6*F_SIZE}dp][font={UI_FONT_NAME}]Title[/font][/size]", dp(70)),
             ],
             row_data=[],
             sorted_on="Date",
             sorted_order="ASC",
             size_hint=(1, 0.6),
+            # padding=0,
         )
         self.article_list.bind(on_row_press=self._on_row_press)
         self.article_list.bind(on_check_press=self._on_check_press)
@@ -400,10 +400,9 @@ class Blog2EpubKivyWindow(MDBoxLayout):
                 article_no += 1
                 row_data.append(
                     [
-                        article_no,
-                        art.date.strftime("%Y.%m.%d"),
-                        art.title,
-                        ("link-variant", [39 / 256, 174 / 256, 96 / 256, 1], "www"),
+                        f"[size={6*F_SIZE}dp][font={UI_FONT_NAME}]{article_no}[/font][/size]",
+                        f"[size={6*F_SIZE}dp][font={UI_FONT_NAME}]{art.date.strftime("%Y.%m.%d")}[/font][/size]",
+                        f"[size={6*F_SIZE}dp][font={UI_FONT_NAME}]{art.title}[/font][/size]",
                     ]
                 )
                 self._articles_urls += [None, None, art.url]
@@ -518,6 +517,7 @@ class Blog2EpubKivyWindow(MDBoxLayout):
 class AboutPopupLabel(MDLabel):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
+        self.valign = "center"
         self.font_size = dp(6 * F_SIZE)
         self.font_name = UI_FONT_NAME
         self.size_hint = (1, 0.1)
