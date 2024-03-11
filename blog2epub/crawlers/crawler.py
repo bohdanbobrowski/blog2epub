@@ -91,6 +91,7 @@ class Crawler(AbstractCrawler):
         self.dirs = Dirs(self.cache_folder, self.url.replace("/", "_"))
         self.book = None
         self.title = None
+        self.subtitle = None
         self.description = None
         self.language = language
         self.atom_feed = False
@@ -105,6 +106,15 @@ class Crawler(AbstractCrawler):
         if interface:
             return interface
         return EmptyInterface()
+
+    def _get_subtitle(self):
+        if self.end is None:
+            return self.start.strftime("%d %B %Y")
+        if self.start.strftime("%Y.%m") == self.end.strftime("%Y.%m"):
+            return self.end.strftime("%d") + "-" + self.start.strftime("%d %B %Y")
+        if self.start.strftime("%Y.%m") == self.end.strftime("%Y.%m"):
+            return self.end.strftime("%d %B") + " - " + self.start.strftime("%d %B %Y")
+        return self.end.strftime("%d %B %Y") + " - " + self.start.strftime("%d %B %Y")
 
     def get_cover_title(self):
         cover_title = self.title + " "
@@ -277,6 +287,7 @@ class Crawler(AbstractCrawler):
                 self._atom_feed_loop()
             self.url_to_crawl = self._get_url_to_crawl(tree)
             self._check_limit()
+        self.subtitle = self._get_subtitle()
 
     def generate_ebook(
         self,

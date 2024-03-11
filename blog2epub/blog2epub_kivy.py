@@ -411,7 +411,7 @@ class Blog2EpubKivyWindow(MDBoxLayout):
             self.article_list.table_data.select_all("active")
             self.tabs_generator.disabled = False
             self._update_title_and_subtitle(
-                title=self.crawler.book.title, subtitle=self.crawler.book.subtitle
+                title=self.crawler.title, subtitle=self.crawler.subtitle
             )
 
     def download(self, instance):
