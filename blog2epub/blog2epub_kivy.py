@@ -267,12 +267,16 @@ class Blog2EpubKivyWindow(MDBoxLayout):
         row2.add_widget(self.generate_button)
 
         self.article_list = MDDataTable(
-            use_pagination=True,
+            # use_pagination=False,
+            rows_num=15,
             check=True,
             column_data=[
                 (f"[size={6*F_SIZE}dp][font={UI_FONT_NAME}]#[/font][/size]", dp(18)),
                 (f"[size={6*F_SIZE}dp][font={UI_FONT_NAME}]Date[/font][/size]", dp(20)),
-                (f"[size={6*F_SIZE}dp][font={UI_FONT_NAME}]Title[/font][/size]", dp(70)),
+                (
+                    f"[size={6*F_SIZE}dp][font={UI_FONT_NAME}]Title[/font][/size]",
+                    dp(70),
+                ),
             ],
             row_data=[],
             sorted_on="Date",
@@ -281,7 +285,6 @@ class Blog2EpubKivyWindow(MDBoxLayout):
             # padding=0,
         )
         self.article_list.bind(on_row_press=self._on_row_press)
-        self.article_list.bind(on_check_press=self._on_check_press)
         self.tabs_generator_layout.add_widget(self.article_list)
 
         self.tabs.add_widget(self.tabs_generator)
@@ -430,12 +433,17 @@ class Blog2EpubKivyWindow(MDBoxLayout):
         self.book_title_entry.text = title
         self.book_subtitle_entry.text = subtitle
 
+    @staticmethod
+    def clean_cell_value(input_s):
+        return re.sub("(\\[.*?\\])", "", input_s)
+
     def generate(self, instance):
         self._disable_generate_button()
         selected_articles = []
         for row in self.article_list.get_row_checks():
             try:
-                selected_articles.append(self.crawler.articles[int(row[0]) - 1])
+                cell_value = int(self.clean_cell_value(row[0]))
+                selected_articles.append(self.crawler.articles[cell_value - 1])
             except IndexError:
                 pass
         if self.crawler.generate_ebook(
