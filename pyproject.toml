@@ -1,0 +1,2 @@
+[tool.ruff.lint.extend-per-file-ignores]
+"blog2epub_kivy.py" = ["E402"]

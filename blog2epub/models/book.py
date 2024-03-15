@@ -31,4 +31,3 @@ class BookModel(BaseModel):
     title: Optional[str]
     subtitle: Optional[str]
     articles: List[ArticleModel]
-

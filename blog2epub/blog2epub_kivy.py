@@ -21,26 +21,27 @@ from kivy.config import Config
 Config.set("input", "mouse", "mouse,multitouch_on_demand")
 Config.set("graphics", "resizable", False)
 
-from kivymd.app import MDApp  # noqa: E402
-from kivy.clock import mainthread  # noqa: E402
-from kivy.core.window import Window  # noqa: E402
-from kivy.metrics import Metrics, dp  # noqa: E402
-from kivymd.uix.boxlayout import MDBoxLayout  # noqa: E402
-from kivymd.uix.button import MDFlatButton  # noqa: E402
-from kivy.uix.checkbox import CheckBox  # noqa: E402
-from kivy.uix.image import Image  # noqa: E402
-from kivymd.uix.label import MDLabel  # noqa: E402
-from kivy.uix.popup import Popup  # noqa: E402
-from kivy.uix.tabbedpanel import TabbedPanel, TabbedPanelItem  # noqa: E402
-from kivy.uix.textinput import TextInput  # noqa: E402
-from kivymd.uix.datatables import MDDataTable  # noqa: E402
+from kivymd.app import MDApp
+from kivy.clock import mainthread
+from kivy.core.window import Window
+from kivy.metrics import Metrics, dp
+from kivymd.uix.boxlayout import MDBoxLayout
+from kivymd.uix.button import MDFlatButton
+from kivy.uix.checkbox import CheckBox
+from kivy.uix.image import Image
+from kivymd.uix.label import MDLabel
+from kivy.uix.popup import Popup
+from kivy.uix.tabbedpanel import TabbedPanel, TabbedPanelItem
+from kivy.uix.textinput import TextInput
+from kivymd.uix.tab import MDTabs, MDTabsLabel
+from kivymd.uix.datatables import MDDataTable
 
-from blog2epub import Blog2Epub  # noqa: E402
-from blog2epub.common.assets import asset_path, open_file  # noqa: E402
-from blog2epub.common.crawler import prepare_url  # noqa: E402
-from blog2epub.common.exceptions import BadUrlException  # noqa: E402
-from blog2epub.common.interfaces import EmptyInterface  # noqa: E402
-from blog2epub.common.settings import Blog2EpubSettings  # noqa: E402
+from blog2epub import Blog2Epub
+from blog2epub.common.assets import asset_path, open_file
+from blog2epub.common.crawler import prepare_url
+from blog2epub.common.exceptions import BadUrlException
+from blog2epub.common.interfaces import EmptyInterface
+from blog2epub.common.settings import Blog2EpubSettings
 
 SIZE = 3 / Metrics.density / Metrics.density
 F_SIZE = 3 / Metrics.density
@@ -164,15 +165,14 @@ class Blog2EpubKivyWindow(MDBoxLayout):
         self._articles_urls = []
 
     def _add_tabbed_layout(self):
-        self.tabs = TabbedPanel(
+        self.tabs = MDTabs(
             do_default_tab=False,
             tab_height=dp(25),
-            background_color="black",
         )
 
     def _add_crawler_tab(self):
         size_hint = (1, 0.07)
-        self.tabs_crawler = TabbedPanelItem(
+        self.tabs_crawler = MDTabsLabel(
             text="Crawler",
             font_size=dp(6 * F_SIZE),
             font_name=UI_FONT_NAME,
@@ -582,7 +582,7 @@ class Blog2EpubKivy(MDApp):
 
     def build(self):
         self.theme_cls.theme_style = "Dark"
-        self.theme_cls.primary_palette = "Red"
+        self.theme_cls.primary_palette = "Blue"
         Window.resizable = False
         Window.size = (dp(300 * SIZE), dp(200 * SIZE))
         return Blog2EpubKivyWindow()
