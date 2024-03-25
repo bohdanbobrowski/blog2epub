@@ -401,10 +401,11 @@ class Blog2EpubKivyWindow(MDBoxLayout):
             article_no = 0
             for art in blog2epub.crawler.articles:
                 article_no += 1
+                article_date = art.date.strftime("%Y.%m.%d")
                 row_data.append(
                     [
                         f"[size={6*F_SIZE}dp][font={UI_FONT_NAME}]{article_no}[/font][/size]",
-                        f"[size={6*F_SIZE}dp][font={UI_FONT_NAME}]{art.date.strftime("%Y.%m.%d")}[/font][/size]",
+                        f"[size={6*F_SIZE}dp][font={UI_FONT_NAME}]{article_date}[/font][/size]",
                         f"[size={6*F_SIZE}dp][font={UI_FONT_NAME}]{art.title}[/font][/size]",
                     ]
                 )
