@@ -110,7 +110,14 @@ class Book:
     def _add_chapters(self, articles):
         for article in articles:
             number = len(self.chapters) + 1
-            self.chapters.append(Chapter(article, number, self.language))
+            if article.content:
+                try:
+                    self.chapters.append(Chapter(article, number, self.language))
+                except TypeError as e:
+                    print(e)
+            else:
+                self.interface.print(f"Skipping article: {number}. {str(article.title)}")
+                print(article)
 
     def get_cover_title(self):
         cover_title = self.title + " "
