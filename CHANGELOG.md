@@ -1,5 +1,8 @@
 # ChangeLog
 
+### [v1.2.6](https://github.com/bohdanbobrowski/blog2epub/releases/tag/v1.2.6) - 2024-03-27
+- [x] bugfix release - resistance to broken links
+ 
 ### [v1.2.5](https://github.com/bohdanbobrowski/blog2epub/releases/tag/v1.2.5) - 2023-10-30
 - [x] save url textfield history and allow easily choose from these urls
 - [x] change font from Lato (nice but large files) to much smaller ([Alegreya](https://github.com/huertatipografica/Alegreya) and [Martian Mono](https://github.com/evilmartians/mono) for UI)

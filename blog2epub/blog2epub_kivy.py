@@ -67,8 +67,6 @@ logging.basicConfig(
 )
 
 
-
-
 class StyledLabel(Label):
     def __init__(self, **kwargs):
         super(StyledLabel, self).__init__(**kwargs)
@@ -369,7 +367,7 @@ class KivyInterface(EmptyInterface):
                 f"-subtitle {subtitle}",
                 f"-message {message}",
                 f"-contentImage {cover}",
-                f"-sound chime",
+                "-sound chime",
                 f"-appIcon {app_icon}",
                 f"-open file:{message}",
             ]
