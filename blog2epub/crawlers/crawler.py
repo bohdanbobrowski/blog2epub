@@ -345,7 +345,7 @@ class Downloader:
         self.dirs.prepare_directories()
         try:
             response = self.session.get(url, cookies=self.cookies, headers=self.headers)
-        except requests.exceptions.ConnectionError as e:
+        except requests.exceptions.ConnectionError:
             return None
         self.cookies = response.cookies
         data = response.content
@@ -357,7 +357,7 @@ class Downloader:
         self.dirs.prepare_directories()
         try:
             response = self.session.get(url, cookies=self.cookies, headers=self.headers)
-        except requests.exceptions.ConnectionError as e:
+        except requests.exceptions.ConnectionError:
             return False
         with open(filepath, "wb") as f:
             f.write(response.content)
@@ -391,7 +391,9 @@ class Downloader:
                 interstitial_url = (
                     "http://" + self.crawler_url + "?interstitial=" + interstitial
                 )
-                self.file_download(interstitial_url, self.get_filepath(interstitial_url))
+                self.file_download(
+                    interstitial_url, self.get_filepath(interstitial_url)
+                )
                 contents = self.file_download(
                     "http://" + self.crawler_url,
                     self.get_filepath("http://" + self.crawler_url),

@@ -116,7 +116,9 @@ class Book:
                 except TypeError as e:
                     print(e)
             else:
-                self.interface.print(f"Skipping article: {number}. {str(article.title)}")
+                self.interface.print(
+                    f"Skipping article: {number}. {str(article.title)}"
+                )
                 print(article)
 
     def get_cover_title(self):
