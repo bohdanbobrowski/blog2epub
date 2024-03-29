@@ -269,7 +269,7 @@ class Crawler(AbstractCrawler):
             self.title = self._get_blog_title(content)
             content = self._prepare_content(content)
             self._articles_loop(content)
-            if len(self.articles) == 0:
+            if not self.skip and len(self.articles) == 0:
                 self._get_atom_content()
                 self._atom_feed_loop()
             self.url_to_crawl = self._get_url_to_crawl(tree)
