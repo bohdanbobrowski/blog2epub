@@ -651,18 +651,28 @@ class Article:
             for c in comments_in_article:
                 c = c.strip()
                 if c not in ("Odpowiedz", "Usuń"):
-                    self.comments = self.comments + "<" + tag + ">" + c + "</" + tag + ">"
+                    self.comments = (
+                        self.comments + "<" + tag + ">" + c + "</" + tag + ">"
+                    )
                     if tag == "h4":
                         tag = "p"
                 if c == "Usuń":
                     tag = "h4"
         else:
-            authors = self.tree.xpath('//dl[@id="comments-block"]//*[@class="comment-author"]')
-            comments = self.tree.xpath('//dl[@id="comments-block"]//*[@class="comment-body"]')
+            authors = self.tree.xpath(
+                '//dl[@id="comments-block"]//*[@class="comment-author"]'
+            )
+            comments = self.tree.xpath(
+                '//dl[@id="comments-block"]//*[@class="comment-body"]'
+            )
             try:
                 for x in range(0, len(authors) + 1):
-                    a = "".join(authors[x].xpath('.//text()')).strip().replace("\n", " ")
-                    c = "".join(comments[x].xpath('.//text()')).strip()
+                    a = (
+                        "".join(authors[x].xpath(".//text()"))
+                        .strip()
+                        .replace("\n", " ")
+                    )
+                    c = "".join(comments[x].xpath(".//text()")).strip()
                     self.comments += f"<h4>{a}</h4>"
                     self.comments += f"<p>{c}</p>"
             except IndexError:
