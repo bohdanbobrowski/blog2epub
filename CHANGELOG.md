@@ -1,7 +1,10 @@
 # ChangeLog
 
-### [v1.2.6](https://github.com/bohdanbobrowski/blog2epub/releases/tag/v1.2.6) - 2024-03-27
-- [x] bugfix release - resistance to broken links
+### [v1.2.6](https://github.com/bohdanbobrowski/blog2epub/releases/tag/v1.2.6) - 2024-03-30
+- [x] resistance to broken links
+- [x] atom feed when skipped
+- [x] better comments support
+- [x] more random cover generator
  
 ### [v1.2.5](https://github.com/bohdanbobrowski/blog2epub/releases/tag/v1.2.5) - 2023-10-30
 - [x] save url textfield history and allow easily choose from these urls

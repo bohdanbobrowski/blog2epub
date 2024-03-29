@@ -101,7 +101,11 @@ Mint 21.2 Cinnamon
 
 ## Change Log
 
-### [v1.2.6](https://github.com/bohdanbobrowski/blog2epub/releases/tag/v1.2.6) - 2024-03-27
-- [x] bugfix release - resistance to broken links
+### [v1.2.6](https://github.com/bohdanbobrowski/blog2epub/releases/tag/v1.2.6) - 2024-03-30
+_bugfix release_
+- [x] resistance to broken links
+- [x] atom feed when skipped
+- [x] better comments support
+- [x] more random cover generator
 
 [&raquo; Complete Change Log here &laquo;](https://github.com/bohdanbobrowski/blog2epub/blob/master/CHANGELOG.md)
