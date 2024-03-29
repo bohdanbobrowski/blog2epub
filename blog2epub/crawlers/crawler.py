@@ -646,15 +646,27 @@ class Article:
         if len(headers) == 1:
             self.comments = "<hr/><h3>" + headers[0] + "</h3>"
         comments_in_article = self.tree.xpath('//div[@class="comment-block"]//text()')
-        tag = "h6"
-        for c in comments_in_article:
-            c = c.strip()
-            if c not in ("Odpowiedz", "Usuń"):
-                self.comments = self.comments + "<" + tag + ">" + c + "</" + tag + ">"
-                if tag == "h6":
-                    tag = "p"
-            if c == "Usuń":
-                tag = "h6"
+        if comments_in_article:
+            tag = "h4"
+            for c in comments_in_article:
+                c = c.strip()
+                if c not in ("Odpowiedz", "Usuń"):
+                    self.comments = self.comments + "<" + tag + ">" + c + "</" + tag + ">"
+                    if tag == "h4":
+                        tag = "p"
+                if c == "Usuń":
+                    tag = "h4"
+        else:
+            authors = self.tree.xpath('//dl[@id="comments-block"]//*[@class="comment-author"]')
+            comments = self.tree.xpath('//dl[@id="comments-block"]//*[@class="comment-body"]')
+            try:
+                for x in range(0, len(authors) + 1):
+                    a = "".join(authors[x].xpath('.//text()')).strip().replace("\n", " ")
+                    c = "".join(comments[x].xpath('.//text()')).strip()
+                    self.comments += f"<h4>{a}</h4>"
+                    self.comments += f"<p>{c}</p>"
+            except IndexError:
+                pass
 
     def process(self):
         self.html = self.downloader.get_content(self.url)
