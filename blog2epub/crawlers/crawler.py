@@ -13,6 +13,7 @@ from datetime import datetime
 from http.cookiejar import CookieJar
 from pathlib import Path
 from typing import Optional
+from urllib.parse import urlparse
 
 import atoma
 import dateutil.parser
@@ -268,7 +269,7 @@ class Crawler(AbstractCrawler):
             self.title = self._get_blog_title(content)
             content = self._prepare_content(content)
             self._articles_loop(content)
-            if len(self.articles) == 0:
+            if not self.skip and len(self.articles) == 0:
                 self._get_atom_content()
                 self._atom_feed_loop()
             self.url_to_crawl = self._get_url_to_crawl(tree)
@@ -305,6 +306,7 @@ class Dirs:
 class Downloader:
     def __init__(self, crawler):
         self.dirs = crawler.dirs
+        self.url_to_crawl = crawler.url_to_crawl
         self.crawler_url = crawler.url
         self.crawler_port = crawler.port
         self.interface = crawler.interface
@@ -339,9 +341,12 @@ class Downloader:
     def get_filepath(self, url):
         return os.path.join(self.dirs.html, self.get_urlhash(url) + ".html")
 
-    def file_download(self, url: str, filepath: str) -> str:
+    def file_download(self, url: str, filepath: str) -> Optional[str]:
         self.dirs.prepare_directories()
-        response = self.session.get(url, cookies=self.cookies, headers=self.headers)
+        try:
+            response = self.session.get(url, cookies=self.cookies, headers=self.headers)
+        except requests.exceptions.ConnectionError:
+            return None
         self.cookies = response.cookies
         data = response.content
         contents = data.decode("utf-8")
@@ -350,8 +355,11 @@ class Downloader:
 
     def image_download(self, url: str, filepath: str) -> bool:
         self.dirs.prepare_directories()
-        with open(filepath, "wb") as f:
+        try:
             response = self.session.get(url, cookies=self.cookies, headers=self.headers)
+        except requests.exceptions.ConnectionError:
+            return False
+        with open(filepath, "wb") as f:
             f.write(response.content)
         time.sleep(1)
         return True
@@ -365,27 +373,45 @@ class Downloader:
 
     def get_content(self, url):
         filepath = self.get_filepath(url)
-        if self.force_download or (
-            not os.path.isfile(filepath) and not os.path.isfile(filepath + ".gz")
-        ):
-            contents = self.file_download(url, filepath)
-        else:
-            contents = self.file_read(filepath)
-        interstitial = self.checkInterstitial(contents)
-        if interstitial:
-            interstitial_url = (
-                "http://" + self.crawler_url + "?interstitial=" + interstitial
-            )
-            self.file_download(interstitial_url, self.get_filepath(interstitial_url))
-            contents = self.file_download(
-                "http://" + self.crawler_url,
-                self.get_filepath("http://" + self.crawler_url),
-            )
+        for x in range(0, 3):
+            if self.force_download or (
+                not os.path.isfile(filepath) and not os.path.isfile(filepath + ".gz")
+            ):
+                contents = self.file_download(url, filepath)
+            else:
+                contents = self.file_read(filepath)
+            if contents is not None:
+                break
+            else:
+                self.interface.print(f"...repeat request: {url}")
+                time.sleep(3)
+        if contents is not None:
+            interstitial = self.checkInterstitial(contents)
+            if interstitial:
+                interstitial_url = (
+                    "http://" + self.crawler_url + "?interstitial=" + interstitial
+                )
+                self.file_download(
+                    interstitial_url, self.get_filepath(interstitial_url)
+                )
+                contents = self.file_download(
+                    "http://" + self.crawler_url,
+                    self.get_filepath("http://" + self.crawler_url),
+                )
         return contents
 
+    def _fix_image_url(self, img: str) -> str:
+        if not img.startswith("http"):
+            uri = urlparse(self.url_to_crawl)
+            if uri.netloc not in img:
+                img = os.path.join(uri.netloc, img)
+            while not img.startswith("//"):
+                img = "/" + img
+            img = f"{uri.scheme}:{img}"
+        return img
+
     def download_image(self, img: str) -> Optional[str]:
-        if img.startswith("//"):
-            img = "http:" + img
+        img = self._fix_image_url(img)
         img_hash = self.get_urlhash(img)
         img_type = os.path.splitext(img)[1].lower()
         if img_type not in [".jpeg", ".jpg", ".png", ".bmp", ".gif", ".webp"]:
@@ -620,22 +646,45 @@ class Article:
         if len(headers) == 1:
             self.comments = "<hr/><h3>" + headers[0] + "</h3>"
         comments_in_article = self.tree.xpath('//div[@class="comment-block"]//text()')
-        tag = "h6"
-        for c in comments_in_article:
-            c = c.strip()
-            if c not in ("Odpowiedz", "Usuń"):
-                self.comments = self.comments + "<" + tag + ">" + c + "</" + tag + ">"
-                if tag == "h6":
-                    tag = "p"
-            if c == "Usuń":
-                tag = "h6"
+        if comments_in_article:
+            tag = "h4"
+            for c in comments_in_article:
+                c = c.strip()
+                if c not in ("Odpowiedz", "Usuń"):
+                    self.comments = (
+                        self.comments + "<" + tag + ">" + c + "</" + tag + ">"
+                    )
+                    if tag == "h4":
+                        tag = "p"
+                if c == "Usuń":
+                    tag = "h4"
+        else:
+            authors = self.tree.xpath(
+                '//dl[@id="comments-block"]//*[@class="comment-author"]'
+            )
+            comments = self.tree.xpath(
+                '//dl[@id="comments-block"]//*[@class="comment-body"]'
+            )
+            try:
+                for x in range(0, len(authors) + 1):
+                    a = (
+                        "".join(authors[x].xpath(".//text()"))
+                        .strip()
+                        .replace("\n", " ")
+                    )
+                    c = "".join(comments[x].xpath(".//text()")).strip()
+                    self.comments += f"<h4>{a}</h4>"
+                    self.comments += f"<p>{c}</p>"
+            except IndexError:
+                pass
 
     def process(self):
         self.html = self.downloader.get_content(self.url)
-        self.get_tree()
-        self.get_title()
-        self.get_date()
-        self.get_images()
-        self.get_content()
-        self.get_tags()
-        self.get_comments()
+        if self.html is not None:
+            self.get_tree()
+            self.get_title()
+            self.get_date()
+            self.get_images()
+            self.get_content()
+            self.get_tags()
+            self.get_comments()
