@@ -121,9 +121,12 @@ class Cover:
         )
         dark_factor = 1
         if len(self.images) > 0:
-            shuffle(self.images)
+            if len(self.images) > 1:
+                shuffle(self.images)
             i = 1
             for x in range(0, tiles_count_x):
+                if len(self.images) > 1 & len(self.images) <= tiles_count_y * 2:
+                    shuffle(self.images)
                 for y in range(0, tiles_count_y):
                     img_file = os.path.join(self.dirs.images, self.images[i - 1])
                     thumb = self._make_thumb(

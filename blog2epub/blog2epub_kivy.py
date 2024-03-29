@@ -137,214 +137,78 @@ class NumberTextInput(StyledTextInput):
         return super().keyboard_on_key_down(window, keycode, text, modifiers)
 
 
-class StyledButton(MDFlatButton):
+class StyledButton(Button):
     def __init__(self, **kwargs):
-        super().__init__(**kwargs)
+        super(StyledButton, self).__init__(**kwargs)
         self.font_size = dp(6 * F_SIZE)
         self.font_name = UI_FONT_NAME
         self.width = dp(80 * F_SIZE)
         self.size_hint = (None, 1)
 
 
-class Blog2EpubKivyWindow(MDBoxLayout):
+class Blog2EpubKivyWindow(BoxLayout):
     def __init__(self, **kwargs):
-        super().__init__(**kwargs)
+        super(Blog2EpubKivyWindow, self).__init__(**kwargs)
         self.orientation = "vertical"
         self.padding = dp(6 * SIZE)
         self.spacing = dp(2 * SIZE)
 
-        self._add_tabbed_layout()
-        self._add_crawler_tab()
-        self._add_generator_tab()
-        self._add_about_tab()
-
-        self.add_widget(self.tabs)
-        self.interface = KivyInterface(self.console_output, self.console_clear)
-
-        self.crawler = None
-        self._articles_urls = []
-
-    def _add_tabbed_layout(self):
-        self.tabs = MDTabs(
-            do_default_tab=False,
-            tab_height=dp(25),
+        self.row1 = BoxLayout(
+            orientation="horizontal", size_hint=(1, 0.1), spacing=dp(2 * SIZE)
         )
+        self.add_widget(self.row1)
 
-    def _add_crawler_tab(self):
-        size_hint = (1, 0.07)
-        self.tabs_crawler = MDTabsLabel(
-            text="Crawler",
-            font_size=dp(6 * F_SIZE),
-            font_name=UI_FONT_NAME,
-        )
-        self.tabs_crawler_layout = MDBoxLayout(
-            orientation="vertical",
-            size_hint=(1, 1),
-            spacing=dp(2 * SIZE),
-        )
-        self.tabs_crawler.add_widget(self.tabs_crawler_layout)
-        row1 = MDBoxLayout(
-            orientation="horizontal", size_hint=size_hint, spacing=dp(2 * SIZE)
-        )
-        self.tabs_crawler_layout.add_widget(row1)
-        row1.add_widget(StyledLabel(text="Url:"))
+        self.row1.add_widget(StyledLabel(text="Url:"))
+
         hint_text = ""
         if SETTINGS.get("history"):
             hint_text = "Press ↑↓ to browse in url history"
+
         self.url_entry = UrlTextInput(
             size_hint=(0.8, 1),
             text=SETTINGS.get("url"),
             hint_text=hint_text,
             input_type="url",
         )
-        row1.add_widget(self.url_entry)
-        row2 = MDBoxLayout(
-            orientation="horizontal", size_hint=size_hint, spacing=dp(2 * SIZE)
+        self.row1.add_widget(self.url_entry)
+
+        self.download_button = StyledButton(text="Download")
+        self.download_button.bind(on_press=self.download)
+        self.row1.add_widget(self.download_button)
+
+        self.row2 = BoxLayout(
+            orientation="horizontal", size_hint=(1, 0.1), spacing=dp(2 * SIZE)
         )
-        self.tabs_crawler_layout.add_widget(row2)
-        row2.add_widget(StyledLabel(text="Limit:"))
+        self.add_widget(self.row2)
+
+        self.row2.add_widget(StyledLabel(text="Limit:"))
         self.limit_entry = NumberTextInput(
             text=SETTINGS.get("limit"), input_type="number", hint_text="0"
         )
         self.limit_entry.bind(text=self._allow_only_numbers)
-        row2.add_widget(self.limit_entry)
+        self.row2.add_widget(self.limit_entry)
 
-        row2.add_widget(StyledLabel(text="Skip:"))
+        self.row2.add_widget(StyledLabel(text="Skip:"))
         self.skip_entry = NumberTextInput(
             text=SETTINGS.get("skip"), input_type="number", hint_text="0"
         )
         self.skip_entry.bind(text=self._allow_only_numbers)
-        row2.add_widget(self.skip_entry)
+        self.row2.add_widget(self.skip_entry)
 
-        self.download_button = StyledButton(text="Download")
-        self.download_button.bind(on_press=self.download)
-        row2.add_widget(self.download_button)
+        self.about_button = StyledButton(text="About")
+        self.about_button.bind(on_press=self.about)
+        self.row2.add_widget(self.about_button)
 
         self.console = TextInput(
             font_size=dp(6 * F_SIZE),
             font_name=UI_FONT_NAME,
             background_color="black",
             foreground_color="white",
-            size_hint=(1, 0.6),
+            size_hint=(1, 0.88),
             readonly=True,
         )
-        self.tabs_crawler_layout.add_widget(self.console)
-        self.tabs.add_widget(self.tabs_crawler)
-
-    def _add_generator_tab(self):
-        size_hint = (1, 0.07)
-        self.tabs_generator = TabbedPanelItem(
-            text="Generator",
-            disabled=True,
-            font_size=dp(6 * F_SIZE),
-            font_name=UI_FONT_NAME,
-        )
-        self.tabs_generator_layout = MDBoxLayout(
-            orientation="vertical",
-            size_hint=(1, 1),
-            spacing=dp(2 * SIZE),
-        )
-        self.tabs_generator.add_widget(self.tabs_generator_layout)
-        row1 = MDBoxLayout(
-            orientation="horizontal", size_hint=size_hint, spacing=dp(2 * SIZE)
-        )
-        self.tabs_generator_layout.add_widget(row1)
-        row1.add_widget(StyledLabel(text="Title:"))
-        self.book_title_entry = UrlTextInput(size_hint=(0.8, 1), text="E-book title")
-        row1.add_widget(self.book_title_entry)
-        row2 = MDBoxLayout(
-            orientation="horizontal", size_hint=size_hint, spacing=dp(2 * SIZE)
-        )
-        self.tabs_generator_layout.add_widget(row2)
-        row2.add_widget(StyledLabel(text="Subtitle:"))
-        self.book_subtitle_entry = UrlTextInput(
-            size_hint=(0.8, 1), text="E-Book sub-title"
-        )
-        row2.add_widget(self.book_subtitle_entry)
-
-        self.generate_button = StyledButton(text="Generate")
-        self.generate_button.bind(on_press=self.generate)
-        row2.add_widget(self.generate_button)
-
-        self.article_list = MDDataTable(
-            # use_pagination=False,
-            rows_num=15,
-            check=True,
-            column_data=[
-                (f"[size={6*F_SIZE}dp][font={UI_FONT_NAME}]#[/font][/size]", dp(18)),
-                (f"[size={6*F_SIZE}dp][font={UI_FONT_NAME}]Date[/font][/size]", dp(20)),
-                (
-                    f"[size={6*F_SIZE}dp][font={UI_FONT_NAME}]Title[/font][/size]",
-                    dp(70),
-                ),
-            ],
-            row_data=[],
-            sorted_on="Date",
-            sorted_order="ASC",
-            size_hint=(1, 0.6),
-            # padding=0,
-        )
-        self.article_list.bind(on_row_press=self._on_row_press)
-        self.tabs_generator_layout.add_widget(self.article_list)
-
-        self.tabs.add_widget(self.tabs_generator)
-
-    @staticmethod
-    def _sort_on_signal(data):
-        return zip(*sorted(enumerate(data), key=lambda row: row[1][2]))
-
-    @staticmethod
-    def _sort_on_team(data):
-        return zip(*sorted(enumerate(data), key=lambda row: row[1][-1]))
-
-    def _on_row_press(self, instance_table, instance_row):
-        if self._get_article_url_by_cell_index(instance_row.index):
-            webbrowser.open(self._get_article_url_by_cell_index(instance_row.index))
-
-    def _get_article_url_by_cell_index(self, index: int) -> str:
-        try:
-            return self._articles_urls[index]
-        except IndexError:
-            return None
-
-    @staticmethod
-    def _on_check_press(instance_table, current_row):
-        pass
-
-    def _add_about_tab(self):
-        self.tabs_about = TabbedPanelItem(
-            text="About",
-            font_size=dp(6 * F_SIZE),
-            font_name=UI_FONT_NAME,
-        )
-        about_content = MDBoxLayout(
-            orientation="vertical",
-        )
-        about_content.add_widget(AboutPopupLabel(text=""))
-        about_content.add_widget(
-            Image(
-                source=asset_path("blog2epub_white.png"),
-                allow_stretch=True,
-                size_hint=(1, 0.7),
-            )
-        )
-        about_content.add_widget(AboutPopupLabel(text=f"v. {Blog2Epub.version}"))
-        about_content.add_widget(AboutPopupLabel(text="by Bohdan Bobrowski"))
-
-        def about_url_click(inst):
-            webbrowser.open("https://github.com/bohdanbobrowski/blog2epub")
-
-        about_content.add_widget(
-            MDFlatButton(
-                text="github.com/bohdanbobrowski/blog2epub",
-                font_size=dp(6 * F_SIZE),
-                font_name=UI_FONT_NAME,
-                size_hint=(1, 0.1),
-                on_press=about_url_click,
-            )
-        )
-        self.tabs_about.add_widget(about_content)
-        self.tabs.add_widget(self.tabs_about)
+        self.add_widget(self.console)
+        self.interface = KivyInterface(self.console_output, self.console_clear)
 
     def _suggest_history(self, *kwargs):
         print(kwargs)
@@ -392,30 +256,9 @@ class Blog2EpubKivyWindow(MDBoxLayout):
         }
 
     def _download_ebook(self, blog2epub: Blog2Epub):
-        blog2epub.download()
+        cover_image_path, generated_ebook_path = blog2epub.download()
         self._enable_download_button()
-        if blog2epub.crawler.articles:
-            self.crawler = blog2epub.crawler
-            row_data = []
-            self._articles_urls = []
-            article_no = 0
-            for art in blog2epub.crawler.articles:
-                article_no += 1
-                article_date = art.date.strftime("%Y.%m.%d")
-                row_data.append(
-                    [
-                        f"[size={6*F_SIZE}dp][font={UI_FONT_NAME}]{article_no}[/font][/size]",
-                        f"[size={6*F_SIZE}dp][font={UI_FONT_NAME}]{article_date}[/font][/size]",
-                        f"[size={6*F_SIZE}dp][font={UI_FONT_NAME}]{art.title}[/font][/size]",
-                    ]
-                )
-                self._articles_urls += [None, None, art.url]
-            self.article_list.row_data = row_data
-            self.article_list.table_data.select_all("active")
-            self.tabs_generator.disabled = False
-            self._update_title_and_subtitle(
-                title=self.crawler.title, subtitle=self.crawler.subtitle
-            )
+        self.popup_success(cover_image_path, generated_ebook_path)
 
     def download(self, instance):
         self.interface.clear()
@@ -427,43 +270,8 @@ class Blog2EpubKivyWindow(MDBoxLayout):
         )
         download_thread.start()
 
-    @mainthread
-    def _update_title_and_subtitle(self, title: str, subtitle: str):
-        self.interface.print(f"Book title set to {title}")
-        self.interface.print(f"Book subtitle set to {subtitle}")
-        self.book_title_entry.text = title
-        self.book_subtitle_entry.text = subtitle
-
-    @staticmethod
-    def clean_cell_value(input_s):
-        return re.sub("(\\[.*?\\])", "", input_s)
-
-    def generate(self, instance):
-        self._disable_generate_button()
-        selected_articles = []
-        for row in self.article_list.get_row_checks():
-            try:
-                cell_value = int(self.clean_cell_value(row[0]))
-                selected_articles.append(self.crawler.articles[cell_value - 1])
-            except IndexError:
-                pass
-        if self.crawler.generate_ebook(
-            articles=selected_articles,
-            title=self.book_title_entry.text,
-            subtitle=self.book_subtitle_entry.text,
-        ):
-            cover_image_path = os.path.join(
-                self.crawler.book.cover.destination_folder,
-                self.crawler.book.cover.file_name + ".jpg",
-            )
-            generated_ebook_path = os.path.join(
-                self.crawler.book.destination_folder, self.crawler.book.file_name
-            )
-            self.popup_success(cover_image_path, generated_ebook_path)
-        self._enable_generate_button()
-
     def _disable_download_button(self):
-        self.interface.print("Downloading web contents...")
+        self.interface.print("Downloading...")
         self.download_button.disabled = True
         self.download_button.text = "Downloading..."
 
@@ -471,27 +279,52 @@ class Blog2EpubKivyWindow(MDBoxLayout):
         self.download_button.disabled = False
         self.download_button.text = "Download"
 
-    def _disable_generate_button(self):
-        self.interface.print("Generating e-book...")
-        self.generate_button.disabled = True
-        self.generate_button.text = "Generating..."
-
-    def _enable_generate_button(self):
-        self.generate_button.disabled = False
-        self.generate_button.text = "Generate"
-
     def save_settings(self):
         SETTINGS.set("url", prepare_url(self.url_entry.text))
         SETTINGS.set("limit", self.limit_entry.text)
         SETTINGS.set("skip", self.skip_entry.text)
         SETTINGS.save()
 
+    def about(self, instance):
+        about_content = BoxLayout(orientation="vertical")
+        about_content.add_widget(
+            Image(
+                source=asset_path("blog2epub.png"),
+                allow_stretch=True,
+                size_hint=(1, 0.7),
+            )
+        )
+        about_content.add_widget(AboutPopupLabel(text=f"v. {Blog2Epub.version}"))
+        about_content.add_widget(AboutPopupLabel(text="by Bohdan Bobrowski"))
+
+        def about_url_click(inst):
+            webbrowser.open("https://github.com/bohdanbobrowski/blog2epub")
+
+        about_content.add_widget(
+            Button(
+                text="github.com/bohdanbobrowski/blog2epub",
+                font_size=dp(6 * F_SIZE),
+                font_name=UI_FONT_NAME,
+                size_hint=(1, 0.1),
+                on_press=about_url_click,
+            )
+        )
+        about_popup = Popup(
+            title="Blog2Epub",
+            title_size=dp(10 * F_SIZE),
+            title_font=UI_FONT_NAME,
+            content=about_content,
+            size_hint=(None, None),
+            size=(dp(210 * F_SIZE), dp(180 * F_SIZE)),
+        )
+        about_popup.open()
+
     @mainthread
     def popup_success(self, cover_image_path: str, generated_ebook_path: str):
         self.success(cover_image_path, generated_ebook_path)
 
     def success(self, cover_image_path: str, generated_ebook_path: str):
-        success_content = MDBoxLayout(orientation="vertical")
+        success_content = BoxLayout(orientation="vertical")
         success_content.add_widget(
             Image(
                 source=asset_path(cover_image_path),
@@ -504,7 +337,7 @@ class Blog2EpubKivyWindow(MDBoxLayout):
             open_file(generated_ebook_path)
 
         success_content.add_widget(
-            MDFlatButton(
+            Button(
                 text="Click here to open epub",
                 font_size=dp(6 * F_SIZE),
                 font_name=UI_FONT_NAME,
@@ -523,10 +356,9 @@ class Blog2EpubKivyWindow(MDBoxLayout):
         success_popup.open()
 
 
-class AboutPopupLabel(MDLabel):
+class AboutPopupLabel(Label):
     def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-        self.valign = "center"
+        Label.__init__(self, **kwargs)
         self.font_size = dp(6 * F_SIZE)
         self.font_name = UI_FONT_NAME
         self.size_hint = (1, 0.1)
