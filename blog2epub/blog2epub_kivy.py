@@ -27,7 +27,7 @@ from kivy.clock import mainthread
 from kivy.core.window import Window
 from kivy.metrics import Metrics, dp
 from kivymd.uix.boxlayout import MDBoxLayout
-from kivymd.uix.button import MDFlatButton
+from kivymd.uix.button import MDFlatButton, MDIconButton
 from kivy.uix.checkbox import CheckBox
 from kivy.uix.image import Image
 from kivymd.uix.label import MDLabel
@@ -173,7 +173,8 @@ class Blog2EpubKivyWindow(MDBoxLayout):
 
     def _define_tab_download(self):
         self.tab_download = Tab(
-            tab_label_text="Download",
+            title="Download",
+            icon="download",
             orientation="vertical",
             spacing=dp(SIZE),
             padding=dp(6 * SIZE),
@@ -197,7 +198,8 @@ class Blog2EpubKivyWindow(MDBoxLayout):
 
     def _define_tab_select(self):
         self.tab_select = Tab(
-            tab_label_text="Select",
+            title="Select",
+            icon="format-list-bulleted-type",
             orientation="vertical",
             spacing=dp(SIZE),
             padding=dp(6 * SIZE),
@@ -205,7 +207,8 @@ class Blog2EpubKivyWindow(MDBoxLayout):
 
     def _define_tab_generate(self):
         self.tab_generate = Tab(
-            tab_label_text="Generate",
+            title="Generate",
+            icon="cog",
             orientation="vertical",
             spacing=dp(SIZE),
             padding=dp(6 * SIZE),
@@ -213,7 +216,8 @@ class Blog2EpubKivyWindow(MDBoxLayout):
 
     def _define_tab_about(self):
         self.tab_about = Tab(
-            tab_label_text="About",
+            title="About",
+            icon="information-variant",
             orientation="vertical",
             spacing=dp(SIZE),
             padding=dp(6 * SIZE),
