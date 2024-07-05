@@ -27,7 +27,7 @@ from kivy.clock import mainthread
 from kivy.core.window import Window
 from kivy.metrics import Metrics, dp
 from kivymd.uix.boxlayout import MDBoxLayout
-from kivymd.uix.button import MDFlatButton, MDIconButton
+from kivymd.uix.button import MDFlatButton
 from kivy.uix.checkbox import CheckBox
 from kivy.uix.image import Image
 from kivymd.uix.label import MDLabel
@@ -229,8 +229,24 @@ class Blog2EpubKivyWindow(MDBoxLayout):
                 size_hint=(1, 0.7),
             )
         )
-        self.tab_about.add_widget(AboutPopupLabel(text=f"v. {Blog2Epub.version}"))
-        self.tab_about.add_widget(AboutPopupLabel(text="by Bohdan Bobrowski"))
+        self.tab_about.add_widget(
+            MDLabel(
+                text=f"v. {Blog2Epub.version}",
+                halign="center",
+                font_size=dp(6 * F_SIZE),
+                font_name=UI_FONT_NAME,
+                size_hint=(1, 0.1),
+            )
+        )
+        self.tab_about.add_widget(
+            MDLabel(
+                text="by Bohdan Bobrowski",
+                halign="center",
+                font_size=dp(6 * F_SIZE),
+                font_name=UI_FONT_NAME,
+                size_hint=(1, 0.1),
+            )
+        )
 
         def about_url_click(inst):
             webbrowser.open("https://github.com/bohdanbobrowski/blog2epub")
@@ -394,14 +410,6 @@ class Blog2EpubKivyWindow(MDBoxLayout):
             size=(dp(210 * F_SIZE), dp(180 * F_SIZE)),
         )
         success_popup.open()
-
-
-class AboutPopupLabel(MDLabel):
-    def __init__(self, **kwargs):
-        MDLabel.__init__(self, **kwargs)
-        self.font_size = dp(6 * F_SIZE)
-        self.font_name = UI_FONT_NAME
-        self.size_hint = (1, 0.1)
 
 
 class KivyInterface(EmptyInterface):
