@@ -401,7 +401,8 @@ class Blog2EpubKivyWindow(MDBoxLayout):
     def popup_success(self, cover_image_path: str, generated_ebook_path: str):
         self.success(cover_image_path, generated_ebook_path)
 
-    def success(self, cover_image_path: str, generated_ebook_path: str):
+    @staticmethod
+    def success(cover_image_path: str, generated_ebook_path: str):
         success_content = MDBoxLayout(orientation="vertical")
         success_content.add_widget(
             Image(
