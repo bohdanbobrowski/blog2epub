@@ -219,7 +219,12 @@ class Blog2EpubKivyWindow(MDBoxLayout):
             padding=0,
             elevation=0,
         )
+        self.data_tables.bind(on_check_press=self._on_check_press)
         self.tab_select.add_widget(self.data_tables)
+
+    def _on_check_press(self, instance_table, current_row):
+        checked_rows = instance_table.get_row_checks()
+        self._set_generate_tab(len(checked_rows))
 
     def _define_tab_generate(self):
         self.tab_generate = Tab(
