@@ -12,7 +12,7 @@ from threading import Thread
 from typing import Optional
 from urllib import parse
 
-from kivymd.uix.tab import MDTabsBase
+from kivymd.uix.tab import MDTabsBase, MDTabs
 
 if sys.__stdout__ is None or sys.__stderr__ is None:
     os.environ["KIVY_NO_CONSOLELOG"] = "1"
@@ -144,20 +144,46 @@ class StyledButton(MDFlatButton):
         self.size_hint = (None, 1)
 
 
+class Tab(MDBoxLayout, MDTabsBase):
+    pass
+
+
 class Blog2EpubKivyWindow(MDBoxLayout):
     def __init__(self, **kwargs):
         super(Blog2EpubKivyWindow, self).__init__(**kwargs)
         self.orientation = "vertical"
-        self.padding = dp(6 * SIZE)
-        self.spacing = dp(2 * SIZE)
+        # self.padding = dp(3 * SIZE)
 
-        self.tabs_base = MDTabsBase()
+        self.tabs = MDTabs()
+        self.add_widget(self.tabs)
+
+        self._define_tab_download()
+        self.tabs.add_widget(self.tab_download)
+
+        self._define_tab_select()
+        self.tabs.add_widget(self.tab_select)
+
+        self._define_tab_generate()
+        self.tabs.add_widget(self.tab_generate)
+
+        self._define_tab_about()
+        self.tabs.add_widget(self.tab_about)
+
+        self.interface = KivyInterface(self.console_output, self.console_clear)
+
+    def _define_tab_download(self):
+        self.tab_download = Tab(
+            tab_label_text="Download",
+            orientation="vertical",
+            spacing=dp(SIZE),
+            padding=dp(6 * SIZE),
+        )
 
         url_row = self._get_url_row()
-        self.add_widget(url_row)
+        self.tab_download.add_widget(url_row)
 
         params_row = self._get_params_row()
-        self.add_widget(params_row)
+        self.tab_download.add_widget(params_row)
 
         self.console = TextInput(
             font_size=dp(6 * F_SIZE),
@@ -167,13 +193,57 @@ class Blog2EpubKivyWindow(MDBoxLayout):
             size_hint=(1, 0.88),
             readonly=True,
         )
-        self.add_widget(self.console)
+        self.tab_download.add_widget(self.console)
 
-        self.interface = KivyInterface(self.console_output, self.console_clear)
+    def _define_tab_select(self):
+        self.tab_select = Tab(
+            tab_label_text="Select",
+            orientation="vertical",
+            spacing=dp(SIZE),
+            padding=dp(6 * SIZE),
+        )
+
+    def _define_tab_generate(self):
+        self.tab_generate = Tab(
+            tab_label_text="Generate",
+            orientation="vertical",
+            spacing=dp(SIZE),
+            padding=dp(6 * SIZE),
+        )
+
+    def _define_tab_about(self):
+        self.tab_about = Tab(
+            tab_label_text="About",
+            orientation="vertical",
+            spacing=dp(SIZE),
+            padding=dp(6 * SIZE),
+        )
+        self.tab_about.add_widget(
+            Image(
+                source=asset_path("blog2epub.png"),
+                allow_stretch=True,
+                size_hint=(1, 0.7),
+            )
+        )
+        self.tab_about.add_widget(AboutPopupLabel(text=f"v. {Blog2Epub.version}"))
+        self.tab_about.add_widget(AboutPopupLabel(text="by Bohdan Bobrowski"))
+
+        def about_url_click(inst):
+            webbrowser.open("https://github.com/bohdanbobrowski/blog2epub")
+
+        self.tab_about.add_widget(
+            MDFlatButton(
+                text="github.com/bohdanbobrowski/blog2epub",
+                font_size=dp(6 * F_SIZE),
+                font_name=UI_FONT_NAME,
+                size_hint=(1, 0.1),
+                on_press=about_url_click,
+            )
+        )
 
     def _get_url_row(self) -> MDBoxLayout:
         url_row = MDBoxLayout(
-            orientation="horizontal", size_hint=(1, 0.1), spacing=dp(2 * SIZE)
+            orientation="horizontal", size_hint=(1, 0.12), spacing=dp(2 * SIZE)
         )
         url_row.add_widget(StyledLabel(text="Url:"))
         hint_text = ""
@@ -193,7 +263,7 @@ class Blog2EpubKivyWindow(MDBoxLayout):
 
     def _get_params_row(self) -> MDBoxLayout:
         params_row = MDBoxLayout(
-            orientation="horizontal", size_hint=(1, 0.1), spacing=dp(2 * SIZE)
+            orientation="horizontal", size_hint=(1, 0.12), spacing=dp(2 * SIZE)
         )
         params_row.add_widget(StyledLabel(text="Limit:"))
         self.limit_entry = NumberTextInput(
@@ -201,16 +271,13 @@ class Blog2EpubKivyWindow(MDBoxLayout):
         )
         self.limit_entry.bind(text=self._allow_only_numbers)
         params_row.add_widget(self.limit_entry)
-
         params_row.add_widget(StyledLabel(text="Skip:"))
         self.skip_entry = NumberTextInput(
             text=SETTINGS.get("skip"), input_type="number", hint_text="0"
         )
         self.skip_entry.bind(text=self._allow_only_numbers)
         params_row.add_widget(self.skip_entry)
-        self.about_button = StyledButton(text="About")
-        self.about_button.bind(on_press=self.about)
-        params_row.add_widget(self.about_button)
+
         return params_row
 
     def _suggest_history(self, *kwargs):
@@ -287,40 +354,6 @@ class Blog2EpubKivyWindow(MDBoxLayout):
         SETTINGS.set("limit", self.limit_entry.text)
         SETTINGS.set("skip", self.skip_entry.text)
         SETTINGS.save()
-
-    def about(self, instance):
-        about_content = MDBoxLayout(orientation="vertical")
-        about_content.add_widget(
-            Image(
-                source=asset_path("blog2epub.png"),
-                allow_stretch=True,
-                size_hint=(1, 0.7),
-            )
-        )
-        about_content.add_widget(AboutPopupLabel(text=f"v. {Blog2Epub.version}"))
-        about_content.add_widget(AboutPopupLabel(text="by Bohdan Bobrowski"))
-
-        def about_url_click(inst):
-            webbrowser.open("https://github.com/bohdanbobrowski/blog2epub")
-
-        about_content.add_widget(
-            MDFlatButton(
-                text="github.com/bohdanbobrowski/blog2epub",
-                font_size=dp(6 * F_SIZE),
-                font_name=UI_FONT_NAME,
-                size_hint=(1, 0.1),
-                on_press=about_url_click,
-            )
-        )
-        about_popup = Popup(
-            title="Blog2Epub",
-            title_size=dp(10 * F_SIZE),
-            title_font=UI_FONT_NAME,
-            content=about_content,
-            size_hint=(None, None),
-            size=(dp(210 * F_SIZE), dp(180 * F_SIZE)),
-        )
-        about_popup.open()
 
     @mainthread
     def popup_success(self, cover_image_path: str, generated_ebook_path: str):
@@ -418,7 +451,7 @@ class Blog2EpubKivy(MDApp):
 
     def build(self):
         self.theme_cls.theme_style = "Dark"
-        self.theme_cls.primary_palette = "Blue"
+        self.theme_cls.primary_palette = "Green"
         Window.resizable = False
         Window.size = (dp(300 * SIZE), dp(200 * SIZE))
         return Blog2EpubKivyWindow()
