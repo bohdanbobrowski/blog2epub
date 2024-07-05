@@ -204,6 +204,7 @@ class Blog2EpubKivyWindow(MDBoxLayout):
             orientation="vertical",
             spacing=dp(SIZE),
             padding=dp(6 * SIZE),
+            disabled=True,
         )
         self.data_tables = MDDataTable(
             use_pagination=True,
@@ -225,6 +226,7 @@ class Blog2EpubKivyWindow(MDBoxLayout):
             orientation="vertical",
             spacing=dp(SIZE),
             padding=dp(6 * SIZE),
+            disabled=True,
         )
 
     def _define_tab_about(self):
@@ -363,6 +365,12 @@ class Blog2EpubKivyWindow(MDBoxLayout):
         blog2epub.download()
         self._enable_download_button()
         # self.popup_success(cover_image_path, generated_ebook_path)
+        if len(blog2epub.crawler.articles) > 0:
+            no = 1
+            self.tab_select.disabled = self.tab_generate.disabled = False
+            for article in blog2epub.crawler.articles:
+                self.data_tables.add_row([no, article.title])
+                no += 1
 
     def download(self, instance):
         self.interface.clear()
