@@ -12,6 +12,7 @@ from threading import Thread
 from typing import Optional
 from urllib import parse
 
+from kivymd.uix.datatables import MDDataTable
 from kivymd.uix.tab import MDTabsBase, MDTabs
 
 if sys.__stdout__ is None or sys.__stderr__ is None:
@@ -204,6 +205,18 @@ class Blog2EpubKivyWindow(MDBoxLayout):
             spacing=dp(SIZE),
             padding=dp(6 * SIZE),
         )
+        self.data_tables = MDDataTable(
+            use_pagination=True,
+            check=True,
+            column_data=[
+                ("No.", dp(30)),
+                ("Title", dp(70)),
+            ],
+            row_data=[],
+            padding=0,
+            elevation=0,
+        )
+        self.tab_select.add_widget(self.data_tables)
 
     def _define_tab_generate(self):
         self.tab_generate = Tab(
@@ -295,7 +308,10 @@ class Blog2EpubKivyWindow(MDBoxLayout):
         self.skip_entry.bind(text=self._allow_only_numbers)
         params_row.add_widget(self.skip_entry)
         self.download_button = MDRectangleFlatIconButton(
-            icon="download", text="Download", line_color=(0, 0, 0, 0), size_hint=(0.3, 1)
+            icon="download",
+            text="Download",
+            line_color=(0, 0, 0, 0),
+            size_hint=(0.3, 1),
         )
         self.download_button.bind(on_press=self.download)
         params_row.add_widget(self.download_button)
