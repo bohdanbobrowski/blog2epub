@@ -27,7 +27,7 @@ from kivy.clock import mainthread
 from kivy.core.window import Window
 from kivy.metrics import Metrics, dp
 from kivymd.uix.boxlayout import MDBoxLayout
-from kivymd.uix.button import MDFlatButton
+from kivymd.uix.button import MDFlatButton, MDRectangleFlatIconButton
 from kivy.uix.checkbox import CheckBox
 from kivy.uix.image import Image
 from kivymd.uix.label import MDLabel
@@ -276,9 +276,6 @@ class Blog2EpubKivyWindow(MDBoxLayout):
             input_type="url",
         )
         url_row.add_widget(self.url_entry)
-        self.download_button = StyledButton(text="Download")
-        self.download_button.bind(on_press=self.download)
-        url_row.add_widget(self.download_button)
         return url_row
 
     def _get_params_row(self) -> MDBoxLayout:
@@ -297,11 +294,12 @@ class Blog2EpubKivyWindow(MDBoxLayout):
         )
         self.skip_entry.bind(text=self._allow_only_numbers)
         params_row.add_widget(self.skip_entry)
-
+        self.download_button = MDRectangleFlatIconButton(
+            icon="download", text="Download", line_color=(0, 0, 0, 0), size_hint=(0.3, 1)
+        )
+        self.download_button.bind(on_press=self.download)
+        params_row.add_widget(self.download_button)
         return params_row
-
-    def _suggest_history(self, *kwargs):
-        print(kwargs)
 
     def _allow_only_numbers(self, input_widget, text):
         input_widget.text = " ".join(re.findall(r"\d+", text))
@@ -462,8 +460,8 @@ class Blog2EpubKivy(MDApp):
             self.icon = asset_path("blog2epub.svg")
 
     def build(self):
-        self.theme_cls.theme_style = "Dark"
-        self.theme_cls.primary_palette = "Green"
+        self.theme_cls.theme_style = "Light"
+        self.theme_cls.primary_palette = "Teal"
         Window.resizable = False
         Window.size = (dp(300 * SIZE), dp(200 * SIZE))
         return Blog2EpubKivyWindow()
