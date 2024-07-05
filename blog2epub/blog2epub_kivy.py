@@ -12,6 +12,7 @@ from threading import Thread
 from typing import Optional
 from urllib import parse
 
+from kivymd.uix.tab import MDTabsBase
 
 if sys.__stdout__ is None or sys.__stderr__ is None:
     os.environ["KIVY_NO_CONSOLELOG"] = "1"
@@ -150,51 +151,13 @@ class Blog2EpubKivyWindow(MDBoxLayout):
         self.padding = dp(6 * SIZE)
         self.spacing = dp(2 * SIZE)
 
-        self.row1 = MDBoxLayout(
-            orientation="horizontal", size_hint=(1, 0.1), spacing=dp(2 * SIZE)
-        )
-        self.add_widget(self.row1)
+        self.tabs_base = MDTabsBase()
 
-        self.row1.add_widget(StyledLabel(text="Url:"))
+        url_row = self._get_url_row()
+        self.add_widget(url_row)
 
-        hint_text = ""
-        if SETTINGS.get("history"):
-            hint_text = "Press ↑↓ to browse in url history"
-
-        self.url_entry = UrlTextInput(
-            size_hint=(0.8, 1),
-            text=SETTINGS.get("url"),
-            hint_text=hint_text,
-            input_type="url",
-        )
-        self.row1.add_widget(self.url_entry)
-
-        self.download_button = StyledButton(text="Download")
-        self.download_button.bind(on_press=self.download)
-        self.row1.add_widget(self.download_button)
-
-        self.row2 = MDBoxLayout(
-            orientation="horizontal", size_hint=(1, 0.1), spacing=dp(2 * SIZE)
-        )
-        self.add_widget(self.row2)
-
-        self.row2.add_widget(StyledLabel(text="Limit:"))
-        self.limit_entry = NumberTextInput(
-            text=SETTINGS.get("limit"), input_type="number", hint_text="0"
-        )
-        self.limit_entry.bind(text=self._allow_only_numbers)
-        self.row2.add_widget(self.limit_entry)
-
-        self.row2.add_widget(StyledLabel(text="Skip:"))
-        self.skip_entry = NumberTextInput(
-            text=SETTINGS.get("skip"), input_type="number", hint_text="0"
-        )
-        self.skip_entry.bind(text=self._allow_only_numbers)
-        self.row2.add_widget(self.skip_entry)
-
-        self.about_button = StyledButton(text="About")
-        self.about_button.bind(on_press=self.about)
-        self.row2.add_widget(self.about_button)
+        params_row = self._get_params_row()
+        self.add_widget(params_row)
 
         self.console = TextInput(
             font_size=dp(6 * F_SIZE),
@@ -205,7 +168,50 @@ class Blog2EpubKivyWindow(MDBoxLayout):
             readonly=True,
         )
         self.add_widget(self.console)
+
         self.interface = KivyInterface(self.console_output, self.console_clear)
+
+    def _get_url_row(self) -> MDBoxLayout:
+        url_row = MDBoxLayout(
+            orientation="horizontal", size_hint=(1, 0.1), spacing=dp(2 * SIZE)
+        )
+        url_row.add_widget(StyledLabel(text="Url:"))
+        hint_text = ""
+        if SETTINGS.get("history"):
+            hint_text = "Press ↑↓ to browse in url history"
+        self.url_entry = UrlTextInput(
+            size_hint=(0.8, 1),
+            text=SETTINGS.get("url"),
+            hint_text=hint_text,
+            input_type="url",
+        )
+        url_row.add_widget(self.url_entry)
+        self.download_button = StyledButton(text="Download")
+        self.download_button.bind(on_press=self.download)
+        url_row.add_widget(self.download_button)
+        return url_row
+
+    def _get_params_row(self) -> MDBoxLayout:
+        params_row = MDBoxLayout(
+            orientation="horizontal", size_hint=(1, 0.1), spacing=dp(2 * SIZE)
+        )
+        params_row.add_widget(StyledLabel(text="Limit:"))
+        self.limit_entry = NumberTextInput(
+            text=SETTINGS.get("limit"), input_type="number", hint_text="0"
+        )
+        self.limit_entry.bind(text=self._allow_only_numbers)
+        params_row.add_widget(self.limit_entry)
+
+        params_row.add_widget(StyledLabel(text="Skip:"))
+        self.skip_entry = NumberTextInput(
+            text=SETTINGS.get("skip"), input_type="number", hint_text="0"
+        )
+        self.skip_entry.bind(text=self._allow_only_numbers)
+        params_row.add_widget(self.skip_entry)
+        self.about_button = StyledButton(text="About")
+        self.about_button.bind(on_press=self.about)
+        params_row.add_widget(self.about_button)
+        return params_row
 
     def _suggest_history(self, *kwargs):
         print(kwargs)
