@@ -12,6 +12,8 @@ from threading import Thread
 from typing import Optional
 from urllib import parse
 
+from kivy.uix.anchorlayout import AnchorLayout
+from kivy.uix.floatlayout import FloatLayout
 from kivymd.uix.datatables import MDDataTable
 from kivymd.uix.tab import MDTabsBase, MDTabs
 
@@ -228,6 +230,34 @@ class Blog2EpubKivyWindow(MDBoxLayout):
             padding=dp(6 * SIZE),
             disabled=True,
         )
+        self.selected_label = MDLabel(
+            text=f"Selected {0} articles.",
+            halign="center",
+            font_size=dp(6 * F_SIZE),
+            font_name=UI_FONT_NAME,
+            size_hint=(1, 0.1),
+        )
+        anchor_layout_one = AnchorLayout(anchor_x="center")
+        anchor_layout_one.add_widget(self.selected_label)
+        self.tab_generate.add_widget(anchor_layout_one)
+        self.generate_button = MDRectangleFlatIconButton(
+            icon="cog",
+            text="Generate",
+            line_color=(0, 0, 0, 0),
+            disabled=True,
+        )
+        anchor_layout = AnchorLayout(anchor_x="center")
+        anchor_layout.add_widget(self.generate_button)
+        float_layout = FloatLayout()
+        float_layout.add_widget(anchor_layout)
+        self.tab_generate.add_widget(float_layout)
+
+    def _set_generate_tab(self, selected_no: int):
+        self.selected_label.text = f"Selected {selected_no} articles."
+        if selected_no > 0:
+            self.generate_button.disabled = False
+        else:
+            self.generate_button.disabled = True
 
     def _define_tab_about(self):
         self.tab_about = Tab(
