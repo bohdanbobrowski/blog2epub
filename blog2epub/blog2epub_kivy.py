@@ -31,10 +31,7 @@ from kivy.uix.checkbox import CheckBox
 from kivy.uix.image import Image
 from kivymd.uix.label import MDLabel
 from kivy.uix.popup import Popup
-from kivy.uix.tabbedpanel import TabbedPanel, TabbedPanelItem
 from kivy.uix.textinput import TextInput
-from kivymd.uix.tab import MDTabs, MDTabsLabel
-from kivymd.uix.datatables import MDDataTable
 
 from blog2epub import Blog2Epub
 from blog2epub.common.assets import asset_path, open_file
@@ -137,7 +134,7 @@ class NumberTextInput(StyledTextInput):
         return super().keyboard_on_key_down(window, keycode, text, modifiers)
 
 
-class StyledButton(Button):
+class StyledButton(MDFlatButton):
     def __init__(self, **kwargs):
         super(StyledButton, self).__init__(**kwargs)
         self.font_size = dp(6 * F_SIZE)
@@ -146,14 +143,14 @@ class StyledButton(Button):
         self.size_hint = (None, 1)
 
 
-class Blog2EpubKivyWindow(BoxLayout):
+class Blog2EpubKivyWindow(MDBoxLayout):
     def __init__(self, **kwargs):
         super(Blog2EpubKivyWindow, self).__init__(**kwargs)
         self.orientation = "vertical"
         self.padding = dp(6 * SIZE)
         self.spacing = dp(2 * SIZE)
 
-        self.row1 = BoxLayout(
+        self.row1 = MDBoxLayout(
             orientation="horizontal", size_hint=(1, 0.1), spacing=dp(2 * SIZE)
         )
         self.add_widget(self.row1)
@@ -176,7 +173,7 @@ class Blog2EpubKivyWindow(BoxLayout):
         self.download_button.bind(on_press=self.download)
         self.row1.add_widget(self.download_button)
 
-        self.row2 = BoxLayout(
+        self.row2 = MDBoxLayout(
             orientation="horizontal", size_hint=(1, 0.1), spacing=dp(2 * SIZE)
         )
         self.add_widget(self.row2)
@@ -256,9 +253,9 @@ class Blog2EpubKivyWindow(BoxLayout):
         }
 
     def _download_ebook(self, blog2epub: Blog2Epub):
-        cover_image_path, generated_ebook_path = blog2epub.download()
+        blog2epub.download()
         self._enable_download_button()
-        self.popup_success(cover_image_path, generated_ebook_path)
+        # self.popup_success(cover_image_path, generated_ebook_path)
 
     def download(self, instance):
         self.interface.clear()
@@ -286,7 +283,7 @@ class Blog2EpubKivyWindow(BoxLayout):
         SETTINGS.save()
 
     def about(self, instance):
-        about_content = BoxLayout(orientation="vertical")
+        about_content = MDBoxLayout(orientation="vertical")
         about_content.add_widget(
             Image(
                 source=asset_path("blog2epub.png"),
@@ -301,7 +298,7 @@ class Blog2EpubKivyWindow(BoxLayout):
             webbrowser.open("https://github.com/bohdanbobrowski/blog2epub")
 
         about_content.add_widget(
-            Button(
+            MDFlatButton(
                 text="github.com/bohdanbobrowski/blog2epub",
                 font_size=dp(6 * F_SIZE),
                 font_name=UI_FONT_NAME,
@@ -324,7 +321,7 @@ class Blog2EpubKivyWindow(BoxLayout):
         self.success(cover_image_path, generated_ebook_path)
 
     def success(self, cover_image_path: str, generated_ebook_path: str):
-        success_content = BoxLayout(orientation="vertical")
+        success_content = MDBoxLayout(orientation="vertical")
         success_content.add_widget(
             Image(
                 source=asset_path(cover_image_path),
@@ -337,7 +334,7 @@ class Blog2EpubKivyWindow(BoxLayout):
             open_file(generated_ebook_path)
 
         success_content.add_widget(
-            Button(
+            MDFlatButton(
                 text="Click here to open epub",
                 font_size=dp(6 * F_SIZE),
                 font_name=UI_FONT_NAME,
@@ -356,9 +353,9 @@ class Blog2EpubKivyWindow(BoxLayout):
         success_popup.open()
 
 
-class AboutPopupLabel(Label):
+class AboutPopupLabel(MDLabel):
     def __init__(self, **kwargs):
-        Label.__init__(self, **kwargs)
+        MDLabel.__init__(self, **kwargs)
         self.font_size = dp(6 * F_SIZE)
         self.font_name = UI_FONT_NAME
         self.size_hint = (1, 0.1)
