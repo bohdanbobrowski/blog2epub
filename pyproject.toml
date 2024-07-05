@@ -9,7 +9,7 @@ license = "MIT"
 readme = "README.md"
 
 [tool.poetry.dependencies]
-python = "^3.12"
+python = ">=3.10, <3.13"
 kivymd = "^1.2.0"
 pydantic = "^2.8.2"
 beautifulsoup4 = "^4.12.3"
@@ -27,6 +27,8 @@ mkdocs = "^1.6.0"
 
 [tool.poetry.group.dev.dependencies]
 ruff = "^0.5.0"
+pyinstaller = "^6.8.0"
+pylint = "^3.2.5"
 
 [build-system]
 requires = ["poetry-core"]
