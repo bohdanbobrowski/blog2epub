@@ -102,6 +102,8 @@ Mint 21.2 Cinnamon
 ## Change Log
 
 ### [v1.3.0](#v1.3.0)
+
+- [ ] introduce KivyMD
 - [ ] save downloaded page structure to yaml file
 - [ ] add tabbed layout with list of articles
 - [ ] 2 stages: crawl/download & ebook generation
