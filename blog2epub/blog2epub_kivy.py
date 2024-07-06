@@ -9,13 +9,12 @@ from datetime import datetime
 from itertools import cycle
 from pathlib import Path
 from threading import Thread
-from typing import Optional
+from typing import Optional, List
 from urllib import parse
 
 from kivy.uix.anchorlayout import AnchorLayout
 from kivy.uix.floatlayout import FloatLayout
 from kivymd.uix.datatables import MDDataTable
-from kivymd.uix.scrollview import MDScrollView
 from kivymd.uix.tab import MDTabsBase, MDTabs
 
 if sys.__stdout__ is None or sys.__stderr__ is None:
@@ -200,22 +199,22 @@ class Blog2EpubKivyWindow(MDBoxLayout):
         )
         self.tab_download.add_widget(self.console)
 
-    def _define_data_tables(self, row_data=[]):
-        self.data_tables = MDDataTable(
+    @mainthread
+    def _define_data_tables(self, row_data: List[List] = []):
+        self.articles_table = MDDataTable(
             use_pagination=False,
             check=True,
             column_data=[
                 ("No.", dp(30)),
-                ("Title", dp(70)),
+                ("Title", dp(75)),
             ],
             row_data=row_data,
+            rows_num=1000,
             padding=0,
             elevation=0,
         )
-        self.data_tables.bind(on_check_press=self._on_check_press)
-        scroll_view = MDScrollView()
-        scroll_view.add_widget(self.data_tables)
-        self.tab_select.add_widget(scroll_view)
+        self.articles_table.bind(on_check_press=self._on_check_press)
+        self.tab_select.add_widget(self.articles_table)
 
     def _define_tab_select(self):
         self.tab_select = Tab(
@@ -229,7 +228,7 @@ class Blog2EpubKivyWindow(MDBoxLayout):
         self._define_data_tables()
 
     def _on_check_press(self, instance_table, current_row):
-        checked_rows = self.data_tables.get_row_checks()
+        checked_rows = self.articles_table.get_row_checks()
         self._set_generate_tab(len(checked_rows))
 
     def _define_tab_generate(self):
@@ -411,14 +410,15 @@ class Blog2EpubKivyWindow(MDBoxLayout):
             self.tab_select.disabled = self.tab_generate.disabled = False
             articles = []
             for article in blog2epub.crawler.articles:
-                # self.data_tables.add_row([no, article.title])
                 articles.append([no, article.title])
                 no += 1
-            self._define_data_tables(articles)
+            self.articles_table.update_row_data(self.articles_table, articles)
 
     def download(self, instance):
         self.interface.clear()
         self._disable_download_button()
+        self.articles_table.update_row_data(self.articles_table, [])
+        self.tab_select.disabled = self.tab_generate.disabled = True
         self.save_settings()
         download_thread = Thread(
             target=self._download_ebook,
