@@ -5,6 +5,7 @@ import re
 import subprocess
 import sys
 import webbrowser
+import math
 from datetime import datetime
 from itertools import cycle
 from pathlib import Path
@@ -15,6 +16,7 @@ from urllib import parse
 from kivy.uix.anchorlayout import AnchorLayout
 from kivy.uix.floatlayout import FloatLayout
 from kivymd.uix.datatables import MDDataTable
+from kivymd.uix.selectioncontrol import MDCheckbox
 from kivymd.uix.tab import MDTabsBase, MDTabs
 
 if sys.__stdout__ is None or sys.__stderr__ is None:
@@ -157,6 +159,9 @@ class Blog2EpubKivyWindow(MDBoxLayout):
         self.orientation = "vertical"
         # self.padding = dp(3 * SIZE)
 
+        self.articles_data = []
+        self.ebook = None
+
         self.tabs = MDTabs()
         self.add_widget(self.tabs)
 
@@ -200,21 +205,34 @@ class Blog2EpubKivyWindow(MDBoxLayout):
         self.tab_download.add_widget(self.console)
 
     @mainthread
-    def _define_data_tables(self, row_data: List[List] = []):
+    def _define_data_tables(self):
         self.articles_table = MDDataTable(
             use_pagination=False,
-            check=True,
+            check=False,
             column_data=[
-                ("No.", dp(30)),
-                ("Title", dp(75)),
+                ("", 0),
+                ("", dp(10)),
+                ("No.", dp(10)),
+                ("Title", dp(80)),
             ],
-            row_data=row_data,
+            row_data=[],
             rows_num=1000,
             padding=0,
             elevation=0,
         )
-        self.articles_table.bind(on_check_press=self._on_check_press)
+        self.articles_table.bind(on_row_press=self._on_row_press)
         self.tab_select.add_widget(self.articles_table)
+
+    def _on_row_press(self, instance_table, cell_row):
+        row_index = math.floor(cell_row.index / 4)
+        if self.articles_data[row_index][0]:
+            self.articles_data[row_index][0] = False
+        else:
+            self.articles_data[row_index][0] = True
+        self.articles_table.update_row_data(
+            self.articles_table, self._get_articles_rows()
+        )
+        self._update_generate_tab()
 
     def _define_tab_select(self):
         self.tab_select = Tab(
@@ -226,10 +244,6 @@ class Blog2EpubKivyWindow(MDBoxLayout):
             disabled=True,
         )
         self._define_data_tables()
-
-    def _on_check_press(self, instance_table, current_row):
-        checked_rows = self.articles_table.get_row_checks()
-        self._set_generate_tab(len(checked_rows))
 
     def _define_tab_generate(self):
         self.tab_generate = Tab(
@@ -256,13 +270,18 @@ class Blog2EpubKivyWindow(MDBoxLayout):
             line_color=(0, 0, 0, 0),
             disabled=True,
         )
+        self.generate_button.bind(on_press=self.generate)
         anchor_layout = AnchorLayout(anchor_x="center")
         anchor_layout.add_widget(self.generate_button)
         float_layout = FloatLayout()
         float_layout.add_widget(anchor_layout)
         self.tab_generate.add_widget(float_layout)
 
-    def _set_generate_tab(self, selected_no: int):
+    def _update_generate_tab(self):
+        selected_no = 0
+        for art in self.articles_data:
+            if art[0]:
+                selected_no += 1
         self.selected_label.text = f"Selected {selected_no} articles."
         if selected_no > 0:
             self.generate_button.disabled = False
@@ -404,15 +423,43 @@ class Blog2EpubKivyWindow(MDBoxLayout):
     def _download_ebook(self, blog2epub: Blog2Epub):
         blog2epub.download()
         self._enable_download_button()
-        # self.popup_success(cover_image_path, generated_ebook_path)
         if len(blog2epub.crawler.articles) > 0:
-            no = 1
             self.tab_select.disabled = self.tab_generate.disabled = False
-            articles = []
-            for article in blog2epub.crawler.articles:
-                articles.append([no, article.title])
-                no += 1
-            self.articles_table.update_row_data(self.articles_table, articles)
+            self._update_articles_data(blog2epub.crawler.articles)
+            self.articles_table.update_row_data(
+                self.articles_table, self._get_articles_rows()
+            )
+        self.ebook = blog2epub.book
+
+    def generate(self):
+        if self.ebook:
+            self.ebook.save()
+            self.popup_success(cover_image_path, generated_ebook_path)
+        pass
+
+    def _update_articles_data(self, articles: List):
+        no = 1
+        self.articles_data = []
+        for article in articles:
+            self.articles_data.append([True, no, article.title])
+            no += 1
+
+    def _get_articles_rows(self):
+        temp_data = []
+        for row in self.articles_data:
+            if row[0]:
+                icon = "checkbox-outline"
+            else:
+                icon = "checkbox-blank-outline"
+            temp_data.append(
+                (
+                    "",
+                    (icon, [0, 0, 0, 1], ""),
+                    row[1],
+                    row[2],
+                )
+            )
+        return temp_data
 
     def download(self, instance):
         self.interface.clear()
