@@ -113,8 +113,10 @@ Mint 21.2 Cinnamon
 
 Still TODO in this version:
 - [ ] bug: created epub does not work properly (smthng is broken with attaching chapters after selection?)
-- [ ] refactor! follow mypy comments!
-- [ ] feature: text 
+- [ ] refactor! follow pylint comments!
+- [ ] feature: add text input to change epub file name
+- [ ] feature: prevent epub file overwriting
+- [ ] update documentation and screenshots!
 - [ ] windows build
 - [ ] osx build
 - [ ] linux build - deb + arch package???
