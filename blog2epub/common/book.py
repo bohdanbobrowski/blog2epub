@@ -84,6 +84,7 @@ class Book:
         self.update_file_name()
         self.destination_folder = crawler.destination_folder
         self.cover = None
+        self.cover_image_path = None
         self.book = None
 
     def _set_locale(self):
@@ -153,6 +154,7 @@ class Book:
     def _add_cover(self):
         self.cover = Cover(self)
         cover_file_name, cover_file_full_path = self.cover.generate()
+        self.cover_image_path = os.path.join(cover_file_name, cover_file_full_path)
         cover_html = self.cover_html.replace("###FILE###", cover_file_name)
         cover_html_fn = "EPUB/cover.xhtml"
         content_opf_fn = "EPUB/content.opf"

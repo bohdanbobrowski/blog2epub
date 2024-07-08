@@ -22,5 +22,5 @@ class Blog2Epub:
             return CrawlerBlogspot(**params)
         return CrawlerWordpress(**params)
 
-    def download(self) -> list:
+    def download(self):
         self.crawler.crawl()

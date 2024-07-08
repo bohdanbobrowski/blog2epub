@@ -16,8 +16,9 @@ from urllib import parse
 from kivy.uix.anchorlayout import AnchorLayout
 from kivy.uix.floatlayout import FloatLayout
 from kivymd.uix.datatables import MDDataTable
-from kivymd.uix.selectioncontrol import MDCheckbox
 from kivymd.uix.tab import MDTabsBase, MDTabs
+
+from blog2epub.common.book import Book
 
 if sys.__stdout__ is None or sys.__stderr__ is None:
     os.environ["KIVY_NO_CONSOLELOG"] = "1"
@@ -159,6 +160,7 @@ class Blog2EpubKivyWindow(MDBoxLayout):
         self.orientation = "vertical"
         # self.padding = dp(3 * SIZE)
 
+        self.articles = []
         self.articles_data = []
         self.ebook = None
 
@@ -429,13 +431,23 @@ class Blog2EpubKivyWindow(MDBoxLayout):
             self.articles_table.update_row_data(
                 self.articles_table, self._get_articles_rows()
             )
-        self.ebook = blog2epub.book
+        self.articles = (
+            blog2epub.crawler.articles
+        )  # store all crawled articles in memory
+        self.ebook = Book(blog2epub.crawler)  # create a book object
+        self._update_generate_tab()
 
-    def generate(self):
+    def _get_articles_to_save(self) -> List:
+        articles_to_save = []
+        for x in range(0, len(self.articles_data)):
+            if self.articles_data[x][0]:
+                articles_to_save.append(self.articles[x])
+        return articles_to_save
+
+    def generate(self, instance):
         if self.ebook:
-            self.ebook.save()
-            self.popup_success(cover_image_path, generated_ebook_path)
-        pass
+            self.ebook.save(self._get_articles_to_save())
+            self.popup_success(self.ebook.cover_image_path, self.ebook.file_full_path)
 
     def _update_articles_data(self, articles: List):
         no = 1

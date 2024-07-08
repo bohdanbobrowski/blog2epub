@@ -36,7 +36,7 @@ class Blog2EpubCli:
         params = {"interface": CliInterface()}
         try:
             params["url"] = self.get_url()
-        except BadUrlException or NotEnoughCommandsException as e:
+        except (BadUrlException, NotEnoughCommandsException) as e:
             print(e)
             print("usage: blog2epub <blog_name> [params...]")
             exit()
