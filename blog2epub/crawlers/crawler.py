@@ -38,7 +38,7 @@ class AbstractCrawler(ABC):
         pass
 
     @abstractmethod
-    def generate_ebook(self):
+    def generate_ebook(self, **kwargs):
         pass
 
 
