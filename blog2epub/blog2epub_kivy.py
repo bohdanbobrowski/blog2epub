@@ -143,7 +143,7 @@ class NumberTextInput(StyledTextInput):
 
 class StyledButton(MDFlatButton):
     def __init__(self, **kwargs):
-        super(StyledButton, self).__init__(**kwargs)
+        super().__init__(**kwargs)
         self.font_size = dp(6 * F_SIZE)
         self.font_name = UI_FONT_NAME
         self.width = dp(80 * F_SIZE)
@@ -156,7 +156,7 @@ class Tab(MDBoxLayout, MDTabsBase):
 
 class Blog2EpubKivyWindow(MDBoxLayout):
     def __init__(self, **kwargs):
-        super(Blog2EpubKivyWindow, self).__init__(**kwargs)
+        super().__init__(**kwargs)
         self.orientation = "vertical"
         # self.padding = dp(3 * SIZE)
 

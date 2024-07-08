@@ -23,7 +23,7 @@ class CrawlerWordpress(Crawler):
     articles_regex = r"<h3 class=\'post-title entry-title\' itemprop=\'name\'>[\s]*<a href=\'([^\']*)\'>([^>^<]*)</a>[\s]*</h3>"
 
     def __init__(self, **kwargs):
-        super(CrawlerWordpress, self).__init__(**kwargs)
+        super().__init__(**kwargs)
 
     def _get_atom_content(self, page=1):
         url = "https://" + self.url + "/feed/atom/"
