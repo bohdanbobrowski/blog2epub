@@ -98,17 +98,25 @@ Mint 21.2 Cinnamon
 - [ ] more crawlers (ex. GitHub Pages 🙃)
 - [ ] improve existing crawlers (allow)
 - [ ] improve GUI - configuration, allow to save in selected place etc.
+- [ ] crawl stop
+- [ ] save downloaded page structure to yaml file
 
 ## Change Log
 
 ### [v1.3.0](#v1.3.0)
 
-- [ ] introduce KivyMD
-- [ ] poetry as 
-- [ ] save downloaded page structure to yaml file
-- [ ] add tabbed layout with list of articles
-- [ ] 2 stages: crawl/download & ebook generation
-- [ ] crawl stop
-- [ ] selectable list of articles
+- [X] introduce KivyMD
+- [X] poetry
+- [X] add tabbed layout with list of articles
+- [X] 2 stages: crawl/download & ebook generation
+- [X] selectable list of articles
+
+Still TODO in this version:
+- [ ] bug: created epub does not work properly (smthng is broken with attaching chapters after selection?)
+- [ ] refactor! follow mypy comments!
+- [ ] feature: text 
+- [ ] windows build
+- [ ] osx build
+- [ ] linux build - deb + arch package???
 
 [&raquo; Complete Change Log here &laquo;](https://github.com/bohdanbobrowski/blog2epub/blob/master/CHANGELOG.md)
