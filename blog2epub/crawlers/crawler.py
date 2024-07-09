@@ -343,10 +343,8 @@ class Crawler(AbstractCrawler):
     def generate_ebook(
         self,
         articles: List[int],
-        destination_folder: Optional[str] = None,
+        destination_folder: Optional[str],
         file_name: Optional[str] = None,
-        title: Optional[str] = None,
-        subtitle: Optional[str] = None,
     ):
         if articles:
             self.book = Book(self)
@@ -354,8 +352,6 @@ class Crawler(AbstractCrawler):
                 articles=articles,
                 destination_folder=destination_folder,
                 file_name=file_name,
-                title=title,
-                subtitle=subtitle,
             )
             return True
         else:
@@ -447,10 +443,10 @@ class Downloader:
         interstitial = re.findall('interstitial=([^"]+)', contents)
         if interstitial:
             return interstitial[0]
-        else:
-            return False
+        return False
 
     def get_content(self, url):
+        # TODO: This needs refactor!
         filepath = self.get_filepath(url)
         for x in range(0, 3):
             if self.force_download or (
@@ -461,9 +457,8 @@ class Downloader:
                 contents = self.file_read(filepath)
             if contents is not None:
                 break
-            else:
-                self.interface.print(f"...repeat request: {url}")
-                time.sleep(3)
+            self.interface.print(f"...repeat request: {url}")
+            time.sleep(3)
         if contents is not None:
             interstitial = self.checkInterstitial(contents)
             if interstitial:
@@ -566,7 +561,7 @@ class Article:
             self.date = self._translate_month(self.date)
         try:
             self.date = dateutil.parser.parse(self.date)
-        except Exception:
+        except IndexError:
             self.interface.print(f"Date not parsed: {self.date}")
 
     def _translate_month(self, date: str) -> str:
