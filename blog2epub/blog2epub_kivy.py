@@ -160,9 +160,8 @@ class Blog2EpubKivyWindow(MDBoxLayout):
         self.orientation = "vertical"
         # self.padding = dp(3 * SIZE)
 
-        self.articles = []
         self.articles_data = []
-        self.ebook = None
+        self.ebook_data = None
 
         self.tabs = MDTabs()
         self.add_widget(self.tabs)
@@ -431,10 +430,7 @@ class Blog2EpubKivyWindow(MDBoxLayout):
             self.articles_table.update_row_data(
                 self.articles_table, self._get_articles_rows()
             )
-        self.articles = (
-            blog2epub.crawler.articles
-        )  # store all crawled articles in memory
-        self.ebook = Book(blog2epub.crawler)  # create a book object
+        self.ebook_data = blog2epub.crawler.get_book_data()
         self._update_generate_tab()
 
     def _get_articles_to_save(self) -> List:
@@ -445,9 +441,16 @@ class Blog2EpubKivyWindow(MDBoxLayout):
         return articles_to_save
 
     def generate(self, instance):
-        if self.ebook:
-            self.ebook.save(self._get_articles_to_save())
-            self.popup_success(self.ebook.cover_image_path, self.ebook.file_full_path)
+        if self.ebook_data:
+            ebook = Book(
+                book_data=self.ebook_data,
+                destination_folder=str(
+                    Path.home()
+                ),  # TODO: Add possibility to change epub destination
+            )
+            ebook.save()
+            ebook.save(self._get_articles_to_save())
+            self.popup_success(ebook.cover_image_path, ebook.file_full_path)
 
     def _update_articles_data(self, articles: List):
         no = 1

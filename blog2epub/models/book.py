@@ -23,11 +23,33 @@ class ArticleModel(BaseModel):
     subtitle: Optional[str]
     date: Optional[datetime]
     content: Optional[str]
-    comments: List[CommentModel]
+    comments: Optional[str]  # TODO: replace with List[CommentModel]
+
+
+class ImageModel(BaseModel):
+    hash: str
+    url: str
+    description: Optional[str]
+
+
+class DirModel(BaseModel):
+    path: str
+    html: str
+    images: str
+    originals: str
 
 
 class BookModel(BaseModel):
-    url: HttpUrl
+    url: str
     title: Optional[str]
     subtitle: Optional[str]
+    description: Optional[str]
+    dirs: DirModel
     articles: List[ArticleModel]
+    images: List[ImageModel]
+    start: Optional[datetime]
+    end: Optional[datetime]
+    file_name_prefix: Optional[str]
+    destination_folder: Optional[str]
+    cover: Optional[str]
+    cover_image_path: Optional[str]

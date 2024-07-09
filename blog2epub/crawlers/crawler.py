@@ -21,6 +21,7 @@ import requests
 from lxml.ElementInclude import etree
 from lxml.html.soupparser import fromstring
 from PIL import Image
+from pydantic import HttpUrl
 
 from blog2epub.common.book import Book
 from blog2epub.common.crawler import (
@@ -30,6 +31,7 @@ from blog2epub.common.crawler import (
     prepare_url_to_crawl,
 )
 from blog2epub.common.interfaces import EmptyInterface
+from blog2epub.models.book import BookModel, DirModel, ArticleModel, ImageModel
 
 
 class AbstractCrawler(ABC):
@@ -101,6 +103,54 @@ class Crawler(AbstractCrawler):
         self.images = []
         self.downloader = Downloader(self)
         self.tags = {}
+
+    def _get_articles_list(self) -> List[ArticleModel]:
+        """This is temporary solution - crawler should use data models as default data storage."""
+        articles_list = []
+        for article in self.articles:
+            articles_list.append(
+                ArticleModel(
+                    url=HttpUrl(article.url),
+                    title=article.title,
+                    subtitle=article.subtitle,
+                    date=article.date,
+                    content=article.content,
+                    comments=article.comments,
+                )
+            )
+        return articles_list
+
+    def _get_images(self) -> List[ImageModel]:
+        """This is temporary solution - crawler should use data models as default data storage."""
+        images_list = []
+        for key, image in enumerate(self.images):
+            images_list.append(
+                ImageModel(hash=image, description=self.images_captions[key])
+            )
+        print(images_list)  # DEBUG
+        return images_list
+
+    def get_book_data(self) -> BookModel:
+        """This is temporary solution - crawler should use data models as default data storage."""
+        book_data = BookModel(
+            url=self.url,
+            title=self.title,
+            subtitle=self.subtitle,
+            description=self.description,
+            dirs=DirModel(
+                path=self.dirs.path,
+                html=self.dirs.html,
+                images=self.dirs.images,
+                originals=self.dirs.originals,
+            ),
+            articles=self._get_articles_list(),
+            images=self._get_images(),
+            start=self.start,
+            end=self.end,
+            file_name_prefix=self.file_name,
+            destination_folder=self.destination_folder,
+        )
+        return book_data
 
     @staticmethod
     def _get_the_interface(interface):
@@ -480,7 +530,7 @@ class Article:
         self.tags = []
         self.interface = crawler.interface
         self.dirs = crawler.dirs
-        self.comments = ""
+        self.comments = ""  # TODO: should be a list in the future
         self.include_images = crawler.include_images
         self.content_xpath = crawler.content_xpath
         self.images_regex = crawler.images_regex
@@ -509,7 +559,7 @@ class Article:
         if self.date is None:
             d = self.url.split("/")
             if len(d) > 4:
-                self.date = "%s-%s-01 00:00" % (d[3], d[4])
+                self.date = f"{d[3]}-{d[4]}-01 00:00"
             else:
                 self.date = str(datetime.now())
         else:
@@ -653,8 +703,8 @@ class Article:
             self.content = re.sub('class="[^"]*"', "", self.content)
             for src in re.findall('<iframe.+? src="([^?= ]*)', self.content):
                 self.content = re.sub(
-                    "<iframe.+?%s.+?/>" % src,
-                    '<a href="%s">%s</a>' % (src, src),
+                    f"<iframe.+?{src}.+?/>",
+                    f'<a href="{src}">{src}</a>',
                     self.content,
                 )
 

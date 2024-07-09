@@ -7,6 +7,7 @@ from typing import Optional
 from ebooklib import epub
 
 from blog2epub.common.cover import Cover
+from blog2epub.models.book import BookModel
 
 
 class Book:
@@ -60,29 +61,26 @@ class Book:
     </body>
     </html>"""
 
-    def __init__(self, crawler):
-        """
-        :param crawler: instance of Crawler class
-        """
-        self.title = crawler.title
-        self.description = crawler.description
-        self.url = crawler.url
-        self.dirs = crawler.dirs
-        self.start = crawler.start
-        self.end = crawler.end
+    def __init__(self, book_data: BookModel, destination_folder: str):
+        self.title = book_data.title
+        self.description = book_data.description
+        self.url = book_data.url
+        self.dirs = book_data.dirs
+        self.start = book_data.start
+        self.end = book_data.end
         self.subtitle = self._get_subtitle()
-        self.include_images = crawler.include_images
-        self.images = crawler.images
-        self.language = crawler.language
-        self.interface = crawler.interface
+        self.include_images = book_data.include_images
+        self.images = book_data.images
+        self.language = book_data.language
+        self.interface = book_data.interface
         self._set_locale()
         self.chapters = []
         self.table_of_contents = []
         self.file_name = None
-        self.file_name_prefix = crawler.file_name
+        self.file_name_prefix = book_data.file_name_prefix
         self.file_full_path = None
         self.update_file_name()
-        self.destination_folder = crawler.destination_folder
+        self.destination_folder = destination_folder
         self.cover = None
         self.cover_image_path = None
         self.book = None
@@ -228,8 +226,6 @@ class Book:
         articles,
         destination_folder: Optional[str] = None,
         file_name: Optional[str] = None,
-        title: Optional[str] = None,
-        subtitle: Optional[str] = None,
     ):
         self._add_chapters(articles)
         self.update_file_name(file_name=file_name)
