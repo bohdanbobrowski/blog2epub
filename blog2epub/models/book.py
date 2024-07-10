@@ -20,15 +20,15 @@ class CommentModel(BaseModel):
 class ArticleModel(BaseModel):
     url: HttpUrl
     title: Optional[str]
-    subtitle: Optional[str]
     date: Optional[datetime]
     content: Optional[str]
     comments: Optional[str]  # TODO: replace with List[CommentModel]
+    tags: List[str] = []
 
 
 class ImageModel(BaseModel):
     hash: str
-    url: str
+    url: Optional[str]
     description: Optional[str]
 
 

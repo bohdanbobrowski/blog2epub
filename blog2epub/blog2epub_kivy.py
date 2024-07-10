@@ -19,6 +19,8 @@ from kivymd.uix.datatables import MDDataTable
 from kivymd.uix.tab import MDTabsBase, MDTabs
 
 from blog2epub.common.book import Book
+from blog2epub.models.book import ArticleModel
+from blog2epub.models.configuration import ConfigurationModel
 
 if sys.__stdout__ is None or sys.__stderr__ is None:
     os.environ["KIVY_NO_CONSOLELOG"] = "1"
@@ -162,6 +164,7 @@ class Blog2EpubKivyWindow(MDBoxLayout):
 
         self.articles_data = []
         self.ebook_data = None
+        self.configuration = ConfigurationModel()
 
         self.tabs = MDTabs()
         self.add_widget(self.tabs)
@@ -430,25 +433,27 @@ class Blog2EpubKivyWindow(MDBoxLayout):
             self.articles_table.update_row_data(
                 self.articles_table, self._get_articles_rows()
             )
+        self.configuration.language = blog2epub.crawler.language
         self.ebook_data = blog2epub.crawler.get_book_data()
         self._update_generate_tab()
 
-    def _get_articles_to_save(self) -> List:
+    def _get_articles_to_save(self) -> List[ArticleModel]:
         articles_to_save = []
         for x in range(0, len(self.articles_data)):
             if self.articles_data[x][0]:
-                articles_to_save.append(self.articles[x])
+                articles_to_save.append(self.ebook_data.articles[x])
         return articles_to_save
 
     def generate(self, instance):
         if self.ebook_data:
             ebook = Book(
                 book_data=self.ebook_data,
+                configuration=self.configuration,
+                interface=self.interface,
                 destination_folder=str(
                     Path.home()
                 ),  # TODO: Add possibility to change epub destination
             )
-            ebook.save()
             ebook.save(self._get_articles_to_save())
             self.popup_success(ebook.cover_image_path, ebook.file_full_path)
 

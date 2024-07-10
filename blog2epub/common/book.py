@@ -7,7 +7,9 @@ from typing import Optional
 from ebooklib import epub
 
 from blog2epub.common.cover import Cover
-from blog2epub.models.book import BookModel
+from blog2epub.common.interfaces import EmptyInterface
+from blog2epub.models.book import BookModel, DirModel
+from blog2epub.models.configuration import ConfigurationModel
 
 
 class Book:
@@ -61,18 +63,23 @@ class Book:
     </body>
     </html>"""
 
-    def __init__(self, book_data: BookModel, destination_folder: str):
+    def __init__(
+        self,
+        book_data: BookModel,
+        configuration: ConfigurationModel,
+        interface: EmptyInterface,
+        destination_folder: str,
+    ):
         self.title = book_data.title
         self.description = book_data.description
         self.url = book_data.url
-        self.dirs = book_data.dirs
+        self.dirs: DirModel = book_data.dirs
         self.start = book_data.start
         self.end = book_data.end
         self.subtitle = self._get_subtitle()
-        self.include_images = book_data.include_images
         self.images = book_data.images
-        self.language = book_data.language
-        self.interface = book_data.interface
+        self.configuration = configuration
+        self.interface = interface
         self._set_locale()
         self.chapters = []
         self.table_of_contents = []
@@ -86,15 +93,13 @@ class Book:
         self.book = None
 
     def _set_locale(self):
-        if self.language:
-            self.locale = self.language + "_" + self.language.upper() + ".UTF-8"
-        else:
-            self.locale = "en_US.UTF-8"
         try:
-            locale.setlocale(locale.LC_ALL, self.locale)
-            self.interface.print(f"Locale set as {self.locale}")
+            locale.setlocale(locale.LC_ALL, self.configuration.language)
+            self.interface.print(f"Locale set as {self.configuration.language}")
         except locale.Error:
-            self.interface.print(f"Can't set locale as {self.locale}, but nevermind.")
+            self.interface.print(
+                f"Can't set locale as {self.configuration.language}, but nevermind."
+            )
 
     def _get_subtitle(self):
         if self.end is None:
@@ -124,7 +129,9 @@ class Book:
             number = len(self.chapters) + 1
             if article.content:
                 try:
-                    self.chapters.append(Chapter(article, number, self.language))
+                    self.chapters.append(
+                        Chapter(article, number, self.configuration.language)
+                    )
                 except TypeError as e:
                     print(e)
             else:
@@ -203,18 +210,18 @@ class Book:
 
     def _include_images(self):
         images_included = []
-        if self.include_images:
+        if self.configuration.include_images:
             for i, image in enumerate(self.images, start=1):
                 if (
                     image
                     and image not in images_included
-                    and os.path.isfile(os.path.join(self.dirs.images, image))
+                    and os.path.isfile(os.path.join(self.dirs.images, image.hash))
                 ):
-                    with open(os.path.join(self.dirs.images, image), "rb") as f:
+                    with open(os.path.join(self.dirs.images, image.hash), "rb") as f:
                         image_content = f.read()
                     epub_img = epub.EpubItem(
                         uid="img%s" % i,
-                        file_name="images/" + image,
+                        file_name="images/" + image.hash,
                         media_type="image/jpeg",
                         content=image_content,
                     )
@@ -231,7 +238,7 @@ class Book:
         self.update_file_name(file_name=file_name)
         self.book = epub.EpubBook()
         self.book.set_title(self.title)
-        self.book.set_language(self.language)
+        self.book.set_language(self.configuration.language)
         self.book.add_author(self.title + ", " + self.file_name_prefix)
         for chapter in self.chapters:
             self.book.add_item(chapter.epub)
@@ -241,7 +248,7 @@ class Book:
         self.book.spine.append("nav")
         self.book.spine.append("cover")
         self.book.spine.reverse()
-        if len(self.description) > 0:
+        if self.description:
             self.book.add_metadata("DC", "description", "\n".join(self.description))
         self._include_images()
         if destination_folder is None:

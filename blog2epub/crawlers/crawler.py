@@ -112,7 +112,6 @@ class Crawler(AbstractCrawler):
                 ArticleModel(
                     url=HttpUrl(article.url),
                     title=article.title,
-                    subtitle=article.subtitle,
                     date=article.date,
                     content=article.content,
                     comments=article.comments,
@@ -123,11 +122,14 @@ class Crawler(AbstractCrawler):
     def _get_images(self) -> List[ImageModel]:
         """This is temporary solution - crawler should use data models as default data storage."""
         images_list = []
-        for key, image in enumerate(self.images):
-            images_list.append(
-                ImageModel(hash=image, description=self.images_captions[key])
-            )
-        print(images_list)  # DEBUG
+        for article in self.articles:
+            for key, image in enumerate(article.images):
+                description = ""
+                if key in article.images_captions:
+                    description = article.images_captions[key]
+                images_list.append(
+                    ImageModel(url="", hash=image, description=description)
+                )
         return images_list
 
     def get_book_data(self) -> BookModel:
@@ -149,6 +151,8 @@ class Crawler(AbstractCrawler):
             end=self.end,
             file_name_prefix=self.file_name,
             destination_folder=self.destination_folder,
+            cover=None,
+            cover_image_path=None,
         )
         return book_data
 
@@ -212,10 +216,14 @@ class Crawler(AbstractCrawler):
             return re.search("<title>([^>^<]*)</title>", content).group(1).strip()
         return ""
 
-    def _get_blog_description(self, tree):
-        return tree.xpath(
+    def _get_blog_description(self, tree) -> Optional[str]:
+        description = tree.xpath(
             '//div[@id="header"]/div/div/div/p[@class="description"]/span/text()'
         )
+        if 0 in description:
+            return description[0]
+        else:
+            return None
 
     def _get_header_images(self, tree):
         header_images = []
