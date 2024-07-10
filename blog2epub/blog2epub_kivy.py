@@ -435,6 +435,9 @@ class Blog2EpubKivyWindow(MDBoxLayout):
             )
         self.configuration.language = blog2epub.crawler.language
         self.ebook_data = blog2epub.crawler.get_book_data()
+        self.articles_table.update_row_data(
+            self.articles_table, self._get_articles_rows()
+        )
         self._update_generate_tab()
 
     def _get_articles_to_save(self) -> List[ArticleModel]:

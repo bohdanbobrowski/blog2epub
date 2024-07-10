@@ -2,13 +2,13 @@ import locale
 import os
 import tempfile
 import zipfile
-from typing import Optional
+from typing import Optional, List
 
 from ebooklib import epub
 
 from blog2epub.common.cover import Cover
 from blog2epub.common.interfaces import EmptyInterface
-from blog2epub.models.book import BookModel, DirModel
+from blog2epub.models.book import BookModel, DirModel, ArticleModel
 from blog2epub.models.configuration import ConfigurationModel
 
 
@@ -74,9 +74,9 @@ class Book:
         self.description = book_data.description
         self.url = book_data.url
         self.dirs: DirModel = book_data.dirs
-        self.start = book_data.start
-        self.end = book_data.end
-        self.subtitle = self._get_subtitle()
+        self.start = None
+        self.end = None
+        self.subtitle = None
         self.images = book_data.images
         self.configuration = configuration
         self.interface = interface
@@ -123,7 +123,7 @@ class Book:
             file_name += ".epub"
         self.file_name = file_name
 
-    def _add_chapters(self, articles):
+    def _add_chapters(self, articles: List[ArticleModel]):
         self.chapters = []
         for article in articles:
             number = len(self.chapters) + 1
@@ -138,7 +138,6 @@ class Book:
                 self.interface.print(
                     f"Skipping article: {number}. {str(article.title)}"
                 )
-                print(article)
 
     def get_cover_title(self):
         cover_title = self.title + " "
@@ -228,13 +227,25 @@ class Book:
                     self.book.add_item(epub_img)
                     images_included.append(image)
 
+    def _update_start_end_date(self, articles: List[ArticleModel]):
+        self.start = self.end = None
+        article_dates = []
+        for article in articles:
+            article_dates.append(article.date)
+        article_dates.sort()
+        print(article_dates)
+        self.start = article_dates[0]
+        self.end = article_dates[-1]
+
     def save(
         self,
-        articles,
+        articles: List[ArticleModel],
         destination_folder: Optional[str] = None,
         file_name: Optional[str] = None,
     ):
         self._add_chapters(articles)
+        self._update_start_end_date(articles)
+        self.subtitle = self._get_subtitle()
         self.update_file_name(file_name=file_name)
         self.book = epub.EpubBook()
         self.book.set_title(self.title)
