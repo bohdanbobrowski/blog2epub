@@ -1,5 +1,6 @@
 import locale
 import os
+import re
 import tempfile
 import zipfile
 from typing import Optional, List
@@ -192,20 +193,20 @@ class Book:
         content_opt = content_opt.decode("utf-8").replace("<manifest>", new_manifest)
         return content_opt
 
-    def _add_table_of_contents(self):
+    def _add_table_of_contents(self, ebook: epub.EpubBook):
         self.table_of_contents.reverse()
-        self.book.toc = self.table_of_contents
-        self.book.add_item(epub.EpubNcx())
-        self.book.add_item(epub.EpubNav())
+        ebook.toc = self.table_of_contents
+        ebook.add_item(epub.EpubNcx())
+        ebook.add_item(epub.EpubNav())
 
-    def _add_epub_css(self):
+    def _add_epub_css(self, ebook: epub.EpubBook):
         nav_css = epub.EpubItem(
             uid="style_nav",
             file_name="style/nav.css",
             media_type="text/css",
             content=self.style,
         )
-        self.book.add_item(nav_css)
+        ebook.add_item(nav_css)
 
     def _include_images(self):
         images_included = []
@@ -237,6 +238,42 @@ class Book:
         self.start = article_dates[0]
         self.end = article_dates[-1]
 
+    def _get_ebook(self) -> epub.EpubBook:
+        ebook = epub.EpubBook()
+        ebook.set_title(self.title)
+        ebook.set_language(self.configuration.language)
+        ebook.add_author(self.title + ", " + self.file_name_prefix)
+        for chapter in self.chapters:
+            ebook.add_item(chapter.epub)
+            self.table_of_contents.append(chapter.epub)
+        self._add_table_of_contents(ebook)
+        self._add_epub_css(ebook)
+        ebook.spine.append("nav")
+        ebook.spine.append("cover")
+        ebook.spine.reverse()
+        if self.description:
+            ebook.add_metadata("DC", "description", "\n".join(self.description))
+        return ebook
+
+    def _get_file_full_path(self, destination_folder: str) -> str:
+        if destination_folder is None:
+            return os.path.join(self.destination_folder, self.file_name)
+        else:
+            return os.path.join(destination_folder, self.file_name)
+
+    @staticmethod
+    def _prevent_overwrite(file_full_path: str) -> str:
+        """This function prevents overwriting existing file."""
+        file_full_path_name, file_extension = os.path.splitext(file_full_path)
+        file_full_path_name = re.sub(r"_\[[0-9]+\]$", "", file_full_path_name)
+        counter = 1
+        while os.path.exists(file_full_path):
+            file_full_path = (
+                file_full_path_name + "_[" + str(counter) + "]" + file_extension
+            )
+            counter += 1
+        return file_full_path
+
     def save(
         self,
         articles: List[ArticleModel],
@@ -247,25 +284,10 @@ class Book:
         self._update_start_end_date(articles)
         self.subtitle = self._get_subtitle()
         self.update_file_name(file_name=file_name)
-        self.book = epub.EpubBook()
-        self.book.set_title(self.title)
-        self.book.set_language(self.configuration.language)
-        self.book.add_author(self.title + ", " + self.file_name_prefix)
-        for chapter in self.chapters:
-            self.book.add_item(chapter.epub)
-            self.table_of_contents.append(chapter.epub)
-        self._add_table_of_contents()
-        self._add_epub_css()
-        self.book.spine.append("nav")
-        self.book.spine.append("cover")
-        self.book.spine.reverse()
-        if self.description:
-            self.book.add_metadata("DC", "description", "\n".join(self.description))
+        self.book: epub.EpubBook = self._get_ebook()
         self._include_images()
-        if destination_folder is None:
-            self.file_full_path = os.path.join(self.destination_folder, self.file_name)
-        else:
-            self.file_full_path = os.path.join(destination_folder, self.file_name)
+        self.file_full_path = self._get_file_full_path(destination_folder)
+        self.file_full_path = self._prevent_overwrite(self.file_full_path)
         epub.write_epub(self.file_full_path, self.book, {})
         self._add_cover()
 

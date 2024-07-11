@@ -112,10 +112,10 @@ Mint 21.2 Cinnamon
 - [X] selectable list of articles
 
 Still TODO in this version:
-- [ ] bug: created epub does not work properly (smthng is broken with attaching chapters after selection?)
+- [X] bug: created epub does not work properly (smthng is broken with attaching chapters after selection?)
 - [ ] refactor! follow pylint comments!
 - [ ] feature: add text input to change epub file name
-- [ ] feature: prevent epub file overwriting
+- [X] feature: prevent epub file overwriting
 - [ ] update documentation and screenshots!
 - [ ] windows build
 - [ ] osx build
