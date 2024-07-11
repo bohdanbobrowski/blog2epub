@@ -236,7 +236,7 @@ class Blog2EpubKivyWindow(MDBoxLayout):
         self.articles_table.update_row_data(
             self.articles_table, self._get_articles_rows()
         )
-        self._update_generate_tab()
+        self._update_tab_generate()
 
     def _define_tab_select(self):
         self.tab_select = Tab(
@@ -281,7 +281,7 @@ class Blog2EpubKivyWindow(MDBoxLayout):
         float_layout.add_widget(anchor_layout)
         self.tab_generate.add_widget(float_layout)
 
-    def _update_generate_tab(self):
+    def _update_tab_generate(self):
         selected_no = 0
         for art in self.articles_data:
             if art[0]:
@@ -438,7 +438,8 @@ class Blog2EpubKivyWindow(MDBoxLayout):
         self.articles_table.update_row_data(
             self.articles_table, self._get_articles_rows()
         )
-        self._update_generate_tab()
+        self._update_tab_generate()
+        self.tabs.switch_tab("generate")
 
     def _get_articles_to_save(self) -> List[ArticleModel]:
         articles_to_save = []
