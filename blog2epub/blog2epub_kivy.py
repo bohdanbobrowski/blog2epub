@@ -516,36 +516,41 @@ class Blog2EpubKivyWindow(MDBoxLayout):
     def popup_success(self, cover_image_path: str, generated_ebook_path: str):
         self.success(cover_image_path, generated_ebook_path)
 
-    @staticmethod
-    def success(cover_image_path: str, generated_ebook_path: str):
+    def success(self, cover_image_path: str, generated_ebook_path: str):
         success_content = MDBoxLayout(orientation="vertical")
-        success_content.add_widget(
+        epub_cover_image_widget = MDBoxLayout(
+            padding=dp(10),
+            size_hint=(1, 1),
+        )
+        epub_cover_image_widget.add_widget(
             Image(
                 source=asset_path(cover_image_path),
                 allow_stretch=True,
-                size_hint=(1, 0.7),
+                size_hint=(1, 1),
             )
         )
+        success_content.add_widget(epub_cover_image_widget)
 
         def success_url_click(inst):
             open_file(generated_ebook_path)
 
         success_content.add_widget(
             MDFlatButton(
-                text="Click here to open epub",
+                text=f"{os.path.basename(generated_ebook_path)}",
                 font_size=dp(6 * F_SIZE),
                 font_name=UI_FONT_NAME,
                 size_hint=(1, 0.1),
                 on_press=success_url_click,
+                md_bg_color=self.theme_cls.primary_color,
             )
         )
         success_popup = Popup(
             title="Ebook generated successfully:",
-            title_size=dp(10 * F_SIZE),
+            title_size=dp(8 * F_SIZE),
             title_font=UI_FONT_NAME,
             content=success_content,
             size_hint=(None, None),
-            size=(dp(210 * F_SIZE), dp(180 * F_SIZE)),
+            size=(dp(240 * F_SIZE), dp(200 * F_SIZE)),
         )
         success_popup.open()
 
