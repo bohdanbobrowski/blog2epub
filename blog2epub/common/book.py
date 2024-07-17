@@ -182,7 +182,10 @@ class Book:
         if os.path.isfile(self.file_full_path):
             if hasattr(self.interface, "notify"):
                 self.interface.notify(
-                    "blog2epub", "Epub created", self.file_full_path, cover_file_full_path
+                    "blog2epub",
+                    "Epub created",
+                    self.file_full_path,
+                    cover_file_full_path,
                 )
             self.interface.print(f"Epub created: {self.file_full_path}")
 

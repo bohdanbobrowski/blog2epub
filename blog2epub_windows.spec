@@ -3,9 +3,7 @@
 block_cipher = None
 
 a = Analysis(['blog2epubkivy.py'],
-             pathex=[
-                './venv/',
-             ],
+             pathex=[],
              binaries=[],
              datas=[
                 ('./assets/blog2epub_256px.png', '.'),
