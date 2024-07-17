@@ -180,9 +180,10 @@ class Book:
             zf.write(cover_file_full_path, "EPUB/" + cover_file_name)
             zf.writestr(content_opf_fn, self._upgrade_opf(content_opf, cover_file_name))
         if os.path.isfile(self.file_full_path):
-            self.interface.notify(
-                "blog2epub", "Epub created", self.file_full_path, cover_file_full_path
-            )
+            if hasattr(self.interface, "notify"):
+                self.interface.notify(
+                    "blog2epub", "Epub created", self.file_full_path, cover_file_full_path
+                )
             self.interface.print(f"Epub created: {self.file_full_path}")
 
     def _upgrade_opf(self, content_opt, cover_file_name):

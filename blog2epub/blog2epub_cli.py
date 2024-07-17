@@ -2,8 +2,10 @@ import sys
 from urllib import parse
 
 from blog2epub import Blog2Epub
+from blog2epub.common.book import Book
 from blog2epub.common.exceptions import BadUrlException, NotEnoughCommandsException
 from blog2epub.common.interfaces import EmptyInterface
+from blog2epub.models.configuration import ConfigurationModel
 
 
 class CliInterface(EmptyInterface):
@@ -23,6 +25,16 @@ class Blog2EpubCli:
         params = {**defaults, **self.parse_parameters()}
         blog2epub = Blog2Epub(params)
         blog2epub.download()
+        book_data = blog2epub.crawler.get_book_data()
+        ebook = Book(
+            book_data=book_data,
+            configuration=ConfigurationModel(
+                language=blog2epub.crawler.language,
+            ),
+            interface=params["interface"],
+            destination_folder=str("."),
+        )
+        ebook.save(book_data.articles)
 
     @staticmethod
     def get_url():
