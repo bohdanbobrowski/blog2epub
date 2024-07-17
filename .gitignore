@@ -15,4 +15,3 @@ _site
 /.sass-cache/
 /vendor/
 .bundle/
-blog2epub_kivy.spec
