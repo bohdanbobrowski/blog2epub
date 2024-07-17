@@ -50,7 +50,7 @@ Convert blog to epub using command line or GUI.
 
 ## Screenshots of GUI
 
-### Windows 10
+### Windows 11
 
 <p align="center">
 <img src="./assets/blog2epub_win11_screenshot.png" width="600px" />
