@@ -43,10 +43,8 @@ Convert blog to epub using command line or GUI.
 
     git clone git@github.com:bohdanbobrowski/blog2epub.git
     cd blog2epub
-    python -m venv venv
-    source ./venv/bin/activate
-    pip install -r ./requirements.txt
-    ./blog2epubgui.py
+    poetry install
+    poetry run blog2epub
 
 ## Screenshots of GUI
 
@@ -72,7 +70,7 @@ Mint 21.2 Cinnamon
 
 ## CLI
 
-    blog2epub [blog url] <parameters>
+    poetry run blog2epub [blog url] <parameters>
 
 ### Parameters
 
@@ -83,10 +81,10 @@ Mint 21.2 Cinnamon
 
 ## Examples
 
-    blog2epub starybezpiek.blogspot.com
-    blog2epub velosov.blogspot.com -l=10
-    blog2epub poznanskiehistorie.blogspot.com -q=100
-    blog2epub classicameras.blogspot.com --limit=10 --no-images
+    poetry run blog2epub starybezpiek.blogspot.com
+    poetry run blog2epub velosov.blogspot.com -l=10
+    poetry run blog2epub poznanskiehistorie.blogspot.com -q=100
+    poetry run blog2epub classicameras.blogspot.com --limit=10 --no-images
 
 ## Planned features and known bugs
 
@@ -110,12 +108,11 @@ Mint 21.2 Cinnamon
 - [X] add tabbed layout with list of articles
 - [X] 2 stages: crawl/download & ebook generation
 - [X] selectable list of articles
+- [X] feature: prevent epub file overwriting
 
 Still TODO in this version:
-- [X] bug: created epub does not work properly (smthng is broken with attaching chapters after selection?)
-- [ ] refactor! follow pylint comments!
+- [ ] bug: created epub does not work properly (smthng is broken with attaching chapters after selection?)
 - [ ] feature: add text input to change epub file name
-- [X] feature: prevent epub file overwriting
 - [ ] update documentation and screenshots!
 - [ ] windows build
 - [ ] osx build
