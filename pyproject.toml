@@ -10,7 +10,6 @@ readme = "README.md"
 
 [tool.poetry.dependencies]
 python = ">=3.10, <3.13"
-kivymd = "^1.2.0"
 pydantic = "^2.8.2"
 beautifulsoup4 = "^4.12.3"
 ebooklib = "^0.18"
@@ -19,6 +18,8 @@ atoma = "^0.0.17"
 fake-useragent = "^1.5.1"
 pyyaml = "^6.0.1"
 pycairo = "^1.26.1"
+kivy = "^2.3.0"
+kivymd = "^1.2.0"
 
 
 [tool.poetry.group.docs.dependencies]

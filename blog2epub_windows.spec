@@ -5,7 +5,6 @@ block_cipher = None
 a = Analysis(['blog2epub\\blog2epub_kivy.py'],
              pathex=[
                 '.',
-                'C:\\Users\\bohdan\\AppData\\Local\\pypoetry\\Cache\\virtualenvs\\blog2epub-QJlNUrgG-py3.12\\Lib\\site-packages',
              ],
              binaries=[],
              datas=[
