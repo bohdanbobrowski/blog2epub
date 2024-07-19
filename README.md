@@ -105,7 +105,7 @@ Convert blog to epub using command line or GUI.
 ### [v1.3.0](#v1.3.0)
 
 - [X] introduce KivyMD
-- [X] poetry
+- [X] python poetry instead of venv
 - [X] add tabbed layout with list of articles
 - [X] 2 stages: crawl/download & ebook generation
 - [X] selectable list of articles
