@@ -1,5 +1,5 @@
 [tool.ruff.lint.extend-per-file-ignores]
-"blog2epub_kivy.py" = ["E402"]
+"blog2epub_gui.py" = ["E402"]
 [tool.poetry]
 name = "blog2epub"
 version = "1.3.0"

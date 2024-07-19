@@ -1,7 +1,7 @@
 # -*- mode: python ; coding: utf-8 -*-
 block_cipher = None
 a = Analysis(
-    ['blog2epub\\blog2epub_kivy.py'],
+    ['blog2epub\\blog2epub_gui.py'],
     pathex=[
         '.',
     ],
