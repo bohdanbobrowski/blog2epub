@@ -98,7 +98,6 @@ Convert blog to epub using command line or GUI.
 - [ ] more crawlers (ex. GitHub Pages 🙃)
 - [ ] improve existing crawlers (allow)
 - [ ] improve GUI - configuration, allow to save in selected place etc.
-- [ ] crawl stop
 - [ ] save downloaded page structure to yaml file
 
 ## Change Log
@@ -114,6 +113,7 @@ Convert blog to epub using command line or GUI.
 - [X] windows build
 
 Still TODO in this version:
+- [ ] cancel download
 - [ ] bug: created epub does not work properly (smthng is broken with attaching chapters after selection?)
 - [ ] feature: add text input to change epub file name
 - [ ] update documentation and screenshots!

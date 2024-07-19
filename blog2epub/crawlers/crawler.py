@@ -453,7 +453,6 @@ class Downloader:
         if self._is_url_in_ignored(url):
             return None
         self.dirs.prepare_directories()
-        print(f"POBIERANIE: {url}")
         try:
             response = self.session.get(url, cookies=self.cookies, headers=self.headers)
         except requests.exceptions.ConnectionError:
