@@ -2,7 +2,7 @@
 
 rm -rf ./build
 rm -rf ./dist
-pyinstaller blog2epub_linux.spec
+pyinstaller blog2epub_gui_linux.spec
 cp -v ./blog2epub/assets/*.ttf ./dist/
 cp -v ./images/blog2epub.svg ./dist/
 cp -v ./images/blog2epub.png ./dist/

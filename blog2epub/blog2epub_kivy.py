@@ -41,6 +41,7 @@ from kivy.uix.image import Image
 from kivymd.uix.label import MDLabel
 from kivy.uix.popup import Popup
 from kivy.uix.textinput import TextInput
+from kivymd.uix.dropdownitem import MDDropDownItem  # noqa # pylint: disable=unused-import
 
 from blog2epub import Blog2Epub
 from blog2epub.common.assets import asset_path, open_file

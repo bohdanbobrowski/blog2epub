@@ -2,7 +2,7 @@
 
 rm -rf ./build
 rm -rf ./dist
-pyinstaller blog2epub_macos.spec
+pyinstaller blog2epub_gui_macos.spec
 if [ -d "./dist/blog2epub.app" ]; then
   cp -v ./blog2epub/assets/*.ttf ./dist/blog2epub.app/Contents/Resources
   cp -v ./images/blog2epub.png ./dist/blog2epub.app/Contents/Resources
