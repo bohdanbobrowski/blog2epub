@@ -32,7 +32,7 @@ setup(
     ],
     entry_points={
         "console_scripts": ["blog2epub = blog2epub.blog2epub_cli:main"],
-        "gui_scripts": ["blog2epubgui = blog2epub.blog2epub_kivy:main"],
+        "gui_scripts": ["blog2epubgui = blog2epub.blog2epub_gui:main"],
     },
     package_data={"blog2epub": ["assets/*.ttf"]},
     include_package_data=True,

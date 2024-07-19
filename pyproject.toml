@@ -32,7 +32,7 @@ mypy = "^1.10.1"
 
 [tool.poetry.scripts]
 blog2epub = "blog2epub.blog2epub_cli:main"
-blog2epubgui = "blog2epub.blog2epub_kivy:main"
+blog2epubgui = "blog2epub.blog2epub_gui:main"
 build_gui_windows = "blog2epub_build:build_gui_windows"
 
 [build-system]

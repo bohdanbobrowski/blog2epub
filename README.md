@@ -39,12 +39,18 @@ Convert blog to epub using command line or GUI.
 - for __Windows__ and __macOS__ users: available [builds](https://github.com/bohdanbobrowski/blog2epub/releases)
 - python3 setup.py install
 
-### Running froum sources
+### Running from sources
 
     git clone git@github.com:bohdanbobrowski/blog2epub.git
     cd blog2epub
     poetry install
-    poetry run blog2epub
+    poetry run blog2epubgui
+
+### Building own executable
+
+#### Windows
+
+    poetry run build_gui_windows
 
 ## Screenshots of GUI
 
@@ -105,13 +111,14 @@ Convert blog to epub using command line or GUI.
 - [X] 2 stages: crawl/download & ebook generation
 - [X] selectable list of articles
 - [X] feature: prevent epub file overwriting
+- [X] windows build
 
 Still TODO in this version:
 - [ ] bug: created epub does not work properly (smthng is broken with attaching chapters after selection?)
 - [ ] feature: add text input to change epub file name
 - [ ] update documentation and screenshots!
-- [ ] windows build
-- [ ] osx build
-- [ ] linux build - deb + arch package???
+- [ ] linux build - FLATPAK?
+- [ ] osx build???
+
 
 [&raquo; Complete Change Log here &laquo;](https://github.com/bohdanbobrowski/blog2epub/blob/master/CHANGELOG.md)
