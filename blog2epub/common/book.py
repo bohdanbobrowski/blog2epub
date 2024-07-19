@@ -106,10 +106,10 @@ class Book:
         if self.end is None:
             return self.start.strftime("%d %B %Y")
         if self.start.strftime("%Y.%m") == self.end.strftime("%Y.%m"):
-            return self.end.strftime("%d") + "-" + self.start.strftime("%d %B %Y")
+            return self.start.strftime("%d") + "-" + self.end.strftime("%d %B %Y")
         if self.start.strftime("%Y.%m") == self.end.strftime("%Y.%m"):
-            return self.end.strftime("%d %B") + " - " + self.start.strftime("%d %B %Y")
-        return self.end.strftime("%d %B %Y") + " - " + self.start.strftime("%d %B %Y")
+            return self.start.strftime("%d %B") + " - " + self.end.strftime("%d %B %Y")
+        return self.start.strftime("%d %B %Y") + " - " + self.end.strftime("%d %B %Y")
 
     def update_file_name(self, file_name: Optional[str] = None):
         if file_name is None:
@@ -118,7 +118,7 @@ class Book:
                 start_date = self.start.strftime("%Y.%m.%d")
                 if self.end and self.start != self.end:
                     end_date = self.end.strftime("%Y.%m.%d")
-                    file_name = file_name + "_" + end_date + "-" + start_date
+                    file_name = file_name + "_" + start_date + "-" + end_date
                 else:
                     file_name = file_name + "_" + start_date
             file_name += ".epub"
@@ -238,7 +238,6 @@ class Book:
         for article in articles:
             article_dates.append(article.date)
         article_dates.sort()
-        print(article_dates)
         self.start = article_dates[0]
         self.end = article_dates[-1]
 

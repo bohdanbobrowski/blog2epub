@@ -440,6 +440,7 @@ class Blog2EpubKivyWindow(MDBoxLayout):
             self.articles_table, self._get_articles_rows()
         )
         self._update_tab_generate()
+        self.interface.print("Download completed.")
         # self.tabs.switch_tab("generate")  # TODO: make it working
 
     def _get_articles_to_save(self) -> List[ArticleModel]:

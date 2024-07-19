@@ -35,6 +35,8 @@ from blog2epub.models.book import BookModel, DirModel, ArticleModel, ImageModel
 
 
 class AbstractCrawler(ABC):
+    ignore_downloads = []
+
     @abstractmethod
     def crawl(self):
         pass
@@ -56,6 +58,8 @@ class Crawler(AbstractCrawler):
     )
     images_regex = r'<table[^>]*><tbody>[\s]*<tr><td[^>]*><a href="([^"]*)"[^>]*><img[^>]*></a></td></tr>[\s]*<tr><td class="tr-caption" style="[^"]*">([^<]*)'
     articles_regex = r"<h3 class=\'post-title entry-title\' itemprop=\'name\'>[\s]*<a href=\'([^\']*)\'>([^>^<]*)</a>[\s]*</h3>"
+
+    ignore_downloads = []
 
     def __init__(
         self,
@@ -396,6 +400,7 @@ class Downloader:
         self.force_download = crawler.force_download
         self.images_size = crawler.images_size
         self.images_quality = crawler.images_quality
+        self.ignore_downloads = crawler.ignore_downloads
         self.cookies = CookieJar()
         self.session = requests.session()
         self.headers = {}
@@ -424,7 +429,15 @@ class Downloader:
     def get_filepath(self, url):
         return os.path.join(self.dirs.html, self.get_urlhash(url) + ".html")
 
+    def _is_url_in_ignored(self, url) -> bool:
+        for search_rule in self.ignore_downloads:
+            if re.match(search_rule, url):
+                return True
+        return False
+
     def file_download(self, url: str, filepath: str) -> Optional[str]:
+        if self._is_url_in_ignored(url):
+            return None
         self.dirs.prepare_directories()
         try:
             response = self.session.get(url, cookies=self.cookies, headers=self.headers)
@@ -437,7 +450,10 @@ class Downloader:
         return contents
 
     def image_download(self, url: str, filepath: str) -> bool:
+        if self._is_url_in_ignored(url):
+            return None
         self.dirs.prepare_directories()
+        print(f"POBIERANIE: {url}")
         try:
             response = self.session.get(url, cookies=self.cookies, headers=self.headers)
         except requests.exceptions.ConnectionError:
