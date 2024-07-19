@@ -48,25 +48,21 @@ Convert blog to epub using command line or GUI.
 
 ## Screenshots of GUI
 
-### Windows 11
+### Windows (11)
 
 <p align="center">
 <img src="./assets/blog2epub_win11_screenshot.png" width="600px" />
 </p>
 
-### macOS
-
-<p align="center">
-<img src="./assets/blog2epub_macos_screenshot.png" width="600px" />
-</p>
-
-### Linux
-
-Mint 21.2 Cinnamon
+### Linux (Manjaro Gnome)
 
 <p align="center">
 <img src="./assets/blog2epub_linux_screenshot.png"  width="600px" />
 </p>
+
+### macOS
+
+*TO DO*
 
 ## CLI
 
