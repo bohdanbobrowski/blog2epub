@@ -90,13 +90,10 @@ Convert blog to epub using command line or GUI.
 
 ## Planned features and known bugs
 
-- [ ] utilize GitHub Pages for this project documentation
-- [ ] there are some bugs in wordpress.com crawler
 - [ ] Linux app/package(s)
 - [ ] Android app
-- [ ] code needs some refactor: classes are too "nested" within each other
-- [ ] more crawlers (ex. GitHub Pages 🙃)
-- [ ] improve existing crawlers (allow)
+- [ ] code needs some refactor
+- [ ] more crawlers
 - [ ] improve GUI - configuration, allow to save in selected place etc.
 - [ ] save downloaded page structure to yaml file
 
@@ -119,6 +116,5 @@ Still TODO in this version:
 - [ ] update documentation and screenshots!
 - [ ] linux build - FLATPAK?
 - [ ] osx build???
-
 
 [&raquo; Complete Change Log here &laquo;](https://github.com/bohdanbobrowski/blog2epub/blob/master/CHANGELOG.md)
