@@ -6,6 +6,7 @@ import subprocess
 import sys
 import webbrowser
 import math
+import time
 from datetime import datetime
 from itertools import cycle
 from pathlib import Path
@@ -164,6 +165,7 @@ class Blog2EpubKivyWindow(MDBoxLayout):
         self.orientation = "vertical"
 
         self.articles_data = []
+        self.blog2epub = None
         self.download_thread = None
         self.ebook_data = None
         self.configuration = ConfigurationModel()
@@ -441,7 +443,8 @@ class Blog2EpubKivyWindow(MDBoxLayout):
                 self.articles_table, self._get_articles_rows()
             )
             self._update_tab_generate()
-        self.interface.print("Download completed.")
+        if not blog2epub.crawler.cancelled:
+            self.interface.print("Download completed.")
         # self.tabs.switch_tab("generate")  # TODO: make it working
 
     def _get_articles_to_save(self) -> List[ArticleModel]:
@@ -494,18 +497,23 @@ class Blog2EpubKivyWindow(MDBoxLayout):
         self.articles_table.update_row_data(self.articles_table, [])
         self.tab_select.disabled = self.tab_generate.disabled = True
         self.save_settings()
+        self.blog2epub = Blog2Epub(self._get_params())
         self.download_thread = Thread(
             target=self._download_ebook,
-            kwargs={"blog2epub": Blog2Epub(self._get_params())},
+            kwargs={"blog2epub": self.blog2epub},
         )
         self.download_thread.start()
 
     def cancel_download(self, instance):
-        if self.download_thread:
-            self.download_thread.join()
+        if self.blog2epub:
+            self.blog2epub.crawler.cancelled = True
+            while self.blog2epub.crawler.active:
+                logging.info("Cancelling download...")
+                time.sleep(1)
+            self.interface.print("Download cancelled.")
             self._update_articles_data([])
             self.articles_table.update_row_data([], [])
-            self.ebook_data = None
+            self.ebook_data = self.blog2epub = None
             self._update_tab_generate()
 
     def _disable_download_button(self):

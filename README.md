@@ -108,11 +108,11 @@ Convert blog to epub using command line or GUI.
 - [X] 2 stages: crawl/download & ebook generation
 - [X] selectable list of articles
 - [X] feature: prevent epub file overwriting
+- [X] feature: cancel download
 - [X] fixed bug: chapters were not added to ebook spine, which caused problems with navigation
 - [X] windows build
 
 Still TODO in this version:
-- [ ] cancel download (this will require change from multi-threading to multiprocessing)
 - [ ] feature: add text input to change epub file name
 - [ ] update documentation and screenshots!
 - [ ] linux build - FLATPAK?

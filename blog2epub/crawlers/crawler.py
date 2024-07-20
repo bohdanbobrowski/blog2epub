@@ -107,6 +107,8 @@ class Crawler(AbstractCrawler):
         self.images = []
         self.downloader = Downloader(self)
         self.tags = {}
+        self.active = False
+        self.cancelled = False
 
     def _get_articles_list(self) -> List[ArticleModel]:
         """This is temporary solution - crawler should use data models as default data storage."""
@@ -336,7 +338,8 @@ class Crawler(AbstractCrawler):
         return content
 
     def crawl(self):
-        while self.url_to_crawl:
+        self.active = True
+        while self.url_to_crawl and not self.cancelled:
             content = self.downloader.get_content(self.url_to_crawl)
             tree = fromstring(content)
             self._set_blog_language(content)
@@ -350,6 +353,7 @@ class Crawler(AbstractCrawler):
                 self._atom_feed_loop()
             self.url_to_crawl = self._get_url_to_crawl(tree)
             self._check_limit()
+        self.active = False
         self.subtitle = self._get_subtitle()
 
     def generate_ebook(
