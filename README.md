@@ -25,13 +25,13 @@ Convert blog to epub using command line or GUI.
 ### Example covers
 
 <table style="width:100%;text-align:center;"><tr><td>
-<img src="assets/v1.3.0_cover_1.jpg" width="400" style="margin:0 10px 10px 0" />
+<img src="assets/v1.3.0/knippsen.blogspot.com_2023.04.01-2024.05.20.epub.jpg" width="400" style="margin:0 10px 10px 0" />
 </td><td>
-<img src="assets/v1.3.0_cover_2.jpg" width="400" style="margin:0 10px 10px 0" />
+<img src="assets/v1.3.0/rocket-garage.blogspot.com_2024.01.21-2024.06.16.epub.jpg" width="400" style="margin:0 10px 10px 0" />
 </td></tr><tr><td>
-<img src="assets/v1.3.0_cover_3.jpg" width="400" style="margin:0 10px 10px 0" />
+<img src="assets/v1.3.0/starybezpiek.blogspot.com_2014.11.04-2015.12.15.epub.jpg" width="400" style="margin:0 10px 10px 0" />
 </td><td>
-<img src="assets/v1.3.0_cover_4.jpg" width="400" style="margin:0 10px 10px 0;" />
+<img src="assets/v1.3.0/velosov.blogspot.com_2013.02.02-2013.03.10.epub.jpg" width="400" style="margin:0 10px 10px 0;" />
 </td></tr></table>
 
 ## Installation
@@ -57,13 +57,13 @@ Convert blog to epub using command line or GUI.
 ### Windows (11)
 
 <p align="center">
-<img src="assets/v1.3.0_blog2epub_win11_screenshot.png" width="600px" />
+<img src="assets/v1.3.0/blog2epub_win11_screenshot.png" width="600px" />
 </p>
 
 ### Linux (Manjaro Gnome)
 
 <p align="center">
-<img src="assets/v1.3.0_blog2epub_linux_screenshot.png"  width="600px" />
+<img src="assets/v1.3.0/blog2epub_linux_screenshot.png"  width="600px" />
 </p>
 
 ### macOS
