@@ -3,6 +3,9 @@ if [ -d "./dist/blog2epub.app" ]; then
   if [ -d "./dist/macos_dng_image" ]; then
     rm -r "./dist/macos_dng_image"
   fi
+  if [ -f "./dist/blog2epub.dmg" ]; then
+    rm "./dist/blog2epub.dmg"
+  fi
   # TODO: investigate why these 4 files were not copied to app
   cp -v ./assets/Alegreya-Regular.ttf ./dist/blog2epub.app/Contents/Resources
   cp -v ./assets/Alegreya-Italic.ttf ./dist/blog2epub.app/Contents/Resources
