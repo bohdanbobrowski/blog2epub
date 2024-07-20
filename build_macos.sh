@@ -15,5 +15,5 @@ if [ -d "./dist/blog2epub.app" ]; then
   cp -r ./dist/blog2epub.app ./dist/macos_dng_image/
   ln -s /Applications ./dist/macos_dng_image/Applications
   hdiutil create /tmp/tmp.dmg -ov -volname "blog2epub" -fs HFS+ -srcfolder "./dist/macos_dng_image/"
-  hdiutil convert /tmp/tmp.dmg -format UDZO -o ./dist/blog2epub.dmg
+  hdiutil convert /tmp/tmp.dmg -format UDZO -o ./dist/blog2epub_v1.3.0_macos.dmg
 fi

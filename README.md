@@ -51,6 +51,14 @@ Checkout for latest available [builds](https://github.com/bohdanbobrowski/blog2e
 
     poetry run build_gui_windows
 
+#### macOS
+
+Due to a bug - I haven't found out exactly what it is yet - probably in the pyinstaller, all the indicated files are
+not copied to the app - so you also need to execute a bash script. This script also creates a dmg image.
+
+    poetry run build_gui_macos
+    ./build_macos.sh
+
 ## Screenshots of GUI
 
 ### Windows (11)
@@ -89,19 +97,9 @@ Checkout for latest available [builds](https://github.com/bohdanbobrowski/blog2e
     poetry run blog2epub poznanskiehistorie.blogspot.com -q=100
     poetry run blog2epub classicameras.blogspot.com --limit=10 --no-images
 
-## Planned features and known bugs
+## Current version
 
-- [ ] Linux app/package(s)
-- [ ] Android app
-- [ ] code needs still refactor
-- [ ] more crawlers
-- [ ] improve GUI - configuration, allow to save in selected place etc.
-- [ ] save downloaded page structure to yaml file
-
-## Change Log
-
-### [v1.3.0](#v1.3.0) - release will be published soon
-
+### [v1.3.0](https://github.com/bohdanbobrowski/blog2epub/releases/tag/v1.2.6) - 2024-07-20
 - [X] introduce KivyMD
 - [X] python poetry instead of venv
 - [X] code refactor and cleanup
@@ -111,10 +109,6 @@ Checkout for latest available [builds](https://github.com/bohdanbobrowski/blog2e
 - [X] feature: prevent epub file overwriting
 - [X] feature: cancel download
 - [X] fixed bug: chapters were not added to ebook spine, which caused problems with navigation
-- [X] windows build
-
-Still TODO in this version:
-- [ ] osx screenshots and build
-- [ ] linux build
+- [X] Windows and macOS builds
 
 [&raquo; Complete Change Log here &laquo;](https://github.com/bohdanbobrowski/blog2epub/blob/master/CHANGELOG.md)

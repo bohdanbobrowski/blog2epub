@@ -1,7 +1,17 @@
 # ChangeLog
 
-### [v1.3.0](#1_3_0) - 2024-04-xx?
-...
+### [v1.3.0](https://github.com/bohdanbobrowski/blog2epub/releases/tag/v1.2.6) - 2024-07-20
+- [X] introduce KivyMD
+- [X] python poetry instead of venv
+- [X] code refactor and cleanup
+- [X] add tabbed layout with list of articles
+- [X] 2 stages: crawl/download & ebook generation
+- [X] selectable list of articles
+- [X] feature: prevent epub file overwriting
+- [X] feature: cancel download
+- [X] fixed bug: chapters were not added to ebook spine, which caused problems with navigation
+- [X] Windows and macOS builds
+
 
 ### [v1.2.6](https://github.com/bohdanbobrowski/blog2epub/releases/tag/v1.2.6) - 2024-03-30
 - [x] resistance to broken links
