@@ -589,25 +589,6 @@ class KivyInterface(EmptyInterface):
         logging.info(text)
         self.console_output(text)
 
-    @staticmethod
-    def notify(title, subtitle, message, cover):
-        if platform.system() == "Darwin":
-            app_icon = os.path.join(os.path.dirname(sys.executable), "blogspot.png")
-            command = [
-                "terminal-notifier",
-                f"-title {title}",
-                f"-subtitle {subtitle}",
-                f"-message {message}",
-                f"-contentImage {cover}",
-                "-sound chime",
-                f"-appIcon {app_icon}",
-                f"-open file:{message}",
-            ]
-            cmd = " ".join(command)
-            os.system(f"terminal-notifier {cmd}")
-        if platform.system() == "Linux":
-            subprocess.Popen(["notify-send", subtitle + ": " + message])
-
     def exception(self, e):
         logging.error("Exception: " + str(e))
         self.print("Exception: " + str(e))

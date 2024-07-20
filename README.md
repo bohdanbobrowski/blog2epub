@@ -92,14 +92,14 @@ Convert blog to epub using command line or GUI.
 
 - [ ] Linux app/package(s)
 - [ ] Android app
-- [ ] code needs some refactor
+- [ ] code needs still refactor
 - [ ] more crawlers
 - [ ] improve GUI - configuration, allow to save in selected place etc.
 - [ ] save downloaded page structure to yaml file
 
 ## Change Log
 
-### [v1.3.0](#v1.3.0)
+### [v1.3.0](#v1.3.0) - release will be published soon
 
 - [X] introduce KivyMD
 - [X] python poetry instead of venv
@@ -113,7 +113,7 @@ Convert blog to epub using command line or GUI.
 - [X] windows build
 
 Still TODO in this version:
-- [ ] feature: add text input to change epub file name
+- [ ] feature: change epub file destination
 - [ ] update documentation and screenshots!
 - [ ] linux build - FLATPAK?
 - [ ] osx build???
