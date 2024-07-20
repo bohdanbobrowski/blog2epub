@@ -4,7 +4,7 @@ if [ -d "./dist/blog2epub.app" ]; then
   cp -v ./assets/Alegreya-Regular.ttf ./dist/blog2epub.app/Contents/Resources
   cp -v ./assets/Alegreya-Italic.ttf ./dist/blog2epub.app/Contents/Resources
   cp -v ./assets/MartianMono-Regular.ttf ./dist/blog2epub.app/Contents/Resources
-  cp -v ./images/blog2epub.png ./dist/blog2epub.app/Contents/Resources
+  cp -v ./assets/blog2epub.png ./dist/blog2epub.app/Contents/Resources
   mkdir -p ./dist/macos_dng_image/
   mv ./dist/blog2epub.app ./dist/macos_dng_image/
   ln -s /Applications ./dist/macos_dng_image/Applications
