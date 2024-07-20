@@ -36,8 +36,7 @@ Convert blog to epub using command line or GUI.
 
 ## Installation
 
-- for __Windows__ and __macOS__ users: available [builds](https://github.com/bohdanbobrowski/blog2epub/releases)
-- python3 setup.py install
+Checkout for latest available [builds](https://github.com/bohdanbobrowski/blog2epub/releases).
 
 ### Running from sources
 
@@ -51,6 +50,14 @@ Convert blog to epub using command line or GUI.
 #### Windows
 
     poetry run build_gui_windows
+
+#### macOS
+
+Due to a bug - I haven't found out exactly what it is yet - probably in the pyinstaller, all the indicated files are
+not copied to the app - so you also need to execute a bash script. This script also creates a dmg image.
+
+    poetry run build_gui_macos
+    ./build_macos.sh
 
 ## Screenshots of GUI
 
@@ -66,9 +73,11 @@ Convert blog to epub using command line or GUI.
 <img src="assets/v1.3.0/blog2epub_linux_screenshot.png"  width="600px" />
 </p>
 
-### macOS
+### macOS (Sonoma 14.4.1)
 
-*TO DO*
+<p align="center">
+<img src="assets/v1.3.0/blog2epub_macos_screenshot.png"  width="600px" />
+</p>
 
 ## CLI
 
@@ -88,19 +97,9 @@ Convert blog to epub using command line or GUI.
     poetry run blog2epub poznanskiehistorie.blogspot.com -q=100
     poetry run blog2epub classicameras.blogspot.com --limit=10 --no-images
 
-## Planned features and known bugs
+## Current version
 
-- [ ] Linux app/package(s)
-- [ ] Android app
-- [ ] code needs still refactor
-- [ ] more crawlers
-- [ ] improve GUI - configuration, allow to save in selected place etc.
-- [ ] save downloaded page structure to yaml file
-
-## Change Log
-
-### [v1.3.0](#v1.3.0) - release will be published soon
-
+### [v1.3.0](https://github.com/bohdanbobrowski/blog2epub/releases/tag/v1.2.6) - 2024-07-20
 - [X] introduce KivyMD
 - [X] python poetry instead of venv
 - [X] code refactor and cleanup
@@ -110,12 +109,6 @@ Convert blog to epub using command line or GUI.
 - [X] feature: prevent epub file overwriting
 - [X] feature: cancel download
 - [X] fixed bug: chapters were not added to ebook spine, which caused problems with navigation
-- [X] windows build
-
-Still TODO in this version:
-- [ ] feature: change epub file destination
-- [ ] update documentation and screenshots!
-- [ ] linux build - FLATPAK?
-- [ ] osx build???
+- [X] Windows and macOS builds
 
 [&raquo; Complete Change Log here &laquo;](https://github.com/bohdanbobrowski/blog2epub/blob/master/CHANGELOG.md)

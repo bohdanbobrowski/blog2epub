@@ -1,11 +1,12 @@
 # -*- mode: python ; coding: utf-8 -*-
+from kivy.tools.packaging.pyinstaller_hooks import get_deps_minimal
+
 block_cipher = None
 a = Analysis(
     ['blog2epub\\blog2epub_gui.py'],
     pathex=[
         '.',
     ],
-    binaries=[],
     datas=[
         ('./assets/blog2epub_256px.png', '.'),
         ('./assets/blog2epub.png', '.'),
@@ -13,17 +14,13 @@ a = Analysis(
         ('./assets/Alegreya-Italic.ttf', '.'),
         ('./assets/MartianMono-Regular.ttf', '.'),
     ],
-    hiddenimports=[
-        'kivymd.uix.dropdownitem',
-        'kivymd.uix.dropdownitem.dropdownitem.MDDropDownItem',
-    ],
     hookspath=[],
     runtime_hooks=[],
-    excludes=[],
     win_no_prefer_redirects=False,
     win_private_assemblies=False,
     cipher=block_cipher,
     noarchive=False,
+    **get_deps_minimal(video=None, audio=None)
 )
 pyz = PYZ(
     a.pure,

@@ -1,14 +1,13 @@
-from kivy.tools.packaging.pyinstaller_hooks import get_deps_minimal
 # -*- mode: python ; coding: utf-8 -*-
+from kivy.tools.packaging.pyinstaller_hooks import get_deps_minimal
 
 block_cipher = None
-
 a = Analysis(
     [
-        'blog2epubkivy.py'
+        'blog2epub/blog2epub_gui.py'
     ],
     pathex=[
-        './venv/'
+        '.'
     ],
     datas=[
         ('./assets/blog2epub.icns', '.'),
