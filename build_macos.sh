@@ -1,17 +1,15 @@
 #!/bin/bash
-
-rm -rf ./build
-rm -rf ./dist
-pyinstaller blog2epub_gui_macos.spec
 if [ -d "./dist/blog2epub.app" ]; then
-  cp -v ./blog2epub/assets/*.ttf ./dist/blog2epub.app/Contents/Resources
+  # TODO: investigate why these 4 files were not copied to app
+  cp -v ./assets/Alegreya-Regular.ttf ./dist/blog2epub.app/Contents/Resources
+  cp -v ./assets/Alegreya-Italic.ttf ./dist/blog2epub.app/Contents/Resources
+  cp -v ./assets/MartianMono-Regular.ttf ./dist/blog2epub.app/Contents/Resources
   cp -v ./images/blog2epub.png ./dist/blog2epub.app/Contents/Resources
-  cp -v ./images/blog2epub.icns ./dist/blog2epub.app/Contents/Resources
-  mkdir -p ./dist/osx/
-  mv ./dist/blog2epub.app ./dist/osx/
-  ln -s /Applications ./dist/osx/Applications
-  # ln -s ~/Applications ./dist/osx/Applications
-  # mv ./dist/osx/Applications "./dist/osx/ "
-  hdiutil create /tmp/tmp.dmg -ov -volname "blog2epub" -fs HFS+ -srcfolder "./dist/osx/"
+  mkdir -p ./dist/macos_dng_image/
+  mv ./dist/blog2epub.app ./dist/macos_dng_image/
+  ln -s /Applications ./dist/macos_dng_image/Applications
+  # ln -s ~/Applications ./dist/macos_dng_image/Applications
+  # mv ./dist/macos_dng_image/Applications "./dist/macos_dng_image/ "
+  hdiutil create /tmp/tmp.dmg -ov -volname "blog2epub" -fs HFS+ -srcfolder "./dist/macos_dng_image/"
   hdiutil convert /tmp/tmp.dmg -format UDZO -o ./dist/blog2epub.dmg
 fi
