@@ -1,8 +1,6 @@
 from kivy.tools.packaging.pyinstaller_hooks import get_deps_minimal
 # -*- mode: python ; coding: utf-8 -*-
-
 block_cipher = None
-
 a = Analysis(
     [
         'blog2epub/blog2epub_gui.py'
@@ -18,7 +16,6 @@ a = Analysis(
         ('./assets/Alegreya-Italic.ttf', '.'),
         ('./assets/MartianMono-Regular.ttf', '.'),
     ],
-    hiddenimports=[],
     hookspath=[],
     runtime_hooks=[],
     win_no_prefer_redirects=False,
