@@ -50,8 +50,7 @@ from blog2epub.common.exceptions import BadUrlException
 from blog2epub.common.interfaces import EmptyInterface
 from blog2epub.common.settings import Blog2EpubSettings
 
-SIZE = 3 / Metrics.density / Metrics.density
-F_SIZE = 3 / Metrics.density
+SIZE = 3 / Metrics.density
 UI_FONT_NAME = asset_path("MartianMono-Regular.ttf")
 SETTINGS = Blog2EpubSettings()
 URL_HISTORY = SETTINGS.get("history")
@@ -93,16 +92,16 @@ class ArticleCheckbox(MDBoxLayout):
 class StyledLabel(MDLabel):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.font_size = dp(6 * F_SIZE)
+        self.font_size = dp(6 * SIZE)
         self.font_name = UI_FONT_NAME
-        self.width = dp(40 * F_SIZE)
+        self.width = dp(40 * SIZE)
         self.size_hint = (None, 1)
 
 
 class StyledTextInput(TextInput):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.font_size = dp(6 * F_SIZE)
+        self.font_size = dp(6 * SIZE)
         self.font_name = UI_FONT_NAME
         self.halign = "left"
         self.valign = "center"
@@ -147,9 +146,9 @@ class NumberTextInput(StyledTextInput):
 class StyledButton(MDFlatButton):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.font_size = dp(6 * F_SIZE)
+        self.font_size = dp(6 * SIZE)
         self.font_name = UI_FONT_NAME
-        self.width = dp(80 * F_SIZE)
+        self.width = dp(80 * SIZE)
         self.size_hint = (None, 1)
 
 
@@ -160,8 +159,10 @@ class Tab(MDBoxLayout, MDTabsBase):
 class Blog2EpubKivyWindow(MDBoxLayout):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
+
+        logging.info(f"SIZE factor set as {SIZE}")
+
         self.orientation = "vertical"
-        # self.padding = dp(3 * SIZE)
 
         self.articles_data = []
         self.download_thread = None
@@ -201,7 +202,7 @@ class Blog2EpubKivyWindow(MDBoxLayout):
         self.tab_download.add_widget(params_row)
 
         self.console = TextInput(
-            font_size=dp(6 * F_SIZE),
+            font_size=dp(6 * SIZE),
             font_name=UI_FONT_NAME,
             background_color="black",
             foreground_color="white",
@@ -263,7 +264,7 @@ class Blog2EpubKivyWindow(MDBoxLayout):
         self.selected_label = MDLabel(
             text=f"Selected {0} articles.",
             halign="center",
-            font_size=dp(6 * F_SIZE),
+            font_size=dp(6 * SIZE),
             font_name=UI_FONT_NAME,
             size_hint=(1, 0.1),
         )
@@ -313,7 +314,7 @@ class Blog2EpubKivyWindow(MDBoxLayout):
             MDLabel(
                 text=f"v. {Blog2Epub.version}",
                 halign="center",
-                font_size=dp(6 * F_SIZE),
+                font_size=dp(6 * SIZE),
                 font_name=UI_FONT_NAME,
                 size_hint=(1, 0.1),
             )
@@ -322,7 +323,7 @@ class Blog2EpubKivyWindow(MDBoxLayout):
             MDLabel(
                 text="by Bohdan Bobrowski",
                 halign="center",
-                font_size=dp(6 * F_SIZE),
+                font_size=dp(6 * SIZE),
                 font_name=UI_FONT_NAME,
                 size_hint=(1, 0.1),
             )
@@ -334,7 +335,7 @@ class Blog2EpubKivyWindow(MDBoxLayout):
         self.tab_about.add_widget(
             MDFlatButton(
                 text="github.com/bohdanbobrowski/blog2epub",
-                font_size=dp(6 * F_SIZE),
+                font_size=dp(6 * SIZE),
                 font_name=UI_FONT_NAME,
                 size_hint=(1, 0.1),
                 on_press=about_url_click,
@@ -554,7 +555,7 @@ class Blog2EpubKivyWindow(MDBoxLayout):
         success_content.add_widget(
             MDFlatButton(
                 text=f"{os.path.basename(generated_ebook_path)}",
-                font_size=dp(6 * F_SIZE),
+                font_size=dp(6 * SIZE),
                 font_name=UI_FONT_NAME,
                 size_hint=(1, 0.1),
                 on_press=success_url_click,
@@ -563,11 +564,11 @@ class Blog2EpubKivyWindow(MDBoxLayout):
         )
         success_popup = Popup(
             title="Ebook generated successfully:",
-            title_size=dp(8 * F_SIZE),
+            title_size=dp(8 * SIZE),
             title_font=UI_FONT_NAME,
             content=success_content,
             size_hint=(None, None),
-            size=(dp(240 * F_SIZE), dp(200 * F_SIZE)),
+            size=(dp(240 * SIZE), dp(200 * SIZE)),
         )
         success_popup.open()
 

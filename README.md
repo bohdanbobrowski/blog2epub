@@ -112,7 +112,7 @@ Convert blog to epub using command line or GUI.
 - [X] windows build
 
 Still TODO in this version:
-- [ ] cancel download (this will require change from multi-threading to multi-procesing)
+- [ ] cancel download (this will require change from multi-threading to multiprocessing)
 - [ ] feature: add text input to change epub file name
 - [ ] update documentation and screenshots!
 - [ ] linux build - FLATPAK?
