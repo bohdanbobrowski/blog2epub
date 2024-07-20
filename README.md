@@ -65,9 +65,11 @@ Checkout for latest available [builds](https://github.com/bohdanbobrowski/blog2e
 <img src="assets/v1.3.0/blog2epub_linux_screenshot.png"  width="600px" />
 </p>
 
-### macOS
+### macOS (Sonoma 14.4.1)
 
-*TO DO*
+<p align="center">
+<img src="assets/v1.3.0/blog2epub_macos_screenshot.png"  width="600px" />
+</p>
 
 ## CLI
 
@@ -112,9 +114,7 @@ Checkout for latest available [builds](https://github.com/bohdanbobrowski/blog2e
 - [X] windows build
 
 Still TODO in this version:
-- [ ] feature: change epub file destination
-- [ ] update documentation and screenshots!
-- [ ] linux build - FLATPAK?
-- [ ] osx build???
+- [ ] osx screenshots and build
+- [ ] linux build
 
 [&raquo; Complete Change Log here &laquo;](https://github.com/bohdanbobrowski/blog2epub/blob/master/CHANGELOG.md)
