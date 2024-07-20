@@ -161,7 +161,6 @@ class Blog2EpubKivyWindow(MDBoxLayout):
         super().__init__(**kwargs)
 
         logging.info(f"SIZE factor set as {SIZE}")
-
         self.orientation = "vertical"
 
         self.articles_data = []
