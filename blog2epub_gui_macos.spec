@@ -1,5 +1,6 @@
-from kivy.tools.packaging.pyinstaller_hooks import get_deps_minimal
 # -*- mode: python ; coding: utf-8 -*-
+from kivy.tools.packaging.pyinstaller_hooks import get_deps_minimal
+
 block_cipher = None
 a = Analysis(
     [
