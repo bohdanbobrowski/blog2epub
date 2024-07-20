@@ -248,6 +248,7 @@ class Book:
         ebook.add_author(self.title + ", " + self.file_name_prefix)
         for chapter in self.chapters:
             ebook.add_item(chapter.epub)
+            ebook.spine.append(chapter.epub)  # Important!
             self.table_of_contents.append(chapter.epub)
         self._add_table_of_contents(ebook)
         self._add_epub_css(ebook)
