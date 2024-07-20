@@ -496,9 +496,7 @@ class Blog2EpubKivyWindow(MDBoxLayout):
         self.save_settings()
         self.download_thread = Thread(
             target=self._download_ebook,
-            kwargs={
-                "blog2epub": Blog2Epub(self._get_params())
-            },
+            kwargs={"blog2epub": Blog2Epub(self._get_params())},
         )
         self.download_thread.start()
 
@@ -506,9 +504,7 @@ class Blog2EpubKivyWindow(MDBoxLayout):
         if self.download_thread:
             self.download_thread.join()
             self._update_articles_data([])
-            self.articles_table.update_row_data(
-                [], []
-            )
+            self.articles_table.update_row_data([], [])
             self.ebook_data = None
             self._update_tab_generate()
 

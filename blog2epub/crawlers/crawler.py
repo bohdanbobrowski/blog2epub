@@ -193,22 +193,22 @@ class Crawler(AbstractCrawler):
 
     @staticmethod
     def get_date(str_date):
-        return re.sub("[^\,]*, ", "", str_date)
+        return re.sub(r"[^\,]*, ", "", str_date)
 
     def _set_blog_language(self, content):
-        if self.language is None and re.search("'lang':[\s]*'([a-z^']+)'", content):
+        if self.language is None and re.search(r"'lang':[\s]*'([a-z^']+)'", content):
             self.language = (
-                re.search("'lang':[\s]*'([a-z^']+)'", content).group(1).strip()
+                re.search(r"'lang':[\s]*'([a-z^']+)'", content).group(1).strip()
             )
-        if self.language is None and re.search("lang=['\"]([a-z]+)['\"]", content):
+        if self.language is None and re.search(r"lang=['\"]([a-z]+)['\"]", content):
             self.language = (
-                re.search("lang=['\"]([a-z]+)['\"]", content).group(1).strip()
+                re.search(r"lang=['\"]([a-z]+)['\"]", content).group(1).strip()
             )
         if self.language is None and re.search(
-            "locale['\"]:[\s]*['\"]([a-z]+)['\"]", content
+            r"locale['\"]:[\s]*['\"]([a-z]+)['\"]", content
         ):
             self.language = (
-                re.search("locale['\"]:[\s]*['\"]([a-z]+)['\"]", content)
+                re.search(r"locale['\"]:[\s]*['\"]([a-z]+)['\"]", content)
                 .group(1)
                 .strip()
             )
@@ -627,7 +627,7 @@ class Article:
             }
             for key, val in replace_dict.items():
                 date = date.replace(key, val)
-            date = re.sub("\sг.$", "", date)
+            date = re.sub(r"\sг.$", "", date)
         logging.debug(f"Date: {date}")
         return date
 
@@ -637,16 +637,16 @@ class Article:
     @staticmethod
     def _default_ripper(img, img_hash, art_html):
         im_regex = (
-            '<table[^>]*><tbody>[\s]*<tr><td[^>]*><a href="'
-            + img.replace("+", "\+")
-            + '"[^>]*><img[^>]*></a></td></tr>[\s]*<tr><td class="tr-caption" style="[^"]*">[^<]*</td></tr>[\s]*</tbody></table>'
+            r'<table[^>]*><tbody>[\s]*<tr><td[^>]*><a href="'
+            + img.replace("+", r"\+")
+            + r'"[^>]*><img[^>]*></a></td></tr>[\s]*<tr><td class="tr-caption" style="[^"]*">[^<]*</td></tr>[\s]*</tbody></table>'
         )
         return re.sub(im_regex, " #blog2epubimage#" + img_hash + "# ", art_html)
 
     @staticmethod
     def _nocaption_ripper(img: str, img_hash: str, art_html: str) -> str:
         im_regex = (
-            '<a href="' + img.replace("+", "\+") + '" imageanchor="1"[^<]*<img.*?></a>'
+            '<a href="' + img.replace("+", r"\+") + '" imageanchor="1"[^<]*<img.*?></a>'
         )
         return re.sub(im_regex, " #blog2epubimage#" + img_hash + "# ", art_html)
 
@@ -654,14 +654,14 @@ class Article:
     def _bloggerphoto_ripper(img: str, img_hash: str, art_html: str) -> str:
         im_regex = (
             '<a href="[^"]+"><img.*?id="BLOGGER_PHOTO_ID_[0-9]+".*?src="'
-            + img.replace("+", "\+")
+            + img.replace("+", r"\+")
             + '".*?/a>'
         )
         return re.sub(im_regex, " #blog2epubimage#" + img_hash + "# ", art_html)
 
     @staticmethod
     def _img_ripper(img, img_hash, art_html):
-        im_regex = '<img.*?src="' + img.replace("+", "\+") + '".*?>'
+        im_regex = '<img.*?src="' + img.replace("+", r"\+") + '".*?>'
         return re.sub(im_regex, " #blog2epubimage#" + img_hash + "# ", art_html)
 
     def process_images(self, images, ripper):

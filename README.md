@@ -103,6 +103,7 @@ Convert blog to epub using command line or GUI.
 
 - [X] introduce KivyMD
 - [X] python poetry instead of venv
+- [X] code refactor and cleanup
 - [X] add tabbed layout with list of articles
 - [X] 2 stages: crawl/download & ebook generation
 - [X] selectable list of articles
@@ -110,8 +111,8 @@ Convert blog to epub using command line or GUI.
 - [X] windows build
 
 Still TODO in this version:
-- [ ] cancel download
-- [ ] bug: created epub does not work properly (smthng is broken with attaching chapters after selection?)
+- [ ] cancel download (this will require change from multi-threading to multi-procesing)
+- [ ] bug: created epub does not work properly (something is broken with attaching chapters after selection?)
 - [ ] feature: add text input to change epub file name
 - [ ] update documentation and screenshots!
 - [ ] linux build - FLATPAK?
