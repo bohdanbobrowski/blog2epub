@@ -13,10 +13,7 @@ a = Analysis(
         ('./assets/Alegreya-Italic.ttf', '.'),
         ('./assets/MartianMono-Regular.ttf', '.'),
     ],
-    hiddenimports=[
-        'kivymd.uix.dropdownitem',
-        'kivymd.uix.dropdownitem.dropdownitem.MDDropDownItem',
-    ],
+    hiddenimports=[],
     hookspath=[],
     runtime_hooks=[],
     excludes=[],

@@ -5,10 +5,10 @@ block_cipher = None
 
 a = Analysis(
     [
-        'blog2epubkivy.py'
+        'blog2epub/blog2epub_gui.py'
     ],
     pathex=[
-        './venv/'
+        '.'
     ],
     datas=[
         ('./assets/blog2epub.icns', '.'),
@@ -18,6 +18,7 @@ a = Analysis(
         ('./assets/Alegreya-Italic.ttf', '.'),
         ('./assets/MartianMono-Regular.ttf', '.'),
     ],
+    hiddenimports=[],
     hookspath=[],
     runtime_hooks=[],
     win_no_prefer_redirects=False,
