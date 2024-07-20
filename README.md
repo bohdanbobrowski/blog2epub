@@ -39,40 +39,40 @@ Convert blog to epub using command line or GUI.
 - for __Windows__ and __macOS__ users: available [builds](https://github.com/bohdanbobrowski/blog2epub/releases)
 - python3 setup.py install
 
-### Running froum sources
+### Running from sources
 
     git clone git@github.com:bohdanbobrowski/blog2epub.git
     cd blog2epub
-    python -m venv venv
-    source ./venv/bin/activate
-    pip install -r ./requirements.txt
-    ./blog2epubgui.py
+    poetry install
+    poetry run blog2epubgui
+
+### Building own executable
+
+#### Windows
+
+    poetry run build_gui_windows
 
 ## Screenshots of GUI
 
-### Windows 10
+### Windows (11)
 
 <p align="center">
-<img src="./assets/blog2epub_win10_screenshot.png" width="600px" />
+<img src="./assets/blog2epub_win11_screenshot.png" width="600px" />
 </p>
 
-### macOS
-
-<p align="center">
-<img src="./assets/blog2epub_macos_screenshot.png" width="600px" />
-</p>
-
-### Linux
-
-Mint 21.2 Cinnamon
+### Linux (Manjaro Gnome)
 
 <p align="center">
 <img src="./assets/blog2epub_linux_screenshot.png"  width="600px" />
 </p>
 
+### macOS
+
+*TO DO*
+
 ## CLI
 
-    blog2epub [blog url] <parameters>
+    poetry run blog2epub [blog url] <parameters>
 
 ### Parameters
 
@@ -83,29 +83,39 @@ Mint 21.2 Cinnamon
 
 ## Examples
 
-    blog2epub starybezpiek.blogspot.com
-    blog2epub velosov.blogspot.com -l=10
-    blog2epub poznanskiehistorie.blogspot.com -q=100
-    blog2epub classicameras.blogspot.com --limit=10 --no-images
+    poetry run blog2epub starybezpiek.blogspot.com
+    poetry run blog2epub velosov.blogspot.com -l=10
+    poetry run blog2epub poznanskiehistorie.blogspot.com -q=100
+    poetry run blog2epub classicameras.blogspot.com --limit=10 --no-images
 
 ## Planned features and known bugs
 
-- [ ] utilize GitHub Pages for this project documentation
-- [ ] there are some bugs in wordpress.com crawler
 - [ ] Linux app/package(s)
 - [ ] Android app
-- [ ] code needs some refactor: classes are too "nested" within each other
-- [ ] more crawlers (ex. GitHub Pages 🙃)
-- [ ] improve existing crawlers (allow)
+- [ ] code needs still refactor
+- [ ] more crawlers
 - [ ] improve GUI - configuration, allow to save in selected place etc.
+- [ ] save downloaded page structure to yaml file
 
 ## Change Log
 
-### [v1.2.6](https://github.com/bohdanbobrowski/blog2epub/releases/tag/v1.2.6) - 2024-03-30
-_bugfix release_
-- [x] resistance to broken links
-- [x] atom feed when skipped
-- [x] better comments support
-- [x] more random cover generator
+### [v1.3.0](#v1.3.0) - release will be published soon
+
+- [X] introduce KivyMD
+- [X] python poetry instead of venv
+- [X] code refactor and cleanup
+- [X] add tabbed layout with list of articles
+- [X] 2 stages: crawl/download & ebook generation
+- [X] selectable list of articles
+- [X] feature: prevent epub file overwriting
+- [X] feature: cancel download
+- [X] fixed bug: chapters were not added to ebook spine, which caused problems with navigation
+- [X] windows build
+
+Still TODO in this version:
+- [ ] feature: change epub file destination
+- [ ] update documentation and screenshots!
+- [ ] linux build - FLATPAK?
+- [ ] osx build???
 
 [&raquo; Complete Change Log here &laquo;](https://github.com/bohdanbobrowski/blog2epub/blob/master/CHANGELOG.md)

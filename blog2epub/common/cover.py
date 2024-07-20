@@ -21,7 +21,7 @@ class Cover:
 
     def __init__(self, book):
         """
-        :param book: instance of Book class
+        :param book: intance of Book class
         """
         self.dirs = book.dirs
         self.interface = book.interface
@@ -29,20 +29,19 @@ class Cover:
         self.file_name_prefix = book.file_name_prefix
         self.description = book.description
         self.title = book.title
-        self.images = self._check_image_size(book.images)
+        self.subtitle = book.subtitle
+        self.images = self._check_image_size(set(i.hash for i in book.images))
         self.destination_folder = os.path.join(str(Path.home()), ".blog2epub")
-        self.start = book.start
-        self.end = book.end
 
-    def _check_image_size(self, images):
+    def _check_image_size(self, image_hashes: set[str]):
         verified_images = []
-        for image in set(images):
-            if image:
-                img_file = os.path.join(self.dirs.images, image)
+        for image_hash in image_hashes:
+            if image_hash:
+                img_file = os.path.join(self.dirs.images, image_hash)
                 if os.path.isfile(img_file):
                     img = Image.open(img_file)
                     if img.size[0] >= self.tile_size and img.size[1] >= self.tile_size:
-                        verified_images.append(image)
+                        verified_images.append(image_hash)
         return verified_images
 
     def _make_thumb(self, img, size):
@@ -76,15 +75,6 @@ class Cover:
         region = img.crop(box)
         return region
 
-    def _get_cover_date(self):
-        if self.end is None:
-            return self.start.strftime("%d %B %Y")
-        if self.start.strftime("%Y.%m") == self.end.strftime("%Y.%m"):
-            return self.end.strftime("%d") + "-" + self.start.strftime("%d %B %Y")
-        if self.start.strftime("%Y.%m") == self.end.strftime("%Y.%m"):
-            return self.end.strftime("%d %B") + " - " + self.start.strftime("%d %B %Y")
-        return self.end.strftime("%d %B %Y") + " - " + self.start.strftime("%d %B %Y")
-
     def _draw_text(self, cover_image):
         cover_draw = ImageDraw.Draw(cover_image)
         title_font = ImageFont.truetype(TITLE_FONT_NAME, 30)
@@ -110,7 +100,7 @@ class Cover:
             )
         cover_draw.text(
             (15, 670),
-            self._get_cover_date(),
+            self.subtitle,
             (150, 150, 150),
             font=subtitle_font,
         )

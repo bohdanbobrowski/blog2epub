@@ -1,10 +1,13 @@
-class EmptyInterface:
+from abc import ABC, abstractmethod
+
+
+class EmptyInterface(ABC):
     """Empty interface for script output."""
 
-    @staticmethod
-    def print(content):
+    @abstractmethod
+    def print(self, **kwargs):
         pass
 
-    @staticmethod
-    def exception(e):
+    @abstractmethod
+    def exception(self, **kwargs):
         pass

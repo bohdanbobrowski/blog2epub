@@ -4,3 +4,4 @@ disable=
     C0115, # missing-class-docstring
     C0116, # missing-function-docstring
     C0301, # line-too-long
+    C0413, # wrong-import-position

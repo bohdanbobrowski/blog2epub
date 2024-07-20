@@ -1,5 +1,8 @@
 # ChangeLog
 
+### [v1.3.0](#1_3_0) - 2024-04-xx?
+...
+
 ### [v1.2.6](https://github.com/bohdanbobrowski/blog2epub/releases/tag/v1.2.6) - 2024-03-30
 - [x] resistance to broken links
 - [x] atom feed when skipped

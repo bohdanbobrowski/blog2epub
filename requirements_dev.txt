@@ -23,3 +23,8 @@ six==1.16.0
 soupsieve==2.5
 typing-extensions==4.12.2
 urllib3==2.2.2
+ruff==0.5.0
+pyinstaller==6.8.0
+pylint==3.2.5
+mypy==1.10.1
+setuptools

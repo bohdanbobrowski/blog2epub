@@ -1,1 +1,0 @@
-pyinstaller blog2epub_windows.spec

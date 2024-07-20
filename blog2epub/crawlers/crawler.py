@@ -12,7 +12,7 @@ from abc import ABC, abstractmethod
 from datetime import datetime
 from http.cookiejar import CookieJar
 from pathlib import Path
-from typing import Optional
+from typing import Optional, List
 from urllib.parse import urlparse
 
 import atoma
@@ -21,6 +21,7 @@ import requests
 from lxml.ElementInclude import etree
 from lxml.html.soupparser import fromstring
 from PIL import Image
+from pydantic import HttpUrl
 
 from blog2epub.common.book import Book
 from blog2epub.common.crawler import (
@@ -30,11 +31,18 @@ from blog2epub.common.crawler import (
     prepare_url_to_crawl,
 )
 from blog2epub.common.interfaces import EmptyInterface
+from blog2epub.models.book import BookModel, DirModel, ArticleModel, ImageModel
 
 
 class AbstractCrawler(ABC):
+    ignore_downloads = []
+
     @abstractmethod
-    def save(self):
+    def crawl(self):
+        pass
+
+    @abstractmethod
+    def generate_ebook(self, **kwargs):
         pass
 
 
@@ -50,6 +58,8 @@ class Crawler(AbstractCrawler):
     )
     images_regex = r'<table[^>]*><tbody>[\s]*<tr><td[^>]*><a href="([^"]*)"[^>]*><img[^>]*></a></td></tr>[\s]*<tr><td class="tr-caption" style="[^"]*">([^<]*)'
     articles_regex = r"<h3 class=\'post-title entry-title\' itemprop=\'name\'>[\s]*<a href=\'([^\']*)\'>([^>^<]*)</a>[\s]*</h3>"
+
+    ignore_downloads = []
 
     def __init__(
         self,
@@ -88,6 +98,7 @@ class Crawler(AbstractCrawler):
         self.dirs = Dirs(self.cache_folder, self.url.replace("/", "_"))
         self.book = None
         self.title = None
+        self.subtitle = None
         self.description = None
         self.language = language
         self.atom_feed = False
@@ -96,12 +107,75 @@ class Crawler(AbstractCrawler):
         self.images = []
         self.downloader = Downloader(self)
         self.tags = {}
+        self.active = False
+        self.cancelled = False
+
+    def _get_articles_list(self) -> List[ArticleModel]:
+        """This is temporary solution - crawler should use data models as default data storage."""
+        articles_list = []
+        for article in self.articles:
+            articles_list.append(
+                ArticleModel(
+                    url=HttpUrl(article.url),
+                    title=article.title,
+                    date=article.date,
+                    content=article.content,
+                    comments=article.comments,
+                )
+            )
+        return articles_list
+
+    def _get_images(self) -> List[ImageModel]:
+        """This is temporary solution - crawler should use data models as default data storage."""
+        images_list = []
+        for article in self.articles:
+            for key, image in enumerate(article.images):
+                description = ""
+                if key in article.images_captions:
+                    description = article.images_captions[key]
+                images_list.append(
+                    ImageModel(url="", hash=image, description=description)
+                )
+        return images_list
+
+    def get_book_data(self) -> BookModel:
+        """This is temporary solution - crawler should use data models as default data storage."""
+        book_data = BookModel(
+            url=self.url,
+            title=self.title,
+            subtitle=self.subtitle,
+            description=self.description,
+            dirs=DirModel(
+                path=self.dirs.path,
+                html=self.dirs.html,
+                images=self.dirs.images,
+                originals=self.dirs.originals,
+            ),
+            articles=self._get_articles_list(),
+            images=self._get_images(),
+            start=self.start,
+            end=self.end,
+            file_name_prefix=self.file_name,
+            destination_folder=self.destination_folder,
+            cover=None,
+            cover_image_path=None,
+        )
+        return book_data
 
     @staticmethod
     def _get_the_interface(interface):
         if interface:
             return interface
         return EmptyInterface()
+
+    def _get_subtitle(self):
+        if self.end is None:
+            return self.start.strftime("%d %B %Y")
+        if self.start.strftime("%Y.%m") == self.end.strftime("%Y.%m"):
+            return self.end.strftime("%d") + "-" + self.start.strftime("%d %B %Y")
+        if self.start.strftime("%Y.%m") == self.end.strftime("%Y.%m"):
+            return self.end.strftime("%d %B") + " - " + self.start.strftime("%d %B %Y")
+        return self.end.strftime("%d %B %Y") + " - " + self.start.strftime("%d %B %Y")
 
     def get_cover_title(self):
         cover_title = self.title + " "
@@ -121,22 +195,22 @@ class Crawler(AbstractCrawler):
 
     @staticmethod
     def get_date(str_date):
-        return re.sub("[^\,]*, ", "", str_date)
+        return re.sub(r"[^\,]*, ", "", str_date)
 
     def _set_blog_language(self, content):
-        if self.language is None and re.search("'lang':[\s]*'([a-z^']+)'", content):
+        if self.language is None and re.search(r"'lang':[\s]*'([a-z^']+)'", content):
             self.language = (
-                re.search("'lang':[\s]*'([a-z^']+)'", content).group(1).strip()
+                re.search(r"'lang':[\s]*'([a-z^']+)'", content).group(1).strip()
             )
-        if self.language is None and re.search("lang=['\"]([a-z]+)['\"]", content):
+        if self.language is None and re.search(r"lang=['\"]([a-z]+)['\"]", content):
             self.language = (
-                re.search("lang=['\"]([a-z]+)['\"]", content).group(1).strip()
+                re.search(r"lang=['\"]([a-z]+)['\"]", content).group(1).strip()
             )
         if self.language is None and re.search(
-            "locale['\"]:[\s]*['\"]([a-z]+)['\"]", content
+            r"locale['\"]:[\s]*['\"]([a-z]+)['\"]", content
         ):
             self.language = (
-                re.search("locale['\"]:[\s]*['\"]([a-z]+)['\"]", content)
+                re.search(r"locale['\"]:[\s]*['\"]([a-z]+)['\"]", content)
                 .group(1)
                 .strip()
             )
@@ -148,10 +222,14 @@ class Crawler(AbstractCrawler):
             return re.search("<title>([^>^<]*)</title>", content).group(1).strip()
         return ""
 
-    def _get_blog_description(self, tree):
-        return tree.xpath(
+    def _get_blog_description(self, tree) -> Optional[str]:
+        description = tree.xpath(
             '//div[@id="header"]/div/div/div/p[@class="description"]/span/text()'
         )
+        if 0 in description:
+            return description[0]
+        else:
+            return None
 
     def _get_header_images(self, tree):
         header_images = []
@@ -259,8 +337,9 @@ class Crawler(AbstractCrawler):
     def _prepare_content(self, content):
         return content
 
-    def _crawl(self):
-        while self.url_to_crawl:
+    def crawl(self):
+        self.active = True
+        while self.url_to_crawl and not self.cancelled:
             content = self.downloader.get_content(self.url_to_crawl)
             tree = fromstring(content)
             self._set_blog_language(content)
@@ -274,14 +353,26 @@ class Crawler(AbstractCrawler):
                 self._atom_feed_loop()
             self.url_to_crawl = self._get_url_to_crawl(tree)
             self._check_limit()
+        self.active = False
+        self.subtitle = self._get_subtitle()
 
-    def save(self):
-        self._crawl()
-        if self.articles:
+    def generate_ebook(
+        self,
+        articles: List[int],
+        destination_folder: Optional[str],
+        file_name: Optional[str] = None,
+    ):
+        if articles:
             self.book = Book(self)
-            self.book.save()
+            self.book.save(
+                articles=articles,
+                destination_folder=destination_folder,
+                file_name=file_name,
+            )
+            return True
         else:
             self.interface.print("No articles found.")
+            return False
 
 
 class Dirs:
@@ -313,6 +404,7 @@ class Downloader:
         self.force_download = crawler.force_download
         self.images_size = crawler.images_size
         self.images_quality = crawler.images_quality
+        self.ignore_downloads = crawler.ignore_downloads
         self.cookies = CookieJar()
         self.session = requests.session()
         self.headers = {}
@@ -341,7 +433,15 @@ class Downloader:
     def get_filepath(self, url):
         return os.path.join(self.dirs.html, self.get_urlhash(url) + ".html")
 
+    def _is_url_in_ignored(self, url) -> bool:
+        for search_rule in self.ignore_downloads:
+            if re.match(search_rule, url):
+                return True
+        return False
+
     def file_download(self, url: str, filepath: str) -> Optional[str]:
+        if self._is_url_in_ignored(url):
+            return None
         self.dirs.prepare_directories()
         try:
             response = self.session.get(url, cookies=self.cookies, headers=self.headers)
@@ -354,6 +454,8 @@ class Downloader:
         return contents
 
     def image_download(self, url: str, filepath: str) -> bool:
+        if self._is_url_in_ignored(url):
+            return None
         self.dirs.prepare_directories()
         try:
             response = self.session.get(url, cookies=self.cookies, headers=self.headers)
@@ -368,10 +470,10 @@ class Downloader:
         interstitial = re.findall('interstitial=([^"]+)', contents)
         if interstitial:
             return interstitial[0]
-        else:
-            return False
+        return False
 
     def get_content(self, url):
+        # TODO: This needs refactor!
         filepath = self.get_filepath(url)
         for x in range(0, 3):
             if self.force_download or (
@@ -382,9 +484,8 @@ class Downloader:
                 contents = self.file_read(filepath)
             if contents is not None:
                 break
-            else:
-                self.interface.print(f"...repeat request: {url}")
-                time.sleep(3)
+            self.interface.print(f"...repeat request: {url}")
+            time.sleep(3)
         if contents is not None:
             interstitial = self.checkInterstitial(contents)
             if interstitial:
@@ -451,7 +552,7 @@ class Article:
         self.tags = []
         self.interface = crawler.interface
         self.dirs = crawler.dirs
-        self.comments = ""
+        self.comments = ""  # TODO: should be a list in the future
         self.include_images = crawler.include_images
         self.content_xpath = crawler.content_xpath
         self.images_regex = crawler.images_regex
@@ -480,14 +581,14 @@ class Article:
         if self.date is None:
             d = self.url.split("/")
             if len(d) > 4:
-                self.date = "%s-%s-01 00:00" % (d[3], d[4])
+                self.date = f"{d[3]}-{d[4]}-01 00:00"
             else:
                 self.date = str(datetime.now())
         else:
             self.date = self._translate_month(self.date)
         try:
             self.date = dateutil.parser.parse(self.date)
-        except:
+        except IndexError:
             self.interface.print(f"Date not parsed: {self.date}")
 
     def _translate_month(self, date: str) -> str:
@@ -530,7 +631,7 @@ class Article:
             }
             for key, val in replace_dict.items():
                 date = date.replace(key, val)
-            date = re.sub("\sг.$", "", date)
+            date = re.sub(r"\sг.$", "", date)
         logging.debug(f"Date: {date}")
         return date
 
@@ -540,16 +641,16 @@ class Article:
     @staticmethod
     def _default_ripper(img, img_hash, art_html):
         im_regex = (
-            '<table[^>]*><tbody>[\s]*<tr><td[^>]*><a href="'
-            + img.replace("+", "\+")
-            + '"[^>]*><img[^>]*></a></td></tr>[\s]*<tr><td class="tr-caption" style="[^"]*">[^<]*</td></tr>[\s]*</tbody></table>'
+            r'<table[^>]*><tbody>[\s]*<tr><td[^>]*><a href="'
+            + img.replace("+", r"\+")
+            + r'"[^>]*><img[^>]*></a></td></tr>[\s]*<tr><td class="tr-caption" style="[^"]*">[^<]*</td></tr>[\s]*</tbody></table>'
         )
         return re.sub(im_regex, " #blog2epubimage#" + img_hash + "# ", art_html)
 
     @staticmethod
     def _nocaption_ripper(img: str, img_hash: str, art_html: str) -> str:
         im_regex = (
-            '<a href="' + img.replace("+", "\+") + '" imageanchor="1"[^<]*<img.*?></a>'
+            '<a href="' + img.replace("+", r"\+") + '" imageanchor="1"[^<]*<img.*?></a>'
         )
         return re.sub(im_regex, " #blog2epubimage#" + img_hash + "# ", art_html)
 
@@ -557,14 +658,14 @@ class Article:
     def _bloggerphoto_ripper(img: str, img_hash: str, art_html: str) -> str:
         im_regex = (
             '<a href="[^"]+"><img.*?id="BLOGGER_PHOTO_ID_[0-9]+".*?src="'
-            + img.replace("+", "\+")
+            + img.replace("+", r"\+")
             + '".*?/a>'
         )
         return re.sub(im_regex, " #blog2epubimage#" + img_hash + "# ", art_html)
 
     @staticmethod
     def _img_ripper(img, img_hash, art_html):
-        im_regex = '<img.*?src="' + img.replace("+", "\+") + '".*?>'
+        im_regex = '<img.*?src="' + img.replace("+", r"\+") + '".*?>'
         return re.sub(im_regex, " #blog2epubimage#" + img_hash + "# ", art_html)
 
     def process_images(self, images, ripper):
@@ -624,8 +725,8 @@ class Article:
             self.content = re.sub('class="[^"]*"', "", self.content)
             for src in re.findall('<iframe.+? src="([^?= ]*)', self.content):
                 self.content = re.sub(
-                    "<iframe.+?%s.+?/>" % src,
-                    '<a href="%s">%s</a>' % (src, src),
+                    f"<iframe.+?{src}.+?/>",
+                    f'<a href="{src}">{src}</a>',
                     self.content,
                 )
 
