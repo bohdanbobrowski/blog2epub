@@ -36,8 +36,7 @@ Convert blog to epub using command line or GUI.
 
 ## Installation
 
-- for __Windows__ and __macOS__ users: available [builds](https://github.com/bohdanbobrowski/blog2epub/releases)
-- python3 setup.py install
+Checkout for latest available [builds](https://github.com/bohdanbobrowski/blog2epub/releases).
 
 ### Running from sources
 
