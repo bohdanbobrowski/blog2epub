@@ -112,3 +112,7 @@ not copied to the app - so you also need to execute a bash script. This script a
 - [X] Windows and macOS builds
 
 [&raquo; Complete Change Log here &laquo;](https://github.com/bohdanbobrowski/blog2epub/blob/master/CHANGELOG.md)
+
+## Project backlog
+
+And finally, a list of ideas for known bugs and future plans: [BACKLOG.md](https://github.com/bohdanbobrowski/blog2epub/blob/master/BACKLOG.md)
