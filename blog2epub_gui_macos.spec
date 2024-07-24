@@ -1,8 +1,11 @@
 # -*- mode: python ; coding: utf-8 -*-
 from kivy.tools.packaging.pyinstaller_hooks import get_deps_minimal
 
+import os
+import sys
+
 block_cipher = None
-a = Analysis(
+configuration = Analysis(
     [
         'blog2epub/blog2epub_gui.py'
     ],
@@ -10,12 +13,12 @@ a = Analysis(
         '.'
     ],
     datas=[
-        ('./assets/blog2epub.icns', '.'),
-        ('./assets/blog2epub_256px.png', '.'),
-        ('./assets/blog2epub.png', '.'),
-        ('./assets/Alegreya-Regular.ttf', '.'),
-        ('./assets/Alegreya-Italic.ttf', '.'),
-        ('./assets/MartianMono-Regular.ttf', '.'),
+        (os.path.abspath('./assets/blog2epub.icns'), '.'),
+        (os.path.abspath('./assets/blog2epub_256px.png'), '.'),
+        (os.path.abspath('./assets/blog2epub.png'), '.'),
+        (os.path.abspath('./assets/Alegreya-Regular.ttf'), '.'),
+        (os.path.abspath('./assets/Alegreya-Italic.ttf'), '.'),
+        (os.path.abspath('./assets/MartianMono-Regular.ttf'), '.'),
     ],
     hookspath=[],
     runtime_hooks=[],
@@ -25,38 +28,28 @@ a = Analysis(
     noarchive=False,
     **get_deps_minimal(video=None, audio=None)
 )
-pyz = PYZ(
-    a.pure,
-    a.zipped_data,
+application_pyz = PYZ(
+    configuration.pure,
+    configuration.zipped_data,
     cipher=block_cipher
 )
-exe = EXE(
-    pyz,
-    a.scripts,
-    a.binaries,
-    a.zipfiles,
-    a.datas,
-    [],
-    name='blog2epub',
-    debug=False,
-    strip=False,
-    upx=True,
-    upx_exclude=[],
-    runtime_tmpdir=None,
-    console=False,
-    disable_windowed_traceback=False,
-    target_arch=None,
-    codesign_identity=None,
-    entitlements_file=None, 
-    icon='blog2epub.icns'
+application_exe = EXE(
+    application_pyz,
+    configuration.scripts,
+    configuration.binaries,
+    configuration.zipfiles,
+    configuration.datas,
+    name = 'blog2epub',
+    debug = False,
+    strip = False,
+    upx = True,
+    runtime_tmpdir = None,
+    console = False,
 )
-info_plist = {
-    "NSHighResolutionCapable": True,
-}
 app = BUNDLE(
-    exe,
+    application_exe,
     name='blog2epub.app',
     icon='assets/blog2epub.icns',
     bundle_identifier=None,
-    info_plist=info_plist
+    info_plist = {'NSHighResolutionCapable': 'True'},
 )
