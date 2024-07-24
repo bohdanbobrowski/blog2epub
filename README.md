@@ -53,11 +53,11 @@ Checkout for latest available [builds](https://github.com/bohdanbobrowski/blog2e
 
 #### macOS
 
-Due to a bug - I haven't found out exactly what it is yet - probably in the pyinstaller, all the indicated files are
-not copied to the app - so you also need to execute a bash script. This script also creates a dmg image.
-
     poetry run build_gui_macos
-    ./build_macos.sh
+
+And then to create dmg image with app:
+
+    ./make_macos_dmg.sh
 
 ## Screenshots of GUI
 
