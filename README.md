@@ -99,7 +99,7 @@ And then to create dmg image with app:
 
 ## Current version
 
-### [v1.3.0](https://github.com/bohdanbobrowski/blog2epub/releases/tag/v1.2.6) - 2024-07-20
+### [v1.3.0](https://github.com/bohdanbobrowski/blog2epub/releases/tag/v1.3.0) - 2024-07-20
 - [X] introduce KivyMD
 - [X] python poetry instead of venv
 - [X] code refactor and cleanup
