@@ -115,4 +115,4 @@ And then to create dmg image with app:
 
 ## Project backlog
 
-And finally, a list of ideas for known bugs and future plans: [BACKLOG.md](https://github.com/bohdanbobrowski/blog2epub/blob/master/BACKLOG.md)
+And finally, a list known bugs and future plans for some new functions and enhancements: [BACKLOG.md](https://github.com/bohdanbobrowski/blog2epub/blob/master/BACKLOG.md)
