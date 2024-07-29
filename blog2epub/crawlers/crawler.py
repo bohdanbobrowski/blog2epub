@@ -553,7 +553,6 @@ class Article:
         self.interface = crawler.interface
         self.dirs = crawler.dirs
         self.comments = ""  # TODO: should be a list in the future
-        self.include_images = crawler.include_images
         self.content_xpath = crawler.content_xpath
         self.images_regex = crawler.images_regex
         self.language = crawler.language

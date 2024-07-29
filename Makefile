@@ -3,4 +3,4 @@
 
 format:
 	python -m ruff format .
-	python -m ruff check . --fi
+	python -m ruff check . --fix
