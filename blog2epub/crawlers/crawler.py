@@ -8,7 +8,6 @@ import logging
 import os
 import re
 import time
-from abc import ABC, abstractmethod
 from datetime import datetime
 from http.cookiejar import CookieJar
 from pathlib import Path
@@ -23,6 +22,7 @@ from lxml.html.soupparser import fromstring
 from PIL import Image
 from pydantic import HttpUrl
 
+from blog2epub.crawlers.abstract import AbstractCrawler
 from blog2epub.common.book import Book
 from blog2epub.common.crawler import (
     prepare_file_name,
@@ -33,17 +33,6 @@ from blog2epub.common.crawler import (
 from blog2epub.common.interfaces import EmptyInterface
 from blog2epub.models.book import BookModel, DirModel, ArticleModel, ImageModel
 
-
-class AbstractCrawler(ABC):
-    ignore_downloads = []
-
-    @abstractmethod
-    def crawl(self):
-        pass
-
-    @abstractmethod
-    def generate_ebook(self, **kwargs):
-        pass
 
 
 class Crawler(AbstractCrawler):
