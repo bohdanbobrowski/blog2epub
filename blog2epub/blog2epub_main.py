@@ -2,8 +2,7 @@ from typing import Dict
 
 from blog2epub.common.exceptions import NoCrawlerDetectedError
 from blog2epub.common.globals import VERSION
-from blog2epub.crawlers.blogspot import CrawlerBlogspot
-from blog2epub.crawlers.wordpress import CrawlerWordpress
+from blog2epub.crawlers import BlogspotCrawler, WordpressCrawler
 
 
 class Blog2Epub:
@@ -19,8 +18,8 @@ class Blog2Epub:
     @staticmethod
     def select_crawler(params: Dict):
         if params["url"].find(".blogspot.") > -1:
-            return CrawlerBlogspot(**params)
-        return CrawlerWordpress(**params)
+            return BlogspotCrawler(**params)
+        return WordpressCrawler(**params)
 
     def download(self):
         self.crawler.crawl()

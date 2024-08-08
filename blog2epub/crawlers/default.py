@@ -34,8 +34,7 @@ from blog2epub.common.interfaces import EmptyInterface
 from blog2epub.models.book import BookModel, DirModel, ArticleModel, ImageModel
 
 
-
-class Crawler(AbstractCrawler):
+class DefaultCrawler(AbstractCrawler):
     """
     Universal blog crawler.
     """

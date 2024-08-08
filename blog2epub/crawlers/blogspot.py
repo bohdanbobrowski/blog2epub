@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 # -*- coding : utf-8 -*-
-from blog2epub.crawlers.crawler import Crawler
+from blog2epub.crawlers.default import DefaultCrawler
 
 
-class CrawlerBlogspot(Crawler):
+class BlogspotCrawler(DefaultCrawler):
     """Blogspot.com crawler."""
 
     content_xpath = (

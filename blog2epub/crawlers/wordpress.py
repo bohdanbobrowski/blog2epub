@@ -8,10 +8,10 @@ import atoma
 from lxml.ElementInclude import etree
 from lxml.html.soupparser import fromstring
 
-from blog2epub.crawlers.crawler import Article, Crawler
+from blog2epub.crawlers.default import Article, DefaultCrawler
 
 
-class CrawlerWordpress(Crawler):
+class WordpressCrawler(DefaultCrawler):
     """Wordpress.com crawler."""
 
     article_class = "ArticleWordpressCom"
