@@ -154,7 +154,9 @@ class Downloader:
             ):
                 picture.thumbnail(self.images_size, Image.LANCZOS)  # type: ignore
             converted_picture = picture.convert("L")
-            converted_picture.save(resized_fn, format="JPEG", quality=self.images_quality)
+            converted_picture.save(
+                resized_fn, format="JPEG", quality=self.images_quality
+            )
             os.remove(original_fn)
             return img_hash + ".jpg"
         return None

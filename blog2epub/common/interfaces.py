@@ -5,7 +5,7 @@ class EmptyInterface(ABC):
     """Empty interface for script output."""
 
     @abstractmethod
-    def print(self, **kwargs):
+    def print(self, text: str):
         pass
 
     @abstractmethod

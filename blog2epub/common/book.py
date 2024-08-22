@@ -1,3 +1,4 @@
+import datetime
 import locale
 import os
 import re
@@ -5,7 +6,7 @@ import tempfile
 import zipfile
 from typing import Optional, List
 
-from ebooklib import epub
+from ebooklib import epub  # type: ignore
 
 from blog2epub.common.cover import Cover
 from blog2epub.common.interfaces import EmptyInterface
@@ -75,19 +76,18 @@ class Book:
         self.description = book_data.description
         self.url = book_data.url
         self.dirs: DirModel = book_data.dirs
-        self.start = None
-        self.end = None
+        self.start: Optional[datetime.date]
+        self.end: Optional[datetime.date]
         self.subtitle = None
         self.images = book_data.images
         self.configuration = configuration
         self.interface = interface
         self._set_locale()
-        self.chapters = []
-        self.table_of_contents = []
-        self.file_name = None
+        self.chapters: List[Chapter] = []
+        self.table_of_contents: List[epub.EpubHtml] = []
+        self.file_name: str = self._get_new_file_name()
         self.file_name_prefix = book_data.file_name_prefix
-        self.file_full_path = None
-        self.update_file_name()
+        self.file_full_path: Optional[str] = None
         self.destination_folder = destination_folder
         self.cover = None
         self.cover_image_path = None
@@ -111,18 +111,16 @@ class Book:
             return self.start.strftime("%d %B") + " - " + self.end.strftime("%d %B %Y")
         return self.start.strftime("%d %B %Y") + " - " + self.end.strftime("%d %B %Y")
 
-    def update_file_name(self, file_name: Optional[str] = None):
-        if file_name is None:
-            file_name = self.file_name_prefix
-            if self.start:
-                start_date = self.start.strftime("%Y.%m.%d")
-                if self.end and self.start != self.end:
-                    end_date = self.end.strftime("%Y.%m.%d")
-                    file_name = file_name + "_" + start_date + "-" + end_date
-                else:
-                    file_name = file_name + "_" + start_date
-            file_name += ".epub"
-        self.file_name = file_name
+    def _get_new_file_name(self) -> str:
+        new_file_name = self.file_name_prefix
+        if self.start:
+            start_date: str = self.start.strftime("%Y.%m.%d")
+            if self.end and self.start != self.end:
+                end_date: str = self.end.strftime("%Y.%m.%d")
+                new_file_name = f"{self.file_name_prefix}_{start_date}-{end_date}"
+            else:
+                new_file_name = f"{self.file_name_prefix}_{start_date}"
+        return f"{new_file_name}.epub"
 
     def _add_chapters(self, articles: List[ArticleModel]):
         self.chapters = []
@@ -245,7 +243,7 @@ class Book:
         ebook = epub.EpubBook()
         ebook.set_title(self.title)
         ebook.set_language(self.configuration.language)
-        ebook.add_author(self.title + ", " + self.file_name_prefix)
+        ebook.add_author(f"{self.title}, {self.file_name_prefix}")
         for chapter in self.chapters:
             ebook.add_item(chapter.epub)
             ebook.spine.append(chapter.epub)  # Important!
@@ -259,7 +257,7 @@ class Book:
             ebook.add_metadata("DC", "description", "\n".join(self.description))
         return ebook
 
-    def _get_file_full_path(self, destination_folder: str) -> str:
+    def _get_file_full_path(self, destination_folder: Optional[str]) -> str:
         if destination_folder is None:
             return os.path.join(self.destination_folder, self.file_name)
         else:
@@ -287,8 +285,8 @@ class Book:
         self._add_chapters(articles)
         self._update_start_end_date(articles)
         self.subtitle = self._get_subtitle()
-        self.update_file_name(file_name=file_name)
-        self.book: epub.EpubBook = self._get_ebook()
+        self.file_name = file_name or self._get_new_file_name()
+        self.book = self._get_ebook()
         self._include_images()
         self.file_full_path = self._get_file_full_path(destination_folder)
         self.file_full_path = self._prevent_overwrite(self.file_full_path)
@@ -297,12 +295,14 @@ class Book:
 
 
 class Chapter:
+    epub: Optional[epub.EpubHtml] = None
+
     def __init__(self, article, number, language):
         """
         :param article: Article class
         """
         uid = "chapter_" + str(number)
-        self.epub = epub.EpubHtml(
+        self.epub: epub.EpubHtml = epub.EpubHtml(
             title=article.title, uid=uid, file_name=uid + ".xhtml", lang=language
         )
         tags = self._print_tags(article)
