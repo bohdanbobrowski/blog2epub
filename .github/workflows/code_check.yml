@@ -18,8 +18,10 @@ jobs:
       run: |
         python -m pip install poetry
         poetry install --with=dev
-    - name: Analysing the code with ruff
+    - name: Run Ruff linter and code formatter
       run: |
         poetry run ruff format . --check
         poetry run ruff check .
-
+#    - name: Static code analysys with mypy
+#      run: |
+#        poetry run mypy .
