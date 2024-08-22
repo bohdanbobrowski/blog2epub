@@ -11,13 +11,13 @@ import time
 from datetime import datetime
 from http.cookiejar import CookieJar
 from pathlib import Path
-from typing import Optional, List
+from typing import Optional, List, Dict
 from urllib.parse import urlparse
 
-import atoma
+import atoma  # type: ignore
 import dateutil.parser
 import requests
-from lxml.ElementInclude import etree
+from lxml.ElementInclude import etree  # type: ignore
 from lxml.html.soupparser import fromstring
 from PIL import Image
 from pydantic import HttpUrl
@@ -32,6 +32,7 @@ from blog2epub.common.crawler import (
 )
 from blog2epub.common.interfaces import EmptyInterface
 from blog2epub.models.book import BookModel, DirModel, ArticleModel, ImageModel
+from blog2epub.models.configuration import ConfigurationModel
 
 
 class DefaultCrawler(AbstractCrawler):
@@ -57,13 +58,13 @@ class DefaultCrawler(AbstractCrawler):
         images_quality: int = 40,
         start=None,
         end=None,
-        limit: int = None,
-        skip: int = None,
+        limit: Optional[int] = None,
+        skip: Optional[int] = None,
         force_download: bool = False,
-        file_name: str = None,
+        file_name: Optional[str] = None,
         destination_folder: str = "./",
-        cache_folder: str = None,
-        language: str = None,
+        cache_folder: Optional[str] = None,
+        language: str = "en",
         interface=None,
     ):
         self.url = prepare_url(url)
@@ -84,17 +85,17 @@ class DefaultCrawler(AbstractCrawler):
         self.force_download = force_download
         self.interface = self._get_the_interface(interface)
         self.dirs = Dirs(self.cache_folder, self.url.replace("/", "_"))
-        self.book = None
+        self.book: Optional[Book]
         self.title = None
         self.subtitle = None
         self.description = None
-        self.language = language
+        self.language: str = language
         self.atom_feed = False
-        self.articles = []
+        self.articles: List[Article] = []
         self.article_counter = 0
-        self.images = []
+        self.images: List[str] = []
         self.downloader = Downloader(self)
-        self.tags = {}
+        self.tags: Dict = {}
         self.active = False
         self.cancelled = False
 
@@ -255,7 +256,7 @@ class DefaultCrawler(AbstractCrawler):
         self.atom_feed = atoma.parse_atom_bytes(bytes(atom_content, encoding="utf-8"))
         return True
 
-    def _get_url_to_crawl(self, tree) -> str:
+    def _get_url_to_crawl(self, tree) -> str | None:
         url_to_crawl = None
         if tree.xpath('//a[@class="blog-pager-older-link"]/@href'):
             url_to_crawl = tree.xpath('//a[@class="blog-pager-older-link"]/@href')[0]
@@ -346,12 +347,19 @@ class DefaultCrawler(AbstractCrawler):
 
     def generate_ebook(
         self,
-        articles: List[int],
-        destination_folder: Optional[str],
+        articles: List[ArticleModel],
+        destination_folder: str = ".",
         file_name: Optional[str] = None,
     ):
         if articles:
-            self.book = Book(self)
+            self.book = Book(
+                book_data=self,
+                configuration=ConfigurationModel(
+                    language=self.language,
+                ),
+                interface=self.interface,
+                destination_folder=destination_folder,
+            )
             self.book.save(
                 articles=articles,
                 destination_folder=destination_folder,
@@ -363,7 +371,7 @@ class DefaultCrawler(AbstractCrawler):
             return False
 
 
-class Dirs:
+class Dirs(DirModel):
     """
     Tiny class to temporary directories configurations.
     """
@@ -374,12 +382,13 @@ class Dirs:
             if not os.path.exists(p):
                 os.makedirs(p)
 
-    def __init__(self, cache_folder, name):
-        self.path = os.path.join(cache_folder, name)
+    def __init__(self, cache_folder, name, **kwargs):
+        self.path = str(os.path.join(cache_folder, name))
         self.html = os.path.join(self.path, "html")
         self.images = os.path.join(self.path, "images")
         self.originals = os.path.join(self.path, "originals")
         self.prepare_directories()
+        super().__init__(**kwargs)
 
 
 class Downloader:
@@ -441,7 +450,7 @@ class Downloader:
         self.file_write(contents, filepath)
         return contents
 
-    def image_download(self, url: str, filepath: str) -> bool:
+    def image_download(self, url: str, filepath: str) -> bool | None:
         if self._is_url_in_ignored(url):
             return None
         self.dirs.prepare_directories()
@@ -521,9 +530,9 @@ class Downloader:
                 picture.size[0] > self.images_size[0]
                 or picture.size[1] > self.images_size[1]
             ):
-                picture.thumbnail(self.images_size, Image.LANCZOS)
-            picture = picture.convert("L")
-            picture.save(resized_fn, format="JPEG", quality=self.images_quality)
+                picture.thumbnail(self.images_size, Image.LANCZOS)  # type: ignore
+            converted_picture = picture.convert("L")
+            converted_picture.save(resized_fn, format="JPEG", quality=self.images_quality)
             os.remove(original_fn)
             return img_hash + ".jpg"
         return None
@@ -537,14 +546,14 @@ class Article:
     def __init__(self, url, title, crawler):
         self.url = url
         self.title = title
-        self.tags = []
+        self.tags: List[str] = []
         self.interface = crawler.interface
         self.dirs = crawler.dirs
         self.comments = ""  # TODO: should be a list in the future
         self.content_xpath = crawler.content_xpath
         self.images_regex = crawler.images_regex
         self.language = crawler.language
-        self.images = []
+        self.images: List[str] = []
         self.images_captions = []
         self.html = None
         self.content = None

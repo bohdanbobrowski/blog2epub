@@ -8,7 +8,7 @@ class UniversalCrawler(AbstractCrawler):
     """Attempt to create universal crawler, that can scrap website content similar like Firefox does prepare read-view
     basing on sitemap.xml file."""
 
-    def _get_sitemaps(self, sitemaps_content: Optional[str] = None) -> List[str]:
+    def _get_sitemaps(self, sitemaps_content: Optional[str] = None) -> List[str] | None:
         robot_parser = urllib.robotparser.RobotFileParser()
         robot_parser.set_url("https://starybezpiek.blogspot.com/robots.txt")
         robot_parser.read()

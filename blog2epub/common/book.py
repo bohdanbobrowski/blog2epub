@@ -10,6 +10,8 @@ from ebooklib import epub  # type: ignore
 
 from blog2epub.common.cover import Cover
 from blog2epub.common.interfaces import EmptyInterface
+from blog2epub.crawlers import AbstractCrawler, DefaultCrawler
+from blog2epub.crawlers.default import Dirs
 from blog2epub.models.book import BookModel, DirModel, ArticleModel
 from blog2epub.models.configuration import ConfigurationModel
 
@@ -67,7 +69,7 @@ class Book:
 
     def __init__(
         self,
-        book_data: BookModel,
+        book_data: DefaultCrawler,
         configuration: ConfigurationModel,
         interface: EmptyInterface,
         destination_folder: str,
@@ -86,7 +88,7 @@ class Book:
         self.chapters: List[Chapter] = []
         self.table_of_contents: List[epub.EpubHtml] = []
         self.file_name: str = self._get_new_file_name()
-        self.file_name_prefix = book_data.file_name_prefix
+        self.file_name_prefix = book_data.file_name
         self.file_full_path: Optional[str] = None
         self.destination_folder = destination_folder
         self.cover = None

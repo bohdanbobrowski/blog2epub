@@ -13,10 +13,10 @@ from threading import Thread
 from typing import Optional, List
 from urllib import parse
 
-from kivy.uix.anchorlayout import AnchorLayout
-from kivy.uix.floatlayout import FloatLayout
-from kivymd.uix.datatables import MDDataTable
-from kivymd.uix.tab import MDTabsBase, MDTabs
+from kivy.uix.anchorlayout import AnchorLayout  # type: ignore
+from kivy.uix.floatlayout import FloatLayout  # type: ignore
+from kivymd.uix.datatables import MDDataTable  # type: ignore
+from kivymd.uix.tab import MDTabsBase, MDTabs  # type: ignore
 
 from blog2epub.common.book import Book
 from blog2epub.models.book import ArticleModel
@@ -25,23 +25,23 @@ from blog2epub.models.configuration import ConfigurationModel
 if sys.__stdout__ is None or sys.__stderr__ is None:
     os.environ["KIVY_NO_CONSOLELOG"] = "1"
 
-from kivy.config import Config
+from kivy.config import Config  # type: ignore
 
 Config.set("input", "mouse", "mouse,multitouch_on_demand")
 Config.set("graphics", "resizable", False)
 
-from kivymd.app import MDApp
-from kivy.clock import mainthread
-from kivy.core.window import Window
-from kivy.metrics import Metrics, dp
-from kivymd.uix.boxlayout import MDBoxLayout
-from kivymd.uix.button import MDFlatButton, MDRectangleFlatIconButton
-from kivy.uix.checkbox import CheckBox
-from kivy.uix.image import Image
-from kivymd.uix.label import MDLabel
-from kivy.uix.popup import Popup
-from kivy.uix.textinput import TextInput
-from kivymd.uix.dropdownitem import MDDropDownItem  # noqa # pylint: disable=unused-import
+from kivymd.app import MDApp  # type: ignore
+from kivy.clock import mainthread  # type: ignore
+from kivy.core.window import Window  # type: ignore
+from kivy.metrics import Metrics, dp  # type: ignore
+from kivymd.uix.boxlayout import MDBoxLayout  # type: ignore
+from kivymd.uix.button import MDFlatButton, MDRectangleFlatIconButton  # type: ignore
+from kivy.uix.checkbox import CheckBox  # type: ignore
+from kivy.uix.image import Image  # type: ignore
+from kivymd.uix.label import MDLabel  # type: ignore
+from kivy.uix.popup import Popup  # type: ignore
+from kivy.uix.textinput import TextInput  # type: ignore
+from kivymd.uix.dropdownitem import MDDropDownItem  # type: ignore # noqa
 
 from blog2epub import Blog2Epub
 from blog2epub.common.assets import asset_path, open_file

@@ -5,7 +5,7 @@ def prepare_url(url: str) -> str:
     return url.replace("http:", "").replace("https:", "").strip("/")
 
 
-def prepare_file_name(file_name: str, url: str) -> str:
+def prepare_file_name(file_name: str | None, url: str) -> str:
     if file_name:
         return file_name
     return url.replace("/", "_")

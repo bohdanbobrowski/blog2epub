@@ -4,8 +4,8 @@
 import html
 import re
 
-import atoma
-from lxml.ElementInclude import etree
+import atoma  # type: ignore
+from lxml.ElementInclude import etree  # type: ignore
 from lxml.html.soupparser import fromstring
 
 from blog2epub.crawlers.default import Article, DefaultCrawler
