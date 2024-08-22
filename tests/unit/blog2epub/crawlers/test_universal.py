@@ -12,9 +12,10 @@ class TestUniversalCrawler(unittest.TestCase):
         # Given
         with open("tests/unit/blog2epub/crawlers/data/robots-1.txt") as f:
             given_robots = f.read()
+        sitemaps = self.crawler._get_sitemaps()
         # When
         # Then
-        print(given_robots)
+        print(sitemaps)
 
     def test_sitemap_1(self):
         # Given

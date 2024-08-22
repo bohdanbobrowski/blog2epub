@@ -1,8 +1,9 @@
 from abc import ABC, abstractmethod
+from typing import List
 
 
 class AbstractCrawler(ABC):
-    ignore_downloads = []
+    ignore_downloads: List[str] = []
 
     @abstractmethod
     def crawl(self):
