@@ -10,9 +10,8 @@ from ebooklib import epub  # type: ignore
 
 from blog2epub.common.cover import Cover
 from blog2epub.common.interfaces import EmptyInterface
-from blog2epub.crawlers import AbstractCrawler, DefaultCrawler
-from blog2epub.crawlers.default import Dirs
-from blog2epub.models.book import BookModel, DirModel, ArticleModel
+from blog2epub.crawlers import DefaultCrawler
+from blog2epub.models.book import DirModel, ArticleModel
 from blog2epub.models.configuration import ConfigurationModel
 
 
