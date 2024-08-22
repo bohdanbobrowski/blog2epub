@@ -10,5 +10,7 @@ class AbstractCrawler(ABC):
         pass
 
     @abstractmethod
-    def generate_ebook(self, **kwargs):  # TODO: this should be removed I guess crawler's job is just to prepare data
+    def generate_ebook(
+        self, **kwargs
+    ):  # TODO: this should be removed I guess crawler's job is just to prepare data
         pass
