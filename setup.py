@@ -2,7 +2,7 @@
 # -*- coding : utf-8 -*-
 # Author: Bohdan Bobrowski
 
-from distutils.core import setup
+from distutils.core import setup  # type: ignore
 
 from blog2epub.common.globals import VERSION
 

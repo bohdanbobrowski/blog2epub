@@ -3,12 +3,13 @@ import hashlib
 import imghdr
 import os
 import re
-from datetime import time
+
 from http.cookiejar import CookieJar
 from typing import Optional
 from urllib.parse import urlparse
-
+import time
 from PIL import Image
+
 import requests
 
 
@@ -71,7 +72,7 @@ class Downloader:
         self.file_write(contents, filepath)
         return contents
 
-    def image_download(self, url: str, filepath: str) -> bool:
+    def image_download(self, url: str, filepath: str) -> Optional[bool]:
         if self._is_url_in_ignored(url):
             return None
         self.dirs.prepare_directories()
@@ -151,9 +152,9 @@ class Downloader:
                 picture.size[0] > self.images_size[0]
                 or picture.size[1] > self.images_size[1]
             ):
-                picture.thumbnail(self.images_size, Image.LANCZOS)
-            picture = picture.convert("L")
-            picture.save(resized_fn, format="JPEG", quality=self.images_quality)
+                picture.thumbnail(self.images_size, Image.LANCZOS)  # type: ignore
+            converted_picture = picture.convert("L")
+            converted_picture.save(resized_fn, format="JPEG", quality=self.images_quality)
             os.remove(original_fn)
             return img_hash + ".jpg"
         return None

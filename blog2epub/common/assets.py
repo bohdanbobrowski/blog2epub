@@ -5,7 +5,7 @@ import sys
 
 def asset_path(filename: str) -> str:
     try:
-        base_path = sys._MEIPASS
+        base_path = sys._MEIPASS  # type: ignore
     except AttributeError:
         base_path = os.path.abspath("./assets/")
     if os.path.isfile(os.path.join(base_path, filename)):
