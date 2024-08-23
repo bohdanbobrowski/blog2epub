@@ -24,4 +24,4 @@ jobs:
         poetry run ruff check .
     - name: Static code analysys with mypy
       run: |
-        poetry run mypy .
+        poetry run mypy . 

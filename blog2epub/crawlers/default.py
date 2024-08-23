@@ -22,6 +22,7 @@ from lxml.html.soupparser import fromstring
 from PIL import Image
 from pydantic import HttpUrl
 
+from blog2epub.common.downloader import prepare_directories
 from blog2epub.crawlers.abstract import AbstractCrawler
 from blog2epub.common.book import Book
 from blog2epub.common.crawler import (
@@ -63,8 +64,8 @@ class DefaultCrawler(AbstractCrawler):
         force_download: bool = False,
         file_name: Optional[str] = None,
         destination_folder: str = "./",
-        cache_folder: Optional[str] = None,
-        language: str = "en",
+        cache_folder: str = os.path.join(str(Path.home()), ".blog2epub"),
+        language: Optional[str] = None,
         interface=None,
     ):
         self.url = prepare_url(url)
@@ -73,8 +74,6 @@ class DefaultCrawler(AbstractCrawler):
         self.file_name = prepare_file_name(file_name, self.url)
         self.destination_folder = destination_folder
         self.cache_folder = cache_folder
-        if cache_folder is None:
-            self.cache_folder = os.path.join(str(Path.home()), ".blog2epub")
         self.include_images = include_images
         self.images_quality = images_quality
         self.images_size = images_size
@@ -84,12 +83,14 @@ class DefaultCrawler(AbstractCrawler):
         self.skip = skip
         self.force_download = force_download
         self.interface = self._get_the_interface(interface)
-        self.dirs = Dirs(self.cache_folder, self.url.replace("/", "_"))
+        self.dirs = DirModel(
+            path=str(os.path.join(self.cache_folder, self.url.replace("/", "_"))),
+        )
         self.book: Optional[Book]
         self.title = None
         self.subtitle = None
         self.description = None
-        self.language: str = language
+        self.language: str | None = language
         self.atom_feed = False
         self.articles: List[Article] = []
         self.article_counter = 0
@@ -134,12 +135,7 @@ class DefaultCrawler(AbstractCrawler):
             title=self.title,
             subtitle=self.subtitle,
             description=self.description,
-            dirs=DirModel(
-                path=self.dirs.path,
-                html=self.dirs.html,
-                images=self.dirs.images,
-                originals=self.dirs.originals,
-            ),
+            dirs=DirModel(path=self.dirs.path),
             articles=self._get_articles_list(),
             images=self._get_images(),
             start=self.start,
@@ -186,25 +182,17 @@ class DefaultCrawler(AbstractCrawler):
     def get_date(str_date):
         return re.sub(r"[^\,]*, ", "", str_date)
 
-    def _set_blog_language(self, content):
-        if self.language is None and re.search(r"'lang':[\s]*'([a-z^']+)'", content):
-            self.language = (
-                re.search(r"'lang':[\s]*'([a-z^']+)'", content).group(1).strip()
-            )
-        if self.language is None and re.search(r"lang=['\"]([a-z]+)['\"]", content):
-            self.language = (
-                re.search(r"lang=['\"]([a-z]+)['\"]", content).group(1).strip()
-            )
-        if self.language is None and re.search(
-            r"locale['\"]:[\s]*['\"]([a-z]+)['\"]", content
-        ):
-            self.language = (
-                re.search(r"locale['\"]:[\s]*['\"]([a-z]+)['\"]", content)
-                .group(1)
-                .strip()
-            )
-        if self.language is None:
-            self.language = "en"
+    def _get_blog_language(self, content) -> str:
+        regex_patterns = [
+            r"'lang':[\s]*'([a-z^']+)'",
+            r"lang=['\"]([a-z]+)['\"]",
+            r"locale['\"]:[\s]*['\"]([a-z]+)['\"]",
+        ]
+        for r_pat in regex_patterns:
+            r_result = re.search(r_pat, content)
+            if r_result:
+                return r_result.group(1).strip()
+        return "en"
 
     def _get_blog_title(self, content):
         if re.search("<title>([^>^<]*)</title>", content):
@@ -331,7 +319,7 @@ class DefaultCrawler(AbstractCrawler):
         while self.url_to_crawl and not self.cancelled:
             content = self.downloader.get_content(self.url_to_crawl)
             tree = fromstring(content)
-            self._set_blog_language(content)
+            self.language = self._get_blog_language(content)
             self.images = self.images + self._get_header_images(tree)
             self.description = self._get_blog_description(tree)
             self.title = self._get_blog_title(content)
@@ -355,7 +343,7 @@ class DefaultCrawler(AbstractCrawler):
             self.book = Book(
                 book_data=self,
                 configuration=ConfigurationModel(
-                    language=self.language,
+                    language=self.language or "en",
                 ),
                 interface=self.interface,
                 destination_folder=destination_folder,
@@ -369,26 +357,6 @@ class DefaultCrawler(AbstractCrawler):
         else:
             self.interface.print("No articles found.")
             return False
-
-
-class Dirs(DirModel):
-    """
-    Tiny class to temporary directories configurations.
-    """
-
-    def prepare_directories(self):
-        paths = [self.html, self.images, self.originals]
-        for p in paths:
-            if not os.path.exists(p):
-                os.makedirs(p)
-
-    def __init__(self, cache_folder, name, **kwargs):
-        self.path = str(os.path.join(cache_folder, name))
-        self.html = os.path.join(self.path, "html")
-        self.images = os.path.join(self.path, "images")
-        self.originals = os.path.join(self.path, "originals")
-        self.prepare_directories()
-        super().__init__(**kwargs)
 
 
 class Downloader:
@@ -439,7 +407,7 @@ class Downloader:
     def file_download(self, url: str, filepath: str) -> Optional[str]:
         if self._is_url_in_ignored(url):
             return None
-        self.dirs.prepare_directories()
+        prepare_directories(self.dirs)
         try:
             response = self.session.get(url, cookies=self.cookies, headers=self.headers)
         except requests.exceptions.ConnectionError:
@@ -453,7 +421,7 @@ class Downloader:
     def image_download(self, url: str, filepath: str) -> bool | None:
         if self._is_url_in_ignored(url):
             return None
-        self.dirs.prepare_directories()
+        prepare_directories(self.dirs)
         try:
             response = self.session.get(url, cookies=self.cookies, headers=self.headers)
         except requests.exceptions.ConnectionError:
@@ -550,11 +518,11 @@ class Article:
         self.title = title
         self.tags: List[str] = []
         self.interface = crawler.interface
-        self.dirs = crawler.dirs
+        self.dirs: DirModel = crawler.dirs
         self.comments = ""  # TODO: should be a list in the future
         self.content_xpath = crawler.content_xpath
         self.images_regex = crawler.images_regex
-        self.language = crawler.language
+        self.language: str = crawler.language
         self.images: List[str] = []
         self.images_captions = []
         self.html = None

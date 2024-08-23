@@ -4,13 +4,12 @@ import os
 import re
 import tempfile
 import zipfile
-from typing import Optional, List
+from typing import Optional, List, Any
 
-from ebooklib import epub  # type: ignore
+from ebooklib.epub import EpubHtml, EpubBook, EpubNcx, EpubNav, EpubItem, write_epub  # type: ignore
 
 from blog2epub.common.cover import Cover
 from blog2epub.common.interfaces import EmptyInterface
-from blog2epub.crawlers import DefaultCrawler
 from blog2epub.models.book import DirModel, ArticleModel
 from blog2epub.models.configuration import ConfigurationModel
 
@@ -66,9 +65,16 @@ class Book:
     </body>
     </html>"""
 
+    start: datetime.date | None = None
+    end: datetime.date | None = None
+    file_full_path: str | None = None
+    cover: Cover | None = None
+    cover_image_path: str | None = None
+    book: EpubBook | None = None
+
     def __init__(
         self,
-        book_data: DefaultCrawler,
+        book_data: Any,
         configuration: ConfigurationModel,
         interface: EmptyInterface,
         destination_folder: str,
@@ -77,22 +83,16 @@ class Book:
         self.description = book_data.description
         self.url = book_data.url
         self.dirs: DirModel = book_data.dirs
-        self.start: Optional[datetime.date]
-        self.end: Optional[datetime.date]
         self.subtitle = None
         self.images = book_data.images
         self.configuration = configuration
         self.interface = interface
         self._set_locale()
         self.chapters: List[Chapter] = []
-        self.table_of_contents: List[epub.EpubHtml] = []
+        self.table_of_contents: List[EpubHtml] = []
+        self.file_name_prefix: str = book_data.file_name_prefix
         self.file_name: str = self._get_new_file_name()
-        self.file_name_prefix = book_data.file_name
-        self.file_full_path: Optional[str] = None
         self.destination_folder = destination_folder
-        self.cover = None
-        self.cover_image_path = None
-        self.book = None
 
     def _set_locale(self):
         try:
@@ -196,14 +196,14 @@ class Book:
         content_opt = content_opt.decode("utf-8").replace("<manifest>", new_manifest)
         return content_opt
 
-    def _add_table_of_contents(self, ebook: epub.EpubBook):
+    def _add_table_of_contents(self, ebook: EpubBook):
         self.table_of_contents.reverse()
         ebook.toc = self.table_of_contents
-        ebook.add_item(epub.EpubNcx())
-        ebook.add_item(epub.EpubNav())
+        ebook.add_item(EpubNcx())
+        ebook.add_item(EpubNav())
 
-    def _add_epub_css(self, ebook: epub.EpubBook):
-        nav_css = epub.EpubItem(
+    def _add_epub_css(self, ebook: EpubBook):
+        nav_css = EpubItem(
             uid="style_nav",
             file_name="style/nav.css",
             media_type="text/css",
@@ -222,7 +222,7 @@ class Book:
                 ):
                     with open(os.path.join(self.dirs.images, image.hash), "rb") as f:
                         image_content = f.read()
-                    epub_img = epub.EpubItem(
+                    epub_img = EpubItem(
                         uid="img%s" % i,
                         file_name="images/" + image.hash,
                         media_type="image/jpeg",
@@ -240,8 +240,8 @@ class Book:
         self.start = article_dates[0]
         self.end = article_dates[-1]
 
-    def _get_ebook(self) -> epub.EpubBook:
-        ebook = epub.EpubBook()
+    def _get_ebook(self) -> EpubBook:
+        ebook = EpubBook()
         ebook.set_title(self.title)
         ebook.set_language(self.configuration.language)
         ebook.add_author(f"{self.title}, {self.file_name_prefix}")
@@ -291,19 +291,19 @@ class Book:
         self._include_images()
         self.file_full_path = self._get_file_full_path(destination_folder)
         self.file_full_path = self._prevent_overwrite(self.file_full_path)
-        epub.write_epub(self.file_full_path, self.book, {})
+        write_epub(self.file_full_path, self.book, {})
         self._add_cover()
 
 
 class Chapter:
-    epub: Optional[epub.EpubHtml] = None
+    epub: Optional[EpubHtml] = None
 
     def __init__(self, article, number, language):
         """
         :param article: Article class
         """
         uid = "chapter_" + str(number)
-        self.epub: epub.EpubHtml = epub.EpubHtml(
+        self.epub: EpubHtml = EpubHtml(
             title=article.title, uid=uid, file_name=uid + ".xhtml", lang=language
         )
         tags = self._print_tags(article)

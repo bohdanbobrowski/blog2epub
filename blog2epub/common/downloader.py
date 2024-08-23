@@ -12,6 +12,15 @@ from PIL import Image
 
 import requests
 
+from blog2epub.models.book import DirModel
+
+
+def prepare_directories(dirs: DirModel):
+    paths = [dirs.html, dirs.images, dirs.originals]
+    for p in paths:
+        if not os.path.exists(p):
+            os.makedirs(p)
+
 
 class Downloader:
     def __init__(self, crawler):
@@ -61,7 +70,7 @@ class Downloader:
     def file_download(self, url: str, filepath: str) -> Optional[str]:
         if self._is_url_in_ignored(url):
             return None
-        self.dirs.prepare_directories()
+        prepare_directories(self.dirs)
         try:
             response = self.session.get(url, cookies=self.cookies, headers=self.headers)
         except requests.exceptions.ConnectionError:
@@ -75,7 +84,7 @@ class Downloader:
     def image_download(self, url: str, filepath: str) -> Optional[bool]:
         if self._is_url_in_ignored(url):
             return None
-        self.dirs.prepare_directories()
+        prepare_directories(self.dirs)
         try:
             response = self.session.get(url, cookies=self.cookies, headers=self.headers)
         except requests.exceptions.ConnectionError:

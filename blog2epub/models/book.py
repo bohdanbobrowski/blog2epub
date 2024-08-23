@@ -1,3 +1,4 @@
+import os
 from datetime import datetime
 from typing import List, Optional
 
@@ -34,9 +35,18 @@ class ImageModel(BaseModel):
 
 class DirModel(BaseModel):
     path: str
-    html: str
-    images: str
-    originals: str
+
+    @property
+    def html(self) -> str:
+        return os.path.join(self.path, "html")
+
+    @property
+    def images(self) -> str:
+        return os.path.join(self.path, "images")
+
+    @property
+    def originals(self) -> str:
+        return os.path.join(self.path, "originals")
 
 
 class BookModel(BaseModel):
