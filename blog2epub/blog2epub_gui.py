@@ -14,9 +14,11 @@ from typing import Optional, List
 from urllib import parse
 
 from kivy.uix.anchorlayout import AnchorLayout  # type: ignore
-from kivy.uix.floatlayout import FloatLayout  # type: ignore
+from kivy.uix.boxlayout import BoxLayout
 from kivymd.uix.datatables import MDDataTable  # type: ignore
 from kivymd.uix.tab import MDTabsBase, MDTabs  # type: ignore
+
+from plyer import filechooser
 
 from blog2epub.common.book import Book
 from blog2epub.models.book import ArticleModel
@@ -35,7 +37,10 @@ from kivy.clock import mainthread  # type: ignore
 from kivy.core.window import Window  # type: ignore
 from kivy.metrics import Metrics, sp  # type: ignore
 from kivymd.uix.boxlayout import MDBoxLayout  # type: ignore
-from kivymd.uix.button import MDFlatButton, MDRectangleFlatIconButton  # type: ignore
+from kivymd.uix.button import (
+    MDFlatButton,
+    MDRoundFlatIconButton,
+)  # type: ignore
 from kivy.uix.checkbox import CheckBox  # type: ignore
 from kivy.uix.image import Image  # type: ignore
 from kivymd.uix.label import MDLabel  # type: ignore
@@ -163,6 +168,7 @@ class Blog2EpubKivyWindow(MDBoxLayout):
         self.blog2epub = None
         self.download_thread = None
         self.ebook_data = None
+        self.destination_folder = Path.home()
         self.configuration = ConfigurationModel()
 
         self.tabs = MDTabs()
@@ -257,28 +263,50 @@ class Blog2EpubKivyWindow(MDBoxLayout):
             padding=sp(16),
             disabled=True,
         )
+
         self.selected_label = MDLabel(
             text=f"Selected {0} articles.",
             halign="center",
             font_size=sp(16),
             font_name=UI_FONT_NAME,
-            size_hint=(1, 0.1),
+            size_hint=(1, 0.2),
         )
-        anchor_layout_one = AnchorLayout(anchor_x="center")
-        anchor_layout_one.add_widget(self.selected_label)
-        self.tab_generate.add_widget(anchor_layout_one)
-        self.generate_button = MDRectangleFlatIconButton(
+        tab_layout = BoxLayout(orientation="vertical", spacing=sp(10), padding=sp(16))
+        tab_layout.add_widget(self.selected_label)
+
+        self.destination_button = MDRoundFlatIconButton(
+            icon="folder",
+            text=f"Destination folder: {self.destination_folder}",
+            font_size=sp(16),
+        )
+        self.destination_button.bind(on_press=self.select_destination_folder)
+        self._put_element_in_anchor_layout(self.destination_button, tab_layout)
+
+        self.generate_button = MDRoundFlatIconButton(
             icon="cog",
             text="Generate",
-            line_color=(0, 0, 0, 0),
+            font_size=sp(16),
             disabled=True,
         )
         self.generate_button.bind(on_press=self.generate)
-        anchor_layout = AnchorLayout(anchor_x="center")
-        anchor_layout.add_widget(self.generate_button)
-        float_layout = FloatLayout()
-        float_layout.add_widget(anchor_layout)
-        self.tab_generate.add_widget(float_layout)
+        self._put_element_in_anchor_layout(self.generate_button, tab_layout)
+
+        self.tab_generate.add_widget(tab_layout)
+
+    def select_destination_folder(self, instance):
+        path = filechooser.choose_dir(
+            title="Select ebook destination",
+        )
+        logging.info(f"Selected path: {path}")
+        self.destination_folder = path[0]
+
+        self.destination_button.text = f"Destination folder: {self.destination_folder}"
+
+    @staticmethod
+    def _put_element_in_anchor_layout(element, layout):
+        anchor_layout = AnchorLayout(anchor_x="center", size_hint=(1, 0.04))
+        anchor_layout.add_widget(element)
+        layout.add_widget(anchor_layout)
 
     def _update_tab_generate(self):
         selected_no = 0
@@ -286,6 +314,7 @@ class Blog2EpubKivyWindow(MDBoxLayout):
             if art[0]:
                 selected_no += 1
         self.selected_label.text = f"Selected {selected_no} articles."
+
         if selected_no > 0:
             self.generate_button.disabled = False
         else:
@@ -371,10 +400,9 @@ class Blog2EpubKivyWindow(MDBoxLayout):
         )
         self.skip_entry.bind(text=self._allow_only_numbers)
         params_row.add_widget(self.skip_entry)
-        self.download_button = MDRectangleFlatIconButton(
+        self.download_button = MDRoundFlatIconButton(
             icon="download",
             text="Download",
-            line_color=(0, 0, 0, 0),
             size_hint=(0.2, 1),
         )
         self.download_button.bind(on_press=self.download)
@@ -455,9 +483,7 @@ class Blog2EpubKivyWindow(MDBoxLayout):
                 book_data=self.ebook_data,
                 configuration=self.configuration,
                 interface=self.interface,
-                destination_folder=str(
-                    Path.home()
-                ),  # TODO: Add possibility to change epub destination
+                destination_folder=self.destination_folder,
             )
             ebook.save(self._get_articles_to_save())
             self.popup_success(ebook.cover_image_path, ebook.file_full_path)
