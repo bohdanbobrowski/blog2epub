@@ -17,6 +17,7 @@ from kivy.uix.anchorlayout import AnchorLayout  # type: ignore
 from kivy.uix.boxlayout import BoxLayout  # type: ignore
 from kivymd.uix.datatables import MDDataTable  # type: ignore
 from kivymd.uix.tab import MDTabsBase, MDTabs  # type: ignore
+from kivymd.uix.textfield import MDTextField
 
 from plyer import filechooser  # type: ignore
 
@@ -38,7 +39,6 @@ from kivy.core.window import Window  # type: ignore
 from kivy.metrics import Metrics, sp  # type: ignore
 from kivymd.uix.boxlayout import MDBoxLayout  # type: ignore
 from kivymd.uix.button import MDFlatButton, MDRoundFlatIconButton  # type: ignore
-from kivy.uix.checkbox import CheckBox  # type: ignore
 from kivy.uix.image import Image  # type: ignore
 from kivymd.uix.label import MDLabel  # type: ignore
 from kivy.uix.popup import Popup  # type: ignore
@@ -79,40 +79,7 @@ logging.basicConfig(
 )
 
 
-class ArticleCheckbox(MDBoxLayout):
-    def __init__(self, title="", **kwargs):
-        super().__init__(**kwargs)
-        self.orientation = "horizontal"
-        self.size_hint_min = (1, 0.05)
-        self.check_box = CheckBox(active=True, size_hint=(0.2, 1))
-        self.add_widget(self.check_box)
-        self.label = StyledLabel(text=title, size_hint=(0.7, 1))
-        self.add_widget(self.label)
-
-
-class StyledLabel(MDLabel):
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-        self.font_size = sp(16)
-        self.font_name = UI_FONT_NAME
-        self.width = sp(100)
-        self.size_hint = (None, 1)
-
-
-class StyledTextInput(TextInput):
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-        self.font_size = sp(16)
-        self.font_name = UI_FONT_NAME
-        self.halign = "left"
-        self.valign = "center"
-        self.write_tab = False
-        self.multiline = False
-        self.size_hint = kwargs.get("size_hint", (0.25, 1))
-        self.text = kwargs.get("text", "")
-
-
-class UrlTextInput(StyledTextInput):
+class UrlTextInput(MDTextField):
     def keyboard_on_key_down(self, window, keycode, text, modifiers):
         # ↑ up
         if keycode[0] == 273 and (self.text == "" or self.text in URL_HISTORY):
@@ -121,34 +88,6 @@ class UrlTextInput(StyledTextInput):
         if keycode[0] == 274 and (self.text == "" or self.text in URL_HISTORY):
             self.text = next(URL_HISTORY_ITERATOR)
         return super().keyboard_on_key_down(window, keycode, text, modifiers)
-
-
-class NumberTextInput(StyledTextInput):
-    def keyboard_on_key_down(self, window, keycode, text, modifiers):
-        try:
-            value = int(self.text)
-        except ValueError:
-            value = 0
-        # ↑ up
-        if keycode[0] == 273:
-            value += 1
-        # ↓ down
-        if keycode[0] == 274:
-            value -= 1
-        if value > 0:
-            self.text = str(value)
-        else:
-            self.text = ""
-        return super().keyboard_on_key_down(window, keycode, text, modifiers)
-
-
-class StyledButton(MDFlatButton):
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-        self.font_size = sp(16)
-        self.font_name = UI_FONT_NAME
-        self.width = sp(50)
-        self.size_hint = (None, 1)
 
 
 class Tab(MDBoxLayout, MDTabsBase):
@@ -368,15 +307,11 @@ class Blog2EpubKivyWindow(MDBoxLayout):
         url_row = MDBoxLayout(
             orientation="horizontal", size_hint=(1, 0.08), spacing=sp(10)
         )
-        url_row.add_widget(StyledLabel(text="Url:"))
-        hint_text = ""
-        if SETTINGS.get("history"):
-            hint_text = "Press ↑↓ to browse in url history"
+
         self.url_entry = UrlTextInput(
-            size_hint=(0.8, 1),
+            hint_text="Blog url:",
             text=SETTINGS.get("url"),
-            hint_text=hint_text,
-            input_type="url",
+            helper_text="Press up/down to browse in url history",
         )
         url_row.add_widget(self.url_entry)
         return url_row
@@ -385,15 +320,13 @@ class Blog2EpubKivyWindow(MDBoxLayout):
         params_row = MDBoxLayout(
             orientation="horizontal", size_hint=(1, 0.08), spacing=sp(10)
         )
-        params_row.add_widget(StyledLabel(text="Limit:"))
-        self.limit_entry = NumberTextInput(
-            text=SETTINGS.get("limit"), input_type="number", hint_text="0"
+        self.limit_entry = MDTextField(
+            text=SETTINGS.get("limit"), input_type="number", hint_text="Articles limit:"
         )
         self.limit_entry.bind(text=self._allow_only_numbers)
         params_row.add_widget(self.limit_entry)
-        params_row.add_widget(StyledLabel(text="Skip:"))
-        self.skip_entry = NumberTextInput(
-            text=SETTINGS.get("skip"), input_type="number", hint_text="0"
+        self.skip_entry = MDTextField(
+            text=SETTINGS.get("skip"), input_type="number", hint_text="Skip:"
         )
         self.skip_entry.bind(text=self._allow_only_numbers)
         params_row.add_widget(self.skip_entry)
