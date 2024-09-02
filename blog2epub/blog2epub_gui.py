@@ -14,11 +14,11 @@ from typing import Optional, List
 from urllib import parse
 
 from kivy.uix.anchorlayout import AnchorLayout  # type: ignore
-from kivy.uix.boxlayout import BoxLayout
+from kivy.uix.boxlayout import BoxLayout  # type: ignore
 from kivymd.uix.datatables import MDDataTable  # type: ignore
 from kivymd.uix.tab import MDTabsBase, MDTabs  # type: ignore
 
-from plyer import filechooser
+from plyer import filechooser  # type: ignore
 
 from blog2epub.common.book import Book
 from blog2epub.models.book import ArticleModel
@@ -37,10 +37,7 @@ from kivy.clock import mainthread  # type: ignore
 from kivy.core.window import Window  # type: ignore
 from kivy.metrics import Metrics, sp  # type: ignore
 from kivymd.uix.boxlayout import MDBoxLayout  # type: ignore
-from kivymd.uix.button import (
-    MDFlatButton,
-    MDRoundFlatIconButton,
-)  # type: ignore
+from kivymd.uix.button import MDFlatButton, MDRoundFlatIconButton  # type: ignore
 from kivy.uix.checkbox import CheckBox  # type: ignore
 from kivy.uix.image import Image  # type: ignore
 from kivymd.uix.label import MDLabel  # type: ignore
