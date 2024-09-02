@@ -17,7 +17,7 @@ from kivy.uix.anchorlayout import AnchorLayout  # type: ignore
 from kivy.uix.boxlayout import BoxLayout  # type: ignore
 from kivymd.uix.datatables import MDDataTable  # type: ignore
 from kivymd.uix.tab import MDTabsBase, MDTabs  # type: ignore
-from kivymd.uix.textfield import MDTextField
+from kivymd.uix.textfield import MDTextField  # type: ignore
 
 from plyer import filechooser  # type: ignore
 
