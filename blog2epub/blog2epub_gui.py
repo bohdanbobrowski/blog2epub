@@ -19,7 +19,7 @@ from kivymd.uix.datatables import MDDataTable  # type: ignore
 from kivymd.uix.tab import MDTabsBase, MDTabs  # type: ignore
 from kivymd.uix.textfield import MDTextField  # type: ignore
 
-from plyer import filechooser, notification  # type: ignore
+from plyer import filechooser, notification, email  # type: ignore
 
 from blog2epub.common.book import Book
 from blog2epub.models.book import ArticleModel
@@ -37,7 +37,7 @@ from kivy.clock import mainthread  # type: ignore
 from kivy.core.window import Window  # type: ignore
 from kivy.metrics import Metrics, sp  # type: ignore
 from kivymd.uix.boxlayout import MDBoxLayout  # type: ignore
-from kivymd.uix.button import MDFlatButton, MDRoundFlatIconButton  # type: ignore
+from kivymd.uix.button import MDRoundFlatIconButton  # type: ignore
 from kivy.uix.image import Image  # type: ignore
 from kivymd.uix.label import MDLabel  # type: ignore
 from kivy.uix.popup import Popup  # type: ignore
@@ -197,7 +197,6 @@ class Blog2EpubKivyWindow(MDBoxLayout):
             orientation="vertical",
             spacing=sp(1),
             padding=sp(16),
-            disabled=True,
         )
 
         self.selected_label = MDLabel(
@@ -210,6 +209,21 @@ class Blog2EpubKivyWindow(MDBoxLayout):
         tab_layout = BoxLayout(orientation="vertical", spacing=sp(10), padding=sp(16))
         tab_layout.add_widget(self.selected_label)
 
+        email_row = MDBoxLayout(
+            orientation="horizontal",
+            size_hint=(1, 0.12),
+        )
+        email_entry = MDTextField(
+            hint_text="Email address to send the generated ebook:",
+            icon_right="email",
+            text=SETTINGS.data.email,
+            helper_text="Need to be a correct e-mail address",
+            helper_text_mode="on_error",
+        )
+        email_entry.bind(text=self._validate_email)
+        email_row.add_widget(email_entry)
+        tab_layout.add_widget(email_row)
+
         self.destination_button = MDRoundFlatIconButton(
             icon="folder",
             text=f"Destination folder: {SETTINGS.data.destination_folder}",
@@ -219,7 +233,7 @@ class Blog2EpubKivyWindow(MDBoxLayout):
         self._put_element_in_anchor_layout(self.destination_button, tab_layout)
 
         self.generate_button = MDRoundFlatIconButton(
-            icon="cog",
+            icon="book-open-page-variant",
             text="Generate",
             font_size=sp(16),
             disabled=True,
@@ -297,12 +311,13 @@ class Blog2EpubKivyWindow(MDBoxLayout):
             webbrowser.open("https://github.com/bohdanbobrowski/blog2epub")
 
         self.tab_about.add_widget(
-            MDFlatButton(
+            MDRoundFlatIconButton(
                 text="github.com/bohdanbobrowski/blog2epub",
                 font_size=sp(16),
                 font_name=UI_FONT_NAME,
                 size_hint=(1, 0.1),
                 on_press=about_url_click,
+                icon="git",
             )
         )
 
@@ -316,6 +331,7 @@ class Blog2EpubKivyWindow(MDBoxLayout):
             hint_text="Blog url:",
             text=SETTINGS.data.url,
             helper_text="Press up/down to browse in url history",
+            icon_right="clipboard-flow",
         )
         url_row.add_widget(self.url_entry)
         return url_row
@@ -326,13 +342,19 @@ class Blog2EpubKivyWindow(MDBoxLayout):
         )
 
         self.limit_entry = MDTextField(
-            text=SETTINGS.data.limit, input_type="number", hint_text="Articles limit:"
+            text=SETTINGS.data.limit,
+            input_type="number",
+            hint_text="Articles limit:",
+            icon_right="numeric",
         )
         self.limit_entry.bind(text=self._validate_limit)
         params_row.add_widget(self.limit_entry)
 
         self.skip_entry = MDTextField(
-            text=SETTINGS.data.skip, input_type="number", hint_text="Skip:"
+            text=SETTINGS.data.skip,
+            input_type="number",
+            hint_text="Skip:",
+            icon_right="numeric",
         )
         self.skip_entry.bind(text=self._validate_skip)
         params_row.add_widget(self.skip_entry)
@@ -353,6 +375,13 @@ class Blog2EpubKivyWindow(MDBoxLayout):
     def _validate_skip(self, input_widget, text):
         input_widget.text = " ".join(re.findall(r"\d+", text))
         SETTINGS.data.skip = input_widget.text
+
+    def _validate_email(self, input_widget, text):
+        if re.fullmatch(r"[^@]+@[^@]+\.[^@]+", text) or text == "":
+            input_widget.error = False
+            SETTINGS.data.email = text
+        else:
+            input_widget.error = True
 
     @mainthread
     def console_output(self, text: str):
@@ -397,7 +426,7 @@ class Blog2EpubKivyWindow(MDBoxLayout):
         blog2epub.download()
         self._enable_download_button()
         if len(blog2epub.crawler.articles) > 0:
-            self.tab_select.disabled = self.tab_generate.disabled = False
+            self.tab_select.disabled = False
             self._update_articles_data(blog2epub.crawler.articles)
             self.articles_table.update_row_data(
                 self.articles_table, self._get_articles_rows()
@@ -437,7 +466,7 @@ class Blog2EpubKivyWindow(MDBoxLayout):
                 destination_folder=SETTINGS.data.destination_folder,
             )
             ebook.save(self._get_articles_to_save())
-            self.popup_success(ebook.cover_image_path, ebook.file_full_path)
+            self.popup_success(ebook)
 
     def _update_articles_data(self, articles: List):
         no = 1
@@ -467,7 +496,7 @@ class Blog2EpubKivyWindow(MDBoxLayout):
         self.interface.clear()
         self._disable_download_button()
         self.articles_table.update_row_data(self.articles_table, [])
-        self.tab_select.disabled = self.tab_generate.disabled = True
+        self.tab_select.disabled = True
         self.save_settings()
         self.blog2epub = Blog2Epub(self._get_params())
         self.download_thread = Thread(
@@ -511,10 +540,10 @@ class Blog2EpubKivyWindow(MDBoxLayout):
         SETTINGS.save()
 
     @mainthread
-    def popup_success(self, cover_image_path: str, generated_ebook_path: str):
-        self.success(cover_image_path, generated_ebook_path)
+    def popup_success(self, ebook: Book):
+        self.success(ebook)
 
-    def success(self, cover_image_path: str, generated_ebook_path: str):
+    def success(self, ebook: Book):
         success_content = MDBoxLayout(orientation="vertical")
         epub_cover_image_widget = MDBoxLayout(
             padding=sp(20),
@@ -522,26 +551,53 @@ class Blog2EpubKivyWindow(MDBoxLayout):
         )
         epub_cover_image_widget.add_widget(
             Image(
-                source=asset_path(cover_image_path),
+                source=asset_path(str(ebook.cover_image_path)),
                 allow_stretch=True,
                 size_hint=(1, 1),
             )
         )
         success_content.add_widget(epub_cover_image_widget)
 
-        def success_url_click(inst):
-            open_file(generated_ebook_path)
+        def open_ebook_in_default_viewer(inst):
+            open_file(ebook.generated_ebook_path)
 
-        success_content.add_widget(
-            MDFlatButton(
-                text=f"{os.path.basename(generated_ebook_path)}",
+        def send_ebook_via_email(inst):
+            email.send(
+                recipient=SETTINGS.data.email,
+                subject=f"blog2epub - {ebook.title}",
+                text="Now please attach generated file manually :-)",
+            )
+
+        buttons_row = MDBoxLayout(
+            orientation="horizontal",
+            size_hint=(1, 0.1),
+            spacing=sp(10),
+            # padding=sp(16),
+        )
+
+        buttons_row.add_widget(
+            MDRoundFlatIconButton(
+                text="Read epub",
+                icon="book-open-variant",
                 font_size=sp(16),
                 font_name=UI_FONT_NAME,
-                size_hint=(1, 0.1),
-                on_press=success_url_click,
-                md_bg_color=self.theme_cls.primary_color,
+                size_hint=(0.5, 1),
+                on_press=open_ebook_in_default_viewer,
             )
         )
+        if SETTINGS.data.email:
+            buttons_row.add_widget(
+                MDRoundFlatIconButton(
+                    text="Send epub via e-mail",
+                    icon="email",
+                    font_size=sp(16),
+                    font_name=UI_FONT_NAME,
+                    size_hint=(0.5, 1),
+                    on_press=send_ebook_via_email,
+                )
+            )
+        success_content.add_widget(buttons_row)
+
         success_popup = Popup(
             title="Ebook generated successfully:",
             title_size=sp(20),

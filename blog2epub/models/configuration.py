@@ -14,6 +14,7 @@ class ConfigurationModel(BaseModel):
     limit: str = ""
     skip: str = ""
     history: List[str] = []
+    email: str = ""
 
     def __init__(self, **kwargs) -> None:
         super().__init__(**kwargs)
