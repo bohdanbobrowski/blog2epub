@@ -1,8 +1,10 @@
 import os
 from pathlib import Path
-from typing import Dict
+from typing import Optional
 
 import yaml
+
+from blog2epub.models.configuration import ConfigurationModel
 
 
 class Blog2EpubSettings:
@@ -10,42 +12,31 @@ class Blog2EpubSettings:
         self.path = os.path.join(str(Path.home()), ".blog2epub")
         self._prepare_path()
         self.fname = os.path.join(self.path, "blog2epub.yml")
-        self._data = self._read()
+        self.data: ConfigurationModel = self._read()
 
     def _prepare_path(self):
         if not os.path.exists(self.path):
             os.makedirs(self.path)
 
-    def _read(self):
+    def _read(self) -> ConfigurationModel:
+        data = ConfigurationModel()
         if not os.path.isfile(self.fname):
-            self._data = self._get_default()
-            self.save()
-        with open(self.fname, "rb") as stream:
-            data_in_file = yaml.safe_load(stream)
-            data = self._get_default()
-            for k, v in data.items():
-                if k in data_in_file:
-                    data[k] = data_in_file[k]
+            self.save(data)
+        else:
+            with open(self.fname, "rb") as stream:
+                data_in_file = yaml.safe_load(stream)
+            data = ConfigurationModel(**data_in_file)
         return data
 
-    def _get_default(self) -> Dict:
-        return {"url": "", "limit": "", "skip": "", "history": []}
+    def _save_history(self, data: ConfigurationModel) -> ConfigurationModel:
+        if data.url and data.url not in data.history:
+            data.history.append(data.url)
+            sorted(data.history)
+        return data
 
-    def _save_history(self):
-        if self._data["url"] and self._data["url"] not in self._data["history"]:
-            self._data["history"].append(self._data["url"])
-            sorted(self._data["history"])
-
-    def save(self):
-        self._save_history()
+    def save(self, data: Optional[ConfigurationModel] = None):
+        if data is None:
+            data = self.data
+        data = self._save_history(data)
         with open(self.fname, "w") as outfile:
-            yaml.dump(self._data, outfile, default_flow_style=False)
-
-    def set(self, key, value):
-        self._data[key] = value
-
-    def get(self, key):
-        if key in self._data:
-            return self._data[key]
-        else:
-            return None
+            yaml.dump(data.model_dump(), outfile, default_flow_style=False)

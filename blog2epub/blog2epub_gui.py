@@ -23,7 +23,6 @@ from plyer import filechooser  # type: ignore
 
 from blog2epub.common.book import Book
 from blog2epub.models.book import ArticleModel
-from blog2epub.models.configuration import ConfigurationModel
 
 if sys.__stdout__ is None or sys.__stderr__ is None:
     os.environ["KIVY_NO_CONSOLELOG"] = "1"
@@ -54,13 +53,12 @@ from blog2epub.common.settings import Blog2EpubSettings
 
 UI_FONT_NAME = asset_path("MartianMono-Regular.ttf")
 SETTINGS = Blog2EpubSettings()
-URL_HISTORY = SETTINGS.get("history")
-URL_HISTORY_ITERATOR = cycle(URL_HISTORY)
+URL_HISTORY_ITERATOR = cycle(SETTINGS.data.history)
 
 
 def get_previous():
-    if len(URL_HISTORY) > 2:
-        for x in range(0, len(URL_HISTORY) - 2):
+    if len(SETTINGS.data.history) > 2:
+        for x in range(0, len(SETTINGS.data.history) - 2):
             next(URL_HISTORY_ITERATOR)
     return next(URL_HISTORY_ITERATOR)
 
@@ -82,10 +80,14 @@ logging.basicConfig(
 class UrlTextInput(MDTextField):
     def keyboard_on_key_down(self, window, keycode, text, modifiers):
         # ↑ up
-        if keycode[0] == 273 and (self.text == "" or self.text in URL_HISTORY):
+        if keycode[0] == 273 and (
+            self.text == "" or self.text in SETTINGS.data.history
+        ):
             self.text = get_previous()
         # ↓ down
-        if keycode[0] == 274 and (self.text == "" or self.text in URL_HISTORY):
+        if keycode[0] == 274 and (
+            self.text == "" or self.text in SETTINGS.data.history
+        ):
             self.text = next(URL_HISTORY_ITERATOR)
         return super().keyboard_on_key_down(window, keycode, text, modifiers)
 
@@ -104,8 +106,6 @@ class Blog2EpubKivyWindow(MDBoxLayout):
         self.blog2epub = None
         self.download_thread = None
         self.ebook_data = None
-        self.destination_folder = Path.home()
-        self.configuration = ConfigurationModel()
 
         self.tabs = MDTabs()
         self.add_widget(self.tabs)
@@ -212,7 +212,7 @@ class Blog2EpubKivyWindow(MDBoxLayout):
 
         self.destination_button = MDRoundFlatIconButton(
             icon="folder",
-            text=f"Destination folder: {self.destination_folder}",
+            text=f"Destination folder: {SETTINGS.data.destination_folder}",
             font_size=sp(16),
         )
         self.destination_button.bind(on_press=self.select_destination_folder)
@@ -234,9 +234,12 @@ class Blog2EpubKivyWindow(MDBoxLayout):
             title="Select ebook destination",
         )
         logging.info(f"Selected path: {path}")
-        self.destination_folder = path[0]
+        SETTINGS.data.destination_folder = path[0]
+        SETTINGS.save()
 
-        self.destination_button.text = f"Destination folder: {self.destination_folder}"
+        self.destination_button.text = (
+            f"Destination folder: {SETTINGS.data.destination_folder}"
+        )
 
     @staticmethod
     def _put_element_in_anchor_layout(element, layout):
@@ -305,12 +308,13 @@ class Blog2EpubKivyWindow(MDBoxLayout):
 
     def _get_url_row(self) -> MDBoxLayout:
         url_row = MDBoxLayout(
-            orientation="horizontal", size_hint=(1, 0.08), spacing=sp(10)
+            orientation="horizontal",
+            size_hint=(1, 0.12),
         )
 
         self.url_entry = UrlTextInput(
             hint_text="Blog url:",
-            text=SETTINGS.get("url"),
+            text=SETTINGS.data.url,
             helper_text="Press up/down to browse in url history",
         )
         url_row.add_widget(self.url_entry)
@@ -318,18 +322,21 @@ class Blog2EpubKivyWindow(MDBoxLayout):
 
     def _get_params_row(self) -> MDBoxLayout:
         params_row = MDBoxLayout(
-            orientation="horizontal", size_hint=(1, 0.08), spacing=sp(10)
+            orientation="horizontal", size_hint=(1, 0.12), spacing=sp(10)
         )
+
         self.limit_entry = MDTextField(
-            text=SETTINGS.get("limit"), input_type="number", hint_text="Articles limit:"
+            text=SETTINGS.data.limit, input_type="number", hint_text="Articles limit:"
         )
-        self.limit_entry.bind(text=self._allow_only_numbers)
+        self.limit_entry.bind(text=self._validate_limit)
         params_row.add_widget(self.limit_entry)
+
         self.skip_entry = MDTextField(
-            text=SETTINGS.get("skip"), input_type="number", hint_text="Skip:"
+            text=SETTINGS.data.skip, input_type="number", hint_text="Skip:"
         )
-        self.skip_entry.bind(text=self._allow_only_numbers)
+        self.skip_entry.bind(text=self._validate_skip)
         params_row.add_widget(self.skip_entry)
+
         self.download_button = MDRoundFlatIconButton(
             icon="download",
             text="Download",
@@ -339,8 +346,13 @@ class Blog2EpubKivyWindow(MDBoxLayout):
         params_row.add_widget(self.download_button)
         return params_row
 
-    def _allow_only_numbers(self, input_widget, text):
+    def _validate_limit(self, input_widget, text):
         input_widget.text = " ".join(re.findall(r"\d+", text))
+        SETTINGS.data.limit = input_widget.text
+
+    def _validate_skip(self, input_widget, text):
+        input_widget.text = " ".join(re.findall(r"\d+", text))
+        SETTINGS.data.skip = input_widget.text
 
     @mainthread
     def console_output(self, text: str):
@@ -390,7 +402,7 @@ class Blog2EpubKivyWindow(MDBoxLayout):
             self.articles_table.update_row_data(
                 self.articles_table, self._get_articles_rows()
             )
-            self.configuration.language = blog2epub.crawler.language
+            SETTINGS.data.language = blog2epub.crawler.language
             self.ebook_data = blog2epub.crawler.get_book_data()
             self.articles_table.update_row_data(
                 self.articles_table, self._get_articles_rows()
@@ -411,9 +423,9 @@ class Blog2EpubKivyWindow(MDBoxLayout):
         if self.ebook_data:
             ebook = Book(
                 book_data=self.ebook_data,
-                configuration=self.configuration,
+                configuration=SETTINGS.data,
                 interface=self.interface,
-                destination_folder=self.destination_folder,
+                destination_folder=SETTINGS.data.destination_folder,
             )
             ebook.save(self._get_articles_to_save())
             self.popup_success(ebook.cover_image_path, ebook.file_full_path)
@@ -483,9 +495,10 @@ class Blog2EpubKivyWindow(MDBoxLayout):
         self.download_button.bind(on_press=self.download)
 
     def save_settings(self):
-        SETTINGS.set("url", prepare_url(self.url_entry.text))
-        SETTINGS.set("limit", self.limit_entry.text)
-        SETTINGS.set("skip", self.skip_entry.text)
+        """TODO: This should be removed from here"""
+        SETTINGS.data.url = prepare_url(self.url_entry.text)
+        SETTINGS.data.limit = self.limit_entry.text
+        SETTINGS.data.skip = self.skip_entry.text
         SETTINGS.save()
 
     @mainthread
