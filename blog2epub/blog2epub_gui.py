@@ -19,7 +19,7 @@ from kivymd.uix.datatables import MDDataTable  # type: ignore
 from kivymd.uix.tab import MDTabsBase, MDTabs  # type: ignore
 from kivymd.uix.textfield import MDTextField  # type: ignore
 
-from plyer import filechooser  # type: ignore
+from plyer import filechooser, notification  # type: ignore
 
 from blog2epub.common.book import Book
 from blog2epub.models.book import ArticleModel
@@ -410,7 +410,16 @@ class Blog2EpubKivyWindow(MDBoxLayout):
             self._update_tab_generate()
         if not blog2epub.crawler.cancelled:
             self.interface.print("Download completed.")
-        # self.tabs.switch_tab("generate")  # TODO: make it working
+            notification.notify(
+                title="blog2epub - download completed",
+                message=f"{blog2epub.crawler.url}",
+                timeout=2,
+            )
+            self._switch_tab("Select")
+
+    @mainthread
+    def _switch_tab(self, tab_title: str):
+        self.tabs.switch_tab(name_tab=tab_title, search_by="title")
 
     def _get_articles_to_save(self) -> List[ArticleModel]:
         articles_to_save = []
