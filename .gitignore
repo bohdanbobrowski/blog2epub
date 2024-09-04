@@ -6,6 +6,7 @@
 /dist
 /venv
 /temp
+/bin
 *.epub
 *.pyc
 __pycache__

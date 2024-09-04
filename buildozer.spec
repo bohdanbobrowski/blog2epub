@@ -7,19 +7,19 @@ title = blog2epub
 package.name = blog2epub
 
 # (str) Package domain (needed for android/ios packaging)
-package.domain = com.bohdanbobrowski.blog2epub
+package.domain = com.bohdanbobrowski
 
 # (str) Source code where the main.py live
-source.dir = ./
+source.dir = .
 
 # (list) Source files to include (let empty to include all the files)
 source.include_exts = py,png,jpg,kv,atlas,svg,ttf,ico
 
 # (list) List of inclusions using pattern matching
-#source.include_patterns = assets/*,images/*.png
+source.source.include_patterns = blog2epub/**/*
 
 # (list) Source files to exclude (let empty to not exclude anything)
-#source.exclude_exts = spec
+source.exclude_exts = spec, setup.py, pyproject.toml
 
 # (list) List of directory to exclude (let empty to not exclude anything)
 #source.exclude_dirs = tests, bin, venv
@@ -33,21 +33,22 @@ version = 1.3.1
 
 # (str) Application versioning (method 2)
 # version.regex = __version__ = ['"](.*)['"]
-# version.filename = %(source.dir)s/main.py
+# version.filename = %(source.dir)s/blog2epub_gui.py
 
 # (list) Application requirements
 # comma separated e.g. requirements = sqlite3,kivy
-requirements = python3,kivy
+# requirements = python3,kivy==2.3.0,kivymd==1.2.0,altgraph,annotated-types,atoma,attrs,beautifulsoup4,certifi,charset-normalizer,click,Cython,defusedxml,docutils,EbookLib,exceptiongroup,fake-useragent,ghp-import,idna,importlib_metadata,iniconfig,Jinja2,lxml==5.3.0,Markdown,MarkupSafe,mergedeep,mkdocs,mkdocs-get-deps,mypy,mypy-extensions,packaging,pathspec,pillow,platformdirs,pluggy,plyer,pydantic,pydantic_core,pydantic_yaml,Pygments,pyinstaller,pyinstaller-hooks-contrib,pytest,python-dateutilpost0,PyYAML,pyyaml_env_tag,requests,ruamel.yaml,ruamel.yaml.clib,ruff,six,soupsieve,tomli,types-pyinstaller,types-python-dateutil,types-PyYAML,types-requests,typing_extensions,urllib3,watchdog,zipp
+requirements = python3,kivy==2.3.0,kivymd==1.2.0,lxml==5.3.0,attrs,pillow,pydantic,beautifulsoup4,ebooklib,python-dateutil,atoma,fake-useragent,pyyaml,plyer,defusedxml
 
 # (str) Custom source folders for requirements
 # Sets custom source for any requirements with recipes
 # requirements.source.kivy = ../../kivy
 
 # (str) Presplash of the application
-#presplash.filename = %(source.dir)s/data/presplash.png
+presplash.filename = ./assets/blog2epub_256px.png
 
 # (str) Icon of the application
-#icon.filename = %(source.dir)s/data/icon.png
+icon.filename = ./assets/blog2epub_256px.png
 
 # (list) Supported orientations
 # Valid options are: landscape, portrait, portrait-reverse or landscape-reverse
@@ -95,7 +96,7 @@ fullscreen = 0
 
 # (list) Permissions
 # (See https://python-for-android.readthedocs.io/en/latest/buildoptions/#build-options-1 for all the supported syntaxes and properties)
-#android.permissions = android.permission.INTERNET, (name=android.permission.WRITE_EXTERNAL_STORAGE;maxSdkVersion=18)
+android.permissions = android.permission.INTERNET, (name=android.permission.WRITE_EXTERNAL_STORAGE;maxSdkVersion=18)
 
 # (list) features (adds uses-feature -tags to manifest)
 #android.features = android.hardware.usb.host
@@ -411,7 +412,7 @@ warn_on_root = 1
 # build_dir = ./.buildozer
 
 # (str) Path to build output (i.e. .apk, .aab, .ipa) storage
-# bin_dir = ./bin
+bin_dir = ./dist
 
 #    -----------------------------------------------------------------------------
 #    List as sections
