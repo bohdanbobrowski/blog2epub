@@ -58,19 +58,6 @@ orientation = portrait
 #services = NAME:ENTRYPOINT_TO_PY,NAME2:ENTRYPOINT2_TO_PY
 
 #
-# OSX Specific
-#
-
-#
-# author = © Copyright Info
-
-# change the major version of python used by the app
-osx.python_version = 3
-
-# Kivy version to use
-osx.kivy_version = 2.3.10
-
-#
 # Android specific
 #
 
@@ -94,13 +81,13 @@ android.api = 27
 android.minapi = 21
 
 # (int) Android SDK version to use
-android.sdk = 20
+android.sdk = 25
 
 # (str) Android NDK version to use
-android.ndk = 19b
+android.ndk = 25
 
 # (int) Android NDK API to use. This is the minimum API your app will support, it should usually match android.minapi.
-android.ndk_api = 21
+android.ndk_api = 25
 
 # (bool) Use --private data storage (True) or --dir public storage (False)
 #android.private_storage = True
