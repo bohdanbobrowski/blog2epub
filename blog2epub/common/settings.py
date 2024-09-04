@@ -8,10 +8,12 @@ from blog2epub.models.configuration import ConfigurationModel
 
 
 class Blog2EpubSettings:
-    def __init__(self):
-        self.path = os.path.join(str(Path.home()), ".blog2epub")
+    def __init__(self, path: Optional[str] = None):
+        if path is None:
+            path = os.path.join(str(Path.home()), ".blog2epub")
+        self.path = path
         self._prepare_path()
-        self.fname = os.path.join(self.path, "blog2epub.yml")
+        self.settings_file = os.path.join(self.path, "blog2epub.yml")
         self.data: ConfigurationModel = self._read()
 
     def _prepare_path(self):
@@ -20,10 +22,10 @@ class Blog2EpubSettings:
 
     def _read(self) -> ConfigurationModel:
         data = ConfigurationModel()
-        if not os.path.isfile(self.fname):
+        if not os.path.isfile(self.settings_file):
             self.save(data)
         else:
-            with open(self.fname, "rb") as stream:
+            with open(self.settings_file, "rb") as stream:
                 data_in_file = yaml.safe_load(stream)
             data = ConfigurationModel(**data_in_file)
         return data
@@ -38,5 +40,5 @@ class Blog2EpubSettings:
         if data is None:
             data = self.data
         data = self._save_history(data)
-        with open(self.fname, "w") as outfile:
+        with open(self.settings_file, "w") as outfile:
             yaml.dump(data.model_dump(), outfile, default_flow_style=False)
