@@ -10,10 +10,10 @@ package.name = blog2epub
 package.domain = com.bohdanbobrowski.blog2epub
 
 # (str) Source code where the main.py live
-source.dir = ./blog2epub/
+source.dir = ./
 
 # (list) Source files to include (let empty to include all the files)
-source.include_exts = py,png,jpg,kv,atlas,svg
+source.include_exts = py,png,jpg,kv,atlas,svg,ttf,ico
 
 # (list) List of inclusions using pattern matching
 #source.include_patterns = assets/*,images/*.png
@@ -29,7 +29,7 @@ source.include_exts = py,png,jpg,kv,atlas,svg
 #source.exclude_patterns = license,images/*/*.jpg
 
 # (str) Application versioning (method 1)
-version = 0.1
+version = 1.3.1
 
 # (str) Application versioning (method 2)
 # version.regex = __version__ = ['"](.*)['"]
