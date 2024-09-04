@@ -1,13 +1,13 @@
 [app]
 
 # (str) Title of your application
-title = blog2pub
+title = blog2epub
 
 # (str) Package name
-package.name = blog2pub
+package.name = blog2epub
 
 # (str) Package domain (needed for android/ios packaging)
-package.domain = com.bohdanbobrowski.blog2pub
+package.domain = com.bohdanbobrowski.blog2epub
 
 # (str) Source code where the main.py live
 source.dir = ./blog2epub/
@@ -28,7 +28,7 @@ source.include_exts = py,png,jpg,kv,atlas,svg
 #source.exclude_patterns = license,images/*/*.jpg
 
 # (str) Application versioning (method 1)
-version = 1.3
+version = 1.3.1
 
 # (str) Application versioning (method 2)
 # version.regex = __version__ = ['"](.*)['"]
