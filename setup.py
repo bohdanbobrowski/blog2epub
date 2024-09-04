@@ -26,9 +26,9 @@ setup(
         "atoma",
         "fake-useragent",
         "pyyaml",
-        "pycairo",
         "kivy",
         "kivymd",
+        "plyer",
     ],
     entry_points={
         "console_scripts": ["blog2epub = blog2epub.blog2epub_cli:main"],
