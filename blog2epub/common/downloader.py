@@ -29,7 +29,6 @@ class Downloader:
         self.crawler_url = crawler.url
         self.crawler_port = crawler.port
         self.interface = crawler.interface
-        self.force_download = crawler.force_download
         self.images_size = crawler.images_size
         self.images_quality = crawler.images_quality
         self.ignore_downloads = crawler.ignore_downloads
@@ -104,9 +103,7 @@ class Downloader:
         # TODO: This needs refactor!
         filepath = self.get_filepath(url)
         for x in range(0, 3):
-            if self.force_download or (
-                not os.path.isfile(filepath) and not os.path.isfile(filepath + ".gz")
-            ):
+            if not os.path.isfile(filepath) and not os.path.isfile(filepath + ".gz"):
                 contents = self.file_download(url, filepath)
             else:
                 contents = self.file_read(filepath)
@@ -149,7 +146,7 @@ class Downloader:
         resized_fn = os.path.join(self.dirs.images, img_hash + ".jpg")
         if os.path.isfile(resized_fn):
             return img_hash + ".jpg"
-        if not os.path.isfile(resized_fn) or self.force_download:
+        if not os.path.isfile(resized_fn):
             self.image_download(img, original_fn)
         if os.path.isfile(original_fn):
             original_img_type = imghdr.what(original_fn)

@@ -23,6 +23,7 @@ from plyer import filechooser, notification, email  # type: ignore
 
 from blog2epub.common.book import Book
 from blog2epub.models.book import ArticleModel
+from blog2epub.models.configuration import ConfigurationModel
 
 if sys.__stdout__ is None or sys.__stderr__ is None:
     os.environ["KIVY_NO_CONSOLELOG"] = "1"
@@ -481,18 +482,22 @@ class Blog2EpubKivyWindow(MDBoxLayout):
         self.articles_table.update_row_data(self.articles_table, [])
         self.tab_select.disabled = True
         self.save_settings()
-        self.blog2epub = Blog2Epub(
-            {
-                "interface": self.interface,
-                "url": self._get_url(),
+        configuration = ConfigurationModel(
+            **{
                 "include_images": True,
                 "images_size": (600, 800),
                 "images_quality": 40,
-                "start": None,
-                "end": None,
                 "limit": self._is_int(self.limit_entry.text),
                 "skip": self._is_int(self.skip_entry.text),
-                "force_download": False,
+            }
+        )
+        self.blog2epub = Blog2Epub(
+            **{
+                "interface": self.interface,
+                "url": self._get_url(),
+                "configuration": configuration,
+                "start": None,
+                "end": None,
                 "file_name": None,
                 "cache_folder": os.path.join(str(Path.home()), ".blog2epub"),
                 "destination_folder": str(Path.home()),
