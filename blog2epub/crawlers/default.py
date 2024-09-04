@@ -10,8 +10,7 @@ import re
 import time
 from datetime import datetime
 from http.cookiejar import CookieJar
-from pathlib import Path
-from typing import Optional, List, Dict
+from typing import Optional, List
 from urllib.parse import urlparse
 
 import atoma  # type: ignore
@@ -25,13 +24,6 @@ from pydantic import HttpUrl
 from blog2epub.common.downloader import prepare_directories
 from blog2epub.crawlers.abstract import AbstractCrawler
 from blog2epub.common.book import Book
-from blog2epub.common.crawler import (
-    prepare_file_name,
-    prepare_port,
-    prepare_url,
-    prepare_url_to_crawl,
-)
-from blog2epub.common.interfaces import EmptyInterface
 from blog2epub.models.book import BookModel, DirModel, ArticleModel, ImageModel
 from blog2epub.models.configuration import ConfigurationModel
 
@@ -50,55 +42,6 @@ class DefaultCrawler(AbstractCrawler):
     articles_regex = r"<h3 class=\'post-title entry-title\' itemprop=\'name\'>[\s]*<a href=\'([^\']*)\'>([^>^<]*)</a>[\s]*</h3>"
 
     ignore_downloads = []
-
-    def __init__(
-        self,
-        url,
-        include_images: bool = True,
-        images_size: tuple = (600, 800),
-        images_quality: int = 40,
-        start=None,
-        end=None,
-        limit: Optional[int] = None,
-        skip: Optional[int] = None,
-        force_download: bool = False,
-        file_name: Optional[str] = None,
-        destination_folder: str = "./",
-        cache_folder: str = os.path.join(str(Path.home()), ".blog2epub"),
-        language: Optional[str] = None,
-        interface=None,
-    ):
-        self.url = prepare_url(url)
-        self.url_to_crawl = prepare_url_to_crawl(self.url)
-        self.port = prepare_port(self.url_to_crawl)
-        self.file_name = prepare_file_name(file_name, self.url)
-        self.destination_folder = destination_folder
-        self.cache_folder = cache_folder
-        self.include_images = include_images
-        self.images_quality = images_quality
-        self.images_size = images_size
-        self.start = start
-        self.end = end
-        self.limit = limit
-        self.skip = skip
-        self.force_download = force_download
-        self.interface = self._get_the_interface(interface)
-        self.dirs = DirModel(
-            path=str(os.path.join(self.cache_folder, self.url.replace("/", "_"))),
-        )
-        self.book: Optional[Book]
-        self.title = None
-        self.subtitle = None
-        self.description = None
-        self.language: str | None = language
-        self.atom_feed = False
-        self.articles: List[Article] = []
-        self.article_counter = 0
-        self.images: List[str] = []
-        self.downloader = Downloader(self)
-        self.tags: Dict = {}
-        self.active = False
-        self.cancelled = False
 
     def _get_articles_list(self) -> List[ArticleModel]:
         """This is temporary solution - crawler should use data models as default data storage."""
@@ -141,42 +84,20 @@ class DefaultCrawler(AbstractCrawler):
             start=self.start,
             end=self.end,
             file_name_prefix=self.file_name,
-            destination_folder=self.destination_folder,
+            destination_folder=self.configuration.destination_folder,
             cover=None,
             cover_image_path=None,
         )
         return book_data
 
-    @staticmethod
-    def _get_the_interface(interface):
-        if interface:
-            return interface
-        return EmptyInterface()
-
     def _get_subtitle(self):
         if self.end is None:
-            return self.start.strftime("%d %B %Y")
+            return self.start.strftime("%d.%B.%Y")
         if self.start.strftime("%Y.%m") == self.end.strftime("%Y.%m"):
-            return self.end.strftime("%d") + "-" + self.start.strftime("%d %B %Y")
+            return self.end.strftime("%d") + "-" + self.start.strftime("%d.%B.%Y")
         if self.start.strftime("%Y.%m") == self.end.strftime("%Y.%m"):
-            return self.end.strftime("%d %B") + " - " + self.start.strftime("%d %B %Y")
-        return self.end.strftime("%d %B %Y") + " - " + self.start.strftime("%d %B %Y")
-
-    def get_cover_title(self):
-        cover_title = self.title + " "
-        if self.start == self.end:
-            cover_title = cover_title + str(self.start)
-        else:
-            end_date = self.end.split(" ")
-            start_date = self.start.split(" ")
-            if len(end_date) == len(start_date):
-                ed = []
-                for i, d in enumerate(end_date):
-                    if d != start_date[i]:
-                        ed.append(d)
-            ed = " ".join(ed)
-            cover_title = cover_title + ed + "-" + self.start
-        return cover_title
+            return self.end.strftime("%d.%B") + " - " + self.start.strftime("%d.%B.%Y")
+        return self.end.strftime("%d.%B.%Y") + " - " + self.start.strftime("%d.%B.%Y")
 
     @staticmethod
     def get_date(str_date):
@@ -265,7 +186,10 @@ class DefaultCrawler(AbstractCrawler):
                 art = eval(self.article_class)(
                     item.links[0].href, item.title.value, self
                 )
-                if self.skip and self.article_counter < self.skip:
+                if (
+                    self.configuration.skip
+                    and self.article_counter < self.configuration.skip
+                ):
                     self.interface.print("[skipping] " + art.title)
                     continue
                 art_no = len(self.articles) + 1
@@ -282,7 +206,9 @@ class DefaultCrawler(AbstractCrawler):
                 self.images = self.images + art.images
                 self.articles.append(art)
                 self._add_tags(art.tags)
-                if self.limit and len(self.articles) >= self.limit:
+                if self.configuration.limit and len(self.articles) >= int(
+                    self.configuration.limit
+                ):
                     break
             except AttributeError as e:
                 self.interface.print(str(e))
@@ -291,7 +217,10 @@ class DefaultCrawler(AbstractCrawler):
     def _articles_loop(self, content):
         for art in self._get_articles(content):
             self.article_counter += 1
-            if not self.skip or self.article_counter > self.skip:
+            if (
+                not self.configuration.skip
+                or self.article_counter > self.configuration.skip
+            ):
                 art.process()
                 self.images = self.images + art.images
                 self.interface.print(str(len(self.articles) + 1) + ". " + art.title)
@@ -308,7 +237,7 @@ class DefaultCrawler(AbstractCrawler):
                 break
 
     def _check_limit(self):
-        if self.limit and len(self.articles) >= self.limit:
+        if self.configuration.limit and len(self.articles) >= self.configuration.limit:
             self.url_to_crawl = None
 
     def _prepare_content(self, content):
@@ -325,7 +254,7 @@ class DefaultCrawler(AbstractCrawler):
             self.title = self._get_blog_title(content)
             content = self._prepare_content(content)
             self._articles_loop(content)
-            if not self.skip and len(self.articles) == 0:
+            if not self.configuration.skip and len(self.articles) == 0:
                 self._get_atom_content()
                 self._atom_feed_loop()
             self.url_to_crawl = self._get_url_to_crawl(tree)
@@ -366,7 +295,6 @@ class Downloader:
         self.crawler_url = crawler.url
         self.crawler_port = crawler.port
         self.interface = crawler.interface
-        self.force_download = crawler.force_download
         self.images_size = crawler.images_size
         self.images_quality = crawler.images_quality
         self.ignore_downloads = crawler.ignore_downloads
@@ -441,9 +369,7 @@ class Downloader:
         # TODO: This needs refactor!
         filepath = self.get_filepath(url)
         for x in range(0, 3):
-            if self.force_download or (
-                not os.path.isfile(filepath) and not os.path.isfile(filepath + ".gz")
-            ):
+            if not os.path.isfile(filepath) and not os.path.isfile(filepath + ".gz"):
                 contents = self.file_download(url, filepath)
             else:
                 contents = self.file_read(filepath)
@@ -451,7 +377,7 @@ class Downloader:
                 break
             self.interface.print(f"...repeat request: {url}")
             time.sleep(3)
-        if contents is not None:
+        if contents:
             interstitial = self.checkInterstitial(contents)
             if interstitial:
                 interstitial_url = (
@@ -486,7 +412,7 @@ class Downloader:
         resized_fn = os.path.join(self.dirs.images, img_hash + ".jpg")
         if os.path.isfile(resized_fn):
             return img_hash + ".jpg"
-        if not os.path.isfile(resized_fn) or self.force_download:
+        if not os.path.isfile(resized_fn):
             self.image_download(img, original_fn)
         if os.path.isfile(original_fn):
             original_img_type = imghdr.what(original_fn)

@@ -1,5 +1,6 @@
 import logging
 import os
+import platform
 import re
 import sys
 import webbrowser
@@ -17,7 +18,6 @@ from kivy.uix.boxlayout import BoxLayout  # type: ignore
 from kivymd.uix.datatables import MDDataTable  # type: ignore
 from kivymd.uix.tab import MDTabsBase, MDTabs  # type: ignore
 from kivymd.uix.textfield import MDTextField  # type: ignore
-from kivy.utils import platform  # type: ignore
 
 from plyer import filechooser, notification, email  # type: ignore
 
@@ -65,7 +65,6 @@ def get_previous():
 
 now = datetime.now()
 date_time = now.strftime("%Y-%m-%d[%H.%M.%S]")
-
 logging_filename = os.path.join(
     str(Path.home()), ".blog2epub", f"blog2epub_{date_time}.log"
 )
@@ -406,28 +405,6 @@ class Blog2EpubKivyWindow(MDBoxLayout):
         except ValueError:
             return None
 
-    def _get_params(self):
-        if platform == "android":
-            cache_folder = self.user_data_dir
-        else:
-            cache_folder = os.path.join(str(Path.home()), ".blog2epub")
-        destination_folder = str(Path.home())
-        return {
-            "interface": self.interface,
-            "url": self._get_url(),
-            "include_images": True,
-            "images_size": (600, 800),
-            "images_quality": 40,
-            "start": None,
-            "end": None,
-            "limit": self._is_int(self.limit_entry.text),
-            "skip": self._is_int(self.skip_entry.text),
-            "force_download": False,
-            "file_name": None,
-            "cache_folder": cache_folder,
-            "destination_folder": destination_folder,
-        }
-
     def _download_ebook(self, blog2epub: Blog2Epub):
         blog2epub.download()
         self._enable_download_button()
@@ -504,7 +481,23 @@ class Blog2EpubKivyWindow(MDBoxLayout):
         self.articles_table.update_row_data(self.articles_table, [])
         self.tab_select.disabled = True
         self.save_settings()
-        self.blog2epub = Blog2Epub(self._get_params())
+        self.blog2epub = Blog2Epub(
+            {
+                "interface": self.interface,
+                "url": self._get_url(),
+                "include_images": True,
+                "images_size": (600, 800),
+                "images_quality": 40,
+                "start": None,
+                "end": None,
+                "limit": self._is_int(self.limit_entry.text),
+                "skip": self._is_int(self.skip_entry.text),
+                "force_download": False,
+                "file_name": None,
+                "cache_folder": os.path.join(str(Path.home()), ".blog2epub"),
+                "destination_folder": str(Path.home()),
+            }
+        )
         self.download_thread = Thread(
             target=self._download_ebook,
             kwargs={"blog2epub": self.blog2epub},
@@ -578,7 +571,6 @@ class Blog2EpubKivyWindow(MDBoxLayout):
             orientation="horizontal",
             size_hint=(1, 0.1),
             spacing=sp(10),
-            # padding=sp(16),
         )
 
         buttons_row.add_widget(
@@ -638,12 +630,12 @@ class Blog2EpubKivy(MDApp):
         self.title = f"blog2epub - v. {Blog2Epub.version}"
         logging.info(self.title)
         logging.debug(f"Metrics.density = {Metrics.density}")
-        if platform == "linux":
-            self.icon = asset_path("blog2epub.svg")
-        elif platform == "win":
+        if platform.system() == "Darwin":
+            self.icon = asset_path("blog2epub.icns")
+        elif platform.system() == "Windows":
             self.icon = asset_path("blog2epub_256px.png")
         else:
-            self.icon = asset_path("blog2epub.icns")
+            self.icon = asset_path("blog2epub.svg")
 
     def build(self):
         self.theme_cls.theme_style = "Light"

@@ -76,8 +76,8 @@ class Book:
         self,
         book_data: Any,
         configuration: ConfigurationModel,
-        interface: EmptyInterface,
-        destination_folder: str,
+        interface: EmptyInterface = EmptyInterface(),
+        destination_folder: str = ".",
     ):
         self.title = book_data.title
         self.description = book_data.description
