@@ -6,6 +6,3 @@ class ZeissIkonVEBCrawler(AbstractCrawler):
 
     def crawl(self):
         pass
-
-    def generate_ebook(self, **kwargs):
-        pass

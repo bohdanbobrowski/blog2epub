@@ -8,9 +8,7 @@ from lxml.html.soupparser import fromstring
 from pydantic import HttpUrl
 
 from blog2epub.crawlers.abstract import AbstractCrawler
-from blog2epub.common.book import Book
 from blog2epub.models.book import BookModel, DirModel, ArticleModel, ImageModel
-from blog2epub.models.configuration import ConfigurationModel
 
 
 class DefaultCrawler(AbstractCrawler):
@@ -198,7 +196,8 @@ class DefaultCrawler(AbstractCrawler):
             ):
                 art.process()
                 self.images = self.images + art.images
-                self.interface.print(str(len(self.articles) + 1) + ". " + art.title)
+                art_no = str(len(self.articles) + 1)
+                self.interface.print(f"{art_no}. {art.title}")
                 if self.start:
                     self.end = art.date
                 else:
@@ -240,28 +239,3 @@ class DefaultCrawler(AbstractCrawler):
             self._check_limit()
         self.active = False
         self.subtitle = self._get_subtitle()
-
-    def generate_ebook(
-        self,
-        articles: List[ArticleModel],
-        destination_folder: str = ".",
-        file_name: Optional[str] = None,
-    ):
-        if articles:
-            self.book = Book(
-                book_data=self,
-                configuration=ConfigurationModel(
-                    language=self.language or "en",
-                ),
-                interface=self.interface,
-                destination_folder=destination_folder,
-            )
-            self.book.save(
-                articles=articles,
-                destination_folder=destination_folder,
-                file_name=file_name,
-            )
-            return True
-        else:
-            self.interface.print("No articles found.")
-            return False

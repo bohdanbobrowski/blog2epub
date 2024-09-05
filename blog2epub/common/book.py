@@ -89,7 +89,7 @@ class Book:
         self._set_locale()
         self.chapters: List[Chapter] = []
         self.table_of_contents: List[EpubHtml] = []
-        self.file_name_prefix: str = book_data.file_name_prefix
+        self.file_name_prefix: Optional[str] = book_data.file_name_prefix
         self.file_name: str = self._get_new_file_name()
         self.destination_folder = destination_folder
 

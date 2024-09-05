@@ -8,7 +8,6 @@ import math
 import time
 from datetime import datetime
 from itertools import cycle
-from pathlib import Path
 from threading import Thread
 from typing import List
 from urllib import parse
@@ -56,16 +55,6 @@ UI_FONT_NAME = asset_path("MartianMono-Regular.ttf")
 
 now = datetime.now()
 date_time = now.strftime("%Y-%m-%d[%H.%M.%S]")
-logging_filename = os.path.join(
-    str(Path.home()), ".blog2epub", f"blog2epub_{date_time}.log"
-)
-
-logging.basicConfig(
-    filename=logging_filename,
-    encoding="utf-8",
-    level=logging.DEBUG,
-    format="%(asctime)s - %(levelname)s - %(message)s",
-)
 
 
 class UrlTextInput(MDTextField):

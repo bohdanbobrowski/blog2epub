@@ -1,5 +1,4 @@
 import os
-from pathlib import Path
 from typing import Optional
 
 import yaml
@@ -8,7 +7,7 @@ from blog2epub.models.configuration import ConfigurationModel
 
 
 class Blog2EpubSettings:
-    def __init__(self, path: Optional[str]):
+    def __init__(self, path: str):
         self.path = path
         self._prepare_path()
         self.settings_file = os.path.join(self.path, "blog2epub.yml")

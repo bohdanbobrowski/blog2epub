@@ -2,7 +2,6 @@ import html
 import os
 from abc import ABC, abstractmethod
 from datetime import datetime
-from pathlib import Path
 from typing import List, Optional, Dict
 import re
 
@@ -14,7 +13,7 @@ import dateutil
 from blog2epub.common.book import Book
 from blog2epub.common.interfaces import EmptyInterface
 from blog2epub.common.language_tools import translate_month
-from blog2epub.models.book import ArticleModel, DirModel
+from blog2epub.models.book import DirModel
 from blog2epub.models.configuration import ConfigurationModel
 from blog2epub.common.crawler import (
     prepare_file_name,
@@ -78,15 +77,6 @@ class AbstractCrawler(ABC):
 
     @abstractmethod
     def crawl(self):
-        pass
-
-    @abstractmethod
-    def generate_ebook(
-        self,
-        articles: List[ArticleModel],
-        destination_folder: str = ".",
-        file_name: Optional[str] = None,
-    ):  # TODO: this should be removed I guess crawler's job is just to prepare data
         pass
 
 
