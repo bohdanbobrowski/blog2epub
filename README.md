@@ -99,17 +99,13 @@ And then to create dmg image with app:
 
 ## Current version
 
-### [v1.3.0](https://github.com/bohdanbobrowski/blog2epub/releases/tag/v1.3.0) - 2024-07-20
-- [X] introduce KivyMD
-- [X] python poetry instead of venv
-- [X] code refactor and cleanup
-- [X] add tabbed layout with list of articles
-- [X] 2 stages: crawl/download & ebook generation
-- [X] selectable list of articles
-- [X] feature: prevent epub file overwriting
-- [X] feature: cancel download
-- [X] fixed bug: chapters were not added to ebook spine, which caused problems with navigation
-- [X] Windows and macOS builds
+### [v1.4.0]
+- [X] custom destination folder
+- [X] UI improvements (better scaling, more rely on KivyMD default features)
+- [X] mypy and ruff pipeline job (via github Actions)
+- [ ] unittesting
+- [ ] huge crawlers refactor
+- [ ] Android build
 
 [&raquo; Complete Change Log here &laquo;](https://github.com/bohdanbobrowski/blog2epub/blob/master/CHANGELOG.md)
 
