@@ -41,4 +41,8 @@ class Blog2EpubSettings:
             data = self.data
         data = self._save_history(data)
         with open(self.settings_file, "w") as outfile:
-            yaml.dump(data.model_dump(), outfile, default_flow_style=False)
+            try:
+                data_dict = data.model_dump()
+            except AttributeError:
+                data_dict = data.dict()
+            yaml.dump(data_dict, outfile, default_flow_style=False)

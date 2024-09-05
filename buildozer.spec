@@ -37,7 +37,7 @@ version = 1.4.0
 
 # (list) Application requirements
 # comma separated e.g. requirements = sqlite3,kivy
-requirements = python3,kivy==2.3.0,kivymd==1.2.0,pydantic==2.8.2,pydantic_core==2.20.1,lxml==5.3.0,attrs,pillow,beautifulsoup4,ebooklib,python-dateutil,atoma,fake-useragent,pyyaml,plyer,defusedxml
+requirements = python3,kivy==2.3.0,kivymd==1.2.0,pydantic,pydantic_core,lxml==5.3.0,attrs,pillow,beautifulsoup4,ebooklib,python-dateutil,atoma,fake-useragent,pyyaml,plyer,defusedxml
 
 # (str) Custom source folders for requirements
 # Sets custom source for any requirements with recipes
@@ -283,7 +283,8 @@ android.permissions = android.permission.INTERNET, (name=android.permission.WRIT
 
 # (list) The Android archs to build for, choices: armeabi-v7a, arm64-v8a, x86, x86_64
 # In past, was `android.arch` as we weren't supporting builds for multiple archs at the same time.
-android.archs = arm64-v8a, armeabi-v7a
+# android.archs = arm64-v8a, armeabi-v7a
+android.archs = arm64-v8a
 
 # (int) overrides automatic versionCode computation (used in build.gradle)
 # this is not the same as app version and should only be edited if you know what you're doing
