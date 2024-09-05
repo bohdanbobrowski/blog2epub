@@ -1,6 +1,5 @@
 import logging
 import os
-import platform
 import re
 import sys
 import webbrowser
@@ -31,6 +30,7 @@ from kivy.config import Config  # type: ignore
 Config.set("input", "mouse", "mouse,multitouch_on_demand")
 Config.set("graphics", "resizable", False)
 
+from kivy.utils import platform  # type: ignore
 from kivymd.app import MDApp  # type: ignore
 from kivy.clock import mainthread  # type: ignore
 from kivy.core.window import Window  # type: ignore
@@ -599,9 +599,9 @@ class Blog2EpubKivy(MDApp):
         self.title = f"blog2epub - v. {Blog2Epub.version}"
         logging.info(self.title)
         logging.debug(f"Metrics.density = {Metrics.density}")
-        if platform.system() == "Darwin":
+        if platform == "macos":
             self.icon = asset_path("blog2epub.icns")
-        elif platform.system() == "Windows":
+        elif platform == "win":
             self.icon = asset_path("blog2epub_256px.png")
         else:
             self.icon = asset_path("blog2epub.svg")
@@ -612,7 +612,8 @@ class Blog2EpubKivy(MDApp):
         self.theme_cls.theme_style = "Light"
         self.theme_cls.primary_palette = "Teal"
         Window.resizable = False
-        Window.size = (sp(640), sp(480))
+        if platform != 'android':
+            Window.size = (sp(640), sp(480))
         return Blog2EpubKivyWindow()
 
 
