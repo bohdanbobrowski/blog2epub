@@ -1,11 +1,9 @@
 import html
-import logging
 import os
 from abc import ABC, abstractmethod
 from datetime import datetime
 from pathlib import Path
 from typing import List, Optional, Dict
-from xml import etree
 import re
 
 from lxml.html.soupparser import fromstring
@@ -15,6 +13,7 @@ import dateutil
 
 from blog2epub.common.book import Book
 from blog2epub.common.interfaces import EmptyInterface
+from blog2epub.common.language_tools import translate_month
 from blog2epub.models.book import ArticleModel, DirModel
 from blog2epub.models.configuration import ConfigurationModel
 from blog2epub.common.crawler import (
@@ -61,7 +60,7 @@ class AbstractCrawler(ABC):
         self.active = False
         self.cancelled = False
         self.ignore_downloads: List[str] = []
-        self.article_class = "Article"
+        self.article_class = Article
         self.content_xpath = (
             "//div[contains(concat(' ',normalize-space(@class),' '),'post-body')]"
         )
@@ -96,7 +95,7 @@ class Article:
     Blog post, article which became book chapter...
     """
 
-    def __init__(self, url, title, crawler):
+    def __init__(self, url, title, crawler: AbstractCrawler):
         self.url = url
         self.title = title
         self.tags: List[str] = []
@@ -112,7 +111,15 @@ class Article:
         self.content = None
         self.date = None
         self.tree = None
-        self.downloader = Downloader(crawler)
+        self.downloader = Downloader(
+            dirs=self.dirs,
+            url=self.url,
+            url_to_crawl=crawler.url_to_crawl,
+            interface=crawler.interface,
+            images_size=crawler.configuration.images_size,
+            images_quality=crawler.configuration.images_quality,
+            ignore_downloads=crawler.ignore_downloads,
+        )
 
     def get_title(self):
         self.title = html.unescape(self.title.strip())
@@ -134,55 +141,11 @@ class Article:
             else:
                 self.date = str(datetime.now())
         else:
-            self.date = self._translate_month(self.date)
+            self.date = translate_month(self.date, self.language)
         try:
             self.date = dateutil.parser.parse(self.date)
         except IndexError:
             self.interface.print(f"Date not parsed: {self.date}")
-
-    def _translate_month(self, date: str) -> str:
-        date = date.lower()
-        if self.language == "pl":
-            replace_dict = {
-                "stycznia": "january",
-                "lutego": "february",
-                "marca": "march",
-                "kwietnia": "april",
-                "maja": "may",
-                "czerwca": "june",
-                "lipca": "july",
-                "sierpnia": "august",
-                "września": "september",
-                "października": "october",
-                "listopada": "november",
-                "grudnia": "december",
-            }
-            replace_dict_short = {}
-            for key, val in replace_dict.items():
-                date = date.replace(key, val)
-                replace_dict_short[f" {key[0:3]} "] = f" {val} "
-            for key, val in replace_dict_short.items():
-                date = date.replace(key, val)
-        if self.language == "ru":
-            replace_dict = {
-                "января": "january",
-                "февраля": "february",
-                "марта": "march",
-                "апреля": "april",
-                "мая": "may",
-                "июня": "june",
-                "июля": "july",
-                "августа": "august",
-                "сентября": "september",
-                "октября": "october",
-                "ноября": "november",
-                "декабря": "december",
-            }
-            for key, val in replace_dict.items():
-                date = date.replace(key, val)
-            date = re.sub(r"\sг.$", "", date)
-        logging.debug(f"Date: {date}")
-        return date
 
     def _find_images(self):
         return re.findall(self.images_regex, self.html)
@@ -269,8 +232,8 @@ class Article:
         self.content = self.tree.xpath(self.content_xpath)
         if len(self.content) == 1:
             self.content = self.content[0]
-            self.content = etree.tostring(self.content)
-            self.content = re.sub('style="[^"]*"', "", self.content.decode("utf-8"))
+            self.content = str(self.content)
+            self.content = re.sub('style="[^"]*"', "", self.content)
             self.content = re.sub('class="[^"]*"', "", self.content)
             for src in re.findall('<iframe.+? src="([^?= ]*)', self.content):
                 self.content = re.sub(

@@ -474,23 +474,15 @@ class Blog2EpubKivyWindow(MDBoxLayout):
         self.articles_table.update_row_data(self.articles_table, [])
         self.tab_select.disabled = True
         self.save_settings()
-        configuration = ConfigurationModel(
-            **{
-                "limit": self.limit_entry.text,
-                "skip": self.limit_entry.text,
-                "destination_folder": str(Path.home()),
-            }
-        )
         self.blog2epub = Blog2Epub(
-            **{
-                "url": self._get_url(),
-                "configuration": configuration,
-                "start": None,
-                "end": None,
-                "file_name": None,
-                "cache_folder": os.path.join(str(Path.home()), ".blog2epub"),
-                "interface": self.interface,
-            }
+            url=self._get_url(),
+            configuration=ConfigurationModel(
+                limit=self.limit_entry.text,
+                skip=self.limit_entry.text,
+                destination_folder=str(Path.home()),
+            ),
+            cache_folder=os.path.join(str(Path.home()), ".blog2epub"),
+            interface=self.interface,
         )
         self.download_thread = Thread(
             target=self._download_ebook,

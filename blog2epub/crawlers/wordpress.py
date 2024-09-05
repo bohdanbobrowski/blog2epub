@@ -17,7 +17,7 @@ class WordpressCrawler(DefaultCrawler):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.article_class = "ArticleWordpressCom"
+        self.article_class = ArticleWordpressCom
         self.content_xpath = (
             "//div[contains(concat(' ',normalize-space(@class),' '),'type-post')]"
         )
@@ -38,7 +38,7 @@ class WordpressCrawler(DefaultCrawler):
         while next_page:
             for item in self.atom_feed.entries:
                 self.article_counter += 1
-                art = eval(self.article_class)(
+                art = self.article_class(
                     item.links[0].href, html.unescape(item.title.value), self
                 )
                 self.interface.print(str(len(self.articles) + 1) + ". " + art.title)
