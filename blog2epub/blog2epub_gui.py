@@ -5,7 +5,6 @@ import sys
 import webbrowser
 import math
 import time
-import pydantic
 from datetime import datetime
 from itertools import cycle
 from threading import Thread
@@ -228,11 +227,8 @@ class Blog2EpubKivyWindow(MDBoxLayout):
             text="Generate",
             font_size=sp(16),
             disabled=True,
+            on_press=self.generate,
         )
-        if platform == "android":
-            self.generate_button.bind(on_touch_down=self.generate)
-        else:
-            self.generate_button.bind(on_press=self.generate)
         self._put_element_in_anchor_layout(self.generate_button, tab_layout)
 
         self.tab_generate.add_widget(tab_layout)
@@ -502,7 +498,7 @@ class Blog2EpubKivyWindow(MDBoxLayout):
         self.download_button.text = "Cancel"
         if platform == "android":
             self.download_button.unbind(on_touch_down=self.download)
-            self.download_button.bind(on_touch_down=self.cancel_download)
+            self.download_button.bind(on_triple_tap=self.cancel_download)
         else:
             self.download_button.unbind(on_press=self.download)
             self.download_button.bind(on_press=self.cancel_download)
@@ -512,7 +508,7 @@ class Blog2EpubKivyWindow(MDBoxLayout):
         self.download_button.icon = "download"
         self.download_button.text = "Download"
         if platform == "android":
-            self.download_button.unbind(on_touch_down=self.cancel_download)
+            self.download_button.unbind(on_triple_tap=self.cancel_download)
             self.download_button.bind(on_touch_down=self.download)
         else:
             self.download_button.unbind(on_press=self.cancel_download)

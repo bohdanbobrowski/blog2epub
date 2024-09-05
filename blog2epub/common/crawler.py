@@ -3,6 +3,7 @@ import ssl
 
 ssl._create_default_https_context = ssl._create_stdlib_context
 
+
 def prepare_url(url: str) -> str:
     return url.replace("http:", "").replace("https:", "").strip("/")
 
