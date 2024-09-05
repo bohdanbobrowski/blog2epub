@@ -1,3 +1,4 @@
+import importlib
 from datetime import datetime
 from typing import Optional
 
@@ -22,7 +23,10 @@ class Blog2Epub:
         interface: EmptyInterface = EmptyInterface(),
     ):
         crawler_class_name = self._get_crawler_class_name(url)
-        self.crawler = eval(crawler_class_name)(
+        crawler_class = getattr(
+            importlib.import_module("blog2epub.crawlers"), crawler_class_name
+        )
+        self.crawler = crawler_class(
             url=url,
             configuration=configuration,
             start=start,
