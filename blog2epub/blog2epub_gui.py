@@ -608,11 +608,14 @@ class Blog2EpubKivy(MDApp):
 
     def build(self):
         global USER_DATA_DIR
-        USER_DATA_DIR = self.user_data_dir
+        if platform != "android":
+            USER_DATA_DIR = self.user_data_dir[:-4]
+        else:
+            USER_DATA_DIR = self.user_data_dir
         self.theme_cls.theme_style = "Light"
         self.theme_cls.primary_palette = "Teal"
         Window.resizable = False
-        if platform != 'android':
+        if platform != "android":
             Window.size = (sp(640), sp(480))
         return Blog2EpubKivyWindow()
 
