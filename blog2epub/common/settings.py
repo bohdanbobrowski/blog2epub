@@ -24,7 +24,10 @@ class Blog2EpubSettings:
         else:
             with open(self.settings_file, "rb") as stream:
                 data_in_file = yaml.safe_load(stream)
-            data = ConfigurationModel(**data_in_file)
+            if data_in_file:
+                data = ConfigurationModel(**data_in_file)
+            else:
+                data = ConfigurationModel()
         return data
 
     def _save_history(self, data: ConfigurationModel) -> ConfigurationModel:
