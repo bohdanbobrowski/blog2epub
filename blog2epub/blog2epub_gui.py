@@ -319,7 +319,7 @@ class Blog2EpubKivyWindow(MDBoxLayout):
         )
 
         self.url_entry = UrlTextInput(
-            hint_text="Blog url:",
+            hint_text="Url:",
             text=self.blog2epub_settings.data.url,
             helper_text="Press up/down to browse in url history",
             icon_right="clipboard-flow",
