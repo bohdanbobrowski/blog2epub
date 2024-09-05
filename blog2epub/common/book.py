@@ -4,13 +4,13 @@ import os
 import re
 import tempfile
 import zipfile
-from typing import Optional, List, Any
+from typing import Optional, List
 
 from ebooklib.epub import EpubHtml, EpubBook, EpubNcx, EpubNav, EpubItem, write_epub  # type: ignore
 
 from blog2epub.common.cover import Cover
 from blog2epub.common.interfaces import EmptyInterface
-from blog2epub.models.book import DirModel, ArticleModel
+from blog2epub.models.book import DirModel, ArticleModel, BookModel
 from blog2epub.models.configuration import ConfigurationModel
 
 
@@ -65,20 +65,19 @@ class Book:
     </body>
     </html>"""
 
-    start: datetime.date | None = None
-    end: datetime.date | None = None
-    file_full_path: str | None = None
-    cover: Cover | None = None
-    cover_image_path: str | None = None
-    book: EpubBook | None = None
-
     def __init__(
         self,
-        book_data: Any,
+        book_data: BookModel,
         configuration: ConfigurationModel,
         interface: EmptyInterface = EmptyInterface(),
         destination_folder: str = ".",
     ):
+        self.start: datetime.date | None = None
+        self.end: datetime.date | None = None
+        self.file_full_path: str | None = None
+        self.cover: Cover | None = None
+        self.cover_image_path: str | None = None
+        self.book: EpubBook | None = None
         self.title = book_data.title
         self.description = book_data.description
         self.url = book_data.url
@@ -156,7 +155,15 @@ class Book:
         return cover_title
 
     def _add_cover(self):
-        self.cover = Cover(self)
+        self.cover = Cover(
+            dirs=self.dirs,
+            interface=self.interface,
+            file_name=self.file_name,
+            blog_url=self.file_name_prefix,
+            title=self.title,
+            subtitle=self.subtitle,
+            images=self.images,
+        )
         cover_file_name, cover_file_full_path = self.cover.generate()
         self.cover_image_path = os.path.join(cover_file_name, cover_file_full_path)
         cover_html = self.cover_html.replace("###FILE###", cover_file_name)

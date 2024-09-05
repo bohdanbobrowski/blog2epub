@@ -23,7 +23,6 @@ from plyer import filechooser, notification, email  # type: ignore
 
 from blog2epub.common.book import Book
 from blog2epub.models.book import ArticleModel
-from blog2epub.models.configuration import ConfigurationModel
 
 if sys.__stdout__ is None or sys.__stderr__ is None:
     os.environ["KIVY_NO_CONSOLELOG"] = "1"
@@ -52,17 +51,8 @@ from blog2epub.common.exceptions import BadUrlException
 from blog2epub.common.interfaces import EmptyInterface
 from blog2epub.common.settings import Blog2EpubSettings
 
+USER_DATA_DIR = "."  # TODO: Make it more elegant. This is just workaround.
 UI_FONT_NAME = asset_path("MartianMono-Regular.ttf")
-SETTINGS = Blog2EpubSettings()
-URL_HISTORY_ITERATOR = cycle(SETTINGS.data.history)
-
-
-def get_previous():
-    if len(SETTINGS.data.history) > 2:
-        for x in range(0, len(SETTINGS.data.history) - 2):
-            next(URL_HISTORY_ITERATOR)
-    return next(URL_HISTORY_ITERATOR)
-
 
 now = datetime.now()
 date_time = now.strftime("%Y-%m-%d[%H.%M.%S]")
@@ -79,17 +69,24 @@ logging.basicConfig(
 
 
 class UrlTextInput(MDTextField):
+    def __init__(self, *args, **kwargs):
+        self.url_history: List["str"] = kwargs.pop("url_history", [])
+        self._url_history_iterator = cycle(self.url_history)
+        super().__init__(*args, **kwargs)
+
+    def _get_previous_url_history(self):
+        if len(self.url_history) > 2:
+            for x in range(0, len(self.url_history) - 2):
+                next(self._url_history_iterator)
+        return next(self._url_history_iterator)
+
     def keyboard_on_key_down(self, window, keycode, text, modifiers):
         # ↑ up
-        if keycode[0] == 273 and (
-            self.text == "" or self.text in SETTINGS.data.history
-        ):
-            self.text = get_previous()
+        if keycode[0] == 273 and (self.text == "" or self.text in self.url_history):
+            self.text = self._get_previous_url_history()
         # ↓ down
-        if keycode[0] == 274 and (
-            self.text == "" or self.text in SETTINGS.data.history
-        ):
-            self.text = next(URL_HISTORY_ITERATOR)
+        if keycode[0] == 274 and (self.text == "" or self.text in self.url_history):
+            self.text = next(self._url_history_iterator)
         return super().keyboard_on_key_down(window, keycode, text, modifiers)
 
 
@@ -99,11 +96,12 @@ class Tab(MDBoxLayout, MDTabsBase):
 
 class Blog2EpubKivyWindow(MDBoxLayout):
     def __init__(self, **kwargs):
+        global USER_DATA_DIR
         super().__init__(**kwargs)
-
         self.orientation = "vertical"
 
         self.articles_data = []
+        self.blog2epub_settings = Blog2EpubSettings(path=USER_DATA_DIR)
         self.blog2epub = None
         self.download_thread = None
         self.ebook_data = None
@@ -217,7 +215,7 @@ class Blog2EpubKivyWindow(MDBoxLayout):
         email_entry = MDTextField(
             hint_text="Email address to send the generated ebook:",
             icon_right="email",
-            text=SETTINGS.data.email,
+            text=self.blog2epub_settings.data.email,
             helper_text="Need to be a correct e-mail address",
             helper_text_mode="on_error",
         )
@@ -227,7 +225,7 @@ class Blog2EpubKivyWindow(MDBoxLayout):
 
         self.destination_button = MDRoundFlatIconButton(
             icon="folder",
-            text=f"Destination folder: {SETTINGS.data.destination_folder}",
+            text=f"Destination folder: {self.blog2epub_settings.data.destination_folder}",
             font_size=sp(16),
         )
         self.destination_button.bind(on_press=self.select_destination_folder)
@@ -249,11 +247,11 @@ class Blog2EpubKivyWindow(MDBoxLayout):
             title="Select ebook destination",
         )
         logging.info(f"Selected path: {path}")
-        SETTINGS.data.destination_folder = path[0]
-        SETTINGS.save()
+        self.blog2epub_settings.data.destination_folder = path[0]
+        self.blog2epub_settings.save()
 
         self.destination_button.text = (
-            f"Destination folder: {SETTINGS.data.destination_folder}"
+            f"Destination folder: {self.blog2epub_settings.data.destination_folder}"
         )
 
     @staticmethod
@@ -330,9 +328,10 @@ class Blog2EpubKivyWindow(MDBoxLayout):
 
         self.url_entry = UrlTextInput(
             hint_text="Blog url:",
-            text=SETTINGS.data.url,
+            text=self.blog2epub_settings.data.url,
             helper_text="Press up/down to browse in url history",
             icon_right="clipboard-flow",
+            url_history=self.blog2epub_settings.data.history,
         )
         url_row.add_widget(self.url_entry)
         return url_row
@@ -343,7 +342,7 @@ class Blog2EpubKivyWindow(MDBoxLayout):
         )
 
         self.limit_entry = MDTextField(
-            text=SETTINGS.data.limit,
+            text=self.blog2epub_settings.data.limit,
             input_type="number",
             hint_text="Articles limit:",
             icon_right="numeric",
@@ -352,7 +351,7 @@ class Blog2EpubKivyWindow(MDBoxLayout):
         params_row.add_widget(self.limit_entry)
 
         self.skip_entry = MDTextField(
-            text=SETTINGS.data.skip,
+            text=self.blog2epub_settings.data.skip,
             input_type="number",
             hint_text="Skip:",
             icon_right="numeric",
@@ -371,16 +370,16 @@ class Blog2EpubKivyWindow(MDBoxLayout):
 
     def _validate_limit(self, input_widget, text):
         input_widget.text = " ".join(re.findall(r"\d+", text))
-        SETTINGS.data.limit = input_widget.text
+        self.blog2epub_settings.data.limit = input_widget.text
 
     def _validate_skip(self, input_widget, text):
         input_widget.text = " ".join(re.findall(r"\d+", text))
-        SETTINGS.data.skip = input_widget.text
+        self.blog2epub_settings.data.skip = input_widget.text
 
     def _validate_email(self, input_widget, text):
         if re.fullmatch(r"[^@]+@[^@]+\.[^@]+", text) or text == "":
             input_widget.error = False
-            SETTINGS.data.email = text
+            self.blog2epub_settings.data.email = text
         else:
             input_widget.error = True
 
@@ -407,7 +406,7 @@ class Blog2EpubKivyWindow(MDBoxLayout):
             self.articles_table.update_row_data(
                 self.articles_table, self._get_articles_rows()
             )
-            SETTINGS.data.language = blog2epub.crawler.language
+            self.blog2epub_settings.data.language = blog2epub.crawler.language
             self.ebook_data = blog2epub.crawler.get_book_data()
             self.articles_table.update_row_data(
                 self.articles_table, self._get_articles_rows()
@@ -437,9 +436,9 @@ class Blog2EpubKivyWindow(MDBoxLayout):
         if self.ebook_data:
             ebook = Book(
                 book_data=self.ebook_data,
-                configuration=SETTINGS.data,
+                configuration=self.blog2epub_settings.data,
                 interface=self.interface,
-                destination_folder=SETTINGS.data.destination_folder,
+                destination_folder=self.blog2epub_settings.data.destination_folder,
             )
             ebook.save(self._get_articles_to_save())
             self.popup_success(ebook)
@@ -469,6 +468,7 @@ class Blog2EpubKivyWindow(MDBoxLayout):
         return temp_data
 
     def download(self, instance):
+        global USER_DATA_DIR
         self.interface.clear()
         self._disable_download_button()
         self.articles_table.update_row_data(self.articles_table, [])
@@ -476,12 +476,8 @@ class Blog2EpubKivyWindow(MDBoxLayout):
         self.save_settings()
         self.blog2epub = Blog2Epub(
             url=self._get_url(),
-            configuration=ConfigurationModel(
-                limit=self.limit_entry.text,
-                skip=self.limit_entry.text,
-                destination_folder=str(Path.home()),
-            ),
-            cache_folder=os.path.join(str(Path.home()), ".blog2epub"),
+            configuration=self.blog2epub_settings.data,
+            cache_folder=USER_DATA_DIR,
             interface=self.interface,
         )
         self.download_thread = Thread(
@@ -504,7 +500,6 @@ class Blog2EpubKivyWindow(MDBoxLayout):
 
     def _disable_download_button(self):
         self.interface.print("Downloading...")
-        # self.download_button.disabled = True
         self.download_button.icon = "cancel"
         self.download_button.text = "Cancel"
         self.download_button.unbind(on_press=self.download)
@@ -518,11 +513,10 @@ class Blog2EpubKivyWindow(MDBoxLayout):
         self.download_button.bind(on_press=self.download)
 
     def save_settings(self):
-        """TODO: This should be removed from here"""
-        SETTINGS.data.url = prepare_url(self.url_entry.text)
-        SETTINGS.data.limit = self.limit_entry.text
-        SETTINGS.data.skip = self.skip_entry.text
-        SETTINGS.save()
+        self.blog2epub_settings.data.url = prepare_url(self.url_entry.text)
+        self.blog2epub_settings.data.limit = self.limit_entry.text
+        self.blog2epub_settings.data.skip = self.skip_entry.text
+        self.blog2epub_settings.save()
 
     @mainthread
     def popup_success(self, ebook: Book):
@@ -544,11 +538,11 @@ class Blog2EpubKivyWindow(MDBoxLayout):
         success_content.add_widget(epub_cover_image_widget)
 
         def open_ebook_in_default_viewer(inst):
-            open_file(ebook.generated_ebook_path)
+            open_file(ebook.file_full_path)
 
         def send_ebook_via_email(inst):
             email.send(
-                recipient=SETTINGS.data.email,
+                recipient=self.blog2epub_settings.data.email,
                 subject=f"blog2epub - {ebook.title}",
                 text="Now please attach generated file manually :-)",
             )
@@ -569,7 +563,7 @@ class Blog2EpubKivyWindow(MDBoxLayout):
                 on_press=open_ebook_in_default_viewer,
             )
         )
-        if SETTINGS.data.email:
+        if self.blog2epub_settings.data.email:
             buttons_row.add_widget(
                 MDRoundFlatIconButton(
                     text="Send epub via e-mail",
@@ -624,6 +618,8 @@ class Blog2EpubKivy(MDApp):
             self.icon = asset_path("blog2epub.svg")
 
     def build(self):
+        global USER_DATA_DIR
+        USER_DATA_DIR = self.user_data_dir
         self.theme_cls.theme_style = "Light"
         self.theme_cls.primary_palette = "Teal"
         Window.resizable = False

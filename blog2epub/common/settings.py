@@ -8,9 +8,7 @@ from blog2epub.models.configuration import ConfigurationModel
 
 
 class Blog2EpubSettings:
-    def __init__(self, path: Optional[str] = None):
-        if path is None:
-            path = os.path.join(str(Path.home()), ".blog2epub")
+    def __init__(self, path: Optional[str]):
         self.path = path
         self._prepare_path()
         self.settings_file = os.path.join(self.path, "blog2epub.yml")

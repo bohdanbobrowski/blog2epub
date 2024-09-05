@@ -31,7 +31,7 @@ class AbstractCrawler(ABC):
         start: Optional[datetime] = None,
         end: Optional[datetime] = None,
         file_name: Optional[str] = None,
-        cache_folder: str = os.path.join(str(Path.home()), ".blog2epub"),
+        cache_folder: str = "",
         interface: EmptyInterface = EmptyInterface(),
     ):
         super().__init__()
