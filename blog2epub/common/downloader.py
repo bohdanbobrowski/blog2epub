@@ -4,16 +4,16 @@ import imghdr
 import os
 import re
 
-from http.cookiejar import CookieJar
-from typing import Optional, List
+from typing import Optional, List, Mapping
 from urllib.parse import urlparse
 import time
 from PIL import Image
 
 import requests
+from requests.cookies import RequestsCookieJar
 
 from blog2epub.models.book import DirModel
-from common.interfaces import EmptyInterface
+from blog2epub.common.interfaces import EmptyInterface
 
 
 def prepare_directories(dirs: DirModel):
@@ -41,9 +41,9 @@ class Downloader:
         self.images_size = images_size
         self.images_quality = images_quality
         self.ignore_downloads = ignore_downloads
-        self.cookies = CookieJar()
+        self.cookies = RequestsCookieJar()
         self.session = requests.session()
-        self.headers = {}
+        self.headers: Mapping[str, str] = {}
 
     def get_urlhash(self, url):
         m = hashlib.md5()

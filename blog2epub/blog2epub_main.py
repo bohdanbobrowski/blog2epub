@@ -2,15 +2,8 @@ from datetime import datetime
 from typing import Optional
 
 from blog2epub.common.globals import VERSION
-from blog2epub.crawlers import (
-    BlogspotCrawler,
-    NrdblogCmosEuCrawler,
-    UniversalCrawler,
-    WordpressCrawler,
-    ZeissIkonVEBCrawler,
-)
-from common.interfaces import EmptyInterface
-from models.configuration import ConfigurationModel
+from blog2epub.common.interfaces import EmptyInterface
+from blog2epub.models.configuration import ConfigurationModel
 
 
 class Blog2Epub:
@@ -39,7 +32,7 @@ class Blog2Epub:
             interface=interface,
         )
 
-    def _get_crawler_class_name(self, url:str) -> str:
+    def _get_crawler_class_name(self, url: str) -> str:
         if url.find(".blogspot.") > -1:
             return "BlogspotCrawler"
         if url.find(".wordpress.com") > -1:

@@ -126,9 +126,7 @@ class DefaultCrawler(AbstractCrawler):
         output = []
         if art_urls and len(art_urls) == len(art_titles):
             for i in range(len(art_urls)):
-                output.append(
-                    self.article_class(art_urls[i], art_titles[i], self)
-                )
+                output.append(self.article_class(art_urls[i], art_titles[i], self))
         else:
             articles_list = re.findall(self.articles_regex, content)
             for art in articles_list:
@@ -161,9 +159,7 @@ class DefaultCrawler(AbstractCrawler):
         for item in self.atom_feed.entries:
             try:
                 self.article_counter += 1
-                art = self.article_class(
-                    item.links[0].href, item.title.value, self
-                )
+                art = self.article_class(item.links[0].href, item.title.value, self)
                 if (
                     self.configuration.skip
                     and self.configuration.skip.isdigit()
@@ -196,9 +192,9 @@ class DefaultCrawler(AbstractCrawler):
     def _articles_loop(self, content):
         for art in self._get_articles(content):
             self.article_counter += 1
-            if (
-                not self.configuration.skip
-                or (self.configuration.skip.isdigit() and self.article_counter > int(self.configuration.skip))
+            if not self.configuration.skip or (
+                self.configuration.skip.isdigit()
+                and self.article_counter > int(self.configuration.skip)
             ):
                 art.process()
                 self.images = self.images + art.images

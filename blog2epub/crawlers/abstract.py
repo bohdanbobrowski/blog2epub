@@ -104,9 +104,9 @@ class Article:
         self.comments = ""  # TODO: should be a list in the future
         self.content_xpath = crawler.content_xpath
         self.images_regex = crawler.images_regex
-        self.language: str = crawler.language
+        self.language: Optional[str] = crawler.language
         self.images: List[str] = []
-        self.images_captions = []
+        self.images_captions: List[str] = []
         self.html = None
         self.content = None
         self.date = None
