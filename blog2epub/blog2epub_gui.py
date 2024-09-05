@@ -10,7 +10,7 @@ from datetime import datetime
 from itertools import cycle
 from pathlib import Path
 from threading import Thread
-from typing import Optional, List
+from typing import List
 from urllib import parse
 
 from kivy.uix.anchorlayout import AnchorLayout  # type: ignore
@@ -398,14 +398,6 @@ class Blog2EpubKivyWindow(MDBoxLayout):
             return self.url_entry.text
         raise BadUrlException("Blog url is not valid.")
 
-    @staticmethod
-    def _is_int(value) -> Optional[int]:
-        try:
-            int(value)
-            return int(value)
-        except ValueError:
-            return None
-
     def _download_ebook(self, blog2epub: Blog2Epub):
         blog2epub.download()
         self._enable_download_button()
@@ -484,23 +476,20 @@ class Blog2EpubKivyWindow(MDBoxLayout):
         self.save_settings()
         configuration = ConfigurationModel(
             **{
-                "include_images": True,
-                "images_size": (600, 800),
-                "images_quality": 40,
-                "limit": self._is_int(self.limit_entry.text),
-                "skip": self._is_int(self.skip_entry.text),
+                "limit": self.limit_entry.text,
+                "skip": self.limit_entry.text,
+                "destination_folder": str(Path.home()),
             }
         )
         self.blog2epub = Blog2Epub(
             **{
-                "interface": self.interface,
                 "url": self._get_url(),
                 "configuration": configuration,
                 "start": None,
                 "end": None,
                 "file_name": None,
                 "cache_folder": os.path.join(str(Path.home()), ".blog2epub"),
-                "destination_folder": str(Path.home()),
+                "interface": self.interface,
             }
         )
         self.download_thread = Thread(

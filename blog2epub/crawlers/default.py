@@ -18,15 +18,8 @@ class DefaultCrawler(AbstractCrawler):
     Universal blog crawler.
     """
 
-    article_class = "Article"
-
-    content_xpath = (
-        "//div[contains(concat(' ',normalize-space(@class),' '),'post-body')]"
-    )
-    images_regex = r'<table[^>]*><tbody>[\s]*<tr><td[^>]*><a href="([^"]*)"[^>]*><img[^>]*></a></td></tr>[\s]*<tr><td class="tr-caption" style="[^"]*">([^<]*)'
-    articles_regex = r"<h3 class=\'post-title entry-title\' itemprop=\'name\'>[\s]*<a href=\'([^\']*)\'>([^>^<]*)</a>[\s]*</h3>"
-
-    ignore_downloads = []
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
 
     def _get_articles_list(self) -> List[ArticleModel]:
         """This is temporary solution - crawler should use data models as default data storage."""
@@ -173,7 +166,8 @@ class DefaultCrawler(AbstractCrawler):
                 )
                 if (
                     self.configuration.skip
-                    and self.article_counter < self.configuration.skip
+                    and self.configuration.skip.isdigit()
+                    and self.article_counter < int(self.configuration.skip)
                 ):
                     self.interface.print("[skipping] " + art.title)
                     continue
@@ -222,7 +216,11 @@ class DefaultCrawler(AbstractCrawler):
                 break
 
     def _check_limit(self):
-        if self.configuration.limit and len(self.articles) >= self.configuration.limit:
+        if (
+            self.configuration.limit
+            and self.configuration.limit.isdigit()
+            and len(self.articles) >= int(self.configuration.limit)
+        ):
             self.url_to_crawl = None
 
     def _prepare_content(self, content):

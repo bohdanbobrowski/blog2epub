@@ -5,7 +5,7 @@ import os
 import re
 
 from http.cookiejar import CookieJar
-from typing import Optional
+from typing import Optional, List
 from urllib.parse import urlparse
 import time
 from PIL import Image
@@ -13,6 +13,7 @@ from PIL import Image
 import requests
 
 from blog2epub.models.book import DirModel
+from common.interfaces import EmptyInterface
 
 
 def prepare_directories(dirs: DirModel):
@@ -23,15 +24,23 @@ def prepare_directories(dirs: DirModel):
 
 
 class Downloader:
-    def __init__(self, crawler):
-        self.dirs = crawler.dirs
-        self.url_to_crawl = crawler.url_to_crawl
-        self.crawler_url = crawler.url
-        self.crawler_port = crawler.port
-        self.interface = crawler.interface
-        self.images_size = crawler.images_size
-        self.images_quality = crawler.images_quality
-        self.ignore_downloads = crawler.ignore_downloads
+    def __init__(
+        self,
+        dirs: DirModel,
+        url: str,
+        url_to_crawl: str,
+        interface: EmptyInterface,
+        images_size: List[int],
+        images_quality: int,
+        ignore_downloads: List[str],
+    ):
+        self.dirs = dirs
+        self.url = url
+        self.url_to_crawl = url_to_crawl
+        self.interface = interface
+        self.images_size = images_size
+        self.images_quality = images_quality
+        self.ignore_downloads = ignore_downloads
         self.cookies = CookieJar()
         self.session = requests.session()
         self.headers = {}
@@ -115,14 +124,14 @@ class Downloader:
             interstitial = self.checkInterstitial(contents)
             if interstitial:
                 interstitial_url = (
-                    "http://" + self.crawler_url + "?interstitial=" + interstitial
+                    "http://" + self.url + "?interstitial=" + interstitial
                 )
                 self.file_download(
                     interstitial_url, self.get_filepath(interstitial_url)
                 )
                 contents = self.file_download(
-                    "http://" + self.crawler_url,
-                    self.get_filepath("http://" + self.crawler_url),
+                    "http://" + self.url,
+                    self.get_filepath("http://" + self.url),
                 )
         return contents
 

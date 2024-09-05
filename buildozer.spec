@@ -29,7 +29,7 @@ source.exclude_exts = spec, setup.py, pyproject.toml
 #source.exclude_patterns = license,images/*/*.jpg
 
 # (str) Application versioning (method 1)
-version = 1.3.1
+version = 1.4.0
 
 # (str) Application versioning (method 2)
 # version.regex = __version__ = ['"](.*)['"]
