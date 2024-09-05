@@ -300,7 +300,7 @@ class Blog2EpubKivyWindow(MDBoxLayout):
 
         self.tab_about.add_widget(
             MDRoundFlatIconButton(
-                text="github.com/bohdanbobrowski/blog2epub",
+                text="blog2epub on github",
                 font_size=sp(16),
                 font_name=UI_FONT_NAME,
                 size_hint=(1, 0.1),
@@ -316,7 +316,7 @@ class Blog2EpubKivyWindow(MDBoxLayout):
         )
 
         self.url_entry = UrlTextInput(
-            hint_text="Blog url:",
+            hint_text="Url:",
             text=self.blog2epub_settings.data.url,
             helper_text="Press up/down to browse in url history",
             icon_right="clipboard-flow",
@@ -333,7 +333,7 @@ class Blog2EpubKivyWindow(MDBoxLayout):
         self.limit_entry = MDTextField(
             text=self.blog2epub_settings.data.limit,
             input_type="number",
-            hint_text="Articles limit:",
+            hint_text="Limit:",
             icon_right="numeric",
         )
         self.limit_entry.bind(text=self._validate_limit)
