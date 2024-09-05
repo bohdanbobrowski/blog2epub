@@ -112,7 +112,7 @@ class Blog2EpubKivyWindow(MDBoxLayout):
         self.tabs.add_widget(self.tab_about)
 
         self.interface = KivyInterface(self.console_output, self.console_clear)
-        self.interface.print(str(pydantic.version.version_info()))
+        # self.interface.print(str(pydantic.version.version_info()))
 
     def _define_tab_download(self):
         self.tab_download = Tab(
@@ -229,12 +229,15 @@ class Blog2EpubKivyWindow(MDBoxLayout):
             font_size=sp(16),
             disabled=True,
         )
-        self.generate_button.bind(on_press=self.generate)
+        if platform == "android":
+            self.generate_button.bind(on_touch_down=self.generate)
+        else:
+            self.generate_button.bind(on_press=self.generate)
         self._put_element_in_anchor_layout(self.generate_button, tab_layout)
 
         self.tab_generate.add_widget(tab_layout)
 
-    def select_destination_folder(self, instance):
+    def select_destination_folder(self, *args, **kwargs):
         path = filechooser.choose_dir(
             title="Select ebook destination",
         )
@@ -427,7 +430,7 @@ class Blog2EpubKivyWindow(MDBoxLayout):
                 articles_to_save.append(self.ebook_data.articles[x])
         return articles_to_save
 
-    def generate(self, instance):
+    def generate(self, *args, **kwargs):
         if self.ebook_data:
             ebook = Book(
                 book_data=self.ebook_data,
@@ -481,7 +484,7 @@ class Blog2EpubKivyWindow(MDBoxLayout):
         )
         self.download_thread.start()
 
-    def cancel_download(self, instance):
+    def cancel_download(self, *args, **kwargs):
         if self.blog2epub:
             self.blog2epub.crawler.cancelled = True
             while self.blog2epub.crawler.active:
