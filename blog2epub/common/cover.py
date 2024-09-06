@@ -1,5 +1,4 @@
 import os
-import platform
 from random import shuffle
 from typing import List
 
@@ -156,7 +155,5 @@ class Cover:
         cover_file_name = self.file_name + ".jpg"
         cover_file_full_path = os.path.join(self.dirs.path, cover_file_name)
         cover_image.save(cover_file_full_path, format="JPEG", quality=100)
-        self.interface.print(
-            f"Cover generated: {cover_file_full_path}"
-        )
+        self.interface.print(f"Cover generated: {cover_file_full_path}")
         return cover_file_name, cover_file_full_path

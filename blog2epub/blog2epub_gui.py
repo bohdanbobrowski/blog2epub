@@ -311,7 +311,7 @@ class Blog2EpubKivyWindow(MDBoxLayout):
             allow_stretch=True,
             size_hint=(1, 0.7),
         )
-        logo_image.bind(on_triple_tap=self._print_packages())
+        logo_image.bind(on_triple_tap=self._print_packages)
         self.tab_about.add_widget(logo_image)
         self.tab_about.add_widget(
             MDLabel(
@@ -471,6 +471,8 @@ class Blog2EpubKivyWindow(MDBoxLayout):
             platform_name = "MacOS"
         if platform == "linux":
             platform_name = "Linux"
+        if platform_name:
+            return f"on {platform_name}"
         return platform_name
 
     def generate(self, *args, **kwargs):
@@ -532,7 +534,7 @@ class Blog2EpubKivyWindow(MDBoxLayout):
                 kwargs={"blog2epub": self.blog2epub},
             )
             self.download_thread.start()
-        except BadUrlException or URLError:
+        except (BadUrlException, URLError):
             self.url_entry.error = True
 
     def cancel_download(self, *args, **kwargs):

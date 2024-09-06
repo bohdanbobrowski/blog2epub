@@ -93,6 +93,7 @@ class Book:
         self.file_name_prefix: Optional[str] = book_data.file_name_prefix
         self.file_name: str = self._get_new_file_name()
         self.destination_folder = destination_folder
+        self.platform_name = platform_name
 
     def _set_locale(self):
         try:
@@ -187,7 +188,9 @@ class Book:
             with zipfile.ZipFile(self.file_full_path, "a") as zf:
                 zf.writestr(cover_html_fn, cover_html)
                 zf.write(cover_file_full_path, "EPUB/" + cover_file_name)
-                zf.writestr(content_opf_fn, self._upgrade_opf(content_opf, cover_file_name))
+                zf.writestr(
+                    content_opf_fn, self._upgrade_opf(content_opf, cover_file_name)
+                )
 
             self.interface.print(f"Epub created: {self.file_full_path}")
 
