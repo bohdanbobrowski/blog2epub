@@ -1,8 +1,9 @@
 import os
+import platform
 from random import shuffle
 from typing import List
 
-from PIL import Image, ImageDraw, ImageFont
+from PIL import Image, ImageDraw, ImageFont, ImageEnhance
 
 from blog2epub.common.assets import asset_path
 from blog2epub.common.globals import VERSION
@@ -30,6 +31,7 @@ class Cover:
         title: str,
         subtitle: str,
         images: List[ImageModel],
+        platform_name: str = "",
     ):
         """
         :param book: intance of Book class
@@ -41,6 +43,7 @@ class Cover:
         self.title = title
         self.subtitle = subtitle
         self.images = self._check_image_size(set(i.hash for i in images))
+        self.platform_name = platform_name
 
     def _check_image_size(self, image_hashes: set[str]):
         verified_images = []
@@ -115,7 +118,7 @@ class Cover:
         )
         cover_draw.text(
             (15, 750),
-            f"Generated with blog2epub v{VERSION}\nfrom {self.blog_url}",
+            f"Generated with blog2epub v{VERSION} {self.platform_name}\nfrom {self.blog_url}",
             (155, 155, 155),
             font=generator_font,
         )
@@ -128,7 +131,7 @@ class Cover:
         self.interface.print(
             f"Generating cover (800px*600px) from {len(self.images)} images."
         )
-        dark_factor = 1
+        dark_factor = 1.0
         if len(self.images) > 0:
             if len(self.images) > 1:
                 shuffle(self.images)
@@ -141,8 +144,9 @@ class Cover:
                     thumb = self._make_thumb(
                         Image.open(img_file), (self.tile_size, self.tile_size)
                     )
-                    thumb = thumb.point(lambda p: p * dark_factor)
-                    dark_factor = dark_factor - 0.03
+                    enhancer = ImageEnhance.Brightness(thumb)
+                    thumb = enhancer.enhance(dark_factor)
+                    dark_factor -= 0.03
                     cover_image.paste(thumb, (y * self.tile_size, x * self.tile_size))
                     i = i + 1
                     if i > len(self.images):
@@ -152,4 +156,7 @@ class Cover:
         cover_file_name = self.file_name + ".jpg"
         cover_file_full_path = os.path.join(self.dirs.path, cover_file_name)
         cover_image.save(cover_file_full_path, format="JPEG", quality=100)
+        self.interface.print(
+            f"Cover generated: {cover_file_full_path}"
+        )
         return cover_file_name, cover_file_full_path

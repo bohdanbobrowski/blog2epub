@@ -2,13 +2,13 @@ import os
 from datetime import datetime
 from typing import List, Optional
 
-from pydantic import BaseModel, HttpUrl
+from pydantic import BaseModel
 
 
 class BookSynopsisModel(BaseModel):
     title: Optional[str]
     subtitle: Optional[str]
-    urls: List[HttpUrl]
+    urls: List[str]
 
 
 class CommentModel(BaseModel):
@@ -19,7 +19,7 @@ class CommentModel(BaseModel):
 
 
 class ArticleModel(BaseModel):
-    url: HttpUrl
+    url: str
     title: Optional[str]
     date: Optional[datetime]
     content: Optional[str]

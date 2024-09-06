@@ -5,7 +5,6 @@ from typing import Optional, List
 
 import atoma  # type: ignore
 from lxml.html.soupparser import fromstring
-from pydantic import HttpUrl
 
 from blog2epub.crawlers.abstract import AbstractCrawler
 from blog2epub.models.book import BookModel, DirModel, ArticleModel, ImageModel
@@ -25,7 +24,7 @@ class DefaultCrawler(AbstractCrawler):
         for article in self.articles:
             articles_list.append(
                 ArticleModel(
-                    url=HttpUrl(article.url),
+                    url=article.url,
                     title=article.title,
                     date=article.date,
                     content=article.content,

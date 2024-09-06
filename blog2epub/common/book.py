@@ -71,6 +71,7 @@ class Book:
         configuration: ConfigurationModel,
         interface: EmptyInterface = EmptyInterface(),
         destination_folder: str = ".",
+        platform_name: str = "",
     ):
         self.start: datetime.date | None = None
         self.end: datetime.date | None = None
@@ -163,36 +164,31 @@ class Book:
             title=self.title,
             subtitle=self.subtitle,
             images=self.images,
+            platform_name=self.platform_name,
         )
         cover_file_name, cover_file_full_path = self.cover.generate()
         self.cover_image_path = os.path.join(cover_file_name, cover_file_full_path)
         cover_html = self.cover_html.replace("###FILE###", cover_file_name)
         cover_html_fn = "EPUB/cover.xhtml"
         content_opf_fn = "EPUB/content.opf"
-        with zipfile.ZipFile(self.file_full_path, "r") as zf:
-            content_opf = zf.read(content_opf_fn)
-        tmpfd, tmpname = tempfile.mkstemp(dir=os.path.dirname(self.file_full_path))
-        os.close(tmpfd)
-        with zipfile.ZipFile(self.file_full_path, "r") as zin:
-            with zipfile.ZipFile(tmpname, "w") as zout:
-                zout.comment = zin.comment  # preserve the comment
-                for item in zin.infolist():
-                    if item.filename not in [cover_html_fn, content_opf_fn]:
-                        zout.writestr(item, zin.read(item.filename))
-        os.remove(self.file_full_path)
-        os.rename(tmpname, self.file_full_path)
-        with zipfile.ZipFile(self.file_full_path, "a") as zf:
-            zf.writestr(cover_html_fn, cover_html)
-            zf.write(cover_file_full_path, "EPUB/" + cover_file_name)
-            zf.writestr(content_opf_fn, self._upgrade_opf(content_opf, cover_file_name))
         if os.path.isfile(self.file_full_path):
-            if hasattr(self.interface, "notify"):
-                self.interface.notify(
-                    "blog2epub",
-                    "Epub created",
-                    self.file_full_path,
-                    cover_file_full_path,
-                )
+            with zipfile.ZipFile(self.file_full_path, "r") as zf:
+                content_opf = zf.read(content_opf_fn)
+            tmpfd, tmpname = tempfile.mkstemp(dir=os.path.dirname(self.file_full_path))
+            os.close(tmpfd)
+            with zipfile.ZipFile(self.file_full_path, "r") as zin:
+                with zipfile.ZipFile(tmpname, "w") as zout:
+                    zout.comment = zin.comment  # preserve the comment
+                    for item in zin.infolist():
+                        if item.filename not in [cover_html_fn, content_opf_fn]:
+                            zout.writestr(item, zin.read(item.filename))
+            os.remove(self.file_full_path)
+            os.rename(tmpname, self.file_full_path)
+            with zipfile.ZipFile(self.file_full_path, "a") as zf:
+                zf.writestr(cover_html_fn, cover_html)
+                zf.write(cover_file_full_path, "EPUB/" + cover_file_name)
+                zf.writestr(content_opf_fn, self._upgrade_opf(content_opf, cover_file_name))
+
             self.interface.print(f"Epub created: {self.file_full_path}")
 
     def _upgrade_opf(self, content_opt, cover_file_name):
