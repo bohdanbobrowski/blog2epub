@@ -143,9 +143,29 @@ class Blog2EpubKivyWindow(MDBoxLayout):
         url_row = self._get_url_row()
         self.tab_download.add_widget(url_row)
 
+        self.download_button = MDRoundFlatIconButton(
+            icon="download",
+            text="Download",
+            size_hint=(0.2, 1),
+            on_press=self.download,
+        )
+        self.cancel_button = MDRoundFlatIconButton(
+            icon="cancel",
+            text="Cancel",
+            size_hint=(0.2, 1),
+            on_press=self.cancel_download,
+        )
         params_row = self._get_params_row()
         self.tab_download.add_widget(params_row)
-
+        if platform != "android":
+            params_row.add_widget(self.download_button)
+            self.download_button_container = params_row
+        else:
+            self.download_button_container = MDBoxLayout(
+                orientation="horizontal", size_hint=(1, 0.12), spacing=sp(10)
+            )
+            self.tab_download.add_widget(self.download_button_container)
+            self.download_button_container.add_widget(self.download_button)
         self.console = TextInput(
             font_size=sp(12),
             font_name=UI_FONT_NAME,
@@ -246,10 +266,7 @@ class Blog2EpubKivyWindow(MDBoxLayout):
             font_size=sp(16),
             disabled=True,
         )
-        if platform == "android":
-            self.generate_button.bind(on_touch_down=self.generate)
-        else:
-            self.generate_button.bind(on_press=self.generate)
+        self.generate_button.bind(on_press=self.generate)
         self._put_element_in_anchor_layout(self.generate_button, tab_layout)
 
         self.tab_generate.add_widget(tab_layout)
@@ -384,17 +401,9 @@ class Blog2EpubKivyWindow(MDBoxLayout):
         )
         self.skip_entry.bind(text=self._validate_skip)
         params_row.add_widget(self.skip_entry)
-
-        self.download_button = MDRoundFlatIconButton(
-            icon="download",
-            text="Download",
-            size_hint=(0.2, 1),
-        )
-        if platform == "android":
-            self.download_button.bind(on_touch_down=self.download)
-        else:
-            self.download_button.bind(on_press=self.download)
-        params_row.add_widget(self.download_button)
+        if platform != "android":
+            self.download_button_container = params_row
+            params_row.add_widget(self.download_button)
         return params_row
 
     def _validate_limit(self, input_widget, text):
@@ -551,25 +560,12 @@ class Blog2EpubKivyWindow(MDBoxLayout):
 
     def _disable_download_button(self):
         self.interface.print("Downloading...")
-        self.download_button.icon = "cancel"
-        self.download_button.text = "Cancel"
-        if platform == "android":
-            self.download_button.unbind(on_touch_down=self.download)
-            self.download_button.bind(on_triple_tap=self.cancel_download)
-        else:
-            self.download_button.unbind(on_press=self.download)
-            self.download_button.bind(on_press=self.cancel_download)
+        self.download_button_container.remove_widget(self.download_button)
+        self.download_button_container.add_widget(self.cancel_button)
 
     def _enable_download_button(self):
-        self.download_button.disabled = False
-        self.download_button.icon = "download"
-        self.download_button.text = "Download"
-        if platform == "android":
-            self.download_button.unbind(on_triple_tap=self.cancel_download)
-            self.download_button.bind(on_touch_down=self.download)
-        else:
-            self.download_button.unbind(on_press=self.cancel_download)
-            self.download_button.bind(on_press=self.download)
+        self.download_button_container.remove_widget(self.cancel_button)
+        self.download_button_container.add_widget(self.download_button)
 
     def save_settings(self):
         self.blog2epub_settings.data.url = prepare_url(self.url_entry.text)
