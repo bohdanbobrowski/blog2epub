@@ -5,6 +5,7 @@ import sys
 import webbrowser
 import math
 import time
+import subprocess
 from datetime import datetime
 from itertools import cycle
 from threading import Thread
@@ -29,7 +30,7 @@ if sys.__stdout__ is None or sys.__stderr__ is None:
 
 from kivy.config import Config  # type: ignore
 
-Config.set("input", "mouse", "mouse,multitouch_on_demand")
+# Config.set("input", "mouse", "mouse,multitouch_on_demand")
 Config.set("graphics", "resizable", False)
 
 from kivy.utils import platform  # type: ignore
@@ -46,7 +47,7 @@ from kivy.uix.textinput import TextInput  # type: ignore
 from kivymd.uix.dropdownitem import MDDropDownItem  # type: ignore # noqa
 
 from blog2epub import Blog2Epub
-from blog2epub.common.assets import asset_path, open_file
+from blog2epub.common.assets import asset_path
 from blog2epub.common.crawler import prepare_url
 from blog2epub.common.exceptions import BadUrlException
 from blog2epub.common.interfaces import EmptyInterface
@@ -94,8 +95,10 @@ class Blog2EpubKivyWindow(MDBoxLayout):
         self.articles_data = []
         self.blog2epub_settings = Blog2EpubSettings(path=USER_DATA_DIR)
         if platform == "android":
+            from android.storage import primary_external_storage_path  # type: ignore
+
             self.blog2epub_settings.data.destination_folder = os.path.join(
-                os.environ["ANDROID_STORAGE"], "emulated", "0", "Download"
+                primary_external_storage_path(), "Download"
             )
         self.blog2epub = None
         self.download_thread = None
@@ -449,11 +452,12 @@ class Blog2EpubKivyWindow(MDBoxLayout):
             self._update_tab_generate()
         if not blog2epub.crawler.cancelled:
             self.interface.print("Download completed.")
-            notification.notify(
-                title="blog2epub - download completed",
-                message=f"{blog2epub.crawler.url}",
-                timeout=2,
-            )
+            if platform != "android":
+                notification.notify(
+                    title="blog2epub - download completed",
+                    message=f"{blog2epub.crawler.url}",
+                    timeout=2,
+                )
             self._switch_tab("Select")
 
     @mainthread
@@ -520,7 +524,7 @@ class Blog2EpubKivyWindow(MDBoxLayout):
             )
         return temp_data
 
-    def download(self, *args, **kwargs):
+    def download(self, button_instance):
         global USER_DATA_DIR
         self.url_entry.error = False
         self.interface.clear()
@@ -592,7 +596,13 @@ class Blog2EpubKivyWindow(MDBoxLayout):
         success_content.add_widget(epub_cover_image_widget)
 
         def open_ebook_in_default_viewer(inst):
-            open_file(ebook.file_full_path)
+            if platform == "win":
+                os.startfile(ebook.file_full_path)
+            elif platform == "android":
+                webbrowser.open(f"xdg-open://{ebook.file_full_path}")
+            else:
+                opener = "open" if sys.platform == "osx" else "xdg-open"
+                subprocess.call([opener, ebook.file_full_path])
 
         def send_ebook_via_email(inst):
             email.send(

@@ -44,7 +44,7 @@ requirements = python3,kivy==2.3.0,kivymd==1.2.0,pydantic,pydantic_core,lxml==5.
 # requirements.source.kivy = ../../kivy
 
 # (str) Presplash of the application
-presplash.filename = ./assets/blog2epub_256px.png
+presplash.filename = ./assets/blog2epub_splash.png
 
 # (str) Icon of the application
 icon.filename = ./assets/blog2epub_256px.png
