@@ -401,9 +401,6 @@ class Blog2EpubKivyWindow(MDBoxLayout):
         )
         self.skip_entry.bind(text=self._validate_skip)
         params_row.add_widget(self.skip_entry)
-        if platform != "android":
-            self.download_button_container = params_row
-            params_row.add_widget(self.download_button)
         return params_row
 
     def _validate_limit(self, input_widget, text):
@@ -558,11 +555,13 @@ class Blog2EpubKivyWindow(MDBoxLayout):
             self.ebook_data = self.blog2epub = None
             self._update_tab_generate()
 
+    @mainthread
     def _disable_download_button(self):
         self.interface.print("Downloading...")
         self.download_button_container.remove_widget(self.download_button)
         self.download_button_container.add_widget(self.cancel_button)
 
+    @mainthread
     def _enable_download_button(self):
         self.download_button_container.remove_widget(self.cancel_button)
         self.download_button_container.add_widget(self.download_button)
