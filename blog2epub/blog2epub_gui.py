@@ -13,7 +13,6 @@ from typing import List
 from urllib import parse
 from urllib.error import URLError
 
-import pkg_resources
 from kivy.uix.anchorlayout import AnchorLayout  # type: ignore
 from kivy.uix.boxlayout import BoxLayout  # type: ignore
 from kivymd.uix.datatables import MDDataTable  # type: ignore
@@ -305,19 +304,6 @@ class Blog2EpubKivyWindow(MDBoxLayout):
         else:
             self.generate_button.disabled = True
 
-    def _print_packages(self):
-        installed_packages = pkg_resources.working_set
-        installed_packages_list = sorted(
-            ["%s==%s" % (i.key, i.version) for i in installed_packages]
-        )
-        if hasattr(self, "interface"):
-            self.interface.clear()
-            for pkg in installed_packages_list:
-                self.interface.print(pkg)
-        else:
-            for pkg in installed_packages_list:
-                logging.info(pkg)
-
     def _define_tab_about(self):
         self.tab_about = Tab(
             title="About",
@@ -331,7 +317,6 @@ class Blog2EpubKivyWindow(MDBoxLayout):
             allow_stretch=True,
             size_hint=(1, 0.7),
         )
-        logo_image.bind(on_triple_tap=self._print_packages)
         self.tab_about.add_widget(logo_image)
         self.tab_about.add_widget(
             MDLabel(

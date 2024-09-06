@@ -6,6 +6,7 @@ from typing import List, Optional, Dict
 import re
 
 from lxml.html.soupparser import fromstring
+from lxml.etree import tostring
 
 from blog2epub.common.downloader import Downloader
 import dateutil
@@ -221,8 +222,7 @@ class Article:
     def get_content(self):
         self.content = self.tree.xpath(self.content_xpath)
         if len(self.content) == 1:
-            self.content = self.content[0]
-            self.content = str(self.content)
+            self.content = tostring(self.content[0]).decode("utf-8")
             self.content = re.sub('style="[^"]*"', "", self.content)
             self.content = re.sub('class="[^"]*"', "", self.content)
             for src in re.findall('<iframe.+? src="([^?= ]*)', self.content):
