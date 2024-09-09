@@ -112,9 +112,11 @@ And then to create dmg image with app:
 - [X] custom destination folder
 - [X] UI improvements (better scaling, more rely on KivyMD default features)
 - [X] mypy and ruff pipeline job (via github Actions)
-- [ ] unittesting
-- [ ] huge crawlers refactor
 - [X] Android build
+- [ ] unit testing - at least for some part of the code
+- [ ] crawlers refactor - some part is done
+- [ ] fix minor Android bugs
+
 
 [&raquo; Complete Change Log here &laquo;](https://github.com/bohdanbobrowski/blog2epub/blob/master/CHANGELOG.md)
 
