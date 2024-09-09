@@ -79,6 +79,15 @@ And then to create dmg image with app:
 <img src="assets/v1.3.0/blog2epub_macos_screenshot.png"  width="600px" />
 </p>
 
+### Android (Google Pixel 6a)
+
+<p align="center">
+<img src="assets/v1.4.0/blog2pub_android_pixel6a_screenshot1.png"  width="200px" />
+<img src="assets/v1.4.0/blog2pub_android_pixel6a_screenshot2.png"  width="200px" />
+<img src="assets/v1.4.0/blog2pub_android_pixel6a_screenshot3.png"  width="200px" />
+<img src="assets/v1.4.0/blog2pub_android_pixel6a_screenshot4.png"  width="200px" />
+</p>
+
 ## CLI
 
     poetry run blog2epub [blog url] <parameters>
@@ -105,7 +114,7 @@ And then to create dmg image with app:
 - [X] mypy and ruff pipeline job (via github Actions)
 - [ ] unittesting
 - [ ] huge crawlers refactor
-- [ ] Android build
+- [X] Android build
 
 [&raquo; Complete Change Log here &laquo;](https://github.com/bohdanbobrowski/blog2epub/blob/master/CHANGELOG.md)
 

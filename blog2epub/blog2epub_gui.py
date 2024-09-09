@@ -584,7 +584,8 @@ class Blog2EpubKivyWindow(MDBoxLayout):
             if platform == "win":
                 os.startfile(ebook.file_full_path)
             elif platform == "android":
-                webbrowser.open(f"xdg-open://{ebook.file_full_path}")
+                # TODO: Fix this
+                webbrowser.open(f"file://{ebook.file_full_path}")
             else:
                 opener = "open" if sys.platform == "osx" else "xdg-open"
                 subprocess.call([opener, ebook.file_full_path])
