@@ -59,6 +59,13 @@ And then to create dmg image with app:
 
     ./make_macos_dmg.sh
 
+#### Android
+
+Before you start, you'll need to install buildozer following this [installation documentation](https://buildozer.readthedocs.io/en/latest/installation.html).
+
+    poetry shell
+    buildozer -v android
+
 ## Screenshots of GUI
 
 ### Windows (11)
