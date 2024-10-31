@@ -566,15 +566,14 @@ class Blog2EpubKivyWindow(MDBoxLayout):
     def popup_success(self, ebook: Book):
         self.success(ebook)
 
-    def _open_ebook_in_default_viewer(self, file_full_path, inst):
-        print("===LOL===")
+    @mainthread
+    def _open_epub(self, file_full_path, inst):
         file_path_urlencoded = urllib.parse.quote(file_full_path)
         self.interface.print(f"Opening file: {file_full_path} ({platform})")
         if platform == "win":
             os.startfile(file_path_urlencoded)  # type: ignore
         elif platform == "android":
-            pass
-            # webbrowser.open(f"file://{file_path_urlencoded}")
+            webbrowser.open(f"file:/{file_path_urlencoded}")
         else:
             opener = "open" if sys.platform == "osx" else "xdg-open"
             subprocess.call([opener, file_path_urlencoded])
@@ -606,9 +605,7 @@ class Blog2EpubKivyWindow(MDBoxLayout):
                 font_size=sp(16),
                 font_name=UI_FONT_NAME,
                 size_hint=(0.5, 1),
-                on_press=partial(
-                    self._open_ebook_in_default_viewer, ebook.file_full_path
-                ),
+                on_press=partial(self._open_epub, ebook.file_full_path),
             )
         )
         success_content.add_widget(buttons_row)
