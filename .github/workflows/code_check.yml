@@ -25,3 +25,6 @@ jobs:
     - name: Static code analysys with mypy
       run: |
         poetry run mypy . 
+    - name: Unit testing
+      run: |
+        poetry run pytest ./tests 

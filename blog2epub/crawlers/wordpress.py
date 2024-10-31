@@ -58,7 +58,9 @@ class WordpressCrawler(DefaultCrawler):
                 self.images = self.images + art.images
                 self.articles.append(art)
                 self._add_tags(art.tags)
-                if self.limit and len(self.articles) >= self.limit:
+                if self.configuration.limit and len(self.articles) >= int(
+                    self.configuration.limit
+                ):
                     next_page = None
                     break
             if next_page:

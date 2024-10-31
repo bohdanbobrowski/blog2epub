@@ -113,6 +113,13 @@ Before you start, you'll need to install buildozer following this [installation 
     poetry run blog2epub poznanskiehistorie.blogspot.com -q=100
     poetry run blog2epub classicameras.blogspot.com --limit=10 --no-images
 
+## Running tests
+
+    pytest ./tests
+    pytest --cov=blog2epub ./tests
+    pytest --cov=blog2epub --cov-report=html ./tests
+
+
 ## Current version
 
 ### [v1.4.0]
@@ -121,7 +128,7 @@ Before you start, you'll need to install buildozer following this [installation 
 - [X] mypy and ruff pipeline job (via github Actions)
 - [X] Android build
 - [ ] unit testing - at least for some part of the code
-- [ ] crawlers refactor - some part is done
+- [x] crawlers refactor - some part is done
 - [ ] fix minor Android bugs
 
 

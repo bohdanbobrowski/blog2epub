@@ -581,6 +581,7 @@ class Blog2EpubKivyWindow(MDBoxLayout):
         success_content.add_widget(epub_cover_image_widget)
 
         def open_ebook_in_default_viewer(inst):
+            self.interface.print(f"Opening file: {ebook.file_full_path} ({platform})")
             if platform == "win":
                 os.startfile(ebook.file_full_path)
             elif platform == "android":
