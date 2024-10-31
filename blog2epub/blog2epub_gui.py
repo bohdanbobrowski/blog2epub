@@ -11,7 +11,7 @@ from datetime import datetime
 from itertools import cycle
 from threading import Thread
 from typing import List
-from pyjnius import autoclass  # type: ignore
+from jnius import autoclass  # type: ignore
 
 from kivy.uix.anchorlayout import AnchorLayout  # type: ignore
 from kivy.uix.boxlayout import BoxLayout  # type: ignore
