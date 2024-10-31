@@ -6,6 +6,7 @@ import webbrowser
 import math
 import time
 import subprocess
+import http.server
 from datetime import datetime
 from itertools import cycle
 from threading import Thread
@@ -85,6 +86,17 @@ class Tab(MDBoxLayout, MDTabsBase):
     pass
 
 
+class MyHttpRequestHandler(http.server.SimpleHTTPRequestHandler):
+    def do_GET(self):
+        self.send_response(200)
+        self.send_header("Content-type", "text/html")
+        self.end_headers()
+        file_path = parse_qs(urlparse(self.path).query).get("file_path", [""])[0]
+        html = f'<html><head><title>blog2epub</title></head><body><a href="{file_path}">{file_path}</a></body></html>'
+        self.wfile.write(bytes(html, "utf8"))
+        return
+
+
 class Blog2EpubKivyWindow(MDBoxLayout):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -101,6 +113,8 @@ class Blog2EpubKivyWindow(MDBoxLayout):
             )
         self.blog2epub = None
         self.download_thread = None
+        self.file_server_thread = None
+        self.file_server = None
         self.ebook_data = None
         self._generate_lock = False
 
@@ -304,6 +318,10 @@ class Blog2EpubKivyWindow(MDBoxLayout):
         else:
             self.generate_button.disabled = True
 
+    @staticmethod
+    def _open_github_page(inst):
+        webbrowser.open("https://github.com/bohdanbobrowski/blog2epub")
+
     def _define_tab_about(self):
         self.tab_about = Tab(
             title="About",
@@ -337,16 +355,13 @@ class Blog2EpubKivyWindow(MDBoxLayout):
             )
         )
 
-        def about_url_click(inst):
-            webbrowser.open("https://github.com/bohdanbobrowski/blog2epub")
-
         self.tab_about.add_widget(
             MDRoundFlatIconButton(
                 text="blog2epub on github",
                 font_size=sp(16),
                 font_name=UI_FONT_NAME,
                 size_hint=(1, 0.1),
-                on_press=about_url_click,
+                on_press=self._open_github_page,
                 icon="git",
             )
         )
@@ -518,6 +533,7 @@ class Blog2EpubKivyWindow(MDBoxLayout):
         self.tab_select.disabled = True
         self.save_settings()
         try:
+            self.file_server = None
             self.blog2epub = Blog2Epub(
                 url=self._get_url(),
                 configuration=self.blog2epub_settings.data,
@@ -565,6 +581,37 @@ class Blog2EpubKivyWindow(MDBoxLayout):
     def popup_success(self, ebook: Book):
         self.success(ebook)
 
+    def _start_file_server(self, ebook):
+        handler_object = MyHttpRequestHandler
+        self.file_server = socketserver.TCPServer(("", 8000), handler_object)
+        self.file_server.serve_forever()
+        urllib.parse.quote(ebook.file_full_path, safe="")
+
+    def _open_ebook_in_default_viewer(self, inst):
+        self.interface.print(f"Opening file: {ebook.file_full_path} ({platform})")
+        if platform == "win":
+            os.startfile(ebook.file_full_path)
+        elif platform == "android":
+            # TODO: Fix this
+            # Epic workaround
+            self.file_server_thread = Thread(
+                target=self._start_file_server,
+                kwargs={"file_full_path": self.blog2epub},
+            )
+            self.file_server_thread.start()
+
+            webbrowser.open(f"http://localhost:8000?file_path={file_path}")
+        else:
+            opener = "open" if sys.platform == "osx" else "xdg-open"
+            subprocess.call([opener, ebook.file_full_path])
+
+    def _send_ebook_via_email(self, inst):
+        email.send(
+            recipient=self.blog2epub_settings.data.email,
+            subject=f"blog2epub - {ebook.title}",
+            text="Now please attach generated file manually :-)",
+        )
+
     def success(self, ebook: Book):
         success_content = MDBoxLayout(orientation="vertical")
         epub_cover_image_widget = MDBoxLayout(
@@ -580,24 +627,6 @@ class Blog2EpubKivyWindow(MDBoxLayout):
         )
         success_content.add_widget(epub_cover_image_widget)
 
-        def open_ebook_in_default_viewer(inst):
-            self.interface.print(f"Opening file: {ebook.file_full_path} ({platform})")
-            if platform == "win":
-                os.startfile(ebook.file_full_path)
-            elif platform == "android":
-                # TODO: Fix this
-                webbrowser.open(f"file://{ebook.file_full_path}")
-            else:
-                opener = "open" if sys.platform == "osx" else "xdg-open"
-                subprocess.call([opener, ebook.file_full_path])
-
-        def send_ebook_via_email(inst):
-            email.send(
-                recipient=self.blog2epub_settings.data.email,
-                subject=f"blog2epub - {ebook.title}",
-                text="Now please attach generated file manually :-)",
-            )
-
         buttons_row = MDBoxLayout(
             orientation="horizontal",
             size_hint=(1, 0.1),
@@ -611,7 +640,7 @@ class Blog2EpubKivyWindow(MDBoxLayout):
                 font_size=sp(16),
                 font_name=UI_FONT_NAME,
                 size_hint=(0.5, 1),
-                on_press=open_ebook_in_default_viewer,
+                on_press=self._open_ebook_in_default_viewer,
             )
         )
         if self.blog2epub_settings.data.email:
@@ -622,7 +651,7 @@ class Blog2EpubKivyWindow(MDBoxLayout):
                     font_size=sp(16),
                     font_name=UI_FONT_NAME,
                     size_hint=(0.5, 1),
-                    on_press=send_ebook_via_email,
+                    on_press=self._send_ebook_via_email,
                 )
             )
         success_content.add_widget(buttons_row)

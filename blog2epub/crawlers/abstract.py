@@ -14,7 +14,7 @@ import dateutil
 from blog2epub.common.book import Book
 from blog2epub.common.interfaces import EmptyInterface
 from blog2epub.common.language_tools import translate_month
-from blog2epub.models.book import DirModel
+from blog2epub.models.book import DirModel, BookModel
 from blog2epub.models.configuration import ConfigurationModel
 from blog2epub.common.crawler import (
     prepare_file_name,
@@ -81,9 +81,17 @@ class AbstractCrawler(ABC):
         pass
 
 
+    @abstractmethod
+    def get_book_data(self) -> BookModel:
+        pass
+
+
 class Article:
     """
     Blog post, article which became book chapter...
+
+
+    TODO: This class is a mess, all logic from here should be moved to crawler... but that's not that easy.
     """
 
     def __init__(self, url, title, crawler: AbstractCrawler):

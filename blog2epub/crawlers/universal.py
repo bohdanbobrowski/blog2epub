@@ -18,4 +18,4 @@ class UniversalCrawler(AbstractCrawler):
         pass
 
     def crawl(self):
-        pass
+        self.interface.print("Crawling")
