@@ -309,9 +309,12 @@ class Chapter:
         :param article: Article class
         """
         uid = "chapter_" + str(number)
-        self.epub: EpubHtml = EpubHtml(
-            title=article.title, uid=uid, file_name=uid + ".xhtml", lang=language
-        )
+        self.epub: EpubHtml = EpubHtml(  # type: ignore
+            title=article.title,
+            uid=uid,
+            file_name=uid + ".xhtml",
+            lang=language,  # type: ignore
+        )  # type: ignore
         tags = self._print_tags(article)
         art_date = article.date.strftime("%d %B %Y, %H:%M")
         self.epub.content = (

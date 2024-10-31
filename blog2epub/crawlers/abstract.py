@@ -80,7 +80,6 @@ class AbstractCrawler(ABC):
     def crawl(self):
         pass
 
-
     @abstractmethod
     def get_book_data(self) -> BookModel:
         pass

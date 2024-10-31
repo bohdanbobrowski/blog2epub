@@ -5,14 +5,12 @@ import sys
 import webbrowser
 import math
 import time
+import urllib
 import subprocess
-import http.server
 from datetime import datetime
 from itertools import cycle
 from threading import Thread
 from typing import List
-from urllib import parse
-from urllib.error import URLError
 
 from kivy.uix.anchorlayout import AnchorLayout  # type: ignore
 from kivy.uix.boxlayout import BoxLayout  # type: ignore
@@ -20,7 +18,8 @@ from kivymd.uix.datatables import MDDataTable  # type: ignore
 from kivymd.uix.tab import MDTabsBase, MDTabs  # type: ignore
 from kivymd.uix.textfield import MDTextField  # type: ignore
 
-from plyer import filechooser, notification, email  # type: ignore
+from plyer import filechooser, notification  # type: ignore
+from functools import partial
 
 from blog2epub.common.book import Book
 from blog2epub.models.book import ArticleModel
@@ -62,7 +61,7 @@ date_time = now.strftime("%Y-%m-%d[%H.%M.%S]")
 
 class UrlTextInput(MDTextField):
     def __init__(self, *args, **kwargs):
-        self.url_history: List["str"] = kwargs.pop("url_history", [])
+        self.url_history: List["str"] = kwargs.pop("url_history", [])  # type: ignore
         self._url_history_iterator = cycle(self.url_history)
         super().__init__(*args, **kwargs)
 
@@ -86,17 +85,6 @@ class Tab(MDBoxLayout, MDTabsBase):
     pass
 
 
-class MyHttpRequestHandler(http.server.SimpleHTTPRequestHandler):
-    def do_GET(self):
-        self.send_response(200)
-        self.send_header("Content-type", "text/html")
-        self.end_headers()
-        file_path = parse_qs(urlparse(self.path).query).get("file_path", [""])[0]
-        html = f'<html><head><title>blog2epub</title></head><body><a href="{file_path}">{file_path}</a></body></html>'
-        self.wfile.write(bytes(html, "utf8"))
-        return
-
-
 class Blog2EpubKivyWindow(MDBoxLayout):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -113,8 +101,6 @@ class Blog2EpubKivyWindow(MDBoxLayout):
             )
         self.blog2epub = None
         self.download_thread = None
-        self.file_server_thread = None
-        self.file_server = None
         self.ebook_data = None
         self._generate_lock = False
 
@@ -430,7 +416,7 @@ class Blog2EpubKivyWindow(MDBoxLayout):
         self.console.text = ""
 
     def _get_url(self):
-        if parse.urlparse(self.url_entry.text):
+        if urllib.parse.urlparse(self.url_entry.text):
             self.url_entry.text = prepare_url(self.url_entry.text)
             return self.url_entry.text
         raise BadUrlException("Blog url is not valid.")
@@ -533,7 +519,6 @@ class Blog2EpubKivyWindow(MDBoxLayout):
         self.tab_select.disabled = True
         self.save_settings()
         try:
-            self.file_server = None
             self.blog2epub = Blog2Epub(
                 url=self._get_url(),
                 configuration=self.blog2epub_settings.data,
@@ -545,7 +530,7 @@ class Blog2EpubKivyWindow(MDBoxLayout):
                 kwargs={"blog2epub": self.blog2epub},
             )
             self.download_thread.start()
-        except (BadUrlException, URLError):
+        except (BadUrlException, urllib.error.URLError):
             self.url_entry.error = True
 
     def cancel_download(self, *args, **kwargs):
@@ -581,36 +566,18 @@ class Blog2EpubKivyWindow(MDBoxLayout):
     def popup_success(self, ebook: Book):
         self.success(ebook)
 
-    def _start_file_server(self, ebook):
-        handler_object = MyHttpRequestHandler
-        self.file_server = socketserver.TCPServer(("", 8000), handler_object)
-        self.file_server.serve_forever()
-        urllib.parse.quote(ebook.file_full_path, safe="")
-
-    def _open_ebook_in_default_viewer(self, inst):
-        self.interface.print(f"Opening file: {ebook.file_full_path} ({platform})")
+    def _open_ebook_in_default_viewer(self, file_full_path, inst):
+        print("===LOL===")
+        file_path_urlencoded = urllib.parse.quote(file_full_path)
+        self.interface.print(f"Opening file: {file_full_path} ({platform})")
         if platform == "win":
-            os.startfile(ebook.file_full_path)
+            os.startfile(file_path_urlencoded)  # type: ignore
         elif platform == "android":
-            # TODO: Fix this
-            # Epic workaround
-            self.file_server_thread = Thread(
-                target=self._start_file_server,
-                kwargs={"file_full_path": self.blog2epub},
-            )
-            self.file_server_thread.start()
-
-            webbrowser.open(f"http://localhost:8000?file_path={file_path}")
+            pass
+            # webbrowser.open(f"file://{file_path_urlencoded}")
         else:
             opener = "open" if sys.platform == "osx" else "xdg-open"
-            subprocess.call([opener, ebook.file_full_path])
-
-    def _send_ebook_via_email(self, inst):
-        email.send(
-            recipient=self.blog2epub_settings.data.email,
-            subject=f"blog2epub - {ebook.title}",
-            text="Now please attach generated file manually :-)",
-        )
+            subprocess.call([opener, file_path_urlencoded])
 
     def success(self, ebook: Book):
         success_content = MDBoxLayout(orientation="vertical")
@@ -632,7 +599,6 @@ class Blog2EpubKivyWindow(MDBoxLayout):
             size_hint=(1, 0.1),
             spacing=sp(10),
         )
-
         buttons_row.add_widget(
             MDRoundFlatIconButton(
                 text="Read epub",
@@ -640,20 +606,11 @@ class Blog2EpubKivyWindow(MDBoxLayout):
                 font_size=sp(16),
                 font_name=UI_FONT_NAME,
                 size_hint=(0.5, 1),
-                on_press=self._open_ebook_in_default_viewer,
+                on_press=partial(
+                    self._open_ebook_in_default_viewer, ebook.file_full_path
+                ),
             )
         )
-        if self.blog2epub_settings.data.email:
-            buttons_row.add_widget(
-                MDRoundFlatIconButton(
-                    text="Send epub via e-mail",
-                    icon="email",
-                    font_size=sp(16),
-                    font_name=UI_FONT_NAME,
-                    size_hint=(0.5, 1),
-                    on_press=self._send_ebook_via_email,
-                )
-            )
         success_content.add_widget(buttons_row)
 
         success_popup = Popup(
