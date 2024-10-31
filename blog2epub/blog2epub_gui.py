@@ -11,6 +11,7 @@ from datetime import datetime
 from itertools import cycle
 from threading import Thread
 from typing import List
+from pyjnius import autoclass  # type: ignore
 
 from kivy.uix.anchorlayout import AnchorLayout  # type: ignore
 from kivy.uix.boxlayout import BoxLayout  # type: ignore
@@ -57,6 +58,20 @@ UI_FONT_NAME = asset_path("MartianMono-Regular.ttf")
 
 now = datetime.now()
 date_time = now.strftime("%Y-%m-%d[%H.%M.%S]")
+
+if platform == "android":
+    from android.permissions import request_permissions, Permission  # type: ignore
+
+    request_permissions(
+        [
+            Permission.INTERNET,
+            Permission.WRITE_EXTERNAL_STORAGE,
+            Permission.READ_EXTERNAL_STORAGE,
+            Permission.READ_MEDIA_IMAGES,
+            Permission.READ_MEDIA_VIDEO,
+            Permission.READ_MEDIA_AUDIO,
+        ]
+    )
 
 
 class UrlTextInput(MDTextField):
@@ -566,17 +581,17 @@ class Blog2EpubKivyWindow(MDBoxLayout):
     def popup_success(self, ebook: Book):
         self.success(ebook)
 
-    @mainthread
     def _open_epub(self, file_full_path, inst):
-        file_path_urlencoded = urllib.parse.quote(file_full_path)
         self.interface.print(f"Opening file: {file_full_path} ({platform})")
         if platform == "win":
-            os.startfile(file_path_urlencoded)  # type: ignore
+            os.startfile(file_full_path)  # type: ignore
         elif platform == "android":
-            webbrowser.open(f"file:/{file_path_urlencoded}")
+            file_provider = autoclass("android.support.v4.content.FileProvider")
+            print(file_provider)
+            webbrowser.open(f"content://{file_full_path}")
         else:
             opener = "open" if sys.platform == "osx" else "xdg-open"
-            subprocess.call([opener, file_path_urlencoded])
+            subprocess.call([opener, file_full_path])
 
     def success(self, ebook: Book):
         success_content = MDBoxLayout(orientation="vertical")
