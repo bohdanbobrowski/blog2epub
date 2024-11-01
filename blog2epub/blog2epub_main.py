@@ -1,9 +1,10 @@
-from typing import Dict
+import importlib
+from datetime import datetime
+from typing import Optional
 
-from blog2epub.common.exceptions import NoCrawlerDetectedError
 from blog2epub.common.globals import VERSION
-from blog2epub.crawlers.blogspot import CrawlerBlogspot
-from blog2epub.crawlers.wordpress import CrawlerWordpress
+from blog2epub.common.interfaces import EmptyInterface
+from blog2epub.models.configuration import ConfigurationModel
 
 
 class Blog2Epub:
@@ -11,16 +12,40 @@ class Blog2Epub:
 
     version = VERSION
 
-    def __init__(self, params: Dict):
-        self.crawler = self.select_crawler(params)
-        if self.crawler is None:
-            raise NoCrawlerDetectedError("No crawler detected")
+    def __init__(
+        self,
+        url: str,
+        configuration: ConfigurationModel,
+        start: Optional[datetime] = None,
+        end: Optional[datetime] = None,
+        file_name: Optional[str] = None,
+        cache_folder: str = "",
+        interface: EmptyInterface = EmptyInterface(),
+    ):
+        crawler_class_name = self._get_crawler_class_name(url)
+        crawler_class = getattr(
+            importlib.import_module("blog2epub.crawlers"), crawler_class_name
+        )
+        self.crawler = crawler_class(
+            url=url,
+            configuration=configuration,
+            start=start,
+            end=end,
+            file_name=file_name,
+            cache_folder=cache_folder,
+            interface=interface,
+        )
 
-    @staticmethod
-    def select_crawler(params: Dict):
-        if params["url"].find(".blogspot.") > -1:
-            return CrawlerBlogspot(**params)
-        return CrawlerWordpress(**params)
+    def _get_crawler_class_name(self, url: str) -> str:
+        if url.find(".blogspot.") > -1:
+            return "BlogspotCrawler"
+        if url.find(".wordpress.com") > -1:
+            return "WordpressCrawler"
+        if url.find("nrdblog.cmosnet.eu") > -1:
+            return "NrdblogCmosEuCrawler"
+        if url.find("zeissikonveb.de") > -1:
+            return "ZeissIkonVEBCrawler"
+        return "UniversalCrawler"
 
     def download(self):
         self.crawler.crawl()

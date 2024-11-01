@@ -1,156 +1,98 @@
 import logging
 import os
-import platform
 import re
-import subprocess
 import sys
 import webbrowser
 import math
 import time
+import urllib
+import subprocess
 from datetime import datetime
 from itertools import cycle
-from pathlib import Path
 from threading import Thread
-from typing import Optional, List
-from urllib import parse
+from typing import List
 
-from kivy.uix.anchorlayout import AnchorLayout
-from kivy.uix.floatlayout import FloatLayout
-from kivymd.uix.datatables import MDDataTable
-from kivymd.uix.tab import MDTabsBase, MDTabs
+from kivy.uix.anchorlayout import AnchorLayout  # type: ignore
+from kivy.uix.boxlayout import BoxLayout  # type: ignore
+from kivymd.uix.datatables import MDDataTable  # type: ignore
+from kivymd.uix.tab import MDTabsBase, MDTabs  # type: ignore
+from kivymd.uix.textfield import MDTextField  # type: ignore
+
+from plyer import filechooser, notification  # type: ignore
+from functools import partial
 
 from blog2epub.common.book import Book
 from blog2epub.models.book import ArticleModel
-from blog2epub.models.configuration import ConfigurationModel
 
 if sys.__stdout__ is None or sys.__stderr__ is None:
     os.environ["KIVY_NO_CONSOLELOG"] = "1"
 
-from kivy.config import Config
+from kivy.config import Config  # type: ignore
 
-Config.set("input", "mouse", "mouse,multitouch_on_demand")
+# Config.set("input", "mouse", "mouse,multitouch_on_demand")
 Config.set("graphics", "resizable", False)
 
-from kivymd.app import MDApp
-from kivy.clock import mainthread
-from kivy.core.window import Window
-from kivy.metrics import Metrics, dp
-from kivymd.uix.boxlayout import MDBoxLayout
-from kivymd.uix.button import MDFlatButton, MDRectangleFlatIconButton
-from kivy.uix.checkbox import CheckBox
-from kivy.uix.image import Image
-from kivymd.uix.label import MDLabel
-from kivy.uix.popup import Popup
-from kivy.uix.textinput import TextInput
-from kivymd.uix.dropdownitem import MDDropDownItem  # noqa # pylint: disable=unused-import
+from kivy.utils import platform  # type: ignore
+from kivymd.app import MDApp  # type: ignore
+from kivy.clock import mainthread  # type: ignore
+from kivy.core.window import Window  # type: ignore
+from kivy.metrics import Metrics, sp  # type: ignore
+from kivymd.uix.boxlayout import MDBoxLayout  # type: ignore
+from kivymd.uix.button import MDRoundFlatIconButton  # type: ignore
+from kivy.uix.image import Image  # type: ignore
+from kivymd.uix.label import MDLabel  # type: ignore
+from kivy.uix.popup import Popup  # type: ignore
+from kivy.uix.textinput import TextInput  # type: ignore
+from kivymd.uix.dropdownitem import MDDropDownItem  # type: ignore # noqa
 
 from blog2epub import Blog2Epub
-from blog2epub.common.assets import asset_path, open_file
+from blog2epub.common.assets import asset_path
 from blog2epub.common.crawler import prepare_url
 from blog2epub.common.exceptions import BadUrlException
 from blog2epub.common.interfaces import EmptyInterface
 from blog2epub.common.settings import Blog2EpubSettings
 
-SIZE = 3 / Metrics.density
+USER_DATA_DIR = "."  # TODO: Make it more elegant. This is just workaround.
 UI_FONT_NAME = asset_path("MartianMono-Regular.ttf")
-SETTINGS = Blog2EpubSettings()
-URL_HISTORY = SETTINGS.get("history")
-URL_HISTORY_ITERATOR = cycle(URL_HISTORY)
-
-
-def get_previous():
-    if len(URL_HISTORY) > 2:
-        for x in range(0, len(URL_HISTORY) - 2):
-            next(URL_HISTORY_ITERATOR)
-    return next(URL_HISTORY_ITERATOR)
-
 
 now = datetime.now()
 date_time = now.strftime("%Y-%m-%d[%H.%M.%S]")
-logging_filename = os.path.join(
-    str(Path.home()), ".blog2epub", f"blog2epub_{date_time}.log"
-)
 
-logging.basicConfig(
-    filename=logging_filename,
-    encoding="utf-8",
-    level=logging.DEBUG,
-    format="%(asctime)s - %(levelname)s - %(message)s",
-)
+if platform == "android":
+    from android.permissions import request_permissions, Permission  # type: ignore
 
-
-class ArticleCheckbox(MDBoxLayout):
-    def __init__(self, title="", **kwargs):
-        super().__init__(**kwargs)
-        self.orientation = "horizontal"
-        self.size_hint_min = (1, 0.05)
-        self.check_box = CheckBox(active=True, size_hint=(0.2, 1))
-        self.add_widget(self.check_box)
-        self.label = StyledLabel(text=title, size_hint=(0.7, 1))
-        self.add_widget(self.label)
+    request_permissions(
+        [
+            Permission.INTERNET,
+            Permission.WRITE_EXTERNAL_STORAGE,
+            Permission.READ_EXTERNAL_STORAGE,
+            Permission.READ_MEDIA_IMAGES,
+            Permission.READ_MEDIA_VIDEO,
+            Permission.READ_MEDIA_AUDIO,
+        ]
+    )
 
 
-class StyledLabel(MDLabel):
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-        self.font_size = dp(6 * SIZE)
-        self.font_name = UI_FONT_NAME
-        self.width = dp(40 * SIZE)
-        self.size_hint = (None, 1)
+class UrlTextInput(MDTextField):
+    def __init__(self, *args, **kwargs):
+        self.url_history: List["str"] = kwargs.pop("url_history", [])  # type: ignore
+        self._url_history_iterator = cycle(self.url_history)
+        super().__init__(*args, **kwargs)
 
+    def _get_previous_url_history(self):
+        if len(self.url_history) > 2:
+            for x in range(0, len(self.url_history) - 2):
+                next(self._url_history_iterator)
+        return next(self._url_history_iterator)
 
-class StyledTextInput(TextInput):
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-        self.font_size = dp(6 * SIZE)
-        self.font_name = UI_FONT_NAME
-        self.halign = "left"
-        self.valign = "center"
-        self.write_tab = False
-        self.multiline = False
-        self.padding_y = [15, 15]
-        self.padding_x = [15, 15]
-        self.size_hint = kwargs.get("size_hint", (0.25, 1))
-        self.text = kwargs.get("text", "")
-
-
-class UrlTextInput(StyledTextInput):
     def keyboard_on_key_down(self, window, keycode, text, modifiers):
         # ↑ up
-        if keycode[0] == 273 and (self.text == "" or self.text in URL_HISTORY):
-            self.text = get_previous()
+        if keycode[0] == 273 and (self.text == "" or self.text in self.url_history):
+            self.text = self._get_previous_url_history()
         # ↓ down
-        if keycode[0] == 274 and (self.text == "" or self.text in URL_HISTORY):
-            self.text = next(URL_HISTORY_ITERATOR)
+        if keycode[0] == 274 and (self.text == "" or self.text in self.url_history):
+            self.text = next(self._url_history_iterator)
         return super().keyboard_on_key_down(window, keycode, text, modifiers)
-
-
-class NumberTextInput(StyledTextInput):
-    def keyboard_on_key_down(self, window, keycode, text, modifiers):
-        try:
-            value = int(self.text)
-        except ValueError:
-            value = 0
-        # ↑ up
-        if keycode[0] == 273:
-            value += 1
-        # ↓ down
-        if keycode[0] == 274:
-            value -= 1
-        if value > 0:
-            self.text = str(value)
-        else:
-            self.text = ""
-        return super().keyboard_on_key_down(window, keycode, text, modifiers)
-
-
-class StyledButton(MDFlatButton):
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-        self.font_size = dp(6 * SIZE)
-        self.font_name = UI_FONT_NAME
-        self.width = dp(80 * SIZE)
-        self.size_hint = (None, 1)
 
 
 class Tab(MDBoxLayout, MDTabsBase):
@@ -160,15 +102,21 @@ class Tab(MDBoxLayout, MDTabsBase):
 class Blog2EpubKivyWindow(MDBoxLayout):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-
-        logging.info(f"SIZE factor set as {SIZE}")
+        global USER_DATA_DIR
         self.orientation = "vertical"
 
         self.articles_data = []
+        self.blog2epub_settings = Blog2EpubSettings(path=USER_DATA_DIR)
+        if platform == "android":
+            from android.storage import primary_external_storage_path  # type: ignore
+
+            self.blog2epub_settings.data.destination_folder = os.path.join(
+                primary_external_storage_path(), "Download"
+            )
         self.blog2epub = None
         self.download_thread = None
         self.ebook_data = None
-        self.configuration = ConfigurationModel()
+        self._generate_lock = False
 
         self.tabs = MDTabs()
         self.add_widget(self.tabs)
@@ -186,24 +134,56 @@ class Blog2EpubKivyWindow(MDBoxLayout):
         self.tabs.add_widget(self.tab_about)
 
         self.interface = KivyInterface(self.console_output, self.console_clear)
+        # DEBUG:
+        # self.interface.print(self.blog2epub_settings.data.dict())
+        # self.interface.print(str(pydantic.version.version_info()))
+        # for name, value in os.environ.items():
+        #     self.interface.print(f"{name}={value}")
+        #
+        # if platform == "android":
+        #     from android.permissions import request_permissions, Permission
+        #
+        #     request_permissions(
+        #         [Permission.WRITE_EXTERNAL_STORAGE, Permission.READ_EXTERNAL_STORAGE]
+        #     )
 
     def _define_tab_download(self):
         self.tab_download = Tab(
             title="Download",
             icon="download",
             orientation="vertical",
-            spacing=dp(SIZE),
-            padding=dp(6 * SIZE),
+            spacing=sp(10),
+            padding=sp(16),
         )
 
         url_row = self._get_url_row()
         self.tab_download.add_widget(url_row)
 
+        self.download_button = MDRoundFlatIconButton(
+            icon="download",
+            text="Download",
+            size_hint=(0.2, 1),
+            on_press=self.download,
+        )
+        self.cancel_button = MDRoundFlatIconButton(
+            icon="cancel",
+            text="Cancel",
+            size_hint=(0.2, 1),
+            on_press=self.cancel_download,
+        )
         params_row = self._get_params_row()
         self.tab_download.add_widget(params_row)
-
+        if platform != "android":
+            params_row.add_widget(self.download_button)
+            self.download_button_container = params_row
+        else:
+            self.download_button_container = MDBoxLayout(
+                orientation="horizontal", size_hint=(1, 0.12), spacing=sp(10)
+            )
+            self.tab_download.add_widget(self.download_button_container)
+            self.download_button_container.add_widget(self.download_button)
         self.console = TextInput(
-            font_size=dp(6 * SIZE),
+            font_size=sp(12),
             font_name=UI_FONT_NAME,
             background_color="black",
             foreground_color="white",
@@ -219,9 +199,9 @@ class Blog2EpubKivyWindow(MDBoxLayout):
             check=False,
             column_data=[
                 ("", 0),
-                ("", dp(10)),
-                ("No.", dp(10)),
-                ("Title", dp(80)),
+                ("", sp(10)),
+                ("No.", sp(10)),
+                ("Title", sp(125)),
             ],
             row_data=[],
             rows_num=1000,
@@ -247,8 +227,8 @@ class Blog2EpubKivyWindow(MDBoxLayout):
             title="Select",
             icon="format-list-bulleted-type",
             orientation="vertical",
-            spacing=dp(SIZE),
-            padding=dp(6 * SIZE),
+            spacing=sp(1),
+            padding=sp(16),
             disabled=True,
         )
         self._define_data_tables()
@@ -258,32 +238,73 @@ class Blog2EpubKivyWindow(MDBoxLayout):
             title="Generate",
             icon="cog",
             orientation="vertical",
-            spacing=dp(SIZE),
-            padding=dp(6 * SIZE),
-            disabled=True,
+            spacing=sp(1),
+            padding=sp(16),
         )
+
         self.selected_label = MDLabel(
             text=f"Selected {0} articles.",
             halign="center",
-            font_size=dp(6 * SIZE),
+            font_size=sp(16),
             font_name=UI_FONT_NAME,
-            size_hint=(1, 0.1),
+            size_hint=(1, 0.2),
         )
-        anchor_layout_one = AnchorLayout(anchor_x="center")
-        anchor_layout_one.add_widget(self.selected_label)
-        self.tab_generate.add_widget(anchor_layout_one)
-        self.generate_button = MDRectangleFlatIconButton(
-            icon="cog",
+        tab_layout = BoxLayout(orientation="vertical", spacing=sp(10), padding=sp(16))
+        tab_layout.add_widget(self.selected_label)
+
+        # email_row = MDBoxLayout(
+        #     orientation="horizontal",
+        #     size_hint=(1, 0.12),
+        # )
+        # email_entry = MDTextField(
+        #     hint_text="Email address to send the generated ebook:",
+        #     icon_right="email",
+        #     text=self.blog2epub_settings.data.email,
+        #     helper_text="Need to be a correct e-mail address",
+        #     helper_text_mode="on_error",
+        # )
+        # email_entry.bind(text=self._validate_email)
+        # email_row.add_widget(email_entry)
+        # tab_layout.add_widget(email_row)
+
+        if platform != "android":
+            self.destination_button = MDRoundFlatIconButton(
+                icon="folder",
+                text=f"Destination folder: {self.blog2epub_settings.data.destination_folder}",
+                font_size=sp(16),
+            )
+            self.destination_button.bind(on_press=self.select_destination_folder)
+            self._put_element_in_anchor_layout(self.destination_button, tab_layout)
+
+        self.generate_button = MDRoundFlatIconButton(
+            icon="book-open-page-variant",
             text="Generate",
-            line_color=(0, 0, 0, 0),
+            font_size=sp(16),
             disabled=True,
         )
         self.generate_button.bind(on_press=self.generate)
-        anchor_layout = AnchorLayout(anchor_x="center")
-        anchor_layout.add_widget(self.generate_button)
-        float_layout = FloatLayout()
-        float_layout.add_widget(anchor_layout)
-        self.tab_generate.add_widget(float_layout)
+        self._put_element_in_anchor_layout(self.generate_button, tab_layout)
+
+        self.tab_generate.add_widget(tab_layout)
+
+    def select_destination_folder(self, *args, **kwargs):
+        path = filechooser.choose_dir(
+            title="Select ebook destination",
+        )
+        logging.info(f"Selected path: {path}")
+        if path:
+            self.blog2epub_settings.data.destination_folder = path[0]
+            self.blog2epub_settings.save()
+
+        self.destination_button.text = (
+            f"Destination folder: {self.blog2epub_settings.data.destination_folder}"
+        )
+
+    @staticmethod
+    def _put_element_in_anchor_layout(element, layout):
+        anchor_layout = AnchorLayout(anchor_x="center", size_hint=(1, 0.1))
+        anchor_layout.add_widget(element)
+        layout.add_widget(anchor_layout)
 
     def _update_tab_generate(self):
         selected_no = 0
@@ -291,31 +312,35 @@ class Blog2EpubKivyWindow(MDBoxLayout):
             if art[0]:
                 selected_no += 1
         self.selected_label.text = f"Selected {selected_no} articles."
+
         if selected_no > 0:
             self.generate_button.disabled = False
         else:
             self.generate_button.disabled = True
+
+    @staticmethod
+    def _open_github_page(inst):
+        webbrowser.open("https://github.com/bohdanbobrowski/blog2epub")
 
     def _define_tab_about(self):
         self.tab_about = Tab(
             title="About",
             icon="information-variant",
             orientation="vertical",
-            spacing=dp(SIZE),
-            padding=dp(6 * SIZE),
+            spacing=sp(1),
+            padding=sp(16),
         )
-        self.tab_about.add_widget(
-            Image(
-                source=asset_path("blog2epub.png"),
-                allow_stretch=True,
-                size_hint=(1, 0.7),
-            )
+        logo_image = Image(
+            source=asset_path("blog2epub.png"),
+            allow_stretch=True,
+            size_hint=(1, 0.7),
         )
+        self.tab_about.add_widget(logo_image)
         self.tab_about.add_widget(
             MDLabel(
                 text=f"v. {Blog2Epub.version}",
                 halign="center",
-                font_size=dp(6 * SIZE),
+                font_size=sp(16),
                 font_name=UI_FONT_NAME,
                 size_hint=(1, 0.1),
             )
@@ -324,70 +349,77 @@ class Blog2EpubKivyWindow(MDBoxLayout):
             MDLabel(
                 text="by Bohdan Bobrowski",
                 halign="center",
-                font_size=dp(6 * SIZE),
+                font_size=sp(16),
                 font_name=UI_FONT_NAME,
                 size_hint=(1, 0.1),
             )
         )
 
-        def about_url_click(inst):
-            webbrowser.open("https://github.com/bohdanbobrowski/blog2epub")
-
         self.tab_about.add_widget(
-            MDFlatButton(
-                text="github.com/bohdanbobrowski/blog2epub",
-                font_size=dp(6 * SIZE),
+            MDRoundFlatIconButton(
+                text="blog2epub on github",
+                font_size=sp(16),
                 font_name=UI_FONT_NAME,
                 size_hint=(1, 0.1),
-                on_press=about_url_click,
+                on_press=self._open_github_page,
+                icon="git",
             )
         )
 
     def _get_url_row(self) -> MDBoxLayout:
         url_row = MDBoxLayout(
-            orientation="horizontal", size_hint=(1, 0.12), spacing=dp(2 * SIZE)
+            orientation="horizontal",
+            size_hint=(1, 0.12),
         )
-        url_row.add_widget(StyledLabel(text="Url:"))
-        hint_text = ""
-        if SETTINGS.get("history"):
-            hint_text = "Press ↑↓ to browse in url history"
+
         self.url_entry = UrlTextInput(
-            size_hint=(0.8, 1),
-            text=SETTINGS.get("url"),
-            hint_text=hint_text,
-            input_type="url",
+            hint_text="Url:",
+            text=self.blog2epub_settings.data.url,
+            helper_text="Press up/down to browse in url history",
+            # icon_right="clipboard-flow",
+            url_history=self.blog2epub_settings.data.history,
         )
         url_row.add_widget(self.url_entry)
         return url_row
 
     def _get_params_row(self) -> MDBoxLayout:
         params_row = MDBoxLayout(
-            orientation="horizontal", size_hint=(1, 0.12), spacing=dp(2 * SIZE)
+            orientation="horizontal", size_hint=(1, 0.12), spacing=sp(10)
         )
-        params_row.add_widget(StyledLabel(text="Limit:"))
-        self.limit_entry = NumberTextInput(
-            text=SETTINGS.get("limit"), input_type="number", hint_text="0"
+
+        self.limit_entry = MDTextField(
+            text=self.blog2epub_settings.data.limit,
+            input_type="number",
+            hint_text="Limit:",
+            # icon_right="numeric",
         )
-        self.limit_entry.bind(text=self._allow_only_numbers)
+        self.limit_entry.bind(text=self._validate_limit)
         params_row.add_widget(self.limit_entry)
-        params_row.add_widget(StyledLabel(text="Skip:"))
-        self.skip_entry = NumberTextInput(
-            text=SETTINGS.get("skip"), input_type="number", hint_text="0"
+
+        self.skip_entry = MDTextField(
+            text=self.blog2epub_settings.data.skip,
+            input_type="number",
+            hint_text="Skip:",
+            # icon_right="numeric",
         )
-        self.skip_entry.bind(text=self._allow_only_numbers)
+        self.skip_entry.bind(text=self._validate_skip)
         params_row.add_widget(self.skip_entry)
-        self.download_button = MDRectangleFlatIconButton(
-            icon="download",
-            text="Download",
-            line_color=(0, 0, 0, 0),
-            size_hint=(0.3, 1),
-        )
-        self.download_button.bind(on_press=self.download)
-        params_row.add_widget(self.download_button)
         return params_row
 
-    def _allow_only_numbers(self, input_widget, text):
+    def _validate_limit(self, input_widget, text):
         input_widget.text = " ".join(re.findall(r"\d+", text))
+        self.blog2epub_settings.data.limit = input_widget.text
+
+    def _validate_skip(self, input_widget, text):
+        input_widget.text = " ".join(re.findall(r"\d+", text))
+        self.blog2epub_settings.data.skip = input_widget.text
+
+    def _validate_email(self, input_widget, text):
+        if re.fullmatch(r"[^@]+@[^@]+\.[^@]+", text) or text == "":
+            input_widget.error = False
+            self.blog2epub_settings.data.email = text
+        else:
+            input_widget.error = True
 
     @mainthread
     def console_output(self, text: str):
@@ -398,46 +430,21 @@ class Blog2EpubKivyWindow(MDBoxLayout):
         self.console.text = ""
 
     def _get_url(self):
-        if parse.urlparse(self.url_entry.text):
+        if urllib.parse.urlparse(self.url_entry.text):
             self.url_entry.text = prepare_url(self.url_entry.text)
             return self.url_entry.text
         raise BadUrlException("Blog url is not valid.")
-
-    @staticmethod
-    def _is_int(value) -> Optional[int]:
-        try:
-            int(value)
-            return int(value)
-        except ValueError:
-            return None
-
-    def _get_params(self):
-        return {
-            "interface": self.interface,
-            "url": self._get_url(),
-            "include_images": True,
-            "images_size": (600, 800),
-            "images_quality": 40,
-            "start": None,
-            "end": None,
-            "limit": self._is_int(self.limit_entry.text),
-            "skip": self._is_int(self.skip_entry.text),
-            "force_download": False,
-            "file_name": None,
-            "cache_folder": os.path.join(str(Path.home()), ".blog2epub"),
-            "destination_folder": str(Path.home()),
-        }
 
     def _download_ebook(self, blog2epub: Blog2Epub):
         blog2epub.download()
         self._enable_download_button()
         if len(blog2epub.crawler.articles) > 0:
-            self.tab_select.disabled = self.tab_generate.disabled = False
+            self.tab_select.disabled = False
             self._update_articles_data(blog2epub.crawler.articles)
             self.articles_table.update_row_data(
                 self.articles_table, self._get_articles_rows()
             )
-            self.configuration.language = blog2epub.crawler.language
+            self.blog2epub_settings.data.language = blog2epub.crawler.language
             self.ebook_data = blog2epub.crawler.get_book_data()
             self.articles_table.update_row_data(
                 self.articles_table, self._get_articles_rows()
@@ -445,7 +452,17 @@ class Blog2EpubKivyWindow(MDBoxLayout):
             self._update_tab_generate()
         if not blog2epub.crawler.cancelled:
             self.interface.print("Download completed.")
-        # self.tabs.switch_tab("generate")  # TODO: make it working
+            if platform != "android":
+                notification.notify(
+                    title="blog2epub - download completed",
+                    message=f"{blog2epub.crawler.url}",
+                    timeout=2,
+                )
+            self._switch_tab("Select")
+
+    @mainthread
+    def _switch_tab(self, tab_title: str):
+        self.tabs.switch_tab(name_tab=tab_title, search_by="title")
 
     def _get_articles_to_save(self) -> List[ArticleModel]:
         articles_to_save = []
@@ -454,18 +471,34 @@ class Blog2EpubKivyWindow(MDBoxLayout):
                 articles_to_save.append(self.ebook_data.articles[x])
         return articles_to_save
 
-    def generate(self, instance):
-        if self.ebook_data:
-            ebook = Book(
-                book_data=self.ebook_data,
-                configuration=self.configuration,
-                interface=self.interface,
-                destination_folder=str(
-                    Path.home()
-                ),  # TODO: Add possibility to change epub destination
-            )
-            ebook.save(self._get_articles_to_save())
-            self.popup_success(ebook.cover_image_path, ebook.file_full_path)
+    def _get_platform_name(self) -> str:
+        platform_name = ""
+        if platform == "android":
+            platform_name = "Android"
+        if platform == "win":
+            platform_name = "Windows"
+        if platform == "macos":
+            platform_name = "MacOS"
+        if platform == "linux":
+            platform_name = "Linux"
+        if platform_name:
+            return f"on {platform_name}"
+        return platform_name
+
+    def generate(self, *args, **kwargs):
+        if not self._generate_lock:
+            self._generate_lock = self.generate_button.disabled = True
+            if self.ebook_data:
+                ebook = Book(
+                    book_data=self.ebook_data,
+                    configuration=self.blog2epub_settings.data,
+                    interface=self.interface,
+                    destination_folder=self.blog2epub_settings.data.destination_folder,
+                    platform_name=self._get_platform_name(),
+                )
+                ebook.save(self._get_articles_to_save())
+                self.popup_success(ebook)
+                self._generate_lock = self.generate_button.disabled = False
 
     def _update_articles_data(self, articles: List):
         no = 1
@@ -491,20 +524,30 @@ class Blog2EpubKivyWindow(MDBoxLayout):
             )
         return temp_data
 
-    def download(self, instance):
+    def download(self, button_instance):
+        global USER_DATA_DIR
+        self.url_entry.error = False
         self.interface.clear()
         self._disable_download_button()
         self.articles_table.update_row_data(self.articles_table, [])
-        self.tab_select.disabled = self.tab_generate.disabled = True
+        self.tab_select.disabled = True
         self.save_settings()
-        self.blog2epub = Blog2Epub(self._get_params())
-        self.download_thread = Thread(
-            target=self._download_ebook,
-            kwargs={"blog2epub": self.blog2epub},
-        )
-        self.download_thread.start()
+        try:
+            self.blog2epub = Blog2Epub(
+                url=self._get_url(),
+                configuration=self.blog2epub_settings.data,
+                cache_folder=USER_DATA_DIR,
+                interface=self.interface,
+            )
+            self.download_thread = Thread(
+                target=self._download_ebook,
+                kwargs={"blog2epub": self.blog2epub},
+            )
+            self.download_thread.start()
+        except (BadUrlException, urllib.error.URLError):
+            self.url_entry.error = True
 
-    def cancel_download(self, instance):
+    def cancel_download(self, *args, **kwargs):
         if self.blog2epub:
             self.blog2epub.crawler.cancelled = True
             while self.blog2epub.crawler.active:
@@ -516,66 +559,96 @@ class Blog2EpubKivyWindow(MDBoxLayout):
             self.ebook_data = self.blog2epub = None
             self._update_tab_generate()
 
+    @mainthread
     def _disable_download_button(self):
         self.interface.print("Downloading...")
-        # self.download_button.disabled = True
-        self.download_button.icon = "cancel"
-        self.download_button.text = "Cancel"
-        self.download_button.unbind(on_press=self.download)
-        self.download_button.bind(on_press=self.cancel_download)
-
-    def _enable_download_button(self):
-        self.download_button.disabled = False
-        self.download_button.icon = "download"
-        self.download_button.text = "Download"
-        self.download_button.unbind(on_press=self.cancel_download)
-        self.download_button.bind(on_press=self.download)
-
-    def save_settings(self):
-        SETTINGS.set("url", prepare_url(self.url_entry.text))
-        SETTINGS.set("limit", self.limit_entry.text)
-        SETTINGS.set("skip", self.skip_entry.text)
-        SETTINGS.save()
+        self.download_button_container.remove_widget(self.download_button)
+        self.download_button_container.add_widget(self.cancel_button)
 
     @mainthread
-    def popup_success(self, cover_image_path: str, generated_ebook_path: str):
-        self.success(cover_image_path, generated_ebook_path)
+    def _enable_download_button(self):
+        self.download_button_container.remove_widget(self.cancel_button)
+        self.download_button_container.add_widget(self.download_button)
 
-    def success(self, cover_image_path: str, generated_ebook_path: str):
+    def save_settings(self):
+        self.blog2epub_settings.data.url = prepare_url(self.url_entry.text)
+        self.blog2epub_settings.data.limit = self.limit_entry.text
+        self.blog2epub_settings.data.skip = self.skip_entry.text
+        self.blog2epub_settings.save()
+
+    @mainthread
+    def popup_success(self, ebook: Book):
+        self.success(ebook)
+
+    @staticmethod
+    def _android_share(file_full_path):
+        from jnius import autoclass  # type: ignore
+        from jnius import cast  # type: ignore
+
+        StrictMode = autoclass("android.os.StrictMode")
+        StrictMode.disableDeathOnFileUriExposure()
+        PythonActivity = autoclass("org.kivy.android.PythonActivity")
+        Intent = autoclass("android.content.Intent")
+        Uri = autoclass("android.net.Uri")
+        File = autoclass("java.io.File")
+
+        epub_file = File(file_full_path)
+        epub_uri = Uri.fromFile(epub_file)
+
+        view_intent = Intent(Intent.ACTION_VIEW)
+        view_intent.setDataAndType(epub_uri, "application/epub+zip")
+
+        current_activity = cast("android.app.Activity", PythonActivity.mActivity)
+        current_activity.startActivity(view_intent)
+
+    def _open_epub(self, file_full_path, inst):
+        self.interface.print(f"Opening file: {file_full_path} ({platform})")
+        if platform == "win":
+            os.startfile(file_full_path)  # type: ignore
+        elif platform == "android":
+            self._android_share(file_full_path)
+        else:
+            opener = "open" if sys.platform == "osx" else "xdg-open"
+            subprocess.call([opener, file_full_path])
+
+    def success(self, ebook: Book):
         success_content = MDBoxLayout(orientation="vertical")
         epub_cover_image_widget = MDBoxLayout(
-            padding=dp(10),
+            padding=sp(10),
             size_hint=(1, 1),
         )
         epub_cover_image_widget.add_widget(
             Image(
-                source=asset_path(cover_image_path),
+                source=asset_path(str(ebook.cover_image_path)),
                 allow_stretch=True,
                 size_hint=(1, 1),
             )
         )
         success_content.add_widget(epub_cover_image_widget)
 
-        def success_url_click(inst):
-            open_file(generated_ebook_path)
-
-        success_content.add_widget(
-            MDFlatButton(
-                text=f"{os.path.basename(generated_ebook_path)}",
-                font_size=dp(6 * SIZE),
+        buttons_row = MDBoxLayout(
+            orientation="horizontal",
+            size_hint=(1, 0.1),
+            spacing=sp(10),
+        )
+        buttons_row.add_widget(
+            MDRoundFlatIconButton(
+                text="Read epub",
+                icon="book-open-variant",
+                font_size=sp(16),
                 font_name=UI_FONT_NAME,
-                size_hint=(1, 0.1),
-                on_press=success_url_click,
-                md_bg_color=self.theme_cls.primary_color,
+                size_hint=(0.5, 1),
+                on_press=partial(self._open_epub, ebook.file_full_path),
             )
         )
+        success_content.add_widget(buttons_row)
+
         success_popup = Popup(
             title="Ebook generated successfully:",
-            title_size=dp(8 * SIZE),
+            title_size=sp(20),
             title_font=UI_FONT_NAME,
             content=success_content,
-            size_hint=(None, None),
-            size=(dp(240 * SIZE), dp(200 * SIZE)),
+            size_hint=(0.8, 0.8),
         )
         success_popup.open()
 
@@ -603,18 +676,24 @@ class Blog2EpubKivy(MDApp):
         self.title = f"blog2epub - v. {Blog2Epub.version}"
         logging.info(self.title)
         logging.debug(f"Metrics.density = {Metrics.density}")
-        if platform.system() == "Darwin":
+        if platform == "macos":
             self.icon = asset_path("blog2epub.icns")
-        elif platform.system() == "Windows":
+        elif platform == "win":
             self.icon = asset_path("blog2epub_256px.png")
         else:
             self.icon = asset_path("blog2epub.svg")
 
     def build(self):
+        global USER_DATA_DIR
+        if platform != "android":
+            USER_DATA_DIR = self.user_data_dir[:-4]
+        else:
+            USER_DATA_DIR = self.user_data_dir
         self.theme_cls.theme_style = "Light"
         self.theme_cls.primary_palette = "Teal"
         Window.resizable = False
-        Window.size = (dp(300 * SIZE), dp(200 * SIZE))
+        if platform != "android":
+            Window.size = (sp(640), sp(480))
         return Blog2EpubKivyWindow()
 
 

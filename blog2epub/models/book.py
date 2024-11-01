@@ -1,13 +1,14 @@
+import os
 from datetime import datetime
 from typing import List, Optional
 
-from pydantic import BaseModel, HttpUrl
+from pydantic import BaseModel
 
 
 class BookSynopsisModel(BaseModel):
     title: Optional[str]
     subtitle: Optional[str]
-    urls: List[HttpUrl]
+    urls: List[str]
 
 
 class CommentModel(BaseModel):
@@ -18,7 +19,7 @@ class CommentModel(BaseModel):
 
 
 class ArticleModel(BaseModel):
-    url: HttpUrl
+    url: str
     title: Optional[str]
     date: Optional[datetime]
     content: Optional[str]
@@ -34,9 +35,18 @@ class ImageModel(BaseModel):
 
 class DirModel(BaseModel):
     path: str
-    html: str
-    images: str
-    originals: str
+
+    @property
+    def html(self) -> str:
+        return os.path.join(self.path, "html")
+
+    @property
+    def images(self) -> str:
+        return os.path.join(self.path, "images")
+
+    @property
+    def originals(self) -> str:
+        return os.path.join(self.path, "originals")
 
 
 class BookModel(BaseModel):

@@ -22,9 +22,9 @@
 - [ ] fix bloody macOS build! - it build but app misses some assets, and what worse it does not run on any other machine
   (which means *.app is broken)
 - [ ] add some linux packages: aur looks promising, and dmg aswell - what about Flatpak, Snap and Appimage?
-- [ ] what about version for Android?
 
 ## Additional crawlers:
 - [ ] [nrdblog.cmosnet.eu](https://nrdblog.cmosnet.eu/)
+- [ ] [zeissikonveb.de](zeissikonveb.de)
 - [ ] [scigacz.pl](https://www.scigacz.pl/)
 - [ ] [jednoslad.pl](https://www.jednoslad.pl)

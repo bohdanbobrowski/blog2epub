@@ -4,28 +4,25 @@
 import html
 import re
 
-import atoma
-from lxml.ElementInclude import etree
+import atoma  # type: ignore
+from lxml.ElementInclude import etree  # type: ignore
 from lxml.html.soupparser import fromstring
 
-from blog2epub.crawlers.crawler import Article, Crawler
+from blog2epub.crawlers.abstract import Article
+from blog2epub.crawlers.default import DefaultCrawler
 
 
-class CrawlerWordpress(Crawler):
+class WordpressCrawler(DefaultCrawler):
     """Wordpress.com crawler."""
-
-    article_class = "ArticleWordpressCom"
-
-    content_xpath = (
-        "//div[contains(concat(' ',normalize-space(@class),' '),'type-post')]"
-    )
-    images_regex = r'<table[^>]*><tbody>[\s]*<tr><td[^>]*><a href="([^"]*)"[^>]*><img[^>]*></a></td></tr>[\s]*<tr><td class="tr-caption" style="[^"]*">([^<]*)'
-    articles_regex = r"<h3 class=\'post-title entry-title\' itemprop=\'name\'>[\s]*<a href=\'([^\']*)\'>([^>^<]*)</a>[\s]*</h3>"
-
-    ignore_downloads = []
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
+        self.article_class = ArticleWordpressCom
+        self.content_xpath = (
+            "//div[contains(concat(' ',normalize-space(@class),' '),'type-post')]"
+        )
+        self.images_regex = r'<table[^>]*><tbody>[\s]*<tr><td[^>]*><a href="([^"]*)"[^>]*><img[^>]*></a></td></tr>[\s]*<tr><td class="tr-caption" style="[^"]*">([^<]*)'
+        self.articles_regex = r"<h3 class=\'post-title entry-title\' itemprop=\'name\'>[\s]*<a href=\'([^\']*)\'>([^>^<]*)</a>[\s]*</h3>"
 
     def _get_atom_content(self, page=1):
         url = "https://" + self.url + "/feed/atom/"
@@ -41,7 +38,7 @@ class CrawlerWordpress(Crawler):
         while next_page:
             for item in self.atom_feed.entries:
                 self.article_counter += 1
-                art = eval(self.article_class)(
+                art = self.article_class(
                     item.links[0].href, html.unescape(item.title.value), self
                 )
                 self.interface.print(str(len(self.articles) + 1) + ". " + art.title)
@@ -61,7 +58,9 @@ class CrawlerWordpress(Crawler):
                 self.images = self.images + art.images
                 self.articles.append(art)
                 self._add_tags(art.tags)
-                if self.limit and len(self.articles) >= self.limit:
+                if self.configuration.limit and len(self.articles) >= int(
+                    self.configuration.limit
+                ):
                     next_page = None
                     break
             if next_page:
@@ -105,8 +104,9 @@ class ArticleWordpressCom(Article):
                     img_parent = img.getparent()
                     if img_parent:
                         if img_hash:
-                            blog2epub_img = f"#blog2epubimage#{img_hash}#"
-                            img_parent.text = blog2epub_img
+                            img_parent.replace(
+                                img, etree.Comment(f"#blog2epubimage#{img_hash}#")
+                            )
                         else:
                             img_parent.text = ""
                         self.tree = img_parent.getroottree()
@@ -123,7 +123,7 @@ class ArticleWordpressCom(Article):
             img_caption = img_tr.xpath('//p[@class="wp-caption-text"]/text()').pop()
             img_hash = self.downloader.download_image(img_url)
             img_parent = img.getparent()
-            img_parent.replace(img, etree.Comment(f"#blog2epubimage#{img_hash}"))
+            img_parent.replace(img, etree.Comment(f"#blog2epubimage#{img_hash}#"))
             self.tree = img_parent.getroottree()
             self.html = etree.tostring(self.tree).decode("utf-8")
             self.images.append(img_hash)
@@ -145,6 +145,7 @@ class ArticleWordpressCom(Article):
                 self.html = self.html.replace(
                     "<!--#blog2epubimage#" + image + "#-->", image_html
                 )
+        self.content = self.html
 
     def get_content(self):
         article_header = re.findall(

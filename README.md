@@ -59,12 +59,28 @@ And then to create dmg image with app:
 
     ./make_macos_dmg.sh
 
+#### Android
+
+Before you start, you'll need to install buildozer following this [installation documentation](https://buildozer.readthedocs.io/en/latest/installation.html).
+
+    poetry shell
+    buildozer -v android
+
 ## Screenshots of GUI
+
+### Android (Google Pixel 6a)
+
+<p align="center">
+<img src="assets/v1.4.0/blog2pub_android_pixel6a_screenshot1.png"  width="200px" />
+<img src="assets/v1.4.0/blog2pub_android_pixel6a_screenshot2.png"  width="200px" />
+<img src="assets/v1.4.0/blog2pub_android_pixel6a_screenshot3.png"  width="200px" />
+<img src="assets/v1.4.0/blog2pub_android_pixel6a_screenshot4.png"  width="200px" />
+</p>
 
 ### Windows (11)
 
 <p align="center">
-<img src="assets/v1.3.0/blog2epub_win11_screenshot.png" width="600px" />
+<img src="assets/v1.4.0/blog2epub_win11_screenshot.png" width="600px" />
 </p>
 
 ### Linux (Manjaro Gnome)
@@ -97,22 +113,31 @@ And then to create dmg image with app:
     poetry run blog2epub poznanskiehistorie.blogspot.com -q=100
     poetry run blog2epub classicameras.blogspot.com --limit=10 --no-images
 
+## Running tests
+
+    pytest ./tests
+    pytest --cov=blog2epub ./tests
+    pytest --cov=blog2epub --cov-report=html ./tests
+
+
 ## Current version
 
-### [v1.3.0](https://github.com/bohdanbobrowski/blog2epub/releases/tag/v1.3.0) - 2024-07-20
-- [X] introduce KivyMD
-- [X] python poetry instead of venv
-- [X] code refactor and cleanup
-- [X] add tabbed layout with list of articles
-- [X] 2 stages: crawl/download & ebook generation
-- [X] selectable list of articles
-- [X] feature: prevent epub file overwriting
-- [X] feature: cancel download
-- [X] fixed bug: chapters were not added to ebook spine, which caused problems with navigation
-- [X] Windows and macOS builds
+### [v1.4.0](https://github.com/bohdanbobrowski/blog2epub/releases/tag/v1.4.0)
+- [X] custom destination folder
+- [X] UI improvements (better scaling, more rely on KivyMD default features)
+- [X] mypy and ruff pipeline job (via github Actions)
+- [X] Android build
+- [X] begin unit testing
+- [X] crawlers refactor - some part is done
 
 [&raquo; Complete Change Log here &laquo;](https://github.com/bohdanbobrowski/blog2epub/blob/master/CHANGELOG.md)
 
 ## Project backlog
 
 And finally, a list known bugs and future plans for some new functions and enhancements: [BACKLOG.md](https://github.com/bohdanbobrowski/blog2epub/blob/master/BACKLOG.md)
+
+
+## Project road map:
+
+- 1.0 - somewhat working
+- 2.0 - fully working project, 90% unit tested and available builds for Android/Windows/Linux/MacOS

@@ -1,8 +1,6 @@
-
 .SILENT: format
 .PHONY: format
 
-
 format:
-    ruff format .
-    ruff check . --fix
+	python -m ruff format .
+	python -m ruff check . --fix

@@ -10,7 +10,7 @@ from blog2epub.models.configuration import ConfigurationModel
 
 class CliInterface(EmptyInterface):
     @staticmethod
-    def print(text):
+    def print(text: str):
         print(text)
 
     @staticmethod
