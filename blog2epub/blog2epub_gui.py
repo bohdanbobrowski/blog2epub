@@ -586,9 +586,15 @@ class Blog2EpubKivyWindow(MDBoxLayout):
         if platform == "win":
             os.startfile(file_full_path)  # type: ignore
         elif platform == "android":
-            file_provider = autoclass("android.support.v4.content.FileProvider")
-            print(file_provider)
-            webbrowser.open(f"content://{file_full_path}")
+            File = autoclass("java.io.File")
+            FileProvider = autoclass("android.support.v4.content.FileProvider")
+            Context = autoclass("android.content.Context")
+            content_uri = FileProvider.getUriForFile(
+                Context,
+                "com.bohdanbobrowski.blog2epub",
+                File(file_full_path),
+            )
+            webbrowser.open(content_uri)
         else:
             opener = "open" if sys.platform == "osx" else "xdg-open"
             subprocess.call([opener, file_full_path])

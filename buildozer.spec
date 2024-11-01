@@ -107,7 +107,7 @@ android.permissions = android.permission.INTERNET, android.permission.WRITE_EXTE
 #android.minapi = 21
 
 # (int) Android SDK version to use
-#android.sdk = 20
+android.sdk = 18
 
 # (str) Android NDK version to use
 #android.ndk = 23b
@@ -147,11 +147,11 @@ android.permissions = android.permission.INTERNET, android.permission.WRITE_EXTE
 
 # (str) Extra xml to write directly inside the <manifest> element of AndroidManifest.xml
 # use that parameter to provide a filename from where to load your custom XML code
-#android.extra_manifest_xml = ./src/android/extra_manifest.xml
+# android.extra_manifest_xml = ./android_extra_manifest.xml
 
 # (str) Extra xml to write directly inside the <manifest><application> tag of AndroidManifest.xml
 # use that parameter to provide a filename from where to load your custom XML arguments:
-#android.extra_manifest_application_arguments = ./src/android/extra_manifest_application_arguments.xml
+# android.extra_manifest_application_arguments = ./android_extra_manifest.xml
 
 # (str) Full name including package path of the Java class that implements Python Service
 # use that parameter to set custom Java class which extends PythonService
@@ -167,7 +167,7 @@ android.permissions = android.permission.INTERNET, android.permission.WRITE_EXTE
 #android.whitelist_src =
 
 # (str) Path to a custom blacklist file
-#android.blacklist_src =
+# android.blacklist_src = ./tests/*.py
 
 # (list) List of Java .jar files to add to the libs so that pyjnius can access
 # their classes. Don't add jars that you do not need, since extra jars can slow
