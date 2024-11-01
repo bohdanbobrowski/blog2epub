@@ -104,7 +104,9 @@ class ArticleWordpressCom(Article):
                     img_parent = img.getparent()
                     if img_parent:
                         if img_hash:
-                            img_parent.replace(img, etree.Comment(f"#blog2epubimage#{img_hash}#"))
+                            img_parent.replace(
+                                img, etree.Comment(f"#blog2epubimage#{img_hash}#")
+                            )
                         else:
                             img_parent.text = ""
                         self.tree = img_parent.getroottree()
