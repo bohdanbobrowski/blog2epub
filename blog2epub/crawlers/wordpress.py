@@ -104,8 +104,7 @@ class ArticleWordpressCom(Article):
                     img_parent = img.getparent()
                     if img_parent:
                         if img_hash:
-                            blog2epub_img = f"#blog2epubimage#{img_hash}#"
-                            img_parent.text = blog2epub_img
+                            img_parent.replace(img, etree.Comment(f"#blog2epubimage#{img_hash}#"))
                         else:
                             img_parent.text = ""
                         self.tree = img_parent.getroottree()
@@ -122,7 +121,7 @@ class ArticleWordpressCom(Article):
             img_caption = img_tr.xpath('//p[@class="wp-caption-text"]/text()').pop()
             img_hash = self.downloader.download_image(img_url)
             img_parent = img.getparent()
-            img_parent.replace(img, etree.Comment(f"#blog2epubimage#{img_hash}"))
+            img_parent.replace(img, etree.Comment(f"#blog2epubimage#{img_hash}#"))
             self.tree = img_parent.getroottree()
             self.html = etree.tostring(self.tree).decode("utf-8")
             self.images.append(img_hash)
@@ -144,6 +143,7 @@ class ArticleWordpressCom(Article):
                 self.html = self.html.replace(
                     "<!--#blog2epubimage#" + image + "#-->", image_html
                 )
+        self.content = self.html
 
     def get_content(self):
         article_header = re.findall(
