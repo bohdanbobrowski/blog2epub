@@ -68,10 +68,19 @@ Before you start, you'll need to install buildozer following this [installation 
 
 ## Screenshots of GUI
 
+### Android (Google Pixel 6a)
+
+<p align="center">
+<img src="assets/v1.4.0/blog2pub_android_pixel6a_screenshot1.png"  width="200px" />
+<img src="assets/v1.4.0/blog2pub_android_pixel6a_screenshot2.png"  width="200px" />
+<img src="assets/v1.4.0/blog2pub_android_pixel6a_screenshot3.png"  width="200px" />
+<img src="assets/v1.4.0/blog2pub_android_pixel6a_screenshot4.png"  width="200px" />
+</p>
+
 ### Windows (11)
 
 <p align="center">
-<img src="assets/v1.3.0/blog2epub_win11_screenshot.png" width="600px" />
+<img src="assets/v1.4.0/blog2epub_win11_screenshot.png" width="600px" />
 </p>
 
 ### Linux (Manjaro Gnome)
@@ -84,15 +93,6 @@ Before you start, you'll need to install buildozer following this [installation 
 
 <p align="center">
 <img src="assets/v1.3.0/blog2epub_macos_screenshot.png"  width="600px" />
-</p>
-
-### Android (Google Pixel 6a)
-
-<p align="center">
-<img src="assets/v1.4.0/blog2pub_android_pixel6a_screenshot1.png"  width="200px" />
-<img src="assets/v1.4.0/blog2pub_android_pixel6a_screenshot2.png"  width="200px" />
-<img src="assets/v1.4.0/blog2pub_android_pixel6a_screenshot3.png"  width="200px" />
-<img src="assets/v1.4.0/blog2pub_android_pixel6a_screenshot4.png"  width="200px" />
 </p>
 
 ## CLI
@@ -122,18 +122,22 @@ Before you start, you'll need to install buildozer following this [installation 
 
 ## Current version
 
-### [v1.4.0]
+### [v1.4.0](https://github.com/bohdanbobrowski/blog2epub/releases/tag/v1.4.0)
 - [X] custom destination folder
 - [X] UI improvements (better scaling, more rely on KivyMD default features)
 - [X] mypy and ruff pipeline job (via github Actions)
 - [X] Android build
-- [ ] unit testing - at least for some part of the code
-- [x] crawlers refactor - some part is done
-- [ ] fix minor Android bugs
-
+- [X] begin unit testing
+- [X] crawlers refactor - some part is done
 
 [&raquo; Complete Change Log here &laquo;](https://github.com/bohdanbobrowski/blog2epub/blob/master/CHANGELOG.md)
 
 ## Project backlog
 
 And finally, a list known bugs and future plans for some new functions and enhancements: [BACKLOG.md](https://github.com/bohdanbobrowski/blog2epub/blob/master/BACKLOG.md)
+
+
+## Project road map:
+
+- 1.0 - somewhat working
+- 2.0 - fully working project, 90% unit tested and available builds for Android/Windows/Linux/MacOS
