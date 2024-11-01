@@ -147,11 +147,11 @@ android.sdk = 18
 
 # (str) Extra xml to write directly inside the <manifest> element of AndroidManifest.xml
 # use that parameter to provide a filename from where to load your custom XML code
-# android.extra_manifest_xml = ./android_extra_manifest.xml
+# android.extra_manifest_xml =
 
 # (str) Extra xml to write directly inside the <manifest><application> tag of AndroidManifest.xml
 # use that parameter to provide a filename from where to load your custom XML arguments:
-# android.extra_manifest_application_arguments = ./android_extra_manifest.xml
+# android.extra_manifest_application_arguments =
 
 # (str) Full name including package path of the Java class that implements Python Service
 # use that parameter to set custom Java class which extends PythonService

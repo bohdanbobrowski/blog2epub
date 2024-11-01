@@ -11,7 +11,6 @@ from datetime import datetime
 from itertools import cycle
 from threading import Thread
 from typing import List
-from jnius import autoclass  # type: ignore
 
 from kivy.uix.anchorlayout import AnchorLayout  # type: ignore
 from kivy.uix.boxlayout import BoxLayout  # type: ignore
@@ -581,20 +580,33 @@ class Blog2EpubKivyWindow(MDBoxLayout):
     def popup_success(self, ebook: Book):
         self.success(ebook)
 
+    @staticmethod
+    def _android_share(file_full_path):
+        from jnius import autoclass  # type: ignore
+        from jnius import cast  # type: ignore
+
+        StrictMode = autoclass("android.os.StrictMode")
+        StrictMode.disableDeathOnFileUriExposure()
+        PythonActivity = autoclass("org.kivy.android.PythonActivity")
+        Intent = autoclass("android.content.Intent")
+        Uri = autoclass("android.net.Uri")
+        File = autoclass("java.io.File")
+
+        epub_file = File(file_full_path)
+        epub_uri = Uri.fromFile(epub_file)
+
+        view_intent = Intent(Intent.ACTION_VIEW)
+        view_intent.setDataAndType(epub_uri, "application/epub+zip")
+
+        current_activity = cast("android.app.Activity", PythonActivity.mActivity)
+        current_activity.startActivity(view_intent)
+
     def _open_epub(self, file_full_path, inst):
         self.interface.print(f"Opening file: {file_full_path} ({platform})")
         if platform == "win":
             os.startfile(file_full_path)  # type: ignore
         elif platform == "android":
-            File = autoclass("java.io.File")
-            FileProvider = autoclass("android.support.v4.content.FileProvider")
-            Context = autoclass("android.content.Context")
-            content_uri = FileProvider.getUriForFile(
-                Context,
-                "com.bohdanbobrowski.blog2epub",
-                File(file_full_path),
-            )
-            webbrowser.open(content_uri)
+            self._android_share(file_full_path)
         else:
             opener = "open" if sys.platform == "osx" else "xdg-open"
             subprocess.call([opener, file_full_path])
