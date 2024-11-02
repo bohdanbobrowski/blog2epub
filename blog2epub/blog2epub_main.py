@@ -1,16 +1,24 @@
-import importlib
 from datetime import datetime
 from typing import Optional
 
 from blog2epub.common.globals import VERSION
 from blog2epub.common.interfaces import EmptyInterface
 from blog2epub.models.configuration import ConfigurationModel
+from blog2epub.crawlers import (
+    AbstractCrawler,
+    BlogspotCrawler,
+    WordpressCrawler,
+    NrdblogCmosEuCrawler,
+    ZeissIkonVEBCrawler,
+    UniversalCrawler,
+)
 
 
 class Blog2Epub:
     """Main Blog2Epub class."""
 
     version = VERSION
+    crawler: AbstractCrawler
 
     def __init__(
         self,
@@ -22,30 +30,26 @@ class Blog2Epub:
         cache_folder: str = "",
         interface: EmptyInterface = EmptyInterface(),
     ):
-        crawler_class_name = self._get_crawler_class_name(url)
-        crawler_class = getattr(
-            importlib.import_module("blog2epub.crawlers"), crawler_class_name
-        )
-        self.crawler = crawler_class(
-            url=url,
-            configuration=configuration,
-            start=start,
-            end=end,
-            file_name=file_name,
-            cache_folder=cache_folder,
-            interface=interface,
-        )
+        # TODO: Refactor this!
+        crawler_args = {
+            "url": url,
+            "configuration": configuration,
+            "start": start,
+            "end": end,
+            "file_name": file_name,
+            "cache_folder": cache_folder,
+            "interface": interface,
+        }
 
-    def _get_crawler_class_name(self, url: str) -> str:
+        self.crawler = UniversalCrawler(**crawler_args)  # type: ignore
         if url.find(".blogspot.") > -1:
-            return "BlogspotCrawler"
+            self.crawler = BlogspotCrawler(**crawler_args)
         if url.find(".wordpress.com") > -1:
-            return "WordpressCrawler"
+            self.crawler = WordpressCrawler(**crawler_args)
         if url.find("nrdblog.cmosnet.eu") > -1:
-            return "NrdblogCmosEuCrawler"
+            self.crawler = NrdblogCmosEuCrawler(**crawler_args)  # type: ignore
         if url.find("zeissikonveb.de") > -1:
-            return "ZeissIkonVEBCrawler"
-        return "UniversalCrawler"
+            self.crawler = ZeissIkonVEBCrawler(**crawler_args)  # type: ignore
 
     def download(self):
         self.crawler.crawl()

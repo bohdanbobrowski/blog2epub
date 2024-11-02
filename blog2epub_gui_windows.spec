@@ -3,16 +3,22 @@ from kivy.tools.packaging.pyinstaller_hooks import get_deps_minimal
 
 block_cipher = None
 a = Analysis(
-    ['blog2epub\\blog2epub_gui.py'],
+    ["blog2epub\\blog2epub_gui.py"],
     pathex=[
-        '.',
+        ".",
     ],
     datas=[
-        ('./assets/blog2epub_256px.png', '.'),
-        ('./assets/blog2epub.png', '.'),
-        ('./assets/Alegreya-Regular.ttf', '.'),
-        ('./assets/Alegreya-Italic.ttf', '.'),
-        ('./assets/MartianMono-Regular.ttf', '.'),
+        ("./assets/blog2epub_256px.png", "."),
+        ("./assets/blog2epub.png", "."),
+        ("./assets/Alegreya-Regular.ttf", "."),
+        ("./assets/Alegreya-Italic.ttf", "."),
+        ("./assets/MartianMono-Regular.ttf", "."),
+    ],
+    hiddeninports=[
+        "./blog2epub",
+        "./blog2epub/common",
+        "./blog2epub/crawlers",
+        "./blog2epub/models",
     ],
     hookspath=[],
     runtime_hooks=[],
@@ -20,13 +26,9 @@ a = Analysis(
     win_private_assemblies=False,
     cipher=block_cipher,
     noarchive=False,
-    **get_deps_minimal(video=None, audio=None)
+    **get_deps_minimal(video=None, audio=None),
 )
-pyz = PYZ(
-    a.pure,
-    a.zipped_data,
-    cipher=block_cipher
-)
+pyz = PYZ(a.pure, a.zipped_data, cipher=block_cipher)
 exe = EXE(
     pyz,
     a.scripts,
@@ -34,7 +36,7 @@ exe = EXE(
     a.zipfiles,
     a.datas,
     [],
-    name='blog2epub_gui.exe',
+    name="blog2epub_gui.exe",
     debug=False,
     bootloader_ignore_signals=False,
     strip=None,
@@ -42,15 +44,15 @@ exe = EXE(
     upx_exclude=[],
     runtime_tmpdir=None,
     console=False,
-    icon='./assets/blog2epub_256px.png'
+    icon="./assets/blog2epub_256px.png",
 )
 info_plist = {
     "NSHighResolutionCapable": True,
 }
 app = BUNDLE(
     exe,
-    name='blog2epub_gui.exe',
-    icon='./assets/blog2epub.ico',
+    name="blog2epub_gui.exe",
+    icon="./assets/blog2epub.ico",
     bundle_identifier=None,
-    info_plist=info_plist
+    info_plist=info_plist,
 )
