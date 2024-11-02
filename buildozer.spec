@@ -29,11 +29,11 @@ source.exclude_exts = spec, setup.py, pyproject.toml
 #source.exclude_patterns = license,images/*/*.jpg
 
 # (str) Application versioning (method 1)
-version = 1.4.0
+# version =
 
 # (str) Application versioning (method 2)
-# version.regex = __version__ = ['"](.*)['"]
-# version.filename = %(source.dir)s/blog2epub_gui.py
+version.regex = VERSION = ['"](.*)['"]
+version.filename = %(source.dir)s/blog2epub/common/globals.py
 
 # (list) Application requirements
 # comma separated e.g. requirements = sqlite3,kivy
@@ -107,7 +107,7 @@ android.api = 34
 android.minapi = 24
 
 # (int) Android SDK version to use
-# android.sdk = 18
+android.sdk = 34
 
 # (str) Android NDK version to use
 #android.ndk = 23b
@@ -288,7 +288,7 @@ android.archs = arm64-v8a
 
 # (int) overrides automatic versionCode computation (used in build.gradle)
 # this is not the same as app version and should only be edited if you know what you're doing
-# android.numeric_version = 1
+# android.numeric_version = 1.4.0
 
 # (bool) enables Android auto backup feature (Android API >=23)
 android.allow_backup = True
