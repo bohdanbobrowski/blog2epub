@@ -7,10 +7,10 @@ from blog2epub.models.configuration import ConfigurationModel
 from blog2epub.crawlers import (
     AbstractCrawler,
     BlogspotCrawler,
+    DefaultCrawler,
     WordpressCrawler,
     NrdblogCmosEuCrawler,
     ZeissIkonVEBCrawler,
-    UniversalCrawler,
 )
 
 
@@ -41,7 +41,7 @@ class Blog2Epub:
             "interface": interface,
         }
 
-        self.crawler = UniversalCrawler(**crawler_args)  # type: ignore
+        self.crawler = DefaultCrawler(**crawler_args)  # type: ignore
         if url.find(".blogspot.") > -1:
             self.crawler = BlogspotCrawler(**crawler_args)
         if url.find(".wordpress.com") > -1:

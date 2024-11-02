@@ -14,12 +14,6 @@ a = Analysis(
         ("./assets/Alegreya-Italic.ttf", "."),
         ("./assets/MartianMono-Regular.ttf", "."),
     ],
-    hiddeninports=[
-        "./blog2epub",
-        "./blog2epub/common",
-        "./blog2epub/crawlers",
-        "./blog2epub/models",
-    ],
     hookspath=[],
     runtime_hooks=[],
     win_no_prefer_redirects=False,
