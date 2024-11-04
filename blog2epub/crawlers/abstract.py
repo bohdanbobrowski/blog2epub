@@ -44,7 +44,14 @@ class AbstractCrawler(ABC):
         self.end = end
         self.interface = interface
         self.dirs = DirModel(
-            path=str(os.path.join(self.cache_folder, self.url.replace("/", "_"))),
+            path=str(
+                os.path.join(
+                    self.cache_folder,
+                    self.url.replace("http://", "")
+                    .replace("https://", "")
+                    .replace("/", "_"),
+                )
+            ),
         )
         self.book: Optional[Book]
         self.title = None
@@ -92,9 +99,10 @@ class Article:
     TODO: This class is a mess, all logic from here should be moved to crawler... but that's not that easy.
     """
 
-    def __init__(self, url, title, crawler: AbstractCrawler):
+    def __init__(self, url, html, crawler: AbstractCrawler):
         self.url = url
-        self.title = title
+        self.html = html
+        self.title = None
         self.tags: List[str] = []
         self.interface = crawler.interface
         self.dirs: DirModel = crawler.dirs
@@ -104,7 +112,6 @@ class Article:
         self.language: Optional[str] = crawler.language
         self.images: List[str] = []
         self.images_captions: List[str] = []
-        self.html = None
         self.content = None
         self.date = None
         self.tree = None
@@ -288,12 +295,10 @@ class Article:
                 pass
 
     def process(self):
-        self.html = self.downloader.get_content(self.url)
-        if self.html is not None:
-            self.get_tree()
-            self.get_title()
-            self.get_date()
-            self.get_images()
-            self.get_content()
-            self.get_tags()
-            self.get_comments()
+        self.get_tree()
+        self.get_title()
+        self.get_date()
+        self.get_images()
+        self.get_content()
+        self.get_tags()
+        self.get_comments()

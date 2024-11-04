@@ -66,7 +66,7 @@ class Downloader:
             os.remove(filepath)
         return contents
 
-    def get_filepath(self, url):
+    def get_filepath(self, url: str) -> str:
         return os.path.join(self.dirs.html, self.get_urlhash(url) + ".html")
 
     def _is_url_in_ignored(self, url) -> bool:

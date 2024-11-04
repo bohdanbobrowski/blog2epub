@@ -3,7 +3,7 @@ packages = ["blog2epub"]
 
 [tool.poetry]
 name = "blog2epub"
-version = "1.4.0"
+version = "1.5.0"
 description = "Convert blog (blogspot.com, wordpress.com or another based on Wordpress) to epub using CLI or GUI."
 authors = ["Bohdan Bobrowski <bohdanbobrowski@gmail.com>"]
 license = "MIT"

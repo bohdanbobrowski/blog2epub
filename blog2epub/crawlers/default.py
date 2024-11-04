@@ -1,12 +1,14 @@
 #!/usr/bin/env python3
 # -*- coding : utf-8 -*-
 import re
+import requests
 from urllib.parse import urljoin
 from urllib import robotparser
 from typing import Optional, List
 
 import atoma  # type: ignore
 from lxml.html.soupparser import fromstring
+from lxml import etree
 
 from blog2epub.crawlers.abstract import AbstractCrawler
 from blog2epub.models.book import BookModel, DirModel, ArticleModel, ImageModel
@@ -114,24 +116,6 @@ class DefaultCrawler(AbstractCrawler):
             header_images.append(self.downloader.download_image(img))
         return header_images
 
-    def _get_articles(self, content):
-        """
-        :param content: web page content
-        :return: list of Article class objects
-        """
-        tree = fromstring(content)
-        art_urls = tree.xpath("//h3[contains(@class, 'entry-title')]/a/@href")
-        art_titles = tree.xpath("//h3[contains(@class, 'entry-title')]/a/text()")
-        output = []
-        if art_urls and len(art_urls) == len(art_titles):
-            for i in range(len(art_urls)):
-                output.append(self.article_class(art_urls[i], art_titles[i], self))
-        else:
-            articles_list = re.findall(self.articles_regex, content)
-            for art in articles_list:
-                output.append(self.article_class(art[0], art[1], self))
-        return output
-
     def _get_atom_content(self) -> bool:
         """Try to load atom"""
         atom_content = self.downloader.get_content(
@@ -189,77 +173,75 @@ class DefaultCrawler(AbstractCrawler):
                 self.interface.print("[article not recognized - skipping]")
 
     def _articles_loop(self, content):
-        for art in self._get_articles(content):
-            self.article_counter += 1
-            if not self.configuration.skip or (
-                self.configuration.skip.isdigit()
-                and self.article_counter > int(self.configuration.skip)
-            ):
-                art.process()
-                self.images = self.images + art.images
-                art_no = str(len(self.articles) + 1)
-                self.interface.print(f"{art_no}. {art.title}")
-                if self.start:
-                    self.end = art.date
-                else:
-                    self.start = art.date
-                self.articles.append(art)
-                self._add_tags(art.tags)
-                self._check_limit()
-            else:
-                self.interface.print("[skipping] " + art.title)
-            if not self.url_to_crawl:
-                break
+        pass
+        #
+        # self.article_counter += 1
+        # if not self.configuration.skip or (
+        #     self.configuration.skip.isdigit()
+        #     and self.article_counter > int(self.configuration.skip)
+        # ):
+        #     art.process()
+        #     self.images = self.images + art.images
+        #     art_no = str(len(self.articles) + 1)
+        #     self.interface.print(f"{art_no}. {art.title}")
+        #     if self.start:
+        #         self.end = art.date
+        #     else:
+        #         self.start = art.date
+        #     self.articles.append(art)
+        #     self._add_tags(art.tags)
+        # else:
+        #     self.interface.print("[skipping] " + art.title)
+        # if self._break_the_loop():
+        #     break
 
-    def _check_limit(self):
+    def _break_the_loop(self):
         if (
-            self.configuration.limit
+            self.cancelled
+            or self.configuration.limit
             and self.configuration.limit.isdigit()
             and len(self.articles) >= int(self.configuration.limit)
         ):
-            self.url_to_crawl = None
+            return True
+        return False
 
-    def _prepare_content(self, content):
-        return content
-
-    def _get_sitemap(self):
+    def _get_sitemap_url(self) -> str:
         robots_parser = robotparser.RobotFileParser()
         robots_parser.set_url(urljoin(self.url, "/robots.txt"))
         robots_parser.read()
         if robots_parser.sitemaps:
-            print(robots_parser.sitemaps)
+            sitemap_url = robots_parser.sitemaps[0]
         else:
-            urljoin(self.url, "/sitemap.xml")
+            sitemap_url = urljoin(self.url, "/sitemap.xml")
+        return sitemap_url
 
-
+    def _get_pages_urls(self, sitemap_url: str) -> list[str]:
+        sitemap = requests.get(sitemap_url)
+        sitemap_root = etree.fromstring(sitemap.content)
+        pages = []
+        for sitemap in sitemap_root:
+            pages.append(sitemap.getchildren()[0].text)
+        self.interface.print(f"Found {len(pages)} articles to crawl.")
+        return pages
 
     def crawl(self):
         self.active = True
-        sitemap = self._get_sitemap()
-        pages = self._get_pages_urls(sitemap)
-        for page in pages:
-            content = self.downloader.get_content(self.url_to_crawl)
-            tree = fromstring(content)
-            if tree.xpath('//div[@itemtype="http://schema.org/Blog"]') and tree.xpath(
-                '//div[@itemtype="http://schema.org/BlogPosting"]/*[@class="post-title entry-title"]/a/@href'
-            ):
-                self.url_to_crawl = tree.xpath(
-                    '//div[@itemtype="http://schema.org/BlogPosting"]/*[@class="post-title entry-title"]/a/@href'
-                )[0]
-                self.interface.print(
-                    f"Articles list detected. Changing url to: {self.url_to_crawl}"
-                )
-            else:
-                self.language = self._get_blog_language(content)
-                self.images = self.images + self._get_header_images(tree)
-                self.description = self._get_blog_description(tree)
-                self.title = self._get_blog_title(content)
-                content = self._prepare_content(content)
-                self._articles_loop(content)
-                if not self.configuration.skip and len(self.articles) == 0:
-                    self._get_atom_content()
-                    self._atom_feed_loop()
-                self.url_to_crawl = self._get_url_to_crawl(tree)
-                self._check_limit()
+        sitemap_url = self._get_sitemap_url()
+        blog_pages = self._get_pages_urls(sitemap_url)
+        if blog_pages:
+            for page_url in blog_pages:
+                content = self.downloader.get_content(page_url)
+                if not self.title:
+                    tree = fromstring(content)
+                    self.language = self._get_blog_language(content)
+                    self.images = self.images + self._get_header_images(tree)
+                    self.description = self._get_blog_description(tree)
+                    self.title = self._get_blog_title(content)
+                art = self.article_class(page_url, content, )
+                if self._break_the_loop():
+                    break
+        else:
+            self._get_atom_content()
+            self._atom_feed_loop()
         self.active = False
         self.subtitle = self._get_subtitle()
