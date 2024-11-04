@@ -35,9 +35,8 @@ class AbstractCrawler(ABC):
         interface: EmptyInterface = EmptyInterface(),
     ):
         super().__init__()
-        self.url = url
+        self.url_to_crawl = self.url = prepare_url_to_crawl(url)
         self.configuration = configuration
-        self.url_to_crawl = prepare_url_to_crawl(self.url)
         self.port = prepare_port(self.url_to_crawl)
         self.file_name = prepare_file_name(file_name, self.url)
         self.cache_folder = cache_folder

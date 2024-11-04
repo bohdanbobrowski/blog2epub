@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 # -*- coding : utf-8 -*-
 import re
+from urllib.parse import urljoin
+from urllib import robotparser
 from typing import Optional, List
 
 import atoma  # type: ignore
@@ -220,21 +222,44 @@ class DefaultCrawler(AbstractCrawler):
     def _prepare_content(self, content):
         return content
 
+    def _get_sitemap(self):
+        robots_parser = robotparser.RobotFileParser()
+        robots_parser.set_url(urljoin(self.url, "/robots.txt"))
+        robots_parser.read()
+        if robots_parser.sitemaps:
+            print(robots_parser.sitemaps)
+        else:
+            urljoin(self.url, "/sitemap.xml")
+
+
+
     def crawl(self):
         self.active = True
-        while self.url_to_crawl and not self.cancelled:
+        sitemap = self._get_sitemap()
+        pages = self._get_pages_urls(sitemap)
+        for page in pages:
             content = self.downloader.get_content(self.url_to_crawl)
             tree = fromstring(content)
-            self.language = self._get_blog_language(content)
-            self.images = self.images + self._get_header_images(tree)
-            self.description = self._get_blog_description(tree)
-            self.title = self._get_blog_title(content)
-            content = self._prepare_content(content)
-            self._articles_loop(content)
-            if not self.configuration.skip and len(self.articles) == 0:
-                self._get_atom_content()
-                self._atom_feed_loop()
-            self.url_to_crawl = self._get_url_to_crawl(tree)
-            self._check_limit()
+            if tree.xpath('//div[@itemtype="http://schema.org/Blog"]') and tree.xpath(
+                '//div[@itemtype="http://schema.org/BlogPosting"]/*[@class="post-title entry-title"]/a/@href'
+            ):
+                self.url_to_crawl = tree.xpath(
+                    '//div[@itemtype="http://schema.org/BlogPosting"]/*[@class="post-title entry-title"]/a/@href'
+                )[0]
+                self.interface.print(
+                    f"Articles list detected. Changing url to: {self.url_to_crawl}"
+                )
+            else:
+                self.language = self._get_blog_language(content)
+                self.images = self.images + self._get_header_images(tree)
+                self.description = self._get_blog_description(tree)
+                self.title = self._get_blog_title(content)
+                content = self._prepare_content(content)
+                self._articles_loop(content)
+                if not self.configuration.skip and len(self.articles) == 0:
+                    self._get_atom_content()
+                    self._atom_feed_loop()
+                self.url_to_crawl = self._get_url_to_crawl(tree)
+                self._check_limit()
         self.active = False
         self.subtitle = self._get_subtitle()
