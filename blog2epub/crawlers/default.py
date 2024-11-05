@@ -192,11 +192,22 @@ class DefaultCrawler(AbstractCrawler):
             sitemap_url = urljoin(self.url, "/sitemap.xml")
         return sitemap_url
 
-    def _get_pages_urls(self, sitemap_url: str) -> list[str]:
+    def _get_pages_from_sub_sitemap(self, sitemap_url: str) -> list[str]:
         sitemap = requests.get(sitemap_url)
         pages = []
         for sitemap in etree.fromstring(sitemap.content):  # type: ignore
             pages.append(sitemap.getchildren()[0].text)  # type: ignore
+        return pages
+
+    def _get_pages_urls(self, sitemap_url: str) -> list[str]:
+        sitemap = requests.get(sitemap_url)
+        pages = []
+        for sitemap_element in etree.fromstring(sitemap.content):  # type: ignore
+            page = sitemap_element.getchildren()[0].text
+            if re.search("wp-sitemap-posts-(post|page)-[0-9]+.xml$", page):
+                pages += self._get_pages_from_sub_sitemap(page)
+            else:
+                pages.append(page)  # type: ignore
         self.interface.print(f"Found {len(pages)} articles to crawl.")
         return pages
 
