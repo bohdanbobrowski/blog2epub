@@ -10,7 +10,7 @@ from ebooklib.epub import EpubHtml, EpubBook, EpubNcx, EpubNav, EpubItem, write_
 
 from blog2epub.common.cover import Cover
 from blog2epub.common.interfaces import EmptyInterface
-from blog2epub.models.book import DirModel, ArticleModel, BookModel
+from blog2epub.models.book import ArticleModel, BookModel
 from blog2epub.models.configuration import ConfigurationModel
 
 
@@ -79,18 +79,14 @@ class Book:
         self.cover: Cover | None = None
         self.cover_image_path: str | None = None
         self.book: EpubBook | None = None
-        self.title = book_data.title
-        self.description = book_data.description
+        self.book_data = book_data
         self.url = book_data.url
-        self.dirs: DirModel = book_data.dirs
         self.subtitle = None
-        self.images = book_data.images
         self.configuration = configuration
         self.interface = interface
         self._set_locale()
         self.chapters: List[Chapter] = []
         self.table_of_contents: List[EpubHtml] = []
-        self.file_name_prefix: Optional[str] = book_data.file_name_prefix
         self.file_name: str = self._get_new_file_name()
         self.destination_folder = destination_folder
         self.platform_name = platform_name
@@ -114,14 +110,16 @@ class Book:
         return self.start.strftime("%d %B %Y") + " - " + self.end.strftime("%d %B %Y")
 
     def _get_new_file_name(self) -> str:
-        new_file_name = self.file_name_prefix
+        new_file_name = self.book_data.file_name_prefix
         if self.start:
             start_date: str = self.start.strftime("%Y.%m.%d")
             if self.end and self.start != self.end:
                 end_date: str = self.end.strftime("%Y.%m.%d")
-                new_file_name = f"{self.file_name_prefix}_{start_date}-{end_date}"
+                new_file_name = (
+                    f"{self.book_data.file_name_prefix}_{start_date}-{end_date}"
+                )
             else:
-                new_file_name = f"{self.file_name_prefix}_{start_date}"
+                new_file_name = f"{self.book_data.file_name_prefix}_{start_date}"
         return f"{new_file_name}.epub"
 
     def _add_chapters(self, articles: List[ArticleModel]):
@@ -141,7 +139,7 @@ class Book:
                 )
 
     def get_cover_title(self):
-        cover_title = self.title + " "
+        cover_title = self.book_data.title + " "
         if self.start == self.end:
             cover_title = cover_title + str(self.start)
         else:
@@ -158,17 +156,17 @@ class Book:
 
     def _add_cover(self):
         self.cover = Cover(
-            dirs=self.dirs,
+            dirs=self.book_data.dirs,
             interface=self.interface,
             file_name=self.file_name,
-            blog_url=self.file_name_prefix,
-            title=self.title,
+            blog_url=self.book_data.file_name_prefix,
+            title=self.book_data.title,
             subtitle=self.subtitle,
-            images=self.images,
+            images=self.book_data.images,
             platform_name=self.platform_name,
         )
         cover_file_name, cover_file_full_path = self.cover.generate()
-        self.cover_image_path = os.path.join(cover_file_name, cover_file_full_path)
+        self.cover_image_path = cover_file_full_path
         cover_html = self.cover_html.replace("###FILE###", cover_file_name)
         cover_html_fn = "EPUB/cover.xhtml"
         content_opf_fn = "EPUB/content.opf"
@@ -220,13 +218,17 @@ class Book:
     def _include_images(self):
         images_included = []
         if self.configuration.include_images:
-            for i, image in enumerate(self.images, start=1):
+            for i, image in enumerate(self.book_data.images, start=1):
                 if (
                     image
                     and image not in images_included
-                    and os.path.isfile(os.path.join(self.dirs.images, image.hash))
+                    and os.path.isfile(
+                        os.path.join(self.book_data.dirs.images, image.hash)
+                    )
                 ):
-                    with open(os.path.join(self.dirs.images, image.hash), "rb") as f:
+                    with open(
+                        os.path.join(self.book_data.dirs.images, image.hash), "rb"
+                    ) as f:
                         image_content = f.read()
                     epub_img = EpubItem(
                         uid="img%s" % i,
@@ -248,9 +250,9 @@ class Book:
 
     def _get_ebook(self) -> EpubBook:
         ebook = EpubBook()
-        ebook.set_title(self.title)
+        ebook.set_title(self.book_data.title)
         ebook.set_language(self.configuration.language)
-        ebook.add_author(f"{self.title}, {self.file_name_prefix}")
+        ebook.add_author(f"{self.book_data.title}, {self.book_data.file_name_prefix}")
         for chapter in self.chapters:
             ebook.add_item(chapter.epub)
             ebook.spine.append(chapter.epub)  # Important!
@@ -260,8 +262,10 @@ class Book:
         ebook.spine.append("nav")
         ebook.spine.append("cover")
         ebook.spine.reverse()
-        if self.description:
-            ebook.add_metadata("DC", "description", "\n".join(self.description))
+        if self.book_data.description:
+            ebook.add_metadata(
+                "DC", "description", "\n".join(self.book_data.description)
+            )
         return ebook
 
     def _get_file_full_path(self, destination_folder: Optional[str]) -> str:
@@ -285,10 +289,12 @@ class Book:
 
     def save(
         self,
-        articles: List[ArticleModel],
+        articles: Optional[List[ArticleModel]] = None,
         destination_folder: Optional[str] = None,
         file_name: Optional[str] = None,
     ):
+        if articles is None:
+            articles = self.book_data.articles
         self._add_chapters(articles)
         self._update_start_end_date(articles)
         self.subtitle = self._get_subtitle()

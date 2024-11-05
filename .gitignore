@@ -17,3 +17,7 @@ _site
 /vendor/
 .bundle/
 /htmlcov
+.coverage
+*.blogspot.com
+*.wordpress.com
+*.epub
