@@ -14,9 +14,12 @@ def prepare_url(url: str) -> str:
 
 
 def prepare_file_name(file_name: str | None, url: str) -> str:
+    # TODO: refactor this!
     if file_name:
         return file_name
     result = url.lower()
+    result = result.replace("http://", "")
+    result = result.replace("https://", "")
     for x in ["/", ",", "."]:
         result = result.replace(x, "_")
     return result

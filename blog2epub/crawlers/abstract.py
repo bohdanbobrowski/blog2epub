@@ -239,13 +239,20 @@ class Article:
 
     def get_content(self):
         content_element = self.tree.xpath(self.content_xpath)
-        content_html = tostring(content_element[0])
+        content_html = tostring(content_element[0], encoding="utf8")
+        if isinstance(content_html, bytes):
+            content_html = content_html.decode("utf8")
+        content_html = content_html.replace("\n", "")
+        content_html = re.sub(r'<a name=["\']more["\']/>', "", content_html)
+        content_html = re.sub(r"<div[^>]*>", "<p>", content_html)
+        content_html = content_html.replace("</div>", "")
         content = strip_tags(
             content_html,
-            ["div"],
             minify=True,
-            keep_tags=["a", "img", "p", "i", "b", "strong"],
+            keep_tags=["a", "img", "p", "i", "b", "strong", "ul", "ol", "li"],
         )
+        content = re.sub(r"</i>[\s]*<i>", "", content)
+        content = re.sub(r"</b>[\s]*<b>", "", content)
         return content
 
     def get_tags(self):
