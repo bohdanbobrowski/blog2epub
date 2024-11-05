@@ -203,7 +203,7 @@ class DefaultCrawler(AbstractCrawler):
         sitemap = requests.get(sitemap_url)
         pages = []
         for sitemap_element in etree.fromstring(sitemap.content):  # type: ignore
-            page = sitemap_element.getchildren()[0].text
+            page = sitemap_element.getchildren()[0].text  # type: ignore
             if re.search("wp-sitemap-posts-(post|page)-[0-9]+.xml$", page):
                 pages += self._get_pages_from_sub_sitemap(page)
             else:
