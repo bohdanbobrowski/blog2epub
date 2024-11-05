@@ -122,13 +122,14 @@ Before you start, you'll need to install buildozer following this [installation 
 
 ## Current version
 
-### [v1.4.0](https://github.com/bohdanbobrowski/blog2epub/releases/tag/v1.4.0)
-- [X] custom destination folder
-- [X] UI improvements (better scaling, more rely on KivyMD default features)
-- [X] mypy and ruff pipeline job (via github Actions)
-- [X] Android build
-- [X] begin unit testing
-- [X] crawlers refactor - some part is done
+### v1.5.0
+- [X] integration testing
+- [ ] increase unit test coverage
+- [ ] blog authorization support
+- [ ] crawlers refactor
+- [ ] add more crawlers
+- [ ] cli interface refactor
+
 
 [&raquo; Complete Change Log here &laquo;](https://github.com/bohdanbobrowski/blog2epub/blob/master/CHANGELOG.md)
 
