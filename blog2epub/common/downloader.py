@@ -45,6 +45,7 @@ class Downloader:
         self.cookies = RequestsCookieJar()
         self.session = requests.session()
         self.headers: Mapping[str, str] = {}
+        self.skipped_images: list[str] = []
 
     def get_urlhash(self, url):
         m = hashlib.md5()
@@ -70,14 +71,19 @@ class Downloader:
     def get_filepath(self, url: str) -> str:
         return os.path.join(self.dirs.html, self.get_urlhash(url) + ".html")
 
-    def _is_url_in_ignored(self, url) -> bool:
+    def _is_url_in_ignored(self, url: str) -> bool:
         for search_rule in self.ignore_downloads:
             if re.match(search_rule, url):
                 return True
         return False
 
+    def _is_url_in_skipped(self, url: str) -> bool:
+        if url in self.skipped_images:
+            return True
+        return False
+
     def file_download(self, url: str, filepath: str) -> Optional[str]:
-        if self._is_url_in_ignored(url):
+        if self._is_url_in_ignored(url) or self._is_url_in_skipped(url):
             return None
         prepare_directories(self.dirs)
         try:
@@ -91,7 +97,7 @@ class Downloader:
         return contents
 
     def image_download(self, url: str, filepath: str) -> Optional[bool]:
-        if self._is_url_in_ignored(url):
+        if self._is_url_in_ignored(url) or self._is_url_in_skipped(url):
             return None
         prepare_directories(self.dirs)
         try:
@@ -163,10 +169,12 @@ class Downloader:
             original_img_type = filetype.guess(original_fn)
             if not original_img_type.MIME.startswith("image"):
                 os.remove(original_fn)
+                self.skipped_images.append(img)
                 return None
             image_size = imagesize.get(original_fn)
-            if image_size[0] + image_size[1] < 50:
+            if image_size[0] + image_size[1] < 100:
                 os.remove(original_fn)
+                self.skipped_images.append(img)
                 return None
             picture = Image.open(original_fn)
             if (

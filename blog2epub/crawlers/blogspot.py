@@ -15,6 +15,7 @@ class BlogspotCrawler(DefaultCrawler):
             r"https:\/\/zblogowani\.pl\/[a-z]+\/[0-9]+x[0-9]+\/[a-z]+\/[0-9]+\/btn\.png",
             r"https:\/\/www.blogger.com\/img\/blogger_logo_[a-z]+_[0-9]+\.png",
             r"https:\/\/resources.blogblog.com\/img\/[a-z0-9_]+.gif",
+            r"https:\/\/resources.blogblog.com\/img\/icon_feed[0-9]+.png",
             r"https:\/\/www.paypalobjects.com\/[a-zA-Z_]+\/i\/scr\/pixel.gif",
             r"https:\/\/resources.blogblog.com\/img\/widgets\/[a-zA-Z0-9\-\.]+",
             r"https:\/\/[a-zA-Z0-9\.\/\-\_]+icon[0-9]+_[a-z]+.gif",
