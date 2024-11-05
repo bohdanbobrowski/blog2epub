@@ -7,6 +7,7 @@ import re
 
 from lxml.html.soupparser import fromstring
 from lxml.etree import tostring
+from strip_tags import strip_tags
 
 from blog2epub.common.downloader import Downloader
 import dateutil
@@ -67,9 +68,7 @@ class AbstractCrawler(ABC):
         self.cancelled = False
         self.ignore_downloads: List[str] = []
         self.article_class = Article
-        self.content_xpath = (
-            "//div[contains(concat(' ',normalize-space(@class),' '),'post-body')]"
-        )
+        self.content_xpath = '//div[contains(@itemprop, "articleBody")]'
         self.images_regex = r'<table[^>]*><tbody>[\s]*<tr><td[^>]*><a href="([^"]*)"[^>]*><img[^>]*></a></td></tr>[\s]*<tr><td class="tr-caption" style="[^"]*">([^<]*)'
         self.articles_regex = r"<h3 class=\'post-title entry-title\' itemprop=\'name\'>[\s]*<a href=\'([^\']*)\'>([^>^<]*)</a>[\s]*</h3>"
         self.downloader = Downloader(
@@ -125,8 +124,12 @@ class Article:
             ignore_downloads=crawler.ignore_downloads,
         )
 
-    def get_title(self):
-        self.title = html.unescape(self.title.strip())
+    def get_title(self) -> str:
+        title = self.tree.xpath('//meta[@property="og:title"]/@content')
+        if not title:
+            title = self.tree.xpath('//*[@class="post-title entry-title"]/text()')
+        title = title[0]
+        return html.unescape(title.strip())
 
     def get_date(self):
         if isinstance(self.date, datetime):
@@ -200,7 +203,7 @@ class Article:
                     self.html = ripper(img=img, img_hash=img_hash, art_html=self.html)
                     self.images.append(img_hash)
                     self.images_captions.append(caption)
-        self.get_tree()
+        self.tree = fromstring(self.html)
 
     def get_images(self):
         self.process_images(self._find_images(), self._default_ripper)
@@ -213,12 +216,12 @@ class Article:
         )
         self.process_images(self.tree.xpath("//img/@src"), self._img_ripper)
         self.replace_images()
-        self.get_tree()
+        self.tree = fromstring(self.html)
 
     def set_content(self, content):
         self.content = content
         self.html = content
-        self.get_tree()
+        self.tree = fromstring(self.html)
 
     def replace_images(self):
         for key, image in enumerate(self.images):
@@ -233,20 +236,15 @@ class Article:
             self.html = self.html.replace("#blog2epubimage#" + image + "#", image_html)
 
     def get_content(self):
-        self.content = self.tree.xpath(self.content_xpath)
-        if len(self.content) == 1:
-            self.content = tostring(self.content[0]).decode("utf-8")
-            self.content = re.sub('style="[^"]*"', "", self.content)
-            self.content = re.sub('class="[^"]*"', "", self.content)
-            for src in re.findall('<iframe.+? src="([^?= ]*)', self.content):
-                self.content = re.sub(
-                    f"<iframe.+?{src}.+?/>",
-                    f'<a href="{src}">{src}</a>',
-                    self.content,
-                )
-
-    def get_tree(self):
-        self.tree = fromstring(self.html)
+        content_element = self.tree.xpath(self.content_xpath)
+        content_html = tostring(content_element[0])
+        content = strip_tags(
+            content_html,
+            ["div"],
+            minify=True,
+            keep_tags=["a", "img", "p", "i", "b", "strong"],
+        )
+        return content
 
     def get_tags(self):
         tags = self.tree.xpath('//a[@rel="tag"]//text()')
@@ -295,10 +293,10 @@ class Article:
                 pass
 
     def process(self):
-        self.get_tree()
-        self.get_title()
+        self.tree = fromstring(self.html)
+        self.title = self.get_title()
         self.get_date()
         self.get_images()
-        self.get_content()
+        self.content = self.get_content()
         self.get_tags()
         self.get_comments()

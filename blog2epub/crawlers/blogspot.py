@@ -8,9 +8,7 @@ class BlogspotCrawler(DefaultCrawler):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.content_xpath = (
-            "//div[contains(concat(' ',normalize-space(@class),' '),'post-body')]"
-        )
+        self.content_xpath = '//div[contains(@itemprop, "articleBody")]'
         self.images_regex = r'<table[^>]*><tbody>[\s]*<tr><td[^>]*><a href="([^"]*)"[^>]*><img[^>]*></a></td></tr>[\s]*<tr><td class="tr-caption" style="[^"]*">([^<]*)'
         self.articles_regex = r"<h3 class=\'post-title entry-title\' itemprop=\'name\'>[\s]*<a href=\'([^\']*)\'>([^>^<]*)</a>[\s]*</h3>"
         self.ignore_downloads = [

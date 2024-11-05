@@ -172,29 +172,6 @@ class DefaultCrawler(AbstractCrawler):
                 self.interface.print(str(e))
                 self.interface.print("[article not recognized - skipping]")
 
-    def _articles_loop(self, content):
-        pass
-        #
-        # self.article_counter += 1
-        # if not self.configuration.skip or (
-        #     self.configuration.skip.isdigit()
-        #     and self.article_counter > int(self.configuration.skip)
-        # ):
-        #     art.process()
-        #     self.images = self.images + art.images
-        #     art_no = str(len(self.articles) + 1)
-        #     self.interface.print(f"{art_no}. {art.title}")
-        #     if self.start:
-        #         self.end = art.date
-        #     else:
-        #         self.start = art.date
-        #     self.articles.append(art)
-        #     self._add_tags(art.tags)
-        # else:
-        #     self.interface.print("[skipping] " + art.title)
-        # if self._break_the_loop():
-        #     break
-
     def _break_the_loop(self):
         if (
             self.cancelled
@@ -237,7 +214,15 @@ class DefaultCrawler(AbstractCrawler):
                     self.images = self.images + self._get_header_images(tree)
                     self.description = self._get_blog_description(tree)
                     self.title = self._get_blog_title(content)
-                art = self.article_class(page_url, content, )
+                art = self.article_class(page_url, content, self)
+                art.process()
+                self.images = self.images + art.images
+                if self.start:
+                    self.end = art.date
+                else:
+                    self.start = art.date
+                self.articles.append(art)
+                self.interface.print(f"{len(self.articles)}. {art.title}")
                 if self._break_the_loop():
                     break
         else:
