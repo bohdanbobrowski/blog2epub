@@ -4,7 +4,7 @@ import re
 import requests
 from urllib.parse import urljoin
 from urllib import robotparser
-from typing import Optional, List
+from typing import Optional, List, Tuple
 
 import atoma  # type: ignore
 from lxml.html.soupparser import fromstring
@@ -193,21 +193,36 @@ class DefaultCrawler(AbstractCrawler):
         return sitemap_url
 
     def _get_pages_from_sub_sitemap(self, sitemap_url: str) -> list[str]:
-        sitemap = requests.get(sitemap_url)
+        sub_sitemap = requests.get(sitemap_url)
         pages = []
-        for sitemap in etree.fromstring(sitemap.content):  # type: ignore
-            pages.append(sitemap.getchildren()[0].text)  # type: ignore
+        for element in etree.fromstring(sub_sitemap.content):  # type: ignore
+            page_url = element.getchildren()[0].text  # type: ignore
+            if page_url.strip("/") != self.url.strip("/"):
+                pages.append(page_url)
         return pages
+
+    @staticmethod
+    def _check_for_sub_sitemaps(
+        sitemap_pages: list[str],
+    ) -> Tuple[list[str], list[str]]:
+        sub_sitemaps = []
+        pages = []
+        for element in sitemap_pages:
+            if element.endswith(".xml"):
+                sub_sitemaps.append(element)
+            else:
+                pages.append(element)
+        return sub_sitemaps, pages
 
     def _get_pages_urls(self, sitemap_url: str) -> list[str]:
         sitemap = requests.get(sitemap_url)
-        pages = []
+        sitemap_pages = []
         for sitemap_element in etree.fromstring(sitemap.content):  # type: ignore
-            page = sitemap_element.getchildren()[0].text  # type: ignore
-            if re.search("wp-sitemap-posts-(post|page)-[0-9]+.xml$", page):
-                pages += self._get_pages_from_sub_sitemap(page)
-            else:
-                pages.append(page)  # type: ignore
+            sitemap_pages.append(sitemap_element.getchildren()[0].text)  # type: ignore
+        sub_sitemaps, pages = self._check_for_sub_sitemaps(sitemap_pages)
+        for sub_sitemap in sub_sitemaps:
+            if re.search("wp-sitemap-posts-(post|page)-[0-9]+.xml$", sub_sitemap):
+                pages += self._get_pages_from_sub_sitemap(sub_sitemap)
         self.interface.print(f"Found {len(pages)} articles to crawl.")
         return pages
 
