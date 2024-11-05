@@ -186,7 +186,7 @@ class DefaultCrawler(AbstractCrawler):
         robots_parser = robotparser.RobotFileParser()
         robots_parser.set_url(urljoin(self.url, "/robots.txt"))
         robots_parser.read()
-        if robots_parser.sitemaps:
+        if hasattr(robots_parser, "sitemaps") and robots_parser.sitemaps:
             sitemap_url = robots_parser.sitemaps[0]
         else:
             sitemap_url = urljoin(self.url, "/sitemap.xml")
@@ -194,10 +194,9 @@ class DefaultCrawler(AbstractCrawler):
 
     def _get_pages_urls(self, sitemap_url: str) -> list[str]:
         sitemap = requests.get(sitemap_url)
-        sitemap_root = etree.fromstring(sitemap.content)
         pages = []
-        for sitemap in sitemap_root:
-            pages.append(sitemap.getchildren()[0].text)
+        for sitemap in etree.fromstring(sitemap.content):  # type: ignore
+            pages.append(sitemap.getchildren()[0].text)  # type: ignore
         self.interface.print(f"Found {len(pages)} articles to crawl.")
         return pages
 

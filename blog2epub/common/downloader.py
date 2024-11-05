@@ -1,6 +1,5 @@
 import gzip
 import hashlib
-import imghdr
 import os
 import re
 
@@ -8,6 +7,8 @@ from typing import Optional, List, Mapping
 from urllib.parse import urlparse
 import time
 from PIL import Image
+import filetype  # type: ignore
+from imagesize import imagesize  # type: ignore
 
 import requests
 from requests.cookies import RequestsCookieJar
@@ -111,6 +112,7 @@ class Downloader:
     def get_content(self, url):
         # TODO: This needs refactor!
         filepath = self.get_filepath(url)
+        contents = None
         for x in range(0, 3):
             if not os.path.isfile(filepath) and not os.path.isfile(filepath + ".gz"):
                 contents = self.file_download(url, filepath)
@@ -158,8 +160,12 @@ class Downloader:
         if not os.path.isfile(resized_fn):
             self.image_download(img, original_fn)
         if os.path.isfile(original_fn):
-            original_img_type = imghdr.what(original_fn)
-            if original_img_type is None:
+            original_img_type = filetype.guess(original_fn)
+            if not original_img_type.MIME.startswith("image"):
+                os.remove(original_fn)
+                return None
+            image_size = imagesize.get(original_fn)
+            if image_size[0] + image_size[1] < 50:
                 os.remove(original_fn)
                 return None
             picture = Image.open(original_fn)

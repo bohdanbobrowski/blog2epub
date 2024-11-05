@@ -7,7 +7,7 @@ import re
 
 from lxml.html.soupparser import fromstring
 from lxml.etree import tostring
-from strip_tags import strip_tags
+from strip_tags import strip_tags  # type: ignore
 
 from blog2epub.common.downloader import Downloader
 import dateutil
@@ -125,11 +125,13 @@ class Article:
         )
 
     def get_title(self) -> str:
-        title = self.tree.xpath('//meta[@property="og:title"]/@content')
-        if not title:
-            title = self.tree.xpath('//*[@class="post-title entry-title"]/text()')
-        title = title[0]
-        return html.unescape(title.strip())
+        if self.tree is not None:
+            title = self.tree.xpath('//meta[@property="og:title"]/@content')
+            if not title:
+                title = self.tree.xpath('//*[@class="post-title entry-title"]/text()')
+            title = title[0]
+            return html.unescape(title.strip())
+        return ""
 
     def get_date(self):
         if isinstance(self.date, datetime):
