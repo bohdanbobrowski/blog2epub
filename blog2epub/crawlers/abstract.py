@@ -94,13 +94,7 @@ class AbstractCrawler(ABC):
 
 
 class Article:
-    """
-    Blog post, article which became book chapter...
-
-
-    TODO: This class is a mess, all logic from here should be moved to crawler... but that's not that easy.
-    """
-
+    """ TODO: Migrate this class to article_factory. """
     def __init__(self, url, html, crawler: AbstractCrawler):
         self.url = url
         self.html = html
