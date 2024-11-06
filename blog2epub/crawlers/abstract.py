@@ -94,7 +94,8 @@ class AbstractCrawler(ABC):
 
 
 class Article:
-    """ TODO: Migrate this class to article_factory. """
+    """TODO: Migrate this class to article_factory."""
+
     def __init__(self, url, html, crawler: AbstractCrawler):
         self.url = url
         self.html = html
