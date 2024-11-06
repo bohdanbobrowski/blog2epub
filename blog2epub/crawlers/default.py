@@ -227,14 +227,9 @@ class DefaultCrawler(AbstractCrawler):
         self.interface.print(f"Found {len(pages)} articles to crawl.")
         return pages
 
-    @staticmethod
-    def _content_cleanup(content: str) -> str:
+    def _content_cleanup(self, content: str) -> str:
         """This  function removes from downloaded content unwanted patterns - like ads, etc."""
-        patterns = [
-            '<span style="[^"]+"><i>Dyskretna Reklama</i></span>',
-            '<span style="[^"]+"><br /><i>Koniec Dyskretnej Reklamy</i></span></div>',
-        ]
-        for p in patterns:
+        for p in self.content_cleanup_patterns:
             content = re.sub(p, "", content)
         return content
 

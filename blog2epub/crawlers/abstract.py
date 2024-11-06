@@ -68,9 +68,6 @@ class AbstractCrawler(ABC):
         self.cancelled = False
         self.ignore_downloads: List[str] = []
         self.article_class = Article
-        self.content_xpath = '//div[contains(@itemprop, "articleBody")]'
-        self.images_regex = r'<table[^>]*><tbody>[\s]*<tr><td[^>]*><a href="([^"]*)"[^>]*><img[^>]*></a></td></tr>[\s]*<tr><td class="tr-caption" style="[^"]*">([^<]*)'
-        self.articles_regex = r"<h3 class=\'post-title entry-title\' itemprop=\'name\'>[\s]*<a href=\'([^\']*)\'>([^>^<]*)</a>[\s]*</h3>"
         self.downloader = Downloader(
             dirs=self.dirs,
             url=self.url,
@@ -80,6 +77,12 @@ class AbstractCrawler(ABC):
             images_quality=self.configuration.images_quality,
             ignore_downloads=self.ignore_downloads,
         )
+        self.content_xpath = '//div[contains(@itemprop, "articleBody")]'
+        self.images_regex = r'<table[^>]*><tbody>[\s]*<tr><td[^>]*><a href="([^"]*)"[^>]*><img[^>]*></a></td></tr>[\s]*<tr><td class="tr-caption" style="[^"]*">([^<]*)'
+        self.content_cleanup_patterns = [
+            '<span style="[^"]+"><i>Dyskretna Reklama</i></span>',
+            '<span style="[^"]+"><br /><i>Koniec Dyskretnej Reklamy</i></span></div>',
+        ]
 
     @abstractmethod
     def crawl(self):
@@ -123,6 +126,7 @@ class Article:
             images_quality=crawler.configuration.images_quality,
             ignore_downloads=crawler.ignore_downloads,
         )
+        self.content_cleanup_xpath_patterns = ['//div[@class="post-footer"]']
 
     def get_title(self) -> str:
         if self.tree is not None:
@@ -302,8 +306,7 @@ class Article:
                 pass
 
     def _content_cleanup_xpath(self):
-        patterns = ['//div[@class="post-footer"]']
-        for p in patterns:
+        for p in self.content_cleanup_xpath_patterns:
             for bad in self.tree.xpath(p):
                 bad.getparent().remove(bad)
 
