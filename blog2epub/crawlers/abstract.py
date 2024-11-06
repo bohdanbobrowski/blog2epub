@@ -22,6 +22,7 @@ from blog2epub.common.crawler import (
     prepare_port,
     prepare_url_to_crawl,
 )
+from blog2epub.models.content_patterns import ContentPatterns
 
 
 class AbstractCrawler(ABC):
@@ -77,12 +78,7 @@ class AbstractCrawler(ABC):
             images_quality=self.configuration.images_quality,
             ignore_downloads=self.ignore_downloads,
         )
-        self.content_xpath = '//div[contains(@itemprop, "articleBody")]'
-        self.images_regex = r'<table[^>]*><tbody>[\s]*<tr><td[^>]*><a href="([^"]*)"[^>]*><img[^>]*></a></td></tr>[\s]*<tr><td class="tr-caption" style="[^"]*">([^<]*)'
-        self.content_cleanup_patterns = [
-            '<span style="[^"]+"><i>Dyskretna Reklama</i></span>',
-            '<span style="[^"]+"><br /><i>Koniec Dyskretnej Reklamy</i></span></div>',
-        ]
+        self.patterns: Optional[ContentPatterns] = None
 
     @abstractmethod
     def crawl(self):
@@ -96,7 +92,13 @@ class AbstractCrawler(ABC):
 class Article:
     """TODO: Migrate this class to article_factory."""
 
-    def __init__(self, url, html, crawler: AbstractCrawler):
+    def __init__(
+        self,
+        url,
+        html,
+        crawler: AbstractCrawler,
+        patterns: Optional[ContentPatterns] = None,
+    ):
         self.url = url
         self.html = html
         self.title = None
@@ -104,14 +106,12 @@ class Article:
         self.interface = crawler.interface
         self.dirs: DirModel = crawler.dirs
         self.comments = ""  # TODO: should be a list in the future
-        self.content_xpath = crawler.content_xpath
-        self.images_regex = crawler.images_regex
         self.language: Optional[str] = crawler.language
         self.images: List[str] = []
         self.images_captions: List[str] = []
         self.content = None
         self.date = None
-        self.tree = None
+        self.tree = fromstring("<div></div>")
         self.downloader = Downloader(
             dirs=self.dirs,
             url=self.url,
@@ -121,7 +121,7 @@ class Article:
             images_quality=crawler.configuration.images_quality,
             ignore_downloads=crawler.ignore_downloads,
         )
-        self.content_cleanup_xpath_patterns = ['//div[@class="post-footer"]']
+        self.patterns = patterns
 
     def get_title(self) -> str:
         if self.tree is not None:
@@ -132,6 +132,7 @@ class Article:
             return html.unescape(title.strip())
         return ""
 
+    @abstractmethod
     def get_date(self):
         if isinstance(self.date, datetime):
             return
@@ -156,7 +157,11 @@ class Article:
             self.interface.print(f"Date not parsed: {self.date}")
 
     def _find_images(self):
-        return re.findall(self.images_regex, self.html)
+        images = []
+        if self.patterns:
+            for pattern in self.patterns.images:
+                images += re.findall(pattern.regex, self.html)
+        return images
 
     @staticmethod
     def _default_ripper(img, img_hash, art_html):
@@ -236,22 +241,34 @@ class Article:
             )
             self.html = self.html.replace("#blog2epubimage#" + image + "#", image_html)
 
-    def get_content(self):
-        content_element = self.tree.xpath(self.content_xpath)
-        content_html = tostring(content_element[0], encoding="utf8")
-        if isinstance(content_html, bytes):
-            content_html = content_html.decode("utf8")
-        content_html = content_html.replace("\n", "")
-        content_html = re.sub(r'<a name=["\']more["\']/>', "", content_html)
-        content_html = re.sub(r"<div[^>]*>", "<p>", content_html)
-        content_html = content_html.replace("</div>", "")
-        content = strip_tags(
-            content_html,
-            minify=True,
-            keep_tags=["a", "img", "p", "i", "b", "strong", "ul", "ol", "li"],
-        )
-        content = re.sub(r"</i>[\s]*<i>", "", content)
-        content = re.sub(r"</b>[\s]*<b>", "", content)
+    def get_content(self) -> str:
+        content = ""
+        if self.patterns:
+            for pattern in self.patterns.content:
+                if pattern.xpath:
+                    content_element = self.tree.xpath(pattern.xpath)
+                    content_html = tostring(content_element[0]).decode("utf8")
+                    content_html = content_html.replace("\n", "")
+                    content_html = re.sub(r'<a name=["\']more["\']/>', "", content_html)
+                    content_html = re.sub(r"<div[^>]*>", "<p>", content_html)
+                    content_html = content_html.replace("</div>", "")
+                    content = strip_tags(
+                        content_html,
+                        minify=True,
+                        keep_tags=[
+                            "a",
+                            "img",
+                            "p",
+                            "i",
+                            "b",
+                            "strong",
+                            "ul",
+                            "ol",
+                            "li",
+                        ],
+                    )
+                    content = re.sub(r"</i>[\s]*<i>", "", content)
+                    content = re.sub(r"</b>[\s]*<b>", "", content)
         return content
 
     def get_tags(self):
@@ -300,17 +317,28 @@ class Article:
             except IndexError:
                 pass
 
+    def _content_cleanup(self, content: str) -> str:
+        """This  function removes from downloaded content unwanted patterns - like ads, etc."""
+        if self.patterns:
+            for pattern in self.patterns.content_cleanup:
+                if pattern.regex:
+                    content = re.sub(pattern.regex, "", content)
+        return content
+
     def _content_cleanup_xpath(self):
-        for p in self.content_cleanup_xpath_patterns:
-            for bad in self.tree.xpath(p):
-                bad.getparent().remove(bad)
+        if self.patterns:
+            for pattern in self.patterns.content_cleanup:
+                if pattern.xpath:
+                    for bad in self.tree.xpath(pattern.xpath):
+                        bad.getparent().remove(bad)
 
     def process(self):
+        self.html = self._content_cleanup(self.html)
         self.tree = fromstring(self.html)
         self._content_cleanup_xpath()
         self.title = self.get_title()
         self.get_date()
         self.get_images()
         self.content = self.get_content()
-        self.get_tags()
+        # self.get_tags()
         self.get_comments()

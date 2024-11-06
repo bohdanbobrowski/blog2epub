@@ -13,6 +13,7 @@ from lxml import etree
 
 from blog2epub.crawlers.abstract import AbstractCrawler
 from blog2epub.models.book import BookModel, DirModel, ArticleModel, ImageModel
+from blog2epub.models.content_patterns import ContentPatterns, Pattern
 
 
 class DefaultCrawler(AbstractCrawler):
@@ -22,6 +23,25 @@ class DefaultCrawler(AbstractCrawler):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
+        self.patterns = ContentPatterns(
+            content=[Pattern(xpath='//div[contains(@itemprop, "articleBody")]')],
+            content_cleanup=[
+                Pattern(
+                    regex=r'<span style="[^"]+"><i>Dyskretna Reklama</i></span>',
+                ),
+                Pattern(
+                    regex=r'<span style="[^"]+"><br /><i>Koniec Dyskretnej Reklamy</i></span></div>',
+                ),
+                Pattern(
+                    xpath='//div[@class="post-footer"]',
+                ),
+            ],
+            images=[
+                Pattern(
+                    regex=r'<table[^>]*><tbody>[\s]*<tr><td[^>]*><a href="([^"]*)"[^>]*><img[^>]*></a></td></tr>[\s]*<tr><td class="tr-caption" style="[^"]*">([^<]*)'
+                )
+            ],
+        )
 
     def _get_articles_list(self) -> List[ArticleModel]:
         """This is temporary solution - crawler should use data models as default data storage."""
@@ -227,12 +247,6 @@ class DefaultCrawler(AbstractCrawler):
         self.interface.print(f"Found {len(pages)} articles to crawl.")
         return pages
 
-    def _content_cleanup(self, content: str) -> str:
-        """This  function removes from downloaded content unwanted patterns - like ads, etc."""
-        for p in self.content_cleanup_patterns:
-            content = re.sub(p, "", content)
-        return content
-
     def crawl(self):
         self.active = True
         sitemap_url = self._get_sitemap_url()
@@ -240,7 +254,6 @@ class DefaultCrawler(AbstractCrawler):
         if blog_pages:
             for page_url in blog_pages:
                 content = self.downloader.get_content(page_url)
-                content = self._content_cleanup(content)
                 if not self.title:
                     tree = fromstring(content)
                     self.language = self._get_blog_language(content)
