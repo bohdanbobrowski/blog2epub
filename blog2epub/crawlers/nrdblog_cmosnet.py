@@ -6,3 +6,6 @@ class NrdblogCmosEuCrawler(AbstractCrawler):
 
     def crawl(self):
         pass
+
+    def get_book_data(self):
+        pass
