@@ -19,8 +19,7 @@ from blog2epub.models.book import DirModel, BookModel
 from blog2epub.models.configuration import ConfigurationModel
 from blog2epub.common.crawler import (
     prepare_file_name,
-    prepare_port,
-    prepare_url_to_crawl,
+    prepare_port_and_url,
 )
 from blog2epub.models.content_patterns import ContentPatterns
 
@@ -37,9 +36,8 @@ class AbstractCrawler(ABC):
         interface: EmptyInterface = EmptyInterface(),
     ):
         super().__init__()
-        self.url_to_crawl = self.url = prepare_url_to_crawl(url)
+        self.port, self.url = prepare_port_and_url(url)
         self.configuration = configuration
-        self.port = prepare_port(self.url_to_crawl)
         self.file_name = prepare_file_name(file_name, self.url)
         self.cache_folder = cache_folder
         self.start = start
@@ -67,18 +65,19 @@ class AbstractCrawler(ABC):
         self.tags: Dict = {}
         self.active = False
         self.cancelled = False
-        self.ignore_downloads: List[str] = []
+        self.ignore_downloads: List[str] = [
+            r"[http|https]+:\/\/zblogowani.pl[^\s]+",
+        ]
         self.article_class = Article
+        self.patterns: Optional[ContentPatterns] = None
         self.downloader = Downloader(
             dirs=self.dirs,
             url=self.url,
-            url_to_crawl=self.url_to_crawl,
             interface=self.interface,
             images_size=self.configuration.images_size,
             images_quality=self.configuration.images_quality,
             ignore_downloads=self.ignore_downloads,
         )
-        self.patterns: Optional[ContentPatterns] = None
 
     @abstractmethod
     def crawl(self):
@@ -94,34 +93,29 @@ class Article:
 
     def __init__(
         self,
-        url,
-        html,
-        crawler: AbstractCrawler,
-        patterns: Optional[ContentPatterns] = None,
+        url: str,
+        html_content: str,
+        patterns: Optional[ContentPatterns],
+        interface: EmptyInterface,
+        dirs: DirModel,
+        language: str,
+        downloader: Downloader,
     ):
         self.url = url
-        self.html = html
-        self.title = None
-        self.tags: List[str] = []
-        self.interface = crawler.interface
-        self.dirs: DirModel = crawler.dirs
-        self.comments = ""  # TODO: should be a list in the future
-        self.language: Optional[str] = crawler.language
+        self.html = html_content
+        self.interface = interface
+        self.dirs: DirModel = dirs
+        self.language: Optional[str] = language
+        self.downloader: Downloader = downloader
+        self.patterns = patterns
         self.images: List[str] = []
         self.images_captions: List[str] = []
         self.content = None
         self.date = None
+        self.title = None
+        self.tags: List[str] = []
         self.tree = fromstring("<div></div>")
-        self.downloader = Downloader(
-            dirs=self.dirs,
-            url=self.url,
-            url_to_crawl=crawler.url_to_crawl,
-            interface=crawler.interface,
-            images_size=crawler.configuration.images_size,
-            images_quality=crawler.configuration.images_quality,
-            ignore_downloads=crawler.ignore_downloads,
-        )
-        self.patterns = patterns
+        self.comments = ""  # TODO: should be a list in the future
 
     def get_title(self) -> str:
         if self.tree is not None:

@@ -29,7 +29,6 @@ class Downloader:
         self,
         dirs: DirModel,
         url: str,
-        url_to_crawl: str,
         interface: EmptyInterface,
         images_size: List[int],
         images_quality: int,
@@ -37,7 +36,6 @@ class Downloader:
     ):
         self.dirs = dirs
         self.url = url
-        self.url_to_crawl = url_to_crawl
         self.interface = interface
         self.images_size = images_size
         self.images_quality = images_quality
@@ -109,7 +107,8 @@ class Downloader:
         time.sleep(1)
         return True
 
-    def checkInterstitial(self, contents):
+    @staticmethod
+    def check_interstitial(contents):
         interstitial = re.findall('interstitial=([^"]+)', contents)
         if interstitial:
             return interstitial[0]
@@ -129,7 +128,7 @@ class Downloader:
             self.interface.print(f"...repeat request: {url}")
             time.sleep(3)
         if contents is not None:
-            interstitial = self.checkInterstitial(contents)
+            interstitial = self.check_interstitial(contents)
             if interstitial:
                 interstitial_url = (
                     "http://" + self.url + "?interstitial=" + interstitial
@@ -145,7 +144,7 @@ class Downloader:
 
     def _fix_image_url(self, img: str) -> str:
         if not img.startswith("http"):
-            uri = urlparse(self.url_to_crawl)
+            uri = urlparse(self.url)
             if uri.netloc not in img:
                 img = os.path.join(uri.netloc, img)
             while not img.startswith("//"):
@@ -154,6 +153,8 @@ class Downloader:
         return img
 
     def download_image(self, img: str) -> Optional[str]:
+        if self._is_url_in_ignored(img) or self._is_url_in_skipped(img):
+            return None
         img = self._fix_image_url(img)
         img_hash = self.get_urlhash(img)
         img_type = os.path.splitext(img)[1].lower()
@@ -167,6 +168,8 @@ class Downloader:
             self.image_download(img, original_fn)
         if os.path.isfile(original_fn):
             original_img_type = filetype.guess(original_fn)
+            if original_img_type is None:
+                return None
             if not original_img_type.MIME.startswith("image"):
                 os.remove(original_fn)
                 self.skipped_images.append(img)

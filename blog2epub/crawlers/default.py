@@ -11,6 +11,7 @@ import atoma  # type: ignore
 from lxml.html.soupparser import fromstring
 from lxml import etree
 
+from blog2epub.common.downloader import Downloader
 from blog2epub.crawlers.abstract import AbstractCrawler
 from blog2epub.models.book import BookModel, DirModel, ArticleModel, ImageModel
 from blog2epub.models.content_patterns import ContentPatterns, Pattern
@@ -41,6 +42,14 @@ class DefaultCrawler(AbstractCrawler):
                     regex=r'<table[^>]*><tbody>[\s]*<tr><td[^>]*><a href="([^"]*)"[^>]*><img[^>]*></a></td></tr>[\s]*<tr><td class="tr-caption" style="[^"]*">([^<]*)'
                 )
             ],
+        )
+        self.downloader = Downloader(
+            dirs=self.dirs,
+            url=self.url,
+            interface=self.interface,
+            images_size=self.configuration.images_size,
+            images_quality=self.configuration.images_quality,
+            ignore_downloads=self.ignore_downloads,
         )
 
     def _get_articles_list(self) -> List[ArticleModel]:
@@ -145,12 +154,6 @@ class DefaultCrawler(AbstractCrawler):
         self.atom_feed = atoma.parse_atom_bytes(bytes(atom_content, encoding="utf-8"))
         return True
 
-    def _get_url_to_crawl(self, tree) -> str | None:
-        url_to_crawl = None
-        if tree.xpath('//a[@class="blog-pager-older-link"]/@href'):
-            url_to_crawl = tree.xpath('//a[@class="blog-pager-older-link"]/@href')[0]
-        return url_to_crawl
-
     def _add_tags(self, tags) -> None:
         for tag in tags:
             if tag in self.tags:
@@ -159,7 +162,6 @@ class DefaultCrawler(AbstractCrawler):
                 self.tags[tag] = 1
 
     def _atom_feed_loop(self):
-        self.url_to_crawl = None
         for item in self.atom_feed.entries:
             try:
                 self.article_counter += 1
@@ -253,14 +255,22 @@ class DefaultCrawler(AbstractCrawler):
         blog_pages = self._get_pages_urls(sitemap_url)
         if blog_pages:
             for page_url in blog_pages:
-                content = self.downloader.get_content(page_url)
+                html_content = self.downloader.get_content(page_url)
                 if not self.title:
-                    tree = fromstring(content)
-                    self.language = self._get_blog_language(content)
+                    tree = fromstring(html_content)
+                    self.language = self._get_blog_language(html_content)
                     self.images = self.images + self._get_header_images(tree)
                     self.description = self._get_blog_description(tree)
-                    self.title = self._get_blog_title(content)
-                art = self.article_class(page_url, content, self)
+                    self.title = self._get_blog_title(html_content)
+                art = self.article_class(
+                    url=page_url,
+                    html_content=html_content,
+                    patterns=self.patterns,
+                    interface=self.interface,
+                    dirs=self.dirs,
+                    language=self.language,
+                    downloader=self.downloader,
+                )
                 art.process()
                 self.images = self.images + art.images
                 if self.start:

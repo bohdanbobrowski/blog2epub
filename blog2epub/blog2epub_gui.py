@@ -47,7 +47,7 @@ from kivymd.uix.dropdownitem import MDDropDownItem  # type: ignore # noqa
 
 from blog2epub import Blog2Epub
 from blog2epub.common.assets import asset_path
-from blog2epub.common.crawler import prepare_url
+from blog2epub.common.crawler import prepare_port_and_url
 from blog2epub.common.exceptions import BadUrlException
 from blog2epub.common.interfaces import EmptyInterface
 from blog2epub.common.settings import Blog2EpubSettings
@@ -431,7 +431,7 @@ class Blog2EpubKivyWindow(MDBoxLayout):
 
     def _get_url(self):
         if urllib.parse.urlparse(self.url_entry.text):
-            self.url_entry.text = prepare_url(self.url_entry.text)
+            port, self.url_entry.text = prepare_port_and_url(self.url_entry.text)
             return self.url_entry.text
         raise BadUrlException("Blog url is not valid.")
 
@@ -571,7 +571,9 @@ class Blog2EpubKivyWindow(MDBoxLayout):
         self.download_button_container.add_widget(self.download_button)
 
     def save_settings(self):
-        self.blog2epub_settings.data.url = prepare_url(self.url_entry.text)
+        port, self.blog2epub_settings.data.url = prepare_port_and_url(
+            self.url_entry.text
+        )
         self.blog2epub_settings.data.limit = self.limit_entry.text
         self.blog2epub_settings.data.skip = self.skip_entry.text
         self.blog2epub_settings.save()

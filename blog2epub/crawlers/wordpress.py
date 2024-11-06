@@ -33,7 +33,6 @@ class WordpressCrawler(DefaultCrawler):
         self.atom_feed = atoma.parse_atom_bytes(bytes(atom_content, encoding="utf-8"))
 
     def _atom_feed_loop(self):
-        self.url_to_crawl = None
         next_page = 2
         while next_page:
             for item in self.atom_feed.entries:

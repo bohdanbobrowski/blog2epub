@@ -1,11 +1,8 @@
 import unittest
-from unittest.mock import patch
 
 from blog2epub.common.crawler import (
-    prepare_url,
+    prepare_port_and_url,
     prepare_file_name,
-    prepare_url_to_crawl,
-    prepare_port,
 )
 
 
@@ -30,25 +27,30 @@ class TestCommonCrawler(unittest.TestCase):
         self.given_http_url = "http://example.com"
         self.given_https_url = "https://example.com"
 
-    def test_prepare_url(self):
+    def test_prepare_port_and_url(self):
         # When:
-        result_0 = prepare_url(self.given_domain)
-        result_1 = prepare_url(self.given_http_url)
-        result_2 = prepare_url(self.given_https_url)
+        port_0, result_0 = prepare_port_and_url(self.given_domain)
+        port_1, result_1 = prepare_port_and_url(self.given_http_url)
+        port_2, result_2 = prepare_port_and_url(self.given_https_url)
         # Then:
-        assert result_0 == self.given_domain
-        assert result_1 == self.given_domain
-        assert result_2 == self.given_domain
+        assert result_0 == self.given_https_url
+        assert result_1 == self.given_http_url
+        assert result_2 == self.given_https_url
+        assert port_0 == 443
+        assert port_1 == 80
+        assert port_2 == 443
 
     def test_prepare_url_always_subdomain_for_blogspot_and_wordpress_com(self):
         # When
-        result_1 = prepare_url("https://test.blogspot.com/sub-category/name.html")
-        result_2 = prepare_url(
+        port_0, result_1 = prepare_port_and_url(
+            "https://test.blogspot.com/sub-category/name.html"
+        )
+        port_1, result_2 = prepare_port_and_url(
             "https://test.wordpress.com/sub-category/very-interesting-article.html"
         )
         # Then
-        assert result_1 == "test.blogspot.com"
-        assert result_2 == "test.wordpress.com"
+        assert result_1 == "https://test.blogspot.com"
+        assert result_2 == "https://test.wordpress.com"
 
     def test_prepare_file_name(self):
         # When:
@@ -57,23 +59,3 @@ class TestCommonCrawler(unittest.TestCase):
         # Then:
         assert result_1 == "example_com"
         assert result_2 == "xxx"
-
-    @patch("urllib.request.urlopen")
-    def test_prepare_url_to_crawl(self, mock_urlopen):
-        # Given
-        mock_urlopen.return_value = MockRequestResult("ddd")
-        # When:
-        result = prepare_url_to_crawl(self.given_domain)
-        # Then:
-        assert mock_urlopen.called
-        assert mock_urlopen.call_count == 1
-        assert mock_urlopen.call_args_list[0].args == (self.given_https_url,)
-        assert result == "ddd"
-
-    def test_prepare_port(self):
-        # When:
-        http_result = prepare_port(self.given_http_url)
-        https_result = prepare_port(self.given_https_url)
-        # Then:
-        assert http_result == 80
-        assert https_result == 443
