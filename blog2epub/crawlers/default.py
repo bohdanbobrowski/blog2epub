@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding : utf-8 -*-
 import re
+
 import requests
 from urllib.parse import urljoin
 from urllib import robotparser
@@ -226,6 +227,17 @@ class DefaultCrawler(AbstractCrawler):
         self.interface.print(f"Found {len(pages)} articles to crawl.")
         return pages
 
+    @staticmethod
+    def _content_cleanup(content: str) -> str:
+        """This  function removes from downloaded content unwanted patterns - like ads, etc."""
+        patterns = [
+            '<span style="[^"]+"><i>Dyskretna Reklama</i></span>',
+            '<span style="[^"]+"><br /><i>Koniec Dyskretnej Reklamy</i></span></div>',
+        ]
+        for p in patterns:
+            content = re.sub(p, "", content)
+        return content
+
     def crawl(self):
         self.active = True
         sitemap_url = self._get_sitemap_url()
@@ -233,6 +245,7 @@ class DefaultCrawler(AbstractCrawler):
         if blog_pages:
             for page_url in blog_pages:
                 content = self.downloader.get_content(page_url)
+                content = self._content_cleanup(content)
                 if not self.title:
                     tree = fromstring(content)
                     self.language = self._get_blog_language(content)

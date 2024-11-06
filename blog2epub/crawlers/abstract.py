@@ -301,8 +301,15 @@ class Article:
             except IndexError:
                 pass
 
+    def _content_cleanup_xpath(self):
+        patterns = ['//div[@class="post-footer"]']
+        for p in patterns:
+            for bad in self.tree.xpath(p):
+                bad.getparent().remove(bad)
+
     def process(self):
         self.tree = fromstring(self.html)
+        self._content_cleanup_xpath()
         self.title = self.get_title()
         self.get_date()
         self.get_images()
