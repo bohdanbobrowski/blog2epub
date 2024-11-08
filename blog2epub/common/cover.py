@@ -2,7 +2,7 @@ import os
 from random import shuffle
 from typing import List
 
-from PIL import Image, ImageDraw, ImageFont, ImageEnhance
+from PIL import Image, ImageDraw, ImageEnhance, ImageFont
 
 from blog2epub.common.assets import asset_path
 from blog2epub.common.globals import VERSION

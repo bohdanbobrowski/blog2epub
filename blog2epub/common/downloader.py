@@ -2,19 +2,18 @@ import gzip
 import hashlib
 import os
 import re
-
-from typing import Optional, List, Mapping
-from urllib.parse import urlparse
 import time
-from PIL import Image
-import filetype  # type: ignore
-from imagesize import imagesize  # type: ignore
+from typing import List, Mapping, Optional
+from urllib.parse import urlparse
 
+import filetype  # type: ignore
 import requests
+from imagesize import imagesize  # type: ignore
+from PIL import Image
 from requests.cookies import RequestsCookieJar
 
-from blog2epub.models.book import DirModel
 from blog2epub.common.interfaces import EmptyInterface
+from blog2epub.models.book import DirModel
 
 
 def prepare_directories(dirs: DirModel):
@@ -118,7 +117,7 @@ class Downloader:
         # TODO: This needs refactor!
         filepath = self.get_filepath(url)
         contents = None
-        for x in range(0, 3):
+        for _x in range(0, 3):
             if not os.path.isfile(filepath) and not os.path.isfile(filepath + ".gz"):
                 contents = self.file_download(url, filepath)
             else:

@@ -1,5 +1,6 @@
-import PyInstaller.__main__
 from pathlib import Path
+
+import PyInstaller.__main__
 
 HERE = Path(__file__).parent.absolute()
 blog2epub_gui_windows_spec = str(HERE / "blog2epub_gui_windows.spec")

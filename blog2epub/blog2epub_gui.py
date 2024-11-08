@@ -1,13 +1,14 @@
 import logging
+import math
 import os
 import re
+import subprocess
 import sys
-import webbrowser
-import math
 import time
 import urllib
-import subprocess
+import webbrowser
 from datetime import datetime
+from functools import partial
 from itertools import cycle
 from threading import Thread
 from typing import List
@@ -15,11 +16,9 @@ from typing import List
 from kivy.uix.anchorlayout import AnchorLayout  # type: ignore
 from kivy.uix.boxlayout import BoxLayout  # type: ignore
 from kivymd.uix.datatables import MDDataTable  # type: ignore
-from kivymd.uix.tab import MDTabsBase, MDTabs  # type: ignore
+from kivymd.uix.tab import MDTabs, MDTabsBase  # type: ignore
 from kivymd.uix.textfield import MDTextField  # type: ignore
-
 from plyer import filechooser, notification  # type: ignore
-from functools import partial
 
 from blog2epub.common.book import Book
 from blog2epub.models.book import ArticleModel
@@ -32,18 +31,18 @@ from kivy.config import Config  # type: ignore
 # Config.set("input", "mouse", "mouse,multitouch_on_demand")
 Config.set("graphics", "resizable", False)
 
-from kivy.utils import platform  # type: ignore
-from kivymd.app import MDApp  # type: ignore
 from kivy.clock import mainthread  # type: ignore
 from kivy.core.window import Window  # type: ignore
 from kivy.metrics import Metrics, sp  # type: ignore
-from kivymd.uix.boxlayout import MDBoxLayout  # type: ignore
-from kivymd.uix.button import MDRoundFlatIconButton  # type: ignore
 from kivy.uix.image import Image  # type: ignore
-from kivymd.uix.label import MDLabel  # type: ignore
 from kivy.uix.popup import Popup  # type: ignore
 from kivy.uix.textinput import TextInput  # type: ignore
+from kivy.utils import platform  # type: ignore
+from kivymd.app import MDApp  # type: ignore
+from kivymd.uix.boxlayout import MDBoxLayout  # type: ignore
+from kivymd.uix.button import MDRoundFlatIconButton  # type: ignore
 from kivymd.uix.dropdownitem import MDDropDownItem  # type: ignore # noqa
+from kivymd.uix.label import MDLabel  # type: ignore
 
 from blog2epub import Blog2Epub
 from blog2epub.common.assets import asset_path
@@ -59,7 +58,7 @@ now = datetime.now()
 date_time = now.strftime("%Y-%m-%d[%H.%M.%S]")
 
 if platform == "android":
-    from android.permissions import request_permissions, Permission  # type: ignore
+    from android.permissions import Permission, request_permissions  # type: ignore
 
     request_permissions(
         [
@@ -75,13 +74,13 @@ if platform == "android":
 
 class UrlTextInput(MDTextField):
     def __init__(self, *args, **kwargs):
-        self.url_history: List["str"] = kwargs.pop("url_history", [])  # type: ignore
+        self.url_history: List[str] = kwargs.pop("url_history", [])  # type: ignore
         self._url_history_iterator = cycle(self.url_history)
         super().__init__(*args, **kwargs)
 
     def _get_previous_url_history(self):
         if len(self.url_history) > 2:
-            for x in range(0, len(self.url_history) - 2):
+            for _x in range(0, len(self.url_history) - 2):
                 next(self._url_history_iterator)
         return next(self._url_history_iterator)
 
@@ -584,8 +583,10 @@ class Blog2EpubKivyWindow(MDBoxLayout):
 
     @staticmethod
     def _android_share(file_full_path):
-        from jnius import autoclass  # type: ignore
-        from jnius import cast  # type: ignore
+        from jnius import ( # type: ignore
+            autoclass,  # type: ignore
+            cast,  # type: ignore
+        )
 
         StrictMode = autoclass("android.os.StrictMode")
         StrictMode.disableDeathOnFileUriExposure()

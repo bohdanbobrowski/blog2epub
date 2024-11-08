@@ -1,7 +1,6 @@
+import ssl
 from typing import Tuple
 from urllib import parse
-import ssl
-
 
 ssl._create_default_https_context = ssl._create_stdlib_context  # type: ignore
 

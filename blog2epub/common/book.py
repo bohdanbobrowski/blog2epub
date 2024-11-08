@@ -4,9 +4,16 @@ import os
 import re
 import tempfile
 import zipfile
-from typing import Optional, List
+from typing import List, Optional
 
-from ebooklib.epub import EpubHtml, EpubBook, EpubNcx, EpubNav, EpubItem, write_epub  # type: ignore
+from ebooklib.epub import (  # type: ignore
+    EpubBook,
+    EpubHtml,
+    EpubItem,
+    EpubNav,
+    EpubNcx,
+    write_epub,
+)
 
 from blog2epub.common.cover import Cover
 from blog2epub.common.interfaces import EmptyInterface
@@ -231,7 +238,7 @@ class Book:
                     ) as f:
                         image_content = f.read()
                     epub_img = EpubItem(
-                        uid="img%s" % i,
+                        uid=f"img{i}",
                         file_name="images/" + image.hash,
                         media_type="image/jpeg",
                         content=image_content,
@@ -310,10 +317,7 @@ class Book:
 class Chapter:
     epub: Optional[EpubHtml] = None
 
-    def __init__(self, article, number, language):
-        """
-        :param article: Article class
-        """
+    def __init__(self, article: ArticleModel, number: int, language: str):
         uid = "chapter_" + str(number)
         self.epub: EpubHtml = EpubHtml(  # type: ignore
             title=article.title,

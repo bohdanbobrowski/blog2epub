@@ -2,9 +2,10 @@ import os.path
 import tempfile
 
 import pytest
+
 from blog2epub.blog2epub_main import Blog2Epub
-from blog2epub.models.configuration import ConfigurationModel
 from blog2epub.common.book import Book
+from blog2epub.models.configuration import ConfigurationModel
 
 
 @pytest.fixture()

@@ -3,15 +3,15 @@ from typing import Optional
 
 from blog2epub.common.globals import VERSION
 from blog2epub.common.interfaces import EmptyInterface
-from blog2epub.models.configuration import ConfigurationModel
 from blog2epub.crawlers import (
     AbstractCrawler,
     BlogspotCrawler,
     DefaultCrawler,
-    WordpressCrawler,
     NrdblogCmosEuCrawler,
+    WordpressCrawler,
     ZeissIkonVEBCrawler,
 )
+from blog2epub.models.configuration import ConfigurationModel
 
 
 class Blog2Epub:

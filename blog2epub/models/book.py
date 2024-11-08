@@ -25,6 +25,7 @@ class ArticleModel(BaseModel):
     content: Optional[str]
     comments: Optional[str]  # TODO: replace with List[CommentModel]
     tags: List[str] = []
+    images: List[str] = []
 
 
 class ImageModel(BaseModel):

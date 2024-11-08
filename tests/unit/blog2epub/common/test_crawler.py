@@ -1,8 +1,8 @@
 import unittest
 
 from blog2epub.common.crawler import (
-    prepare_port_and_url,
     prepare_file_name,
+    prepare_port_and_url,
 )
 
 

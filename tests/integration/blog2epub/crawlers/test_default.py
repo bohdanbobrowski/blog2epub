@@ -1,8 +1,9 @@
 import tempfile
 
 import pytest
-from blog2epub.models.configuration import ConfigurationModel
+
 from blog2epub.crawlers import DefaultCrawler
+from blog2epub.models.configuration import ConfigurationModel
 
 
 @pytest.fixture()

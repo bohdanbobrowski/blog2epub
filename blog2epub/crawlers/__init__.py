@@ -6,7 +6,6 @@ from blog2epub.crawlers.universal import UniversalCrawler
 from blog2epub.crawlers.wordpress import WordpressCrawler
 from blog2epub.crawlers.zeissikonveb import ZeissIkonVEBCrawler
 
-
 __all__ = [
     "AbstractCrawler",
     "BlogspotCrawler",

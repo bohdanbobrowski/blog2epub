@@ -1,19 +1,18 @@
 #!/usr/bin/env python3
 # -*- coding : utf-8 -*-
 import re
-
-import requests
-from urllib.parse import urljoin
+from typing import List, Optional, Tuple
 from urllib import robotparser
-from typing import Optional, List, Tuple
+from urllib.parse import urljoin
 
 import atoma  # type: ignore
-from lxml.html.soupparser import fromstring
+import requests
 from lxml import etree
+from lxml.html.soupparser import fromstring
 
 from blog2epub.common.downloader import Downloader
 from blog2epub.crawlers.abstract import AbstractCrawler
-from blog2epub.models.book import BookModel, DirModel, ArticleModel, ImageModel
+from blog2epub.models.book import BookModel, DirModel, ImageModel
 from blog2epub.models.content_patterns import ContentPatterns, Pattern
 
 
@@ -87,21 +86,6 @@ class DefaultCrawler(AbstractCrawler):
             ignore_downloads=self.ignore_downloads,
         )
 
-    def _get_articles_list(self) -> List[ArticleModel]:
-        """This is temporary solution - crawler should use data models as default data storage."""
-        articles_list = []
-        for article in self.articles:
-            articles_list.append(
-                ArticleModel(
-                    url=article.url,
-                    title=article.title,
-                    date=article.date,
-                    content=article.content,
-                    comments=article.comments,
-                )
-            )
-        return articles_list
-
     def _get_images(self) -> List[ImageModel]:
         """This is temporary solution - crawler should use data models as default data storage."""
         images_list = []
@@ -123,7 +107,7 @@ class DefaultCrawler(AbstractCrawler):
             subtitle=self.subtitle,
             description=self.description,
             dirs=DirModel(path=self.dirs.path),
-            articles=self._get_articles_list(),
+            articles=self.articles,
             images=self._get_images(),
             start=self.start,
             end=self.end,
@@ -198,7 +182,9 @@ class DefaultCrawler(AbstractCrawler):
         for item in self.atom_feed.entries:
             try:
                 self.article_counter += 1
-                art = self.article_class(item.links[0].href, item.title.value, self)
+                art = self.article_factory_class(
+                    item.links[0].href, item.title.value, self
+                )
                 if (
                     self.configuration.skip
                     and self.configuration.skip.isdigit()
@@ -298,7 +284,7 @@ class DefaultCrawler(AbstractCrawler):
                     self.images = self.images + self._get_header_images(tree)
                     self.description = self._get_blog_description(tree)
                     self.title = self._get_blog_title(html_content)
-                art = self.article_class(
+                art = self.article_factory_class(
                     url=page_url,
                     html_content=html_content,
                     patterns=self.patterns,
