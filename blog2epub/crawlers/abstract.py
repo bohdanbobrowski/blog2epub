@@ -120,11 +120,12 @@ class Article:
 
     def get_title(self) -> str:
         if self.tree is not None:
-            title = self.tree.xpath('//meta[@property="og:title"]/@content')
-            if not title:
-                title = self.tree.xpath('//*[@class="post-title entry-title"]/text()')
-            title = title[0]
-            return html.unescape(title.strip())
+            for title_pattern in self.patterns.title:
+                if title_pattern.xpath:
+                    title = self.tree.xpath(title_pattern.xpath)
+                    if len(title) > 0:
+                        title = title[0]
+                        return html.unescape(title.strip())
         return ""
 
     @abstractmethod
@@ -132,30 +133,12 @@ class Article:
         # TODO: refactor this! xD
         if isinstance(self.date, datetime):
             return
-        date = self.tree.xpath('//abbr[@itemprop="datePublished"]/@title')
-        if date:
-            self.date = date[0]
-        else:
-            date = self.tree.xpath('//h2[@class="date-header"]/span/text()')
-            if len(date) > 0:
-                self.date = re.sub("(.*?, )", "", date[0])
-        meta_tags = [
-            "article:published_time",
-            "article:modified_time",
-        ]
-        loop_count = 0
-        while self.date is None:
-            meta_result = self.tree.xpath(
-                f'//meta[@property="{meta_tags[loop_count]}"]/@content'
-            )
-            if len(meta_result) > 0:
-                self.date = meta_result[0]
-            loop_count += 1
-            if loop_count > len(meta_tags):
-                break
-        if self.date is None:
-            """TODO: <time datetime="2023-03-29T10:24:20+02:00">2023-03-29</time>"""
-            pass
+        for date_pattern in self.patterns.date:
+            if date_pattern.xpath:
+                date = self.tree.xpath(date_pattern.xpath)
+                if len(date) > 0:
+                    self.date = date[0]
+                    break
         if self.date is None:
             d = self.url.split("/")
             if len(d) > 4:

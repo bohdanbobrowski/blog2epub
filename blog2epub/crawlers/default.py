@@ -42,6 +42,36 @@ class DefaultCrawler(AbstractCrawler):
                     xpath='//div[@class="post-footer"]',
                 ),
             ],
+            title=[
+                Pattern(
+                    xpath='//meta[@property="og:title"]/@content',
+                ),
+                Pattern(
+                    xpath='//*[contains(@class, "entry-title")]/text()',
+                ),
+                Pattern(
+                    xpath='//*[contains(@class, "post-title")]/text()',
+                ),
+                Pattern(
+                    xpath='//h1[contains(@class, "wp-block-post-title")]/text()',
+                ),
+            ],
+            date=[
+                Pattern(
+                    xpath='//abbr[@itemprop="datePublished"]/@title',
+                ),
+                Pattern(
+                    xpath='//h2[@class="date-header"]/span/text()',
+                ),
+                Pattern(
+                    xpath='//meta[@property="article:published_time"]/@content',
+                ),
+                Pattern(
+                    xpath='//meta[@property="article:modified_time"]/@content',
+                ),
+                Pattern(xpath='//time[@property="datetime"]/@content'),
+                Pattern(xpath="//time/@text"),
+            ],
             images=[
                 Pattern(
                     regex=r'<table[^>]*><tbody>[\s]*<tr><td[^>]*><a href="([^"]*)"[^>]*><img[^>]*></a></td></tr>[\s]*<tr><td class="tr-caption" style="[^"]*">([^<]*)'
