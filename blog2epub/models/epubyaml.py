@@ -1,4 +1,4 @@
-from typing import List, Optional
+from typing import Optional
 
 from pydantic import BaseModel
 
@@ -12,4 +12,4 @@ class EpubYamlChapter(BaseModel):
 class EpubYamlModel(BaseModel):
     title: str
     subtitle: str
-    chapters: List[EpubYamlChapter] = []
+    chapters: list[EpubYamlChapter] = []

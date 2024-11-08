@@ -74,7 +74,7 @@ if platform == "android":
 
 class UrlTextInput(MDTextField):
     def __init__(self, *args, **kwargs):
-        self.url_history: List[str] = kwargs.pop("url_history", [])  # type: ignore
+        self.url_history: list[str] = kwargs.pop("url_history", [])  # type: ignore
         self._url_history_iterator = cycle(self.url_history)
         super().__init__(*args, **kwargs)
 
@@ -109,9 +109,7 @@ class Blog2EpubKivyWindow(MDBoxLayout):
         if platform == "android":
             from android.storage import primary_external_storage_path  # type: ignore
 
-            self.blog2epub_settings.data.destination_folder = os.path.join(
-                primary_external_storage_path(), "Download"
-            )
+            self.blog2epub_settings.data.destination_folder = os.path.join(primary_external_storage_path(), "Download")
         self.blog2epub = None
         self.download_thread = None
         self.ebook_data = None
@@ -176,9 +174,7 @@ class Blog2EpubKivyWindow(MDBoxLayout):
             params_row.add_widget(self.download_button)
             self.download_button_container = params_row
         else:
-            self.download_button_container = MDBoxLayout(
-                orientation="horizontal", size_hint=(1, 0.12), spacing=sp(10)
-            )
+            self.download_button_container = MDBoxLayout(orientation="horizontal", size_hint=(1, 0.12), spacing=sp(10))
             self.tab_download.add_widget(self.download_button_container)
             self.download_button_container.add_widget(self.download_button)
         self.console = TextInput(
@@ -216,9 +212,7 @@ class Blog2EpubKivyWindow(MDBoxLayout):
             self.articles_data[row_index][0] = False
         else:
             self.articles_data[row_index][0] = True
-        self.articles_table.update_row_data(
-            self.articles_table, self._get_articles_rows()
-        )
+        self.articles_table.update_row_data(self.articles_table, self._get_articles_rows())
         self._update_tab_generate()
 
     def _define_tab_select(self):
@@ -295,9 +289,7 @@ class Blog2EpubKivyWindow(MDBoxLayout):
             self.blog2epub_settings.data.destination_folder = path[0]
             self.blog2epub_settings.save()
 
-        self.destination_button.text = (
-            f"Destination folder: {self.blog2epub_settings.data.destination_folder}"
-        )
+        self.destination_button.text = f"Destination folder: {self.blog2epub_settings.data.destination_folder}"
 
     @staticmethod
     def _put_element_in_anchor_layout(element, layout):
@@ -382,9 +374,7 @@ class Blog2EpubKivyWindow(MDBoxLayout):
         return url_row
 
     def _get_params_row(self) -> MDBoxLayout:
-        params_row = MDBoxLayout(
-            orientation="horizontal", size_hint=(1, 0.12), spacing=sp(10)
-        )
+        params_row = MDBoxLayout(orientation="horizontal", size_hint=(1, 0.12), spacing=sp(10))
 
         self.limit_entry = MDTextField(
             text=self.blog2epub_settings.data.limit,
@@ -440,14 +430,10 @@ class Blog2EpubKivyWindow(MDBoxLayout):
         if len(blog2epub.crawler.articles) > 0:
             self.tab_select.disabled = False
             self._update_articles_data(blog2epub.crawler.articles)
-            self.articles_table.update_row_data(
-                self.articles_table, self._get_articles_rows()
-            )
+            self.articles_table.update_row_data(self.articles_table, self._get_articles_rows())
             self.blog2epub_settings.data.language = blog2epub.crawler.language
             self.ebook_data = blog2epub.crawler.get_book_data()
-            self.articles_table.update_row_data(
-                self.articles_table, self._get_articles_rows()
-            )
+            self.articles_table.update_row_data(self.articles_table, self._get_articles_rows())
             self._update_tab_generate()
         if not blog2epub.crawler.cancelled:
             self.interface.print("Download completed.")
@@ -463,7 +449,7 @@ class Blog2EpubKivyWindow(MDBoxLayout):
     def _switch_tab(self, tab_title: str):
         self.tabs.switch_tab(name_tab=tab_title, search_by="title")
 
-    def _get_articles_to_save(self) -> List[ArticleModel]:
+    def _get_articles_to_save(self) -> list[ArticleModel]:
         articles_to_save = []
         for x in range(0, len(self.articles_data)):
             if self.articles_data[x][0]:
@@ -570,9 +556,7 @@ class Blog2EpubKivyWindow(MDBoxLayout):
         self.download_button_container.add_widget(self.download_button)
 
     def save_settings(self):
-        port, self.blog2epub_settings.data.url = prepare_port_and_url(
-            self.url_entry.text
-        )
+        port, self.blog2epub_settings.data.url = prepare_port_and_url(self.url_entry.text)
         self.blog2epub_settings.data.limit = self.limit_entry.text
         self.blog2epub_settings.data.skip = self.skip_entry.text
         self.blog2epub_settings.save()
@@ -583,7 +567,7 @@ class Blog2EpubKivyWindow(MDBoxLayout):
 
     @staticmethod
     def _android_share(file_full_path):
-        from jnius import ( # type: ignore
+        from jnius import (  # type: ignore
             autoclass,  # type: ignore
             cast,  # type: ignore
         )

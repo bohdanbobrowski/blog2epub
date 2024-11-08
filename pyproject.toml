@@ -49,11 +49,16 @@ blog2epubgui = "blog2epub.blog2epub_gui:main"
 build_gui_windows = "blog2epub_build:build_gui_windows"
 build_gui_macos = "blog2epub_build:build_gui_macos"
 
+[tool.ruff]
+line-length = 120
+
 [tool.ruff.lint]
 select = ["E", "F", "UP", "B", "I"]
+ignore = ["E501"]
 
 [tool.mypy]
 exclude = ["venv", "dist", "build"]
+
 
 [tool.ruff.lint.extend-per-file-ignores]
 "blog2epub_gui.py" = ["E402"]

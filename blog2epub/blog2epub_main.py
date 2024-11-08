@@ -24,11 +24,11 @@ class Blog2Epub:
         self,
         url: str,
         configuration: ConfigurationModel,
+        interface: EmptyInterface,
         start: Optional[datetime] = None,
         end: Optional[datetime] = None,
         file_name: Optional[str] = None,
         cache_folder: str = "",
-        interface: EmptyInterface = EmptyInterface(),
     ):
         # TODO: Refactor this!
         crawler_args = {

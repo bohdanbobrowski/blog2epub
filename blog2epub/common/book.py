@@ -76,7 +76,7 @@ class Book:
         self,
         book_data: BookModel,
         configuration: ConfigurationModel,
-        interface: EmptyInterface = EmptyInterface(),
+        interface: EmptyInterface,
         destination_folder: str = ".",
         platform_name: str = "",
     ):
@@ -92,8 +92,8 @@ class Book:
         self.configuration = configuration
         self.interface = interface
         self._set_locale()
-        self.chapters: List[Chapter] = []
-        self.table_of_contents: List[EpubHtml] = []
+        self.chapters: list[Chapter] = []
+        self.table_of_contents: list[EpubHtml] = []
         self.file_name: str = self._get_new_file_name()
         self.destination_folder = destination_folder
         self.platform_name = platform_name
@@ -103,9 +103,7 @@ class Book:
             locale.setlocale(locale.LC_ALL, self.configuration.language)
             self.interface.print(f"Locale set as {self.configuration.language}")
         except locale.Error:
-            self.interface.print(
-                f"Can't set locale as {self.configuration.language}, but nevermind."
-            )
+            self.interface.print(f"Can't set locale as {self.configuration.language}, but nevermind.")
 
     def _get_subtitle(self):
         if self.end is None:
@@ -122,28 +120,22 @@ class Book:
             start_date: str = self.start.strftime("%Y.%m.%d")
             if self.end and self.start != self.end:
                 end_date: str = self.end.strftime("%Y.%m.%d")
-                new_file_name = (
-                    f"{self.book_data.file_name_prefix}_{start_date}-{end_date}"
-                )
+                new_file_name = f"{self.book_data.file_name_prefix}_{start_date}-{end_date}"
             else:
                 new_file_name = f"{self.book_data.file_name_prefix}_{start_date}"
         return f"{new_file_name}.epub"
 
-    def _add_chapters(self, articles: List[ArticleModel]):
+    def _add_chapters(self, articles: list[ArticleModel]):
         self.chapters = []
         for article in articles:
             number = len(self.chapters) + 1
             if article.content:
                 try:
-                    self.chapters.append(
-                        Chapter(article, number, self.configuration.language)
-                    )
+                    self.chapters.append(Chapter(article, number, self.configuration.language))
                 except TypeError as e:
                     print(e)
             else:
-                self.interface.print(
-                    f"Skipping article: {number}. {str(article.title)}"
-                )
+                self.interface.print(f"Skipping article: {number}. {str(article.title)}")
 
     def get_cover_title(self):
         cover_title = self.book_data.title + " "
@@ -193,9 +185,7 @@ class Book:
             with zipfile.ZipFile(self.file_full_path, "a") as zf:
                 zf.writestr(cover_html_fn, cover_html)
                 zf.write(cover_file_full_path, "EPUB/" + cover_file_name)
-                zf.writestr(
-                    content_opf_fn, self._upgrade_opf(content_opf, cover_file_name)
-                )
+                zf.writestr(content_opf_fn, self._upgrade_opf(content_opf, cover_file_name))
 
             self.interface.print(f"Epub created: {self.file_full_path}")
 
@@ -225,20 +215,16 @@ class Book:
     def _include_images(self):
         images_included = []
         if self.configuration.include_images:
-            for i, image in enumerate(self.book_data.images, start=1):
+            for image_number, image in enumerate(self.book_data.images, start=1):
                 if (
                     image
                     and image not in images_included
-                    and os.path.isfile(
-                        os.path.join(self.book_data.dirs.images, image.hash)
-                    )
+                    and os.path.isfile(os.path.join(self.book_data.dirs.images, image.hash))
                 ):
-                    with open(
-                        os.path.join(self.book_data.dirs.images, image.hash), "rb"
-                    ) as f:
+                    with open(os.path.join(self.book_data.dirs.images, image.hash), "rb") as f:
                         image_content = f.read()
                     epub_img = EpubItem(
-                        uid=f"img{i}",
+                        uid=f"img{image_number}",
                         file_name="images/" + image.hash,
                         media_type="image/jpeg",
                         content=image_content,
@@ -246,7 +232,7 @@ class Book:
                     self.book.add_item(epub_img)
                     images_included.append(image)
 
-    def _update_start_end_date(self, articles: List[ArticleModel]):
+    def _update_start_end_date(self, articles: list[ArticleModel]):
         self.start = self.end = None
         article_dates = []
         for article in articles:
@@ -270,9 +256,7 @@ class Book:
         ebook.spine.append("cover")
         ebook.spine.reverse()
         if self.book_data.description:
-            ebook.add_metadata(
-                "DC", "description", "\n".join(self.book_data.description)
-            )
+            ebook.add_metadata("DC", "description", "\n".join(self.book_data.description))
         return ebook
 
     def _get_file_full_path(self, destination_folder: Optional[str]) -> str:
@@ -288,9 +272,7 @@ class Book:
         file_full_path_name = re.sub(r"_\[[0-9]+\]$", "", file_full_path_name)
         counter = 1
         while os.path.exists(file_full_path):
-            file_full_path = (
-                file_full_path_name + "_[" + str(counter) + "]" + file_extension
-            )
+            file_full_path = file_full_path_name + "_[" + str(counter) + "]" + file_extension
             counter += 1
         return file_full_path
 
@@ -326,14 +308,13 @@ class Chapter:
             lang=language,  # type: ignore
         )  # type: ignore
         tags = self._print_tags(article)
-        art_date = article.date.strftime("%d %B %Y, %H:%M")
+        art_date = ""
+        if article.date is not None:
+            art_date = article.date.strftime("%d %B %Y, %H:%M")
         self.epub.content = (
-            f"<h2>{article.title}</h2>{tags}{art_date}"
-            + f'<p><i><a href="{article.url}">{article.url}</a></i></p>'
+            f"<h2>{article.title}</h2>{tags}{art_date}" + f'<p><i><a href="{article.url}">{article.url}</a></i></p>'
         )
-        self.epub.content = (
-            "<div>" + self.epub.content + article.content + article.comments + "</div>"
-        )
+        self.epub.content = f"<div>{self.epub.content}{article.content}{article.comments}</div>"
 
     def _print_tags(self, article):
         if not article.tags:

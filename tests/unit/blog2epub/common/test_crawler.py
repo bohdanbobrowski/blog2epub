@@ -42,12 +42,8 @@ class TestCommonCrawler(unittest.TestCase):
 
     def test_prepare_url_always_subdomain_for_blogspot_and_wordpress_com(self):
         # When
-        port_0, result_1 = prepare_port_and_url(
-            "https://test.blogspot.com/sub-category/name.html"
-        )
-        port_1, result_2 = prepare_port_and_url(
-            "https://test.wordpress.com/sub-category/very-interesting-article.html"
-        )
+        port_0, result_1 = prepare_port_and_url("https://test.blogspot.com/sub-category/name.html")
+        port_1, result_2 = prepare_port_and_url("https://test.wordpress.com/sub-category/very-interesting-article.html")
         # Then
         assert result_1 == "https://test.blogspot.com"
         assert result_2 == "https://test.wordpress.com"

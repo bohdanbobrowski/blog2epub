@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding : utf-8 -*-
 import re
-from typing import List, Optional, Tuple
+from typing import Optional, Tuple
 from urllib import robotparser
 from urllib.parse import urljoin
 
@@ -12,7 +12,8 @@ from lxml.html.soupparser import fromstring
 
 from blog2epub.common.downloader import Downloader
 from blog2epub.crawlers.abstract import AbstractCrawler
-from blog2epub.models.book import BookModel, DirModel, ImageModel
+from blog2epub.crawlers.article_factory.default import DefaultArticleFactory
+from blog2epub.models.book import BookModel, DirModel
 from blog2epub.models.content_patterns import ContentPatterns, Pattern
 
 
@@ -24,6 +25,7 @@ class DefaultCrawler(AbstractCrawler):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.name = "default crawler"
+        self.article_factory_class = DefaultArticleFactory
         self.patterns = ContentPatterns(
             content=[
                 Pattern(xpath='//div[contains(@itemprop, "articleBody")]'),
@@ -86,19 +88,6 @@ class DefaultCrawler(AbstractCrawler):
             ignore_downloads=self.ignore_downloads,
         )
 
-    def _get_images(self) -> List[ImageModel]:
-        """This is temporary solution - crawler should use data models as default data storage."""
-        images_list = []
-        for article in self.articles:
-            for key, image in enumerate(article.images):
-                description = ""
-                if key in article.images_captions:
-                    description = article.images_captions[key]
-                images_list.append(
-                    ImageModel(url="", hash=image, description=description)
-                )
-        return images_list
-
     def get_book_data(self) -> BookModel:
         """This is temporary solution - crawler should use data models as default data storage."""
         book_data = BookModel(
@@ -108,7 +97,7 @@ class DefaultCrawler(AbstractCrawler):
             description=self.description,
             dirs=DirModel(path=self.dirs.path),
             articles=self.articles,
-            images=self._get_images(),
+            images=[im for art in self.articles for im in art.images],  # this is mind-blowing
             start=self.start,
             end=self.end,
             file_name_prefix=self.file_name,
@@ -149,9 +138,7 @@ class DefaultCrawler(AbstractCrawler):
         return ""
 
     def _get_blog_description(self, tree) -> Optional[str]:
-        description = tree.xpath(
-            '//div[@id="header"]/div/div/div/p[@class="description"]/span/text()'
-        )
+        description = tree.xpath('//div[@id="header"]/div/div/div/p[@class="description"]/span/text()')
         if 0 in description:
             return description[0]
         else:
@@ -159,9 +146,7 @@ class DefaultCrawler(AbstractCrawler):
 
     def _get_header_images(self, tree):
         header_images = []
-        for img in tree.xpath(
-            '//div[@id="header"]/div/div/div/p[@class="description"]/span/img/@src'
-        ):
+        for img in tree.xpath('//div[@id="header"]/div/div/div/p[@class="description"]/span/img/@src'):
             header_images.append(self.downloader.download_image(img))
         return header_images
 
@@ -179,12 +164,11 @@ class DefaultCrawler(AbstractCrawler):
                 self.tags[tag] = 1
 
     def _atom_feed_loop(self):
+        # TODO: This needs refactor! Maybe separate crawler for atom feed?
         for item in self.atom_feed.entries:
             try:
                 self.article_counter += 1
-                art = self.article_factory_class(
-                    item.links[0].href, item.title.value, self
-                )
+                art = self.article_factory_class(item.links[0].href, item.title.value, self)
                 if (
                     self.configuration.skip
                     and self.configuration.skip.isdigit()
@@ -206,9 +190,7 @@ class DefaultCrawler(AbstractCrawler):
                 self.images = self.images + art.images
                 self.articles.append(art)
                 self._add_tags(art.tags)
-                if self.configuration.limit and len(self.articles) >= int(
-                    self.configuration.limit
-                ):
+                if self.configuration.limit and len(self.articles) >= int(self.configuration.limit):
                     break
             except AttributeError as e:
                 self.interface.print(str(e))
@@ -263,9 +245,9 @@ class DefaultCrawler(AbstractCrawler):
             sitemap_pages.append(sitemap_element.getchildren()[0].text)  # type: ignore
         sub_sitemaps, pages = self._check_for_sub_sitemaps(sitemap_pages)
         for sub_sitemap in sub_sitemaps:
-            if re.search(
-                "wp-sitemap-posts-(post|page)-[0-9]+.xml$", sub_sitemap
-            ) or re.search("(post|page)-sitemap[0-9-]*.xml$", sub_sitemap):
+            if re.search("wp-sitemap-posts-(post|page)-[0-9]+.xml$", sub_sitemap) or re.search(
+                "(post|page)-sitemap[0-9-]*.xml$", sub_sitemap
+            ):
                 pages += self._get_pages_from_sub_sitemap(sub_sitemap)
         self.interface.print(f"Found {len(pages)} articles to crawl.")
         return pages

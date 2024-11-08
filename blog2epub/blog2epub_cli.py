@@ -18,9 +18,7 @@ def main():
     )
     parser.add_argument("url", help="url of blog to download")
     parser.add_argument("-l", "--limit", type=int, default=None, help="articles limit")
-    parser.add_argument(
-        "-s", "--skipped", type=int, default=None, help="number of skipped articles"
-    )
+    parser.add_argument("-s", "--skipped", type=int, default=None, help="number of skipped articles")
     parser.add_argument("-o", "--output", help="output epub file name")
     parser.add_argument("-d", "--debug", action="store_true", help="turn on debug")
     args = parser.parse_args()

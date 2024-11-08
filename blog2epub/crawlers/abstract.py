@@ -1,7 +1,7 @@
 import os
 from abc import ABC, abstractmethod
 from datetime import datetime
-from typing import Dict, List, Optional
+from typing import Dict, Optional
 
 from blog2epub.common.book import Book
 from blog2epub.common.crawler import (
@@ -21,11 +21,11 @@ class AbstractCrawler(ABC):
         self,
         url: str,
         configuration: ConfigurationModel,
+        interface: EmptyInterface,
         start: Optional[datetime] = None,
         end: Optional[datetime] = None,
         file_name: Optional[str] = None,
         cache_folder: str = "",
-        interface: EmptyInterface = EmptyInterface(),
     ):
         super().__init__()
         self.name = "abstract crawler"
@@ -40,9 +40,7 @@ class AbstractCrawler(ABC):
             path=str(
                 os.path.join(
                     self.cache_folder,
-                    self.url.replace("http://", "")
-                    .replace("https://", "")
-                    .replace("/", "_"),
+                    self.url.replace("http://", "").replace("https://", "").replace("/", "_"),
                 )
             ),
         )
@@ -52,13 +50,13 @@ class AbstractCrawler(ABC):
         self.description = None
         self.language: str | None = self.configuration.language
         self.atom_feed = False
-        self.articles: List[ArticleModel] = []
+        self.articles: list[ArticleModel] = []
         self.article_counter = 0
-        self.images: List[str] = []
+        self.images: list[str] = []
         self.tags: Dict = {}
         self.active = False
         self.cancelled = False
-        self.ignore_downloads: List[str] = [
+        self.ignore_downloads: list[str] = [
             r"[http|https]+:\/\/zblogowani.pl[^\s]+",
         ]
         self.article_factory_class = AbstractArticleFactory

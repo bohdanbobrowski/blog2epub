@@ -1,6 +1,5 @@
 import os
 from random import shuffle
-from typing import List
 
 from PIL import Image, ImageDraw, ImageEnhance, ImageFont
 
@@ -29,7 +28,7 @@ class Cover:
         blog_url: str,
         title: str,
         subtitle: str,
-        images: List[ImageModel],
+        images: list[ImageModel],
         platform_name: str = "",
     ):
         """
@@ -79,9 +78,7 @@ class Cover:
         return upper_x, upper_y, lower_x, lower_y
 
     def _crop_image(self, img):
-        upper_x, upper_y, lower_x, lower_y = self._box_params_center(
-            img.size[0], img.size[1]
-        )
+        upper_x, upper_y, lower_x, lower_y = self._box_params_center(img.size[0], img.size[1])
         box = (upper_x, upper_y, lower_x, lower_y)
         region = img.crop(box)
         return region
@@ -127,9 +124,7 @@ class Cover:
         tiles_count_y = 5
         tiles_count_x = 7
         cover_image = Image.new("RGB", (600, 800))
-        self.interface.print(
-            f"Generating cover (800px*600px) from {len(self.images)} images."
-        )
+        self.interface.print(f"Generating cover (800px*600px) from {len(self.images)} images.")
         dark_factor = 1.0
         if len(self.images) > 0:
             if len(self.images) > 1:
@@ -140,9 +135,7 @@ class Cover:
                     shuffle(self.images)
                 for y in range(0, tiles_count_y):
                     img_file = os.path.join(self.dirs.images, self.images[i - 1])
-                    thumb = self._make_thumb(
-                        Image.open(img_file), (self.tile_size, self.tile_size)
-                    )
+                    thumb = self._make_thumb(Image.open(img_file), (self.tile_size, self.tile_size))
                     enhancer = ImageEnhance.Brightness(thumb)
                     thumb = enhancer.enhance(dark_factor)
                     dark_factor -= 0.03

@@ -4,7 +4,7 @@ from xml.etree.ElementTree import fromstring
 from lxml import etree
 
 from blog2epub.crawlers.article_factory.default import DefaultArticleFactory
-from blog2epub.models.book import ArticleModel
+from blog2epub.models.book import ArticleModel, ImageModel
 
 
 class WordpressArticleFactory(DefaultArticleFactory):
@@ -23,7 +23,8 @@ class WordpressArticleFactory(DefaultArticleFactory):
         self.replace_images()
         self.get_tree()
 
-    def get_single_images(self, images) -> None:
+    def get_single_images(self, images) -> list[ImageModel]:
+        images_list = []
         for img in images:
             img_url = img.attrib.get("data-orig-file")
             if not img_url:
@@ -41,15 +42,19 @@ class WordpressArticleFactory(DefaultArticleFactory):
                     img_parent = img.getparent()
                     if img_parent:
                         if img_hash:
-                            img_parent.replace(
-                                img, etree.Comment(f"#blog2epubimage#{img_hash}#")
-                            )
+                            img_parent.replace(img, etree.Comment(f"#blog2epubimage#{img_hash}#"))
                         else:
                             img_parent.text = ""
                         self.tree = img_parent.getroottree()
                     self.html = etree.tostring(self.tree).decode("utf-8")
-                    self.images.append(img_hash)
-                    self.images_captions.append(img_caption)
+                    images_list.append(
+                        ImageModel(
+                            url=img_url,
+                            hash=img_hash,
+                            description=img_caption,
+                        )
+                    )
+        return images_list
 
     def get_images_with_captions(self):
         images_c = self.tree.xpath('//div[contains(@class, "wp-caption")]')
@@ -79,15 +84,11 @@ class WordpressArticleFactory(DefaultArticleFactory):
                     + image_caption
                     + "</td></tr></tbody></table>"
                 )
-                self.html = self.html.replace(
-                    "<!--#blog2epubimage#" + image + "#-->", image_html
-                )
+                self.html = self.html.replace("<!--#blog2epubimage#" + image + "#-->", image_html)
         self.content = self.html
 
     def get_content(self):
-        article_header = re.findall(
-            r"(<h1 class=\"entry-title\">[^<]*<\/h1>)", self.html
-        )
+        article_header = re.findall(r"(<h1 class=\"entry-title\">[^<]*<\/h1>)", self.html)
         if article_header:
             self.html = self.html.split(article_header[0])[1]
         article_footer = re.findall(r"(<div id=\"atatags-[^\"]*\")", self.html)

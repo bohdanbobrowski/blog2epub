@@ -41,12 +41,6 @@ class TestDefaultCrawler:
         assert "https://bohdan.bobrowski.com.pl/2023/01/film-kolberg-1945/" in pages
         assert "https://bohdan.bobrowski.com.pl/2023/03/wielka-ucieczka/" in pages
         assert "https://bohdan.bobrowski.com.pl/" not in pages
-        assert (
-            "https://bohdan.bobrowski.com.pl/wp-sitemap-taxonomies-category-1.xml"
-            not in pages
-        )
-        assert (
-            "https://bohdan.bobrowski.com.pl/wp-sitemap-taxonomies-post_tag-1.xml"
-            not in pages
-        )
+        assert "https://bohdan.bobrowski.com.pl/wp-sitemap-taxonomies-category-1.xml" not in pages
+        assert "https://bohdan.bobrowski.com.pl/wp-sitemap-taxonomies-post_tag-1.xml" not in pages
         assert "https://bohdan.bobrowski.com.pl/wp-sitemap-users-1.xml" not in pages

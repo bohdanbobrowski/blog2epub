@@ -15,7 +15,7 @@ from blog2epub.models.book import ArticleModel, ImageModel
 
 
 class DefaultArticleFactory(AbstractArticleFactory):
-    def get_title(self) -> str:
+    def get_title(self) -> Optional[str]:
         if self.tree is not None and self.patterns is not None:
             for title_pattern in self.patterns.title:
                 if title_pattern.xpath:
@@ -23,29 +23,30 @@ class DefaultArticleFactory(AbstractArticleFactory):
                     if len(title) > 0:
                         title = title[0]
                         return html.unescape(title.strip())
-        return ""
+        return None
 
     @abstractmethod
     def get_date(self) -> Optional[datetime]:
         result_date = None
-        for date_pattern in self.patterns.date:
-            if date_pattern.xpath:
-                date = self.tree.xpath(date_pattern.xpath)
-                if len(date) > 0:
-                    result_date = date[0]
+        if self.patterns is not None:
+            for date_pattern in self.patterns.date:
+                if date_pattern.xpath:
+                    date = self.tree.xpath(date_pattern.xpath)
+                    if len(date) > 0:
+                        result_date = date[0]
         if result_date is None:
             d = self.url.split("/")
             if len(d) > 4:
-                self.date = f"{d[3]}-{d[4]}-01 00:00"
+                result_date = f"{d[3]}-{d[4]}-01 00:00"
             else:
-                self.date = str(datetime.now())
+                result_date = str(datetime.now())
         else:
-            result_date = translate_month(self.date, self.language)
+            result_date = translate_month(result_date, self.language)  # type: ignore
         try:
-            result_date = dateutil.parser.parse(self.date)
-        except (IndexError, dateutil.parser.ParserError):
+            return dateutil.parser.parse(result_date)  # type: ignore
+        except (IndexError, dateutil.parser.ParserError):  # type: ignore
             pass
-        return result_date
+        return None
 
     def _find_images(self):
         images = []
@@ -65,18 +66,12 @@ class DefaultArticleFactory(AbstractArticleFactory):
 
     @staticmethod
     def _nocaption_ripper(img: str, img_hash: str, art_html: str) -> str:
-        im_regex = (
-            '<a href="' + img.replace("+", r"\+") + '" imageanchor="1"[^<]*<img.*?></a>'
-        )
+        im_regex = '<a href="' + img.replace("+", r"\+") + '" imageanchor="1"[^<]*<img.*?></a>'
         return re.sub(im_regex, " #blog2epubimage#" + img_hash + "# ", art_html)
 
     @staticmethod
     def _bloggerphoto_ripper(img: str, img_hash: str, art_html: str) -> str:
-        im_regex = (
-            '<a href="[^"]+"><img.*?id="BLOGGER_PHOTO_ID_[0-9]+".*?src="'
-            + img.replace("+", r"\+")
-            + '".*?/a>'
-        )
+        im_regex = '<a href="[^"]+"><img.*?id="BLOGGER_PHOTO_ID_[0-9]+".*?src="' + img.replace("+", r"\+") + '".*?/a>'
         return re.sub(im_regex, " #blog2epubimage#" + img_hash + "# ", art_html)
 
     @staticmethod
@@ -84,7 +79,7 @@ class DefaultArticleFactory(AbstractArticleFactory):
         im_regex = '<img.*?src="' + img.replace("+", r"\+") + '".*?>'
         return re.sub(im_regex, " #blog2epubimage#" + img_hash + "# ", art_html)
 
-    def process_images(self, images, ripper) -> [ImageModel]:
+    def process_images(self, images, ripper) -> list[ImageModel]:
         images_list = []
         for image in images:
             img = None
@@ -113,16 +108,12 @@ class DefaultArticleFactory(AbstractArticleFactory):
         # TODO: needs refacor!
         images_list = []
         images_list += self.process_images(self._find_images(), self._default_ripper)
-        images_list += self.process_images(
-            self.tree.xpath('//a[@imageanchor="1"]/@href'), self._nocaption_ripper
-        )
+        images_list += self.process_images(self.tree.xpath('//a[@imageanchor="1"]/@href'), self._nocaption_ripper)
         images_list += self.process_images(
             self.tree.xpath('//img[contains(@id,"BLOGGER_PHOTO_ID_")]/@src'),
             self._bloggerphoto_ripper,
         )
-        images_list += self.process_images(
-            self.tree.xpath("//img/@src"), self._img_ripper
-        )
+        images_list += self.process_images(self.tree.xpath("//img/@src"), self._img_ripper)
         self.replace_images(images_list)
         self.tree = fromstring(self.html)
         return images_list
@@ -132,7 +123,7 @@ class DefaultArticleFactory(AbstractArticleFactory):
         self.html = content
         self.tree = fromstring(self.html)
 
-    def replace_images(self, images_list: [ImageModel]):
+    def replace_images(self, images_list: list[ImageModel]):
         for image in images_list:
             image_html = (
                 '<table align="center" cellpadding="0" cellspacing="0" class="tr-caption-container" style="margin-left: auto; margin-right: auto; text-align: center; background: #FFF; box-shadow: 1px 1px 5px rgba(0, 0, 0, 0.5); padding: 8px;"><tbody><tr><td style="text-align: center;"><img border="0" src="images/'
@@ -141,9 +132,7 @@ class DefaultArticleFactory(AbstractArticleFactory):
                 + image.description
                 + "</td></tr></tbody></table>"
             )
-            self.html = self.html.replace(
-                "#blog2epubimage#" + image.hash + "#", image_html
-            )
+            self.html = self.html.replace("#blog2epubimage#" + image.hash + "#", image_html)
 
     def get_content(self) -> str:
         content = ""
@@ -154,9 +143,7 @@ class DefaultArticleFactory(AbstractArticleFactory):
                     if content_element:
                         content_html = tostring(content_element[0]).decode("utf8")
                         content_html = content_html.replace("\n", "")
-                        content_html = re.sub(
-                            r'<a name=["\']more["\']/>', "", content_html
-                        )
+                        content_html = re.sub(r'<a name=["\']more["\']/>', "", content_html)
                         content_html = re.sub(r"<div[^>]*>", "<p>", content_html)
                         content_html = content_html.replace("</div>", "")
                         content = strip_tags(
@@ -200,27 +187,17 @@ class DefaultArticleFactory(AbstractArticleFactory):
             for c in comments_in_article:
                 c = c.strip()
                 if c not in ("Odpowiedz", "Usuń"):
-                    return_comments = (
-                        return_comments + "<" + tag + ">" + c + "</" + tag + ">"
-                    )
+                    return_comments = return_comments + "<" + tag + ">" + c + "</" + tag + ">"
                     if tag == "h4":
                         tag = "p"
                 if c == "Usuń":
                     tag = "h4"
         else:
-            authors = self.tree.xpath(
-                '//dl[@id="comments-block"]//*[@class="comment-author"]'
-            )
-            comments = self.tree.xpath(
-                '//dl[@id="comments-block"]//*[@class="comment-body"]'
-            )
+            authors = self.tree.xpath('//dl[@id="comments-block"]//*[@class="comment-author"]')
+            comments = self.tree.xpath('//dl[@id="comments-block"]//*[@class="comment-body"]')
             try:
                 for x in range(0, len(authors) + 1):
-                    a = (
-                        "".join(authors[x].xpath(".//text()"))
-                        .strip()
-                        .replace("\n", " ")
-                    )
+                    a = "".join(authors[x].xpath(".//text()")).strip().replace("\n", " ")
                     c = "".join(comments[x].xpath(".//text()")).strip()
                     return_comments += f"<h4>{a}</h4>"
                     return_comments += f"<p>{c}</p>"

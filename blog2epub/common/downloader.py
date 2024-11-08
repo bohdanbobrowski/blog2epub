@@ -3,7 +3,7 @@ import hashlib
 import os
 import re
 import time
-from typing import List, Mapping, Optional
+from typing import Mapping, Optional
 from urllib.parse import urlparse
 
 import filetype  # type: ignore
@@ -29,9 +29,9 @@ class Downloader:
         dirs: DirModel,
         url: str,
         interface: EmptyInterface,
-        images_size: List[int],
+        images_size: list[int],
         images_quality: int,
-        ignore_downloads: List[str],
+        ignore_downloads: list[str],
     ):
         self.dirs = dirs
         self.url = url
@@ -129,12 +129,8 @@ class Downloader:
         if contents is not None:
             interstitial = self.check_interstitial(contents)
             if interstitial:
-                interstitial_url = (
-                    "http://" + self.url + "?interstitial=" + interstitial
-                )
-                self.file_download(
-                    interstitial_url, self.get_filepath(interstitial_url)
-                )
+                interstitial_url = "http://" + self.url + "?interstitial=" + interstitial
+                self.file_download(interstitial_url, self.get_filepath(interstitial_url))
                 contents = self.file_download(
                     "http://" + self.url,
                     self.get_filepath("http://" + self.url),
@@ -179,15 +175,10 @@ class Downloader:
                 self.skipped_images.append(img)
                 return None
             picture = Image.open(original_fn)
-            if (
-                picture.size[0] > self.images_size[0]
-                or picture.size[1] > self.images_size[1]
-            ):
+            if picture.size[0] > self.images_size[0] or picture.size[1] > self.images_size[1]:
                 picture.thumbnail(self.images_size, Image.LANCZOS)  # type: ignore
             converted_picture = picture.convert("L")
-            converted_picture.save(
-                resized_fn, format="JPEG", quality=self.images_quality
-            )
+            converted_picture.save(resized_fn, format="JPEG", quality=self.images_quality)
             os.remove(original_fn)
             return img_hash + ".jpg"
         return None

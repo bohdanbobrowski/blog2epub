@@ -16,11 +16,11 @@ class WordpressCrawler(DefaultCrawler):
         super().__init__(**kwargs)
         self.name = "wordpress crawler"
         self.article_factory_class = WordpressArticleFactory
-        self.content_xpath = (
-            "//div[contains(concat(' ',normalize-space(@class),' '),'type-post')]"
-        )
+        self.content_xpath = "//div[contains(concat(' ',normalize-space(@class),' '),'type-post')]"
         self.images_regex = r'<table[^>]*><tbody>[\s]*<tr><td[^>]*><a href="([^"]*)"[^>]*><img[^>]*></a></td></tr>[\s]*<tr><td class="tr-caption" style="[^"]*">([^<]*)'
-        self.articles_regex = r"<h3 class=\'post-title entry-title\' itemprop=\'name\'>[\s]*<a href=\'([^\']*)\'>([^>^<]*)</a>[\s]*</h3>"
+        self.articles_regex = (
+            r"<h3 class=\'post-title entry-title\' itemprop=\'name\'>[\s]*<a href=\'([^\']*)\'>([^>^<]*)</a>[\s]*</h3>"
+        )
 
     def _get_atom_content(self, page=1):
         url = "https://" + self.url + "/feed/atom/"
@@ -36,9 +36,7 @@ class WordpressCrawler(DefaultCrawler):
         while next_page:
             for item in self.atom_feed.entries:
                 self.article_counter += 1
-                art = self.article_factory_class(
-                    item.links[0].href, html.unescape(item.title.value), self
-                )
+                art = self.article_factory_class(item.links[0].href, html.unescape(item.title.value), self)
                 self.interface.print(str(len(self.articles) + 1) + ". " + art.title)
                 art.date = item.published
                 if self.start:
@@ -55,9 +53,7 @@ class WordpressCrawler(DefaultCrawler):
                 #     art.tags.append(category.term)
                 self.articles.append(art.process())
                 # self._add_tags(art.tags)
-                if self.configuration.limit and len(self.articles) >= int(
-                    self.configuration.limit
-                ):
+                if self.configuration.limit and len(self.articles) >= int(self.configuration.limit):
                     next_page = None
                     break
             if next_page:

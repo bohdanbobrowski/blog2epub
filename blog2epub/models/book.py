@@ -1,14 +1,14 @@
 import os
 from datetime import datetime
-from typing import List, Optional
+from typing import Optional
 
-from pydantic import BaseModel, computed_field
+from pydantic import BaseModel
 
 
 class BookSynopsisModel(BaseModel):
     title: Optional[str]
     subtitle: Optional[str]
-    urls: List[str]
+    urls: list[str]
 
 
 class CommentModel(BaseModel):
@@ -18,25 +18,24 @@ class CommentModel(BaseModel):
     content: Optional[str]
 
 
+class ImageModel(BaseModel):
+    hash: str
+    url: str
+    description: Optional[str]
+
+    @property
+    def file_name(self):
+        return f"{self.hash}.jpg"
+
+
 class ArticleModel(BaseModel):
     url: str
     title: Optional[str]
     date: Optional[datetime]
     content: Optional[str]
     comments: Optional[str]  # TODO: replace with List[CommentModel]
-    tags: List[str] = []
-    images: List[str] = []
-
-
-class ImageModel(BaseModel):
-    hash: str
-    url: Optional[str]
-    description: Optional[str]
-
-    @computed_field
-    @property
-    def file_name(self):
-        return f"{self.hash}.jpg"
+    tags: list[str] = []
+    images: list[ImageModel] = []
 
 
 class DirModel(BaseModel):
@@ -61,8 +60,8 @@ class BookModel(BaseModel):
     subtitle: Optional[str]
     description: Optional[str]
     dirs: DirModel
-    articles: List[ArticleModel]
-    images: List[ImageModel]
+    articles: list[ArticleModel]
+    images: list[ImageModel]
     start: Optional[datetime]
     end: Optional[datetime]
     file_name_prefix: Optional[str]
