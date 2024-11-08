@@ -1,3 +1,4 @@
+import hashlib
 import os
 from datetime import datetime
 from typing import Optional
@@ -19,9 +20,14 @@ class CommentModel(BaseModel):
 
 
 class ImageModel(BaseModel):
-    hash: str
     url: str
     description: Optional[str]
+
+    @property
+    def hash(self) -> str:
+        m = hashlib.md5()
+        m.update(self.url.encode("utf-8"))
+        return m.hexdigest()
 
     @property
     def file_name(self):

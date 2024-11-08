@@ -1,5 +1,4 @@
 from abc import ABC, abstractmethod
-from datetime import datetime
 from typing import Optional
 
 from lxml.html.soupparser import fromstring
@@ -29,7 +28,6 @@ class AbstractArticleFactory(ABC):
         self.downloader: Downloader = downloader
         self.patterns = patterns
         self.content: Optional[str] = None
-        self.date: Optional[datetime] = None
         self.title: Optional[str] = None
         self.tags: list[str] = []
         self.tree = fromstring("<div></div>")

@@ -108,12 +108,13 @@ class DefaultCrawler(AbstractCrawler):
         return book_data
 
     def _get_subtitle(self):
-        if self.end is None:
-            return self.start.strftime("%d.%B.%Y")
-        if self.start.strftime("%Y.%m") == self.end.strftime("%Y.%m"):
-            return self.end.strftime("%d") + "-" + self.start.strftime("%d.%B.%Y")
-        if self.start.strftime("%Y.%m") == self.end.strftime("%Y.%m"):
-            return self.end.strftime("%d.%B") + " - " + self.start.strftime("%d.%B.%Y")
+        if self.start is not None:
+            if self.end is None:
+                return self.start.strftime("%d.%B.%Y")
+            if self.start.strftime("%Y.%m") == self.end.strftime("%Y.%m"):
+                return self.end.strftime("%d") + "-" + self.start.strftime("%d.%B.%Y")
+            if self.start.strftime("%Y.%m") == self.end.strftime("%Y.%m"):
+                return self.end.strftime("%d.%B") + " - " + self.start.strftime("%d.%B.%Y")
         return self.end.strftime("%d.%B.%Y") + " - " + self.start.strftime("%d.%B.%Y")
 
     @staticmethod

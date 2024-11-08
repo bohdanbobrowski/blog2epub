@@ -13,7 +13,7 @@ from PIL import Image
 from requests.cookies import RequestsCookieJar
 
 from blog2epub.common.interfaces import EmptyInterface
-from blog2epub.models.book import DirModel
+from blog2epub.models.book import DirModel, ImageModel
 
 
 def prepare_directories(dirs: DirModel):
@@ -93,19 +93,6 @@ class Downloader:
         self.file_write(contents, filepath)
         return contents
 
-    def image_download(self, url: str, filepath: str) -> Optional[bool]:
-        if self._is_url_in_ignored(url) or self._is_url_in_skipped(url):
-            return None
-        prepare_directories(self.dirs)
-        try:
-            response = self.session.get(url, cookies=self.cookies, headers=self.headers)
-        except requests.exceptions.ConnectionError:
-            return False
-        with open(filepath, "wb") as f:
-            f.write(response.content)
-        time.sleep(1)
-        return True
-
     @staticmethod
     def check_interstitial(contents):
         interstitial = re.findall('interstitial=([^"]+)', contents)
@@ -147,38 +134,51 @@ class Downloader:
             img = f"{uri.scheme}:{img}"
         return img
 
-    def download_image(self, img: str) -> Optional[str]:
-        if self._is_url_in_ignored(img) or self._is_url_in_skipped(img):
+    def _download_image(self, url: str, filepath: str) -> Optional[bool]:
+        if self._is_url_in_ignored(url) or self._is_url_in_skipped(url):
             return None
-        img = self._fix_image_url(img)
-        img_hash = self.get_urlhash(img)
-        img_type = os.path.splitext(img)[1].lower()
+        prepare_directories(self.dirs)
+        try:
+            response = self.session.get(url, cookies=self.cookies, headers=self.headers)
+        except requests.exceptions.ConnectionError:
+            return False
+        with open(filepath, "wb") as f:
+            f.write(response.content)
+        time.sleep(1)
+        return True
+
+    def download_image(self, image_obj: ImageModel) -> bool:
+        if self._is_url_in_ignored(image_obj.url) or self._is_url_in_skipped(image_obj.url):
+            return False
+        image_obj.url = self._fix_image_url(image_obj.url)
+        img_hash = self.get_urlhash(image_obj.url)
+        img_type = os.path.splitext(image_obj.url)[1].lower()
         if img_type not in [".jpeg", ".jpg", ".png", ".bmp", ".gif", ".webp"]:
-            return None
+            return False
         original_fn = os.path.join(self.dirs.originals, img_hash + "." + img_type)
         resized_fn = os.path.join(self.dirs.images, img_hash + ".jpg")
         if os.path.isfile(resized_fn):
-            return img_hash + ".jpg"
+            return True
         if not os.path.isfile(resized_fn):
-            self.image_download(img, original_fn)
+            self._download_image(image_obj.url, original_fn)
         if os.path.isfile(original_fn):
             original_img_type = filetype.guess(original_fn)
             if original_img_type is None:
-                return None
+                return False
             if not original_img_type.MIME.startswith("image"):
                 os.remove(original_fn)
-                self.skipped_images.append(img)
-                return None
+                self.skipped_images.append(image_obj.url)
+                return False
             image_size = imagesize.get(original_fn)
             if image_size[0] + image_size[1] < 100:
                 os.remove(original_fn)
-                self.skipped_images.append(img)
-                return None
+                self.skipped_images.append(image_obj.url)
+                return False
             picture = Image.open(original_fn)
             if picture.size[0] > self.images_size[0] or picture.size[1] > self.images_size[1]:
                 picture.thumbnail(self.images_size, Image.LANCZOS)  # type: ignore
             converted_picture = picture.convert("L")
             converted_picture.save(resized_fn, format="JPEG", quality=self.images_quality)
             os.remove(original_fn)
-            return img_hash + ".jpg"
-        return None
+            return True
+        return False

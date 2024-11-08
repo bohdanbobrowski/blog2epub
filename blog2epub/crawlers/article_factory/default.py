@@ -1,5 +1,6 @@
 import html
 import re
+from collections.abc import Callable
 from datetime import datetime
 from typing import Optional
 
@@ -54,51 +55,37 @@ class DefaultArticleFactory(AbstractArticleFactory):
         return images
 
     @staticmethod
-    def _default_ripper(img, img_hash, art_html):
-        im_regex = (
-            r'<table[^>]*><tbody>[\s]*<tr><td[^>]*><a href="'
-            + img.replace("+", r"\+")
-            + r'"[^>]*><img[^>]*></a></td></tr>[\s]*<tr><td class="tr-caption" style="[^"]*">[^<]*</td></tr>[\s]*</tbody></table>'
-        )
-        return re.sub(im_regex, " #blog2epubimage#" + img_hash + "# ", art_html)
+    def _default_pattern(img_obj: ImageModel) -> str:
+        return f'<table[^>]*><tbody>[\s]*<tr><td[^>]*><a href="{img_obj.url.replace("+", r"\+")}"[^>]*><img[^>]*></a></td></tr>[\s]*<tr><td class="tr-caption" style="[^"]*">[^<]*</td></tr>[\s]*</tbody></table>'
 
     @staticmethod
-    def _nocaption_ripper(img: str, img_hash: str, art_html: str) -> str:
-        im_regex = '<a href="' + img.replace("+", r"\+") + '" imageanchor="1"[^<]*<img.*?></a>'
-        return re.sub(im_regex, " #blog2epubimage#" + img_hash + "# ", art_html)
+    def _nocaption_pattern(img_obj: ImageModel) -> str:
+        return f'<a href="{img_obj.url.replace("+", r"\+")}" imageanchor="1"[^<]*<img.*?></a>'
 
     @staticmethod
-    def _bloggerphoto_ripper(img: str, img_hash: str, art_html: str) -> str:
-        im_regex = '<a href="[^"]+"><img.*?id="BLOGGER_PHOTO_ID_[0-9]+".*?src="' + img.replace("+", r"\+") + '".*?/a>'
-        return re.sub(im_regex, " #blog2epubimage#" + img_hash + "# ", art_html)
+    def _bloggerphoto_pattern(img_obj: ImageModel) -> str:
+        return f'<a href="[^"]+"><img.*?id="BLOGGER_PHOTO_ID_[0-9]+".*?src="{img_obj.url.replace("+", r"\+")}".*?/a>'
 
     @staticmethod
-    def _img_ripper(img, img_hash, art_html):
-        im_regex = '<img.*?src="' + img.replace("+", r"\+") + '".*?>'
-        return re.sub(im_regex, " #blog2epubimage#" + img_hash + "# ", art_html)
+    def _img_pattern(img_obj: ImageModel) -> str:
+        return f'<img.*?src="{img_obj.url.replace("+", r"\+")}".*?>'
 
-    def process_images(self, images, ripper) -> list[ImageModel]:
+    def process_images(self, images, pattern: Callable) -> list[ImageModel]:
         images_list = []
         for image in images:
             img = None
-            caption = ""
+            description = ""
             if isinstance(image, str):
                 img = image
             elif isinstance(image, list):
                 img = image[0]
                 if image[1]:
-                    caption = image[1]
+                    description = image[1]
             if img:
-                img_hash = self.downloader.download_image(img)
-                if img_hash:
-                    self.html = ripper(img=img, img_hash=img_hash, art_html=self.html)
-                    images_list.append(
-                        ImageModel(
-                            hash=img_hash,
-                            url=img,
-                            description=caption,
-                        )
-                    )
+                img_obj = ImageModel(url=img, description=description)
+                if self.downloader.download_image(img_obj):
+                    self.html = re.sub(pattern(img_obj), f" #blog2epubimage#{img_obj.hash}# ", self.html)
+                    images_list.append(img_obj)
         self.tree = fromstring(self.html)
         return images_list
 
@@ -166,13 +153,13 @@ class DefaultArticleFactory(AbstractArticleFactory):
                     return content
         return content
 
-    def get_tags(self):
+    def get_tags(self) -> list[str]:
         tags = self.tree.xpath('//a[@rel="tag"]//text()')
         output = []
         for t in tags:
             t = t.strip()
             output.append(t)
-        self.tags = output
+        return output
 
     def get_comments(self) -> str:
         headers = self.tree.xpath('//div[@id="comments"]/h4/text()')
@@ -222,12 +209,12 @@ class DefaultArticleFactory(AbstractArticleFactory):
         self.html = self._content_cleanup(self.html)
         self.tree = fromstring(self.html)
         self._content_cleanup_xpath()
-        # self.get_tags()
         return ArticleModel(
             url=self.url,
             title=self.get_title(),
             date=self.get_date(),
             images=self.get_images(),
+            tags=self.get_tags(),
             content=self.get_content(),
             comments=self.get_comments(),
         )
