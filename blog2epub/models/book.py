@@ -21,7 +21,7 @@ class CommentModel(BaseModel):
 
 class ImageModel(BaseModel):
     url: str
-    description: Optional[str]
+    description: str = ""
 
     @property
     def hash(self) -> str:

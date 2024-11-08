@@ -1,7 +1,9 @@
 import tempfile
+from unittest.mock import Mock
 
 import pytest
 
+from blog2epub.common.interfaces import EmptyInterface
 from blog2epub.crawlers import DefaultCrawler
 from blog2epub.models.configuration import ConfigurationModel
 
@@ -21,6 +23,7 @@ class TestDefaultCrawler:
         # given
         given_crawler = DefaultCrawler(
             url="bohdan.bobrowski.com.pl",
+            interface=EmptyInterface(),
             configuration=mock_configuration,
         )
         # when
@@ -32,6 +35,7 @@ class TestDefaultCrawler:
         # given
         given_crawler = DefaultCrawler(
             url="bohdan.bobrowski.com.pl",
+            interface=EmptyInterface(),
             configuration=mock_configuration,
         )
         # when

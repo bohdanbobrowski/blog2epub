@@ -45,9 +45,9 @@ class AbstractCrawler(ABC):
             ),
         )
         self.book: Optional[Book]
-        self.title = None
-        self.subtitle = None
-        self.description = None
+        self.title: str = ""
+        self.subtitle: str = ""
+        self.description: str = ""
         self.language: str | None = self.configuration.language
         self.atom_feed = False
         self.articles: list[ArticleModel] = []

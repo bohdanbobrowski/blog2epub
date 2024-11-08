@@ -56,7 +56,7 @@ class DefaultArticleFactory(AbstractArticleFactory):
 
     @staticmethod
     def _default_pattern(img_obj: ImageModel) -> str:
-        return f'<table[^>]*><tbody>[\s]*<tr><td[^>]*><a href="{img_obj.url.replace("+", r"\+")}"[^>]*><img[^>]*></a></td></tr>[\s]*<tr><td class="tr-caption" style="[^"]*">[^<]*</td></tr>[\s]*</tbody></table>'
+        return f"<table[^>]*><tbody>[\\s]*<tr><td[^>]*><a href=\"{img_obj.url.replace("+", r"\+")}\"[^>]*><img[^>]*></a></td></tr>[\\s]*<tr><td class=\"tr-caption\" style=\"[^\"]*\">[^<]*</td></tr>[\\s]*</tbody></table>"
 
     @staticmethod
     def _nocaption_pattern(img_obj: ImageModel) -> str:
@@ -92,13 +92,13 @@ class DefaultArticleFactory(AbstractArticleFactory):
     def get_images(self):
         # TODO: needs refacor!
         images_list = []
-        images_list += self.process_images(self._find_images(), self._default_ripper)
-        images_list += self.process_images(self.tree.xpath('//a[@imageanchor="1"]/@href'), self._nocaption_ripper)
+        images_list += self.process_images(self._find_images(), self._default_pattern)
+        images_list += self.process_images(self.tree.xpath('//a[@imageanchor="1"]/@href'), self._nocaption_pattern)
         images_list += self.process_images(
             self.tree.xpath('//img[contains(@id,"BLOGGER_PHOTO_ID_")]/@src'),
-            self._bloggerphoto_ripper,
+            self._bloggerphoto_pattern,
         )
-        images_list += self.process_images(self.tree.xpath("//img/@src"), self._img_ripper)
+        images_list += self.process_images(self.tree.xpath("//img/@src"), self._img_pattern)
         self.replace_images(images_list)
         self.tree = fromstring(self.html)
         return images_list

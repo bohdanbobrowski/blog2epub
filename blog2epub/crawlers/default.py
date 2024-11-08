@@ -13,7 +13,7 @@ from lxml.html.soupparser import fromstring
 from blog2epub.common.downloader import Downloader
 from blog2epub.crawlers.abstract import AbstractCrawler
 from blog2epub.crawlers.article_factory.default import DefaultArticleFactory
-from blog2epub.models.book import BookModel, DirModel
+from blog2epub.models.book import BookModel, DirModel, ImageModel
 from blog2epub.models.content_patterns import ContentPatterns, Pattern
 
 
@@ -107,16 +107,6 @@ class DefaultCrawler(AbstractCrawler):
         )
         return book_data
 
-    def _get_subtitle(self):
-        if self.start is not None:
-            if self.end is None:
-                return self.start.strftime("%d.%B.%Y")
-            if self.start.strftime("%Y.%m") == self.end.strftime("%Y.%m"):
-                return self.end.strftime("%d") + "-" + self.start.strftime("%d.%B.%Y")
-            if self.start.strftime("%Y.%m") == self.end.strftime("%Y.%m"):
-                return self.end.strftime("%d.%B") + " - " + self.start.strftime("%d.%B.%Y")
-        return self.end.strftime("%d.%B.%Y") + " - " + self.start.strftime("%d.%B.%Y")
-
     @staticmethod
     def get_date(str_date):
         return re.sub(r"[^\,]*, ", "", str_date)
@@ -145,10 +135,12 @@ class DefaultCrawler(AbstractCrawler):
         else:
             return None
 
-    def _get_header_images(self, tree):
+    def _get_header_images(self, tree) -> list[ImageModel]:
         header_images = []
         for img in tree.xpath('//div[@id="header"]/div/div/div/p[@class="description"]/span/img/@src'):
-            header_images.append(self.downloader.download_image(img))
+            img_obj = ImageModel(url=img)
+            self.downloader.download_image(img_obj)
+            header_images.append(img_obj)
         return header_images
 
     def _get_atom_content(self) -> bool:
@@ -290,4 +282,3 @@ class DefaultCrawler(AbstractCrawler):
             self._get_atom_content()
             self._atom_feed_loop()
         self.active = False
-        self.subtitle = self._get_subtitle()
