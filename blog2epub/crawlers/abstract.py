@@ -264,6 +264,7 @@ class Article:
                                 "ul",
                                 "ol",
                                 "li",
+                                "br",
                             ],
                         )
                         content = re.sub(r"</i>[\s]*<i>", "", content)
