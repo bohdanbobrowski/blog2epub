@@ -236,10 +236,12 @@ class Book:
         self.start = self.end = None
         article_dates = []
         for article in articles:
-            article_dates.append(article.date)
-        article_dates.sort()
-        self.start = article_dates[0]
-        self.end = article_dates[-1]
+            if article.date is not None:
+                article_dates.append(article.date)
+        if article_dates:
+            article_dates.sort()
+            self.start = article_dates[0]
+            self.end = article_dates[-1]
 
     def _get_ebook(self) -> EpubBook:
         ebook = EpubBook()
