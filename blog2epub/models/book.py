@@ -2,7 +2,7 @@ import os
 from datetime import datetime
 from typing import List, Optional
 
-from pydantic import BaseModel
+from pydantic import BaseModel, computed_field
 
 
 class BookSynopsisModel(BaseModel):
@@ -32,6 +32,11 @@ class ImageModel(BaseModel):
     hash: str
     url: Optional[str]
     description: Optional[str]
+
+    @computed_field
+    @property
+    def file_name(self):
+        return f"{self.hash}.jpg"
 
 
 class DirModel(BaseModel):
