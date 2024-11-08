@@ -119,7 +119,7 @@ class Article:
         self.comments = ""  # TODO: should be a list in the future
 
     def get_title(self) -> str:
-        if self.tree is not None:
+        if self.tree is not None and self.patterns is not None:
             for title_pattern in self.patterns.title:
                 if title_pattern.xpath:
                     title = self.tree.xpath(title_pattern.xpath)
@@ -130,7 +130,6 @@ class Article:
 
     @abstractmethod
     def get_date(self):
-        # TODO: refactor this! xD
         if isinstance(self.date, datetime):
             return
         for date_pattern in self.patterns.date:
@@ -139,6 +138,7 @@ class Article:
                 if len(date) > 0:
                     self.date = date[0]
                     break
+        # TODO: refactor this! xD
         if self.date is None:
             d = self.url.split("/")
             if len(d) > 4:
