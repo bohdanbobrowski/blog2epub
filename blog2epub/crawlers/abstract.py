@@ -36,6 +36,7 @@ class AbstractCrawler(ABC):
         interface: EmptyInterface = EmptyInterface(),
     ):
         super().__init__()
+        self.name = "abstract crawler"
         self.port, self.url = prepare_port_and_url(url)
         self.configuration = configuration
         self.file_name = prepare_file_name(file_name, self.url)
@@ -128,6 +129,7 @@ class Article:
 
     @abstractmethod
     def get_date(self):
+        # TODO: refactor this! xD
         if isinstance(self.date, datetime):
             return
         date = self.tree.xpath('//abbr[@itemprop="datePublished"]/@title')
@@ -137,6 +139,23 @@ class Article:
             date = self.tree.xpath('//h2[@class="date-header"]/span/text()')
             if len(date) > 0:
                 self.date = re.sub("(.*?, )", "", date[0])
+        meta_tags = [
+            "article:published_time",
+            "article:modified_time",
+        ]
+        loop_count = 0
+        while self.date is None:
+            meta_result = self.tree.xpath(
+                f'//meta[@property="{meta_tags[loop_count]}"]/@content'
+            )
+            if len(meta_result) > 0:
+                self.date = meta_result[0]
+            loop_count += 1
+            if loop_count > len(meta_tags):
+                break
+        if self.date is None:
+            """TODO: <time datetime="2023-03-29T10:24:20+02:00">2023-03-29</time>"""
+            pass
         if self.date is None:
             d = self.url.split("/")
             if len(d) > 4:
@@ -147,8 +166,8 @@ class Article:
             self.date = translate_month(self.date, self.language)
         try:
             self.date = dateutil.parser.parse(self.date)
-        except IndexError:
-            self.interface.print(f"Date not parsed: {self.date}")
+        except (IndexError, dateutil.parser.ParserError):
+            pass
 
     def _find_images(self):
         images = []
@@ -241,28 +260,33 @@ class Article:
             for pattern in self.patterns.content:
                 if pattern.xpath:
                     content_element = self.tree.xpath(pattern.xpath)
-                    content_html = tostring(content_element[0]).decode("utf8")
-                    content_html = content_html.replace("\n", "")
-                    content_html = re.sub(r'<a name=["\']more["\']/>', "", content_html)
-                    content_html = re.sub(r"<div[^>]*>", "<p>", content_html)
-                    content_html = content_html.replace("</div>", "")
-                    content = strip_tags(
-                        content_html,
-                        minify=True,
-                        keep_tags=[
-                            "a",
-                            "img",
-                            "p",
-                            "i",
-                            "b",
-                            "strong",
-                            "ul",
-                            "ol",
-                            "li",
-                        ],
-                    )
-                    content = re.sub(r"</i>[\s]*<i>", "", content)
-                    content = re.sub(r"</b>[\s]*<b>", "", content)
+                    if content_element:
+                        content_html = tostring(content_element[0]).decode("utf8")
+                        content_html = content_html.replace("\n", "")
+                        content_html = re.sub(
+                            r'<a name=["\']more["\']/>', "", content_html
+                        )
+                        content_html = re.sub(r"<div[^>]*>", "<p>", content_html)
+                        content_html = content_html.replace("</div>", "")
+                        content = strip_tags(
+                            content_html,
+                            minify=True,
+                            keep_tags=[
+                                "a",
+                                "img",
+                                "p",
+                                "i",
+                                "b",
+                                "strong",
+                                "ul",
+                                "ol",
+                                "li",
+                            ],
+                        )
+                        content = re.sub(r"</i>[\s]*<i>", "", content)
+                        content = re.sub(r"</b>[\s]*<b>", "", content)
+                if content:
+                    return content
         return content
 
     def get_tags(self):

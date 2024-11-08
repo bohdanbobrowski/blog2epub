@@ -24,8 +24,13 @@ class DefaultCrawler(AbstractCrawler):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
+        self.name = "default crawler"
         self.patterns = ContentPatterns(
-            content=[Pattern(xpath='//div[contains(@itemprop, "articleBody")]')],
+            content=[
+                Pattern(xpath='//div[contains(@itemprop, "articleBody")]'),
+                Pattern(xpath='//section[contains(@itemprop, "text")]'),
+                Pattern(xpath='//div[contains(@class, "entry-content")]'),
+            ],
             content_cleanup=[
                 Pattern(
                     regex=r'<span style="[^"]+"><i>Dyskretna Reklama</i></span>',
@@ -148,9 +153,7 @@ class DefaultCrawler(AbstractCrawler):
 
     def _get_atom_content(self) -> bool:
         """Try to load atom"""
-        atom_content = self.downloader.get_content(
-            "https://" + self.url + "/feeds/posts/default"
-        )
+        atom_content = self.downloader.get_content(self.url + "/feeds/posts/default")
         self.atom_feed = atoma.parse_atom_bytes(bytes(atom_content, encoding="utf-8"))
         return True
 
@@ -244,12 +247,15 @@ class DefaultCrawler(AbstractCrawler):
             sitemap_pages.append(sitemap_element.getchildren()[0].text)  # type: ignore
         sub_sitemaps, pages = self._check_for_sub_sitemaps(sitemap_pages)
         for sub_sitemap in sub_sitemaps:
-            if re.search("wp-sitemap-posts-(post|page)-[0-9]+.xml$", sub_sitemap):
+            if re.search(
+                "wp-sitemap-posts-(post|page)-[0-9]+.xml$", sub_sitemap
+            ) or re.search("(post|page)-sitemap[0-9-]*.xml$", sub_sitemap):
                 pages += self._get_pages_from_sub_sitemap(sub_sitemap)
         self.interface.print(f"Found {len(pages)} articles to crawl.")
         return pages
 
     def crawl(self):
+        self.interface.print(f"Starting {self.name}")
         self.active = True
         sitemap_url = self._get_sitemap_url()
         blog_pages = self._get_pages_urls(sitemap_url)

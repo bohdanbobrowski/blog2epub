@@ -17,6 +17,7 @@ class WordpressCrawler(DefaultCrawler):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
+        self.name = "wordpress crawler"
         self.article_class = ArticleWordpressCom
         self.content_xpath = (
             "//div[contains(concat(' ',normalize-space(@class),' '),'type-post')]"
