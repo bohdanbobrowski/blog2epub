@@ -5,7 +5,7 @@ from lxml.html.soupparser import fromstring
 
 from blog2epub.common.downloader import Downloader
 from blog2epub.common.interfaces import EmptyInterface
-from blog2epub.models.book import ArticleModel, DirModel
+from blog2epub.models.book import ArticleModel, DirModel, ImageModel
 from blog2epub.models.content_patterns import ContentPatterns
 
 
@@ -27,8 +27,6 @@ class AbstractArticleFactory(ABC):
         self.language: Optional[str] = language
         self.downloader: Downloader = downloader
         self.patterns = patterns
-        self.images: List[str] = []
-        self.images_captions: List[str] = []
         self.content = None
         self.date = None
         self.title = None

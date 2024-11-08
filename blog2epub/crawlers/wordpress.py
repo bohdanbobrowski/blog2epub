@@ -31,6 +31,7 @@ class WordpressCrawler(DefaultCrawler):
         self.atom_feed = atoma.parse_atom_bytes(bytes(atom_content, encoding="utf-8"))
 
     def _atom_feed_loop(self):
+        # TODO: This needs refactor!
         next_page = 2
         while next_page:
             for item in self.atom_feed.entries:
@@ -49,12 +50,11 @@ class WordpressCrawler(DefaultCrawler):
                     art.get_images()
                 else:
                     art.html = self.downloader.get_content(art.url)
-                    art.process()
-                for category in item.categories:
-                    art.tags.append(category.term)
-                self.images = self.images + art.images
-                self.articles.append(art)
-                self._add_tags(art.tags)
+                    # art.process()
+                # for category in item.categories:
+                #     art.tags.append(category.term)
+                self.articles.append(art.process())
+                # self._add_tags(art.tags)
                 if self.configuration.limit and len(self.articles) >= int(
                     self.configuration.limit
                 ):

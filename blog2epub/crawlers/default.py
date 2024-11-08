@@ -284,7 +284,7 @@ class DefaultCrawler(AbstractCrawler):
                     self.images = self.images + self._get_header_images(tree)
                     self.description = self._get_blog_description(tree)
                     self.title = self._get_blog_title(html_content)
-                art = self.article_factory_class(
+                art_factory = self.article_factory_class(
                     url=page_url,
                     html_content=html_content,
                     patterns=self.patterns,
@@ -293,7 +293,7 @@ class DefaultCrawler(AbstractCrawler):
                     language=self.language,
                     downloader=self.downloader,
                 )
-                art.process()
+                art = art_factory.process()
                 self.images = self.images + art.images
                 if self.start:
                     self.end = art.date

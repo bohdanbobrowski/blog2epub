@@ -2,6 +2,7 @@ import html
 import re
 from abc import abstractmethod
 from datetime import datetime
+from typing import Optional
 
 import dateutil
 from lxml.etree import tostring
@@ -10,7 +11,7 @@ from strip_tags import strip_tags  # type: ignore
 
 from blog2epub.common.language_tools import translate_month
 from blog2epub.crawlers.article_factory.abstract import AbstractArticleFactory
-from blog2epub.models.book import ArticleModel
+from blog2epub.models.book import ArticleModel, ImageModel
 
 
 class DefaultArticleFactory(AbstractArticleFactory):
@@ -25,28 +26,26 @@ class DefaultArticleFactory(AbstractArticleFactory):
         return ""
 
     @abstractmethod
-    def get_date(self):
-        if isinstance(self.date, datetime):
-            return
+    def get_date(self) -> Optional[datetime]:
+        result_date = None
         for date_pattern in self.patterns.date:
             if date_pattern.xpath:
                 date = self.tree.xpath(date_pattern.xpath)
                 if len(date) > 0:
-                    self.date = date[0]
-                    break
-        # TODO: refactor this! xD
-        if self.date is None:
+                    result_date = date[0]
+        if result_date is None:
             d = self.url.split("/")
             if len(d) > 4:
                 self.date = f"{d[3]}-{d[4]}-01 00:00"
             else:
                 self.date = str(datetime.now())
         else:
-            self.date = translate_month(self.date, self.language)
+            result_date = translate_month(self.date, self.language)
         try:
-            self.date = dateutil.parser.parse(self.date)
+            result_date = dateutil.parser.parse(self.date)
         except (IndexError, dateutil.parser.ParserError):
             pass
+        return result_date
 
     def _find_images(self):
         images = []
@@ -85,7 +84,8 @@ class DefaultArticleFactory(AbstractArticleFactory):
         im_regex = '<img.*?src="' + img.replace("+", r"\+") + '".*?>'
         return re.sub(im_regex, " #blog2epubimage#" + img_hash + "# ", art_html)
 
-    def process_images(self, images, ripper):
+    def process_images(self, images, ripper) -> [ImageModel]:
+        images_list = []
         for image in images:
             img = None
             caption = ""
@@ -99,39 +99,51 @@ class DefaultArticleFactory(AbstractArticleFactory):
                 img_hash = self.downloader.download_image(img)
                 if img_hash:
                     self.html = ripper(img=img, img_hash=img_hash, art_html=self.html)
-                    self.images.append(img_hash)
-                    self.images_captions.append(caption)
+                    images_list.append(
+                        ImageModel(
+                            hash=img_hash,
+                            url=img,
+                            description=caption,
+                        )
+                    )
         self.tree = fromstring(self.html)
+        return images_list
 
     def get_images(self):
-        self.process_images(self._find_images(), self._default_ripper)
-        self.process_images(
+        # TODO: needs refacor!
+        images_list = []
+        images_list += self.process_images(self._find_images(), self._default_ripper)
+        images_list += self.process_images(
             self.tree.xpath('//a[@imageanchor="1"]/@href'), self._nocaption_ripper
         )
-        self.process_images(
+        images_list += self.process_images(
             self.tree.xpath('//img[contains(@id,"BLOGGER_PHOTO_ID_")]/@src'),
             self._bloggerphoto_ripper,
         )
-        self.process_images(self.tree.xpath("//img/@src"), self._img_ripper)
-        self.replace_images()
+        images_list += self.process_images(
+            self.tree.xpath("//img/@src"), self._img_ripper
+        )
+        self.replace_images(images_list)
         self.tree = fromstring(self.html)
+        return images_list
 
     def set_content(self, content):
         self.content = content
         self.html = content
         self.tree = fromstring(self.html)
 
-    def replace_images(self):
-        for key, image in enumerate(self.images):
-            image_caption = self.images_captions[key]
+    def replace_images(self, images_list: [ImageModel]):
+        for image in images_list:
             image_html = (
                 '<table align="center" cellpadding="0" cellspacing="0" class="tr-caption-container" style="margin-left: auto; margin-right: auto; text-align: center; background: #FFF; box-shadow: 1px 1px 5px rgba(0, 0, 0, 0.5); padding: 8px;"><tbody><tr><td style="text-align: center;"><img border="0" src="images/'
-                + image
+                + image.file_name
                 + '" /></td></tr><tr><td class="tr-caption" style="text-align: center;">'
-                + image_caption
+                + image.description
                 + "</td></tr></tbody></table>"
             )
-            self.html = self.html.replace("#blog2epubimage#" + image + "#", image_html)
+            self.html = self.html.replace(
+                "#blog2epubimage#" + image.hash + "#", image_html
+            )
 
     def get_content(self) -> str:
         content = ""
@@ -177,19 +189,19 @@ class DefaultArticleFactory(AbstractArticleFactory):
             output.append(t)
         self.tags = output
 
-    def get_comments(self):
+    def get_comments(self) -> str:
         headers = self.tree.xpath('//div[@id="comments"]/h4/text()')
-        self.comments = ""
+        result_comments = ""
         if len(headers) == 1:
-            self.comments = "<hr/><h3>" + headers[0] + "</h3>"
+            return_comments = "<hr/><h3>" + headers[0] + "</h3>"
         comments_in_article = self.tree.xpath('//div[@class="comment-block"]//text()')
         if comments_in_article:
             tag = "h4"
             for c in comments_in_article:
                 c = c.strip()
                 if c not in ("Odpowiedz", "Usuń"):
-                    self.comments = (
-                        self.comments + "<" + tag + ">" + c + "</" + tag + ">"
+                    return_comments = (
+                        return_comments + "<" + tag + ">" + c + "</" + tag + ">"
                     )
                     if tag == "h4":
                         tag = "p"
@@ -210,10 +222,11 @@ class DefaultArticleFactory(AbstractArticleFactory):
                         .replace("\n", " ")
                     )
                     c = "".join(comments[x].xpath(".//text()")).strip()
-                    self.comments += f"<h4>{a}</h4>"
-                    self.comments += f"<p>{c}</p>"
+                    return_comments += f"<h4>{a}</h4>"
+                    return_comments += f"<p>{c}</p>"
             except IndexError:
                 pass
+        return result_comments
 
     def _content_cleanup(self, content: str) -> str:
         """This  function removes from downloaded content unwanted patterns - like ads, etc."""
@@ -234,16 +247,12 @@ class DefaultArticleFactory(AbstractArticleFactory):
         self.html = self._content_cleanup(self.html)
         self.tree = fromstring(self.html)
         self._content_cleanup_xpath()
-        self.title = self.get_title()
-        self.get_date()
-        self.get_images()
-        self.content = self.get_content()
         # self.get_tags()
-        self.get_comments()
         return ArticleModel(
             url=self.url,
-            title=self.title,
-            date=self.date,
-            content=self.content,
-            comments=self.comments,
+            title=self.get_title(),
+            date=self.get_date(),
+            images=self.get_images(),
+            content=self.get_content(),
+            comments=self.get_comments(),
         )
