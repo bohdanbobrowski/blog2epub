@@ -1,6 +1,5 @@
 import html
 import re
-from abc import abstractmethod
 from datetime import datetime
 from typing import Optional
 
@@ -25,7 +24,6 @@ class DefaultArticleFactory(AbstractArticleFactory):
                         return html.unescape(title.strip())
         return None
 
-    @abstractmethod
     def get_date(self) -> Optional[datetime]:
         result_date = None
         if self.patterns is not None:
