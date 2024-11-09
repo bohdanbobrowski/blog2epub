@@ -126,9 +126,9 @@ Before you start, you'll need to install buildozer following this [installation 
 - [X] integration testing
 - [ ] increase unit test coverage
 - [ ] blog authorization support
-- [ ] crawlers refactor
+- [X] crawlers refactor
 - [ ] add more crawlers
-- [ ] cli interface refactor
+- [X] cli interface refactor
 
 
 [&raquo; Complete Change Log here &laquo;](https://github.com/bohdanbobrowski/blog2epub/blob/master/CHANGELOG.md)
