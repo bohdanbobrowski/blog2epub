@@ -245,6 +245,15 @@ class DefaultCrawler(AbstractCrawler):
         self.interface.print(f"Found {len(pages)} articles to crawl.")
         return pages
 
+    def _set_root_title(self):
+        if not self.title:
+            html_content = self.downloader.get_content(self.url)
+            tree = fromstring(html_content)
+            self.language = self._get_blog_language(html_content)
+            self.images = self.images + self._get_header_images(tree)
+            self.description = self._get_blog_description(tree)
+            self.title = self._get_blog_title(html_content)
+
     def crawl(self):
         self.interface.print(f"Starting {self.name}")
         self.active = True
@@ -253,12 +262,7 @@ class DefaultCrawler(AbstractCrawler):
         if blog_pages:
             for page_url in blog_pages:
                 html_content = self.downloader.get_content(page_url)
-                if not self.title:
-                    tree = fromstring(html_content)
-                    self.language = self._get_blog_language(html_content)
-                    self.images = self.images + self._get_header_images(tree)
-                    self.description = self._get_blog_description(tree)
-                    self.title = self._get_blog_title(html_content)
+                self._set_root_title()
                 art_factory = self.article_factory_class(
                     url=page_url,
                     html_content=html_content,

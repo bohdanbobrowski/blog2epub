@@ -4,6 +4,15 @@ import re
 def translate_month(date: str, language: str) -> str:
     date = date.lower()
     if language == "pl":
+        date = date.replace("poniedziałek", "")
+        date = date.replace("wtorek", "")
+        date = date.replace("środa", "")
+        date = date.replace("czwartek", "")
+        date = date.replace("piątek", "")
+        date = date.replace("sobota", "")
+        date = date.replace("niedziela", "")
+        date = date.strip(",")
+        date = date.strip()
         replace_dict = {
             "stycznia": "january",
             "lutego": "february",

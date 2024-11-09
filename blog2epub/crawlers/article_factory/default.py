@@ -33,6 +33,7 @@ class DefaultArticleFactory(AbstractArticleFactory):
                     date = self.tree.xpath(date_pattern.xpath)
                     if len(date) > 0:
                         result_date = date[0]
+                        break
         if result_date is None:
             d = self.url.split("/")
             if len(d) > 4:
