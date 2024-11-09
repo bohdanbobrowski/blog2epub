@@ -90,6 +90,9 @@ class DefaultCrawler(AbstractCrawler):
 
     def get_book_data(self) -> BookModel:
         """This is temporary solution - crawler should use data models as default data storage."""
+        images_list = [im for art in self.articles for im in art.images] + self.images  # this is mind-blowing
+        images_set = set(images_list)
+        images_list = list(images_set)
         book_data = BookModel(
             url=self.url,
             title=self.title,
@@ -97,7 +100,7 @@ class DefaultCrawler(AbstractCrawler):
             description=self.description,
             dirs=DirModel(path=self.dirs.path),
             articles=self.articles,
-            images=[im for art in self.articles for im in art.images],  # this is mind-blowing
+            images=images_list,
             start=self.start,
             end=self.end,
             file_name_prefix=self.file_name,
@@ -180,8 +183,6 @@ class DefaultCrawler(AbstractCrawler):
                     art.set_content(item.content.value)
                 art.get_images()
                 art.set_content(art.html)
-                self.images = self.images + art.images
-                self.articles.append(art)
                 self._add_tags(art.tags)
                 if self.configuration.limit and len(self.articles) >= int(self.configuration.limit):
                     break

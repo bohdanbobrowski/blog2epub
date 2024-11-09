@@ -1,6 +1,7 @@
 import os
 from random import shuffle
 
+from imagesize import imagesize  # type: ignore
 from PIL import Image, ImageDraw, ImageEnhance, ImageFont
 
 from blog2epub.common.assets import asset_path
@@ -40,18 +41,18 @@ class Cover:
         self.blog_url = blog_url
         self.title = title
         self.subtitle = subtitle
-        self.images = self._check_image_size(set(i.hash for i in images))
+        self.images = self._check_image_size(images)
         self.platform_name = platform_name
 
-    def _check_image_size(self, image_hashes: set[str]):
+    def _check_image_size(self, images: list[ImageModel]) -> list[ImageModel]:
         verified_images = []
-        for image_hash in image_hashes:
-            if image_hash:
-                img_file = os.path.join(self.dirs.images, image_hash)
-                if os.path.isfile(img_file):
-                    img = Image.open(img_file)
-                    if img.size[0] >= self.tile_size and img.size[1] >= self.tile_size:
-                        verified_images.append(image_hash)
+        for image in images:
+            if image.hash:
+                i_file = os.path.join(self.dirs.images, image.file_name)
+                if os.path.isfile(i_file):
+                    i_size = imagesize.get(i_file)
+                    if i_size[0] >= self.tile_size and i_size[1] >= self.tile_size:
+                        verified_images.append(image)
         return verified_images
 
     def _make_thumb(self, img, size):
@@ -134,7 +135,7 @@ class Cover:
                 if len(self.images) > 1 & len(self.images) <= tiles_count_y * 2:
                     shuffle(self.images)
                 for y in range(0, tiles_count_y):
-                    img_file = os.path.join(self.dirs.images, self.images[i - 1])
+                    img_file = os.path.join(self.dirs.images, self.images[i - 1].file_name)
                     thumb = self._make_thumb(Image.open(img_file), (self.tile_size, self.tile_size))
                     enhancer = ImageEnhance.Brightness(thumb)
                     thumb = enhancer.enhance(dark_factor)

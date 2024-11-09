@@ -29,6 +29,9 @@ class ImageModel(BaseModel):
         m.update(self.url.encode("utf-8"))
         return m.hexdigest()
 
+    def __hash__(self):
+        return hash(self.hash)
+
     @property
     def file_name(self):
         return f"{self.hash}.jpg"

@@ -11,7 +11,7 @@ from blog2epub.common.crawler import (
 from blog2epub.common.downloader import Downloader
 from blog2epub.common.interfaces import EmptyInterface
 from blog2epub.crawlers.article_factory.abstract import AbstractArticleFactory
-from blog2epub.models.book import ArticleModel, BookModel, DirModel
+from blog2epub.models.book import ArticleModel, BookModel, DirModel, ImageModel
 from blog2epub.models.configuration import ConfigurationModel
 from blog2epub.models.content_patterns import ContentPatterns
 
@@ -52,7 +52,7 @@ class AbstractCrawler(ABC):
         self.atom_feed = False
         self.articles: list[ArticleModel] = []
         self.article_counter = 0
-        self.images: list[str] = []
+        self.images: list[ImageModel] = []
         self.tags: Dict = {}
         self.active = False
         self.cancelled = False
