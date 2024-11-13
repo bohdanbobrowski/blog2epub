@@ -24,6 +24,7 @@ class TestDefaultCrawler:
             url="bohdan.bobrowski.com.pl",
             interface=EmptyInterface(),
             configuration=mock_configuration,
+            cache_folder="tests_cache",
         )
         # when
         sitemap_url = given_crawler._get_sitemap_url()
@@ -36,6 +37,7 @@ class TestDefaultCrawler:
             url="bohdan.bobrowski.com.pl",
             interface=EmptyInterface(),
             configuration=mock_configuration,
+            cache_folder="tests_cache",
         )
         # when
         sitemap_url = given_crawler._get_sitemap_url()

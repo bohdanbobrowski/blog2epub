@@ -31,6 +31,8 @@ class DefaultCrawler(AbstractCrawler):
                 Pattern(xpath='//div[contains(@itemprop, "articleBody")]'),
                 Pattern(xpath='//section[contains(@itemprop, "text")]'),
                 Pattern(xpath='//div[contains(@class, "entry-content")]'),
+                Pattern(xpath='//section[contains(@class, "entry-content")]'),
+                Pattern(xpath='//div[@id="content"]'),
             ],
             content_cleanup=[
                 Pattern(
@@ -85,6 +87,15 @@ class DefaultCrawler(AbstractCrawler):
                 ),
                 Pattern(
                     xpath='//div[contains(@class, "entry-content")]//img',
+                ),
+                Pattern(
+                    xpath='//section[contains(@class, "entry-content")]//img',
+                ),
+                Pattern(
+                    xpath='//section[contains(@class, "article-header")]//img',
+                ),
+                Pattern(
+                    xpath='//div[@id="content"]//img',
                 ),
             ],
         )

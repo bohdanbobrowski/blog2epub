@@ -18,6 +18,8 @@ _site
 .bundle/
 /htmlcov
 .coverage
+/tests_cache
+*.bobrowski.com.pl
 *.blogspot.com
 *.wordpress.com
 *.epub

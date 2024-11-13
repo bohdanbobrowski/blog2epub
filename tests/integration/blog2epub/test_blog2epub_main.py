@@ -24,6 +24,7 @@ class TestBlog2EPubMain:
             url="starybezpiek.blogspot.com",
             interface=EmptyInterface(),
             configuration=mock_configuration,
+            cache_folder="tests_cache",
         )
         # when
         given_blog2epub.download()
@@ -46,6 +47,7 @@ class TestBlog2EPubMain:
             url="bohdan.bobrowski.com.pl",
             interface=EmptyInterface(),
             configuration=mock_configuration,
+            cache_folder="tests_cache",
         )
         # when
         given_blog2epub.download()
@@ -67,6 +69,7 @@ class TestBlog2EPubMainVelosov:
             url="velosov.blogspot.com",
             interface=EmptyInterface(),
             configuration=mock_configuration,
+            cache_folder="tests_cache",
         )
         # when
         given_blog2epub.download()
