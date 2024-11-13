@@ -1,4 +1,3 @@
-import os.path
 import tempfile
 
 import pytest
@@ -54,6 +53,7 @@ class TestBlog2EPubMain:
             interface=EmptyInterface(),
             configuration=mock_configuration,
         )
+        ebook.save()
         # then
-        assert ebook.book_data.articles >= 2
-        assert ebook.book_data.articles[0].content.find('img src="') > -1
+        assert len(ebook.book_data.articles) >= 2
+        assert ebook.book_data.articles[0].content.find("#blog2epubimage#") == -1

@@ -75,8 +75,17 @@ class DefaultCrawler(AbstractCrawler):
             ],
             images=[
                 Pattern(
-                    regex=r'<table[^>]*><tbody>[\s]*<tr><td[^>]*><a href="([^"]*)"[^>]*><img[^>]*></a></td></tr>[\s]*<tr><td class="tr-caption" style="[^"]*">([^<]*)'
-                )
+                    xpath='//div[contains(@class, "header section")]//img',
+                ),
+                Pattern(
+                    xpath='//div[contains(@itemprop, "articleBody")]//img',
+                ),
+                Pattern(
+                    xpath='//figure[contains(@class, "wp-block-post-featured-image")]//img',
+                ),
+                Pattern(
+                    xpath='//div[contains(@class, "entry-content")]//img',
+                ),
             ],
         )
         self.downloader = Downloader(

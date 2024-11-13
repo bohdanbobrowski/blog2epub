@@ -20,7 +20,8 @@ class WordpressArticleFactory(DefaultArticleFactory):
         for x in self.images_xpaths:
             images_elements = self.tree.xpath(x)
             images_list.append(self._get_single_images(images_elements))
-        self.replace_images(images_list=images_list)
+        # self._remove_images(images_html=images_html, images_list=images_list)
+        self._insert_images(images_list=images_list)
 
     def _get_single_images(self, images_elements) -> list[ImageModel]:
         images_list = []
@@ -62,18 +63,6 @@ class WordpressArticleFactory(DefaultArticleFactory):
             self.html = etree.tostring(self.tree).decode("utf-8")
             images_list.append(image_obj)
         return images_list
-
-    def replace_images(self, images_list: list[ImageModel]):
-        for image in images_list:
-            image_html = (
-                '<table align="center" cellpadding="0" cellspacing="0" class="tr-caption-container" style="margin-left: auto; margin-right: auto; text-align: center; background: #FFF; box-shadow: 1px 1px 5px rgba(0, 0, 0, 0.5); padding: 8px;"><tbody><tr><td style="text-align: center;"><img border="0" src="images/'
-                + image.file_name
-                + '" /></td></tr><tr><td class="tr-caption" style="text-align: center;">'
-                + image.description
-                + "</td></tr></tbody></table>"
-            )
-            self.html = self.html.replace("<!--#blog2epubimage#" + image.hash + "#-->", image_html)
-        self.content = self.html
 
     def get_content(self):
         article_header = re.findall(r"(<h1 class=\"entry-title\">[^<]*<\/h1>)", self.html)

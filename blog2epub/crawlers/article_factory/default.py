@@ -1,6 +1,5 @@
 import html
 import re
-from collections.abc import Callable
 from datetime import datetime
 from typing import Optional
 
@@ -48,60 +47,35 @@ class DefaultArticleFactory(AbstractArticleFactory):
             pass
         return None
 
-    def _find_images(self):
-        images = []
-        if self.patterns:
-            for pattern in self.patterns.images:
-                images += re.findall(pattern.regex, self.html)
-        return images
+    def _remove_images(self, images_html: list[bytes], images_list: list[ImageModel]):
+        if len(images_html) > 0 and len(images_list) == len(images_html):
+            self.html = tostring(self.tree)
+            for key, img_obj in enumerate(images_list):
+                replace_pattern = f"#blog2epubimage#{img_obj.hash}#".encode()
+                image_html = images_html[key]
+                self.html = self.html.replace(image_html, replace_pattern)
+            self.tree = fromstring(self.html)
 
-    @staticmethod
-    def _default_pattern(img_obj: ImageModel) -> str:
-        return f"<table[^>]*><tbody>[\\s]*<tr><td[^>]*><a href=\"{img_obj.url.replace("+", r"\+")}\"[^>]*><img[^>]*></a></td></tr>[\\s]*<tr><td class=\"tr-caption\" style=\"[^\"]*\">[^<]*</td></tr>[\\s]*</tbody></table>"
-
-    @staticmethod
-    def _nocaption_pattern(img_obj: ImageModel) -> str:
-        return f'<a href="{img_obj.url.replace("+", r"\+")}" imageanchor="1"[^<]*<img.*?></a>'
-
-    @staticmethod
-    def _bloggerphoto_pattern(img_obj: ImageModel) -> str:
-        return f'<a href="[^"]+"><img.*?id="BLOGGER_PHOTO_ID_[0-9]+".*?src="{img_obj.url.replace("+", r"\+")}".*?/a>'
-
-    @staticmethod
-    def _img_pattern(img_obj: ImageModel) -> str:
-        return f'<img.*?src="{img_obj.url.replace("+", r"\+")}".*?>'
-
-    def process_images(self, images, pattern: Callable) -> list[ImageModel]:
+    def get_images(self) -> list[ImageModel]:
         images_list = []
-        for image in images:
-            img = None
-            description = ""
-            if isinstance(image, str):
-                img = image
-            elif isinstance(image, list):
-                img = image[0]
-                if image[1]:
-                    description = image[1]
-            if img:
-                img_obj = ImageModel(url=img, description=description)
-                if self.downloader.download_image(img_obj):
-                    self.html = re.sub(pattern(img_obj), f" #blog2epubimage#{img_obj.hash}# ", self.html)
-                    images_list.append(img_obj)
-        self.tree = fromstring(self.html)
-        return images_list
-
-    def get_images(self):
-        # TODO: needs refacor!
-        images_list = []
-        images_list += self.process_images(self._find_images(), self._default_pattern)
-        images_list += self.process_images(self.tree.xpath('//a[@imageanchor="1"]/@href'), self._nocaption_pattern)
-        images_list += self.process_images(
-            self.tree.xpath('//img[contains(@id,"BLOGGER_PHOTO_ID_")]/@src'),
-            self._bloggerphoto_pattern,
-        )
-        images_list += self.process_images(self.tree.xpath("//img/@src"), self._img_pattern)
-        self.replace_images(images_list)
-        self.tree = fromstring(self.html)
+        images_html = []
+        for pattern in self.patterns.images:
+            if pattern.regex:
+                pass
+            elif pattern.xpath:
+                images_in_pattern = self.tree.xpath(pattern.xpath)
+                for image_element in images_in_pattern:
+                    image_url = image_element.xpath("@src")[0]
+                    try:
+                        image_description = image_element.xpath("@alt")[0]
+                    except IndexError:
+                        image_description = ""
+                    image_obj = ImageModel(url=image_url, description=image_description)
+                    if self.downloader.download_image(image_obj):
+                        images_list.append(image_obj)
+                        images_html.append(tostring(image_element))
+        self._remove_images(images_html=images_html, images_list=images_list)
+        self._insert_images(images_list=images_list)
         return images_list
 
     def set_content(self, content):
@@ -109,16 +83,20 @@ class DefaultArticleFactory(AbstractArticleFactory):
         self.html = content
         self.tree = fromstring(self.html)
 
-    def replace_images(self, images_list: list[ImageModel]):
+    def _insert_images(self, images_list: list[ImageModel]):
         for image in images_list:
             image_html = (
-                '<table align="center" cellpadding="0" cellspacing="0" class="tr-caption-container" style="margin-left: auto; margin-right: auto; text-align: center; background: #FFF; box-shadow: 1px 1px 5px rgba(0, 0, 0, 0.5); padding: 8px;"><tbody><tr><td style="text-align: center;"><img border="0" src="images/'
-                + image.file_name
-                + '" /></td></tr><tr><td class="tr-caption" style="text-align: center;">'
-                + image.description
-                + "</td></tr></tbody></table>"
+                '<table align="center" cellpadding="0" cellspacing="0" class="tr-caption-container" '
+                + 'style="margin-left: auto; margin-right: auto; text-align: center; background: #FFF;'
+                'box-shadow: 1px 1px 5px rgba(0, 0, 0, 0.5); padding: 8px;"><tbody>'
             )
-            self.html = self.html.replace("#blog2epubimage#" + image.hash + "#", image_html)
+            image_html += (
+                f'<tr><td style="text-align: center;"><img border="0" src="images/{image.file_name}" /></td></tr>'
+            )
+            if image.description:
+                image_html += f'<tr><td class="tr-caption" style="text-align: center;">{image.description}</td></tr>'
+            image_html += "</tbody></table>"
+            self.html = self.html.replace(f"#blog2epubimage#{image.hash}#".encode(), image_html.encode())
 
     def get_content(self) -> str:
         content = ""
