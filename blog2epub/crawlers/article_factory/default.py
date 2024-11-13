@@ -79,6 +79,9 @@ class DefaultArticleFactory(AbstractArticleFactory):
                         except IndexError:
                             image_description = ""
                         image_obj = ImageModel(url=image_url, description=image_description)
+                        if self.download_callback:
+                            if self.download_callback():
+                                break
                         if self.downloader.download_image(image_obj):
                             self.images_list.append(image_obj)
                             self.interface.print(".", end="")

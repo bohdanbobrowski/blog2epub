@@ -269,6 +269,7 @@ class DefaultCrawler(AbstractCrawler):
                     dirs=self.dirs,
                     language=self.language,
                     downloader=self.downloader,
+                    download_callback=self._break_the_loop
                 )
                 art = art_factory.process()
                 self.images = self.images + art.images

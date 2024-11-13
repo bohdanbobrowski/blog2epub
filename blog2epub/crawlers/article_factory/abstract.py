@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import Optional
+from typing import Optional, Callable
 
 from lxml.html.soupparser import fromstring
 
@@ -19,6 +19,8 @@ class AbstractArticleFactory(ABC):
         dirs: DirModel,
         language: str,
         downloader: Downloader,
+        cancelled: bool = False,
+        download_callback: Optional[Callable] = None,
     ):
         self.url = url
         self.html: bytes = html_content
@@ -33,6 +35,8 @@ class AbstractArticleFactory(ABC):
         self.tree = fromstring("<div></div>")
         self.images_list: list[ImageModel] = []
         self.comments = ""  # TODO: should be a list in the future
+        self.cancelled: bool = cancelled
+        self.download_callback = download_callback
 
     @abstractmethod
     def process(self) -> ArticleModel:
