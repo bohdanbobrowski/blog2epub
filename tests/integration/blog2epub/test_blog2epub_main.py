@@ -39,3 +39,21 @@ class TestBlog2EPubMain:
         assert ebook.file_name == "starybezpiek_blogspot_com_2015.09.23-2015.12.15.epub"
         assert os.path.isfile("./starybezpiek_blogspot_com_2015.09.23-2015.12.15.epub")
         assert os.path.isfile(ebook.cover_image_path)
+
+    def test_bohdan_bobrowski_com_pl_has_images(self, mock_configuration):
+        # given
+        given_blog2epub = Blog2Epub(
+            url="bohdan.bobrowski.com.pl",
+            interface=EmptyInterface(),
+            configuration=mock_configuration,
+        )
+        # when
+        given_blog2epub.download()
+        ebook = Book(
+            book_data=given_blog2epub.crawler.get_book_data(),
+            interface=EmptyInterface(),
+            configuration=mock_configuration,
+        )
+        # then
+        assert ebook.book_data.articles >= 2
+        assert ebook.book_data.articles[0].content.find('img src="') > -1
