@@ -65,6 +65,7 @@ class DefaultArticleFactory(AbstractArticleFactory):
     def get_images(self) -> list[ImageModel]:
         self.images_list = []
         images_html: list[bytes] = []
+        self.interface.print("Downloading", end="")
         if self.patterns is not None:
             for pattern in self.patterns.images:
                 if pattern.regex:
@@ -80,9 +81,12 @@ class DefaultArticleFactory(AbstractArticleFactory):
                         image_obj = ImageModel(url=image_url, description=image_description)
                         if self.downloader.download_image(image_obj):
                             self.images_list.append(image_obj)
+                            self.interface.print(".", end="")
                             images_html.append(tostring(image_element))
             self._remove_images(images_html=images_html, images_list=self.images_list)
             # images will be inserted back after cleaning the content
+        self.interface.delete_line()
+        self.interface.print("")
         return self.images_list
 
     def _insert_images(self, article_content: str, images_list: list[ImageModel]) -> str:

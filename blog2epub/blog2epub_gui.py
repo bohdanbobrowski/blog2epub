@@ -130,7 +130,7 @@ class Blog2EpubKivyWindow(MDBoxLayout):
         self._define_tab_about()
         self.tabs.add_widget(self.tab_about)
 
-        self.interface = KivyInterface(self.console_output, self.console_clear)
+        self.interface = KivyInterface(self.console_output, self.console_clear, self.console_delete_last_line)
         # DEBUG:
         # self.interface.print(self.blog2epub_settings.data.dict())
         # self.interface.print(str(pydantic.version.version_info()))
@@ -411,12 +411,16 @@ class Blog2EpubKivyWindow(MDBoxLayout):
             input_widget.error = True
 
     @mainthread
-    def console_output(self, text: str):
-        self.console.text = self.console.text + str(text) + "\n"
+    def console_output(self, text: str, end: str = "\n"):
+        self.console.text = self.console.text + str(text) + end
 
     @mainthread
     def console_clear(self):
         self.console.text = ""
+
+    @mainthread
+    def console_delete_last_line(self):
+        self.console.text = "\n".join(self.console.text.split("\n")[:-1])
 
     def _get_url(self):
         if urllib.parse.urlparse(self.url_entry.text):
@@ -546,7 +550,6 @@ class Blog2EpubKivyWindow(MDBoxLayout):
 
     @mainthread
     def _disable_download_button(self):
-        self.interface.print("Downloading...")
         self.download_button_container.remove_widget(self.download_button)
         self.download_button_container.add_widget(self.cancel_button)
 
@@ -641,13 +644,18 @@ class Blog2EpubKivyWindow(MDBoxLayout):
 
 
 class KivyInterface(EmptyInterface):
-    def __init__(self, console_output, console_clear):
+    def __init__(self, console_output, console_clear, console_delete_last_line):
         self.console_output = console_output
         self.console_clear = console_clear
+        self.console_delete_last_line = console_delete_last_line
 
-    def print(self, text: str):
-        logging.info(text)
-        self.console_output(text)
+    def print(self, text: str, end: str = "\n"):
+        if len(text) > 1:
+            logging.info(text)
+        self.console_output(text, end)
+
+    def delete_line(self):
+        self.console_delete_last_line()
 
     def exception(self, e):
         logging.error("Exception: " + str(e))

@@ -32,13 +32,15 @@ class ZeissIkonVEBCrawler(DefaultCrawler):
         self.patterns.content_cleanup = [
             Pattern(xpath='//div[@data-kind="MENU"]'),
             Pattern(regex=r"background-color:rgba(255,255,255,1);color:rgba(156,156,156,1);"),
-            Pattern(regex=r"font-size:[0-9]+px\;"),
-            Pattern(regex=r"line-height:[0-9]+\;"),
+            Pattern(regex=r"font-size:[\s0-9]+px\;"),
+            Pattern(regex=r"line-height:[\s0-9]+\;"),
             Pattern(regex=r"font-family:Arial, Helvetica, sans-serif"),
+            Pattern(regex=r"<p/>"),
         ]
         self.patterns.date = [
             Pattern(regex=r"letzte Änderung[\s:]*([0-9]{1,2})[\.\s]*([A-Za-z]+)[\.\s]*([0-9]{4})"),
             Pattern(regex=r"letzte Aktualisierung[\s:]*([0-9]{1,2})[\.\s]*([A-Za-z]+)[\.\s]*([0-9]{4})"),
+            Pattern(regex=r"last update[\s:]*([0-9]{1,2})[\.\s]*([A-Za-z]+)[\.\s]*([0-9]{4})"),
         ]
         self.patterns.images = [
             Pattern(xpath='//div[@data-kind="IMAGE"]//img'),

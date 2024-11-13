@@ -153,6 +153,7 @@ class Downloader:
         image_obj.url = self._fix_image_url(image_obj.url)
         img_hash = self.get_urlhash(image_obj.url)
         img_type = os.path.splitext(image_obj.url)[1].lower()
+        img_type = img_type.split("?")[0]
         if img_type not in [".jpeg", ".jpg", ".png", ".bmp", ".gif", ".webp"]:
             return False
         original_fn = os.path.join(self.dirs.originals, img_hash + "." + img_type)
@@ -179,6 +180,9 @@ class Downloader:
                 picture.thumbnail(self.images_size, Image.LANCZOS)  # type: ignore
             converted_picture = picture.convert("L")
             converted_picture.save(resized_fn, format="JPEG", quality=self.images_quality)
-            os.remove(original_fn)
+            try:
+                os.remove(original_fn)
+            except PermissionError:
+                pass
             return True
         return False
