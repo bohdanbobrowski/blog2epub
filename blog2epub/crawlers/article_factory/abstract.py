@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import Optional, Callable
+from typing import Callable, Optional
 
 from lxml.html.soupparser import fromstring
 

@@ -4,8 +4,8 @@ from blog2epub.common.interfaces import EmptyInterface
 
 
 class CliInterface(EmptyInterface):
-    def print(self, text: str):
-        print(text)
+    def print(self, text: str, end: str = "\n"):
+        print(text, end=end)
 
     def exception(self, e):
         print(e)

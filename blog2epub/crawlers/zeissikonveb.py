@@ -22,7 +22,7 @@ class ZeissIkonVEBArticleFactory(DefaultArticleFactory):
 
 
 class ZeissIkonVEBCrawler(DefaultCrawler):
-    """TODO: https://zeissikonveb.de"""
+    """https://zeissikonveb.de"""
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -36,7 +36,7 @@ class ZeissIkonVEBCrawler(DefaultCrawler):
             Pattern(regex=r"font-size:[\s0-9]+px\;"),
             Pattern(regex=r"line-height:[\s0-9]+\;"),
             Pattern(regex=r"font-family:Arial, Helvetica, sans-serif"),
-            Pattern(regex=r"<p\/>"),
+            Pattern(regex=r'<p (class|style)="[^"]+" (class|style)="[^"]+"><span style="[^"]+"><br><\/span><\/p>'),
         ]
         self.patterns.date = [
             Pattern(regex=r"letzte Änderung[\s:]*([0-9]{1,2})[\.\s]*([A-Za-z]+)[\.\s]*([0-9]{4})"),
