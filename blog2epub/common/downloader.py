@@ -49,18 +49,18 @@ class Downloader:
         m.update(url.encode("utf-8"))
         return m.hexdigest()
 
-    def file_write(self, contents, filepath):
+    def file_write(self, contents: bytes, filepath: str):
         filepath = filepath + ".gz"
         with gzip.open(filepath, "wb") as f:
-            f.write(contents.encode("utf-8"))
+            f.write(contents)
 
-    def file_read(self, filepath):
+    def file_read(self, filepath: str) -> bytes:
         if os.path.isfile(filepath + ".gz"):
             with gzip.open(filepath + ".gz", "rb") as f:
-                contents = f.read().decode("utf-8")
+                contents = f.read()
         else:
             with open(filepath, "rb") as html_file:
-                contents = html_file.read().decode("utf-8")
+                contents = html_file.read()
             self.file_write(contents, filepath)
             os.remove(filepath)
         return contents
@@ -94,13 +94,15 @@ class Downloader:
         return contents
 
     @staticmethod
-    def check_interstitial(contents):
+    def check_interstitial(contents: bytes | str):
+        if isinstance(contents, bytes):
+            contents = contents.decode("utf-8")
         interstitial = re.findall('interstitial=([^"]+)', contents)
         if interstitial:
             return interstitial[0]
         return False
 
-    def get_content(self, url):
+    def get_content(self, url) -> bytes:
         # TODO: This needs refactor!
         filepath = self.get_filepath(url)
         contents = None

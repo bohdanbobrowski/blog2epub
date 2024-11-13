@@ -146,7 +146,9 @@ class DefaultCrawler(AbstractCrawler):
                 return r_result.group(1).strip()
         return "en"
 
-    def _get_blog_title(self, content):
+    def _get_blog_title(self, content: str | bytes) -> str:
+        if isinstance(content, bytes):
+            content = content.decode("utf-8")
         if re.search("<title>([^>^<]*)</title>", content):
             return re.search("<title>([^>^<]*)</title>", content).group(1).strip()
         return ""
@@ -225,7 +227,9 @@ class DefaultCrawler(AbstractCrawler):
         sitemap = requests.get(sitemap_url)
         sitemap_pages = []
         for sitemap_element in etree.fromstring(sitemap.content):  # type: ignore
-            sitemap_pages.append(sitemap_element.getchildren()[0].text)  # type: ignore
+            sitemap_element_children = sitemap_element.getchildren()
+            if sitemap_element_children:
+                sitemap_pages.append(sitemap_element_children[0].text)  # type: ignore
         sub_sitemaps, pages = self._check_for_sub_sitemaps(sitemap_pages)
         for sub_sitemap in sub_sitemaps:
             if (
@@ -274,7 +278,4 @@ class DefaultCrawler(AbstractCrawler):
                 self.interface.print(f"{len(self.articles)}. {art.title}")
                 if self._break_the_loop():
                     break
-        else:
-            self._get_atom_content()
-            self._atom_feed_loop()
         self.active = False

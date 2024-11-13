@@ -1,5 +1,10 @@
 from blog2epub.crawlers import AbstractCrawler
+from blog2epub.crawlers.article_factory.default import DefaultArticleFactory
+from blog2epub.models.book import BookModel
 
+
+class NrdblogCmosEuArticleFactory(DefaultArticleFactory):
+    pass
 
 class NrdblogCmosEuCrawler(AbstractCrawler):
     """TODO: https://nrdblog.cmosnet.eu"""
@@ -7,9 +12,10 @@ class NrdblogCmosEuCrawler(AbstractCrawler):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.name = "nrdblog.cmosnet.eu crawler"
+        self.article_factory_class = NrdblogCmosEuArticleFactory
 
     def crawl(self):
-        pass
+        super().crawl()
 
-    def get_book_data(self):
-        pass
+    def get_book_data(self) -> BookModel:
+        return super().get_book_data()

@@ -49,4 +49,17 @@ def translate_month(date: str, language: str) -> str:
         for key, val in replace_dict.items():
             date = date.replace(key, val)
         date = re.sub(r"\sг.$", "", date)
+    if language == "de":
+        replace_dict = {
+            "januar": "january",
+            "februar": "february",
+            "märz": "march",
+            "mai": "may",
+            "juni": "june",
+            "juli": "july",
+            "oktober": "october",
+            "dezember": "december",
+        }
+        for key, val in replace_dict.items():
+            date = date.replace(key, val)
     return date

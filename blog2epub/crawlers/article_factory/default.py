@@ -28,7 +28,13 @@ class DefaultArticleFactory(AbstractArticleFactory):
         result_date = None
         if self.patterns is not None:
             for date_pattern in self.patterns.date:
-                if date_pattern.xpath:
+                if date_pattern.regex:
+                    date_match = re.findall(date_pattern.regex, self.html.decode("utf-8"))
+                    if date_match:
+                        result_date = f"{date_match[0][0]} {date_match[0][1]} {date_match[0][2]}"
+                        break
+                    pass
+                elif date_pattern.xpath:
                     date = self.tree.xpath(date_pattern.xpath)
                     if len(date) > 0:
                         result_date = date[0]
@@ -167,13 +173,15 @@ class DefaultArticleFactory(AbstractArticleFactory):
                 pass
         return result_comments
 
-    def _content_cleanup(self, content: bytes) -> bytes:
+    def _content_cleanup(self, content: str | bytes) -> bytes:
         """This  function removes from downloaded content unwanted patterns - like ads, etc."""
+        if isinstance(content, bytes):
+            content = content.decode("utf8")
         if self.patterns:
             for pattern in self.patterns.content_cleanup:
                 if pattern.regex:
-                    content = re.sub(pattern.regex, b"", content)
-        return content
+                    content = re.sub(pattern.regex, "", content)
+        return content.encode("utf8")
 
     def _content_cleanup_xpath(self):
         if self.patterns:
