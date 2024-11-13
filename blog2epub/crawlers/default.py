@@ -62,7 +62,7 @@ class DefaultCrawler(AbstractCrawler):
                     xpath='//abbr[@itemprop="datePublished"]/@title',
                 ),
                 Pattern(
-                    xpath='//h2[@class="date-header"]/span/text()',
+                    xpath='//*[@class="date-header"]/span/text()',
                 ),
                 Pattern(
                     xpath='//meta[@property="article:published_time"]/@content',
@@ -168,37 +168,6 @@ class DefaultCrawler(AbstractCrawler):
             else:
                 self.tags[tag] = 1
 
-    def _atom_feed_loop(self):
-        # TODO: This needs refactor! Maybe separate crawler for atom feed?
-        for item in self.atom_feed.entries:
-            try:
-                self.article_counter += 1
-                art = self.article_factory_class(item.links[0].href, item.title.value, self)
-                if (
-                    self.configuration.skip
-                    and self.configuration.skip.isdigit()
-                    and self.article_counter < int(self.configuration.skip)
-                ):
-                    self.interface.print("[skipping] " + art.title)
-                    continue
-                art_no = len(self.articles) + 1
-                self.interface.print(f"{art_no}. {art.title}")
-                art.date = item.updated
-                if self.start:
-                    self.end = art.date
-                else:
-                    self.start = art.date
-                if item.content:
-                    art.set_content(item.content.value)
-                art.get_images()
-                art.set_content(art.html)
-                self._add_tags(art.tags)
-                if self.configuration.limit and len(self.articles) >= int(self.configuration.limit):
-                    break
-            except AttributeError as e:
-                self.interface.print(str(e))
-                self.interface.print("[article not recognized - skipping]")
-
     def _break_the_loop(self):
         if (
             self.cancelled
@@ -235,7 +204,7 @@ class DefaultCrawler(AbstractCrawler):
         sub_sitemaps = []
         pages = []
         for element in sitemap_pages:
-            if element.endswith(".xml"):
+            if element.endswith(".xml") or re.search("sitemap.xml\\?page=[0-9]+$", element):
                 sub_sitemaps.append(element)
             else:
                 pages.append(element)
@@ -248,8 +217,10 @@ class DefaultCrawler(AbstractCrawler):
             sitemap_pages.append(sitemap_element.getchildren()[0].text)  # type: ignore
         sub_sitemaps, pages = self._check_for_sub_sitemaps(sitemap_pages)
         for sub_sitemap in sub_sitemaps:
-            if re.search("wp-sitemap-posts-(post|page)-[0-9]+.xml$", sub_sitemap) or re.search(
-                "(post|page)-sitemap[0-9-]*.xml$", sub_sitemap
+            if (
+                re.search("sitemap.xml\\?page=[0-9]+$", sub_sitemap)
+                or re.search("wp-sitemap-posts-(post|page)-[0-9]+.xml$", sub_sitemap)
+                or re.search("(post|page)-sitemap[0-9-]*.xml$", sub_sitemap)
             ):
                 pages += self._get_pages_from_sub_sitemap(sub_sitemap)
         self.interface.print(f"Found {len(pages)} articles to crawl.")

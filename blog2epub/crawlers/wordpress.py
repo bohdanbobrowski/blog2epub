@@ -44,7 +44,7 @@ class WordpressCrawler(DefaultCrawler):
                 else:
                     self.start = art.date
                 if item.content:
-                    art.set_content(item.content.value)
+                    # art.set_content(item.content.value)
                     art.get_images()
                 else:
                     art.html = self.downloader.get_content(art.url)

@@ -310,9 +310,11 @@ class Chapter:
             lang=language,  # type: ignore
         )  # type: ignore
         tags = self._print_tags(article)
-        art_date = ""
+        art_date = "<p>"
         if article.date is not None:
-            art_date = article.date.strftime("%d %B %Y, %H:%M")
+            art_date += f"<i>Created: {article.date.strftime("%d %B %Y, %H:%M")}</i><br/>"
+        art_date += f"<i>Accessed: {article.accessed.strftime("%d %B %Y, %H:%M")}</i>"
+        art_date += "</p>"
         self.epub.content = (
             f"<h2>{article.title}</h2>{tags}{art_date}" + f'<p><i><a href="{article.url}">{article.url}</a></i></p>'
         )

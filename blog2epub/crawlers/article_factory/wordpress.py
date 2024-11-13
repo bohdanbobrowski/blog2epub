@@ -45,7 +45,7 @@ class WordpressArticleFactory(DefaultArticleFactory):
                     if img_parent:
                         img_parent.replace(img, etree.Comment(f"#blog2epubimage#{img_parent.hash}#"))
                         self.tree = img_parent.getroottree()
-                    self.html = etree.tostring(self.tree).decode("utf-8")
+                    self.html = etree.tostring(self.tree)
                     images_list.append(image_obj)
         return images_list
 
@@ -60,7 +60,7 @@ class WordpressArticleFactory(DefaultArticleFactory):
             img_parent = img.getparent()
             img_parent.replace(img, etree.Comment(f"#blog2epubimage#{image_obj.hash}#"))
             self.tree = img_parent.getroottree()
-            self.html = etree.tostring(self.tree).decode("utf-8")
+            self.html = etree.tostring(self.tree)
             images_list.append(image_obj)
         return images_list
 

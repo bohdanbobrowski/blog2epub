@@ -47,3 +47,16 @@ class TestDefaultCrawler:
         assert "https://bohdan.bobrowski.com.pl/wp-sitemap-taxonomies-category-1.xml" not in pages
         assert "https://bohdan.bobrowski.com.pl/wp-sitemap-taxonomies-post_tag-1.xml" not in pages
         assert "https://bohdan.bobrowski.com.pl/wp-sitemap-users-1.xml" not in pages
+
+    def test_rocket_garage_blogspot_com(self, mock_configuration):
+        # given
+        given_crawler = DefaultCrawler(
+            url="rocket-garage.blogspot.com",
+            interface=EmptyInterface(),
+            configuration=mock_configuration,
+        )
+        # when
+        sitemap_url = given_crawler._get_sitemap_url()
+        pages = given_crawler._get_pages_urls(sitemap_url=sitemap_url)
+        # then
+        assert len(pages) > 1000

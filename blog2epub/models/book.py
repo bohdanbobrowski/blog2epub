@@ -41,6 +41,7 @@ class ArticleModel(BaseModel):
     url: str
     title: Optional[str]
     date: Optional[datetime]
+    accessed: datetime = datetime.now()
     content: Optional[str]
     comments: Optional[str]  # TODO: replace with List[CommentModel]
     tags: list[str] = []

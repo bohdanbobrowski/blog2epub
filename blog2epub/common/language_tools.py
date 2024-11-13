@@ -4,13 +4,8 @@ import re
 def translate_month(date: str, language: str) -> str:
     date = date.lower()
     if language == "pl":
-        date = date.replace("poniedziałek", "")
-        date = date.replace("wtorek", "")
-        date = date.replace("środa", "")
-        date = date.replace("czwartek", "")
-        date = date.replace("piątek", "")
-        date = date.replace("sobota", "")
-        date = date.replace("niedziela", "")
+        for dn in ["poniedziałek", "wtorek", "środa", "czwartek", "piątek", "sobota", "niedziela"]:
+            date = date.replace(dn, "")
         date = date.strip(",")
         date = date.strip()
         replace_dict = {
@@ -34,6 +29,9 @@ def translate_month(date: str, language: str) -> str:
         for key, val in replace_dict_short.items():
             date = date.replace(key, val)
     if language == "ru":
+        for dn in ["понедельник", "вторник", "среда", "четверг", "пятница", "суббота", "воскресенье"]:
+            date = date.replace(dn, "")
+        date = date.strip(",")
         replace_dict = {
             "января": "january",
             "февраля": "february",

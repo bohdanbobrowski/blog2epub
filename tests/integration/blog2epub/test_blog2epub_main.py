@@ -14,7 +14,6 @@ def mock_configuration() -> ConfigurationModel:
     return ConfigurationModel(
         destination_folder=tempfile.gettempdir(),
         limit="2",
-        include_images=True,
     )
 
 
@@ -59,3 +58,23 @@ class TestBlog2EPubMain:
         # then
         assert len(ebook.book_data.articles) >= 2
         assert ebook.book_data.articles[0].content.find("#blog2epubimage#") == -1
+
+
+class TestBlog2EPubMainVelosov:
+    def test_velosov_can_parse_the_date(self, mock_configuration):
+        # given
+        given_blog2epub = Blog2Epub(
+            url="velosov.blogspot.com",
+            interface=EmptyInterface(),
+            configuration=mock_configuration,
+        )
+        # when
+        given_blog2epub.download()
+        ebook = Book(
+            book_data=given_blog2epub.crawler.get_book_data(),
+            interface=EmptyInterface(),
+            configuration=mock_configuration,
+        )
+        ebook.save()
+        # then
+        pass

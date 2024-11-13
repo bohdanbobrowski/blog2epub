@@ -13,7 +13,7 @@ class AbstractArticleFactory(ABC):
     def __init__(
         self,
         url: str,
-        html_content: str,
+        html_content: bytes,
         patterns: Optional[ContentPatterns],
         interface: EmptyInterface,
         dirs: DirModel,
@@ -21,7 +21,7 @@ class AbstractArticleFactory(ABC):
         downloader: Downloader,
     ):
         self.url = url
-        self.html = html_content
+        self.html: bytes = html_content
         self.interface = interface
         self.dirs: DirModel = dirs
         self.language: Optional[str] = language
@@ -31,7 +31,7 @@ class AbstractArticleFactory(ABC):
         self.title: Optional[str] = None
         self.tags: list[str] = []
         self.tree = fromstring("<div></div>")
-        self.images_list = [ImageModel]
+        self.images_list: list[ImageModel] = []
         self.comments = ""  # TODO: should be a list in the future
 
     @abstractmethod

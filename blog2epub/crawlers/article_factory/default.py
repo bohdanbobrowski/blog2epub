@@ -49,7 +49,7 @@ class DefaultArticleFactory(AbstractArticleFactory):
 
     def _remove_images(self, images_html: list[bytes], images_list: list[ImageModel]):
         if len(images_html) > 0 and len(images_list) == len(images_html):
-            self.html = tostring(self.tree)
+            self.html: bytes = tostring(self.tree)
             for key, img_obj in enumerate(images_list):
                 replace_pattern = f"#blog2epubimage#{img_obj.hash}#".encode()
                 image_html = images_html[key]
@@ -57,32 +57,27 @@ class DefaultArticleFactory(AbstractArticleFactory):
             self.tree = fromstring(self.html)
 
     def get_images(self) -> list[ImageModel]:
-        images_list = []
-        images_html = []
-        for pattern in self.patterns.images:
-            if pattern.regex:
-                pass
-            elif pattern.xpath:
-                images_in_pattern = self.tree.xpath(pattern.xpath)
-                for image_element in images_in_pattern:
-                    image_url = image_element.xpath("@src")[0]
-                    try:
-                        image_description = image_element.xpath("@alt")[0]
-                    except IndexError:
-                        image_description = ""
-                    image_obj = ImageModel(url=image_url, description=image_description)
-                    if self.downloader.download_image(image_obj):
-                        images_list.append(image_obj)
-                        images_html.append(tostring(image_element))
-        self._remove_images(images_html=images_html, images_list=images_list)
-        # images will be inserted back after cleaning the content
-        self.images_list = images_list
-        return images_list
-
-    def set_content(self, content):
-        self.content = content
-        self.html = content
-        self.tree = fromstring(self.html)
+        self.images_list = []
+        images_html: list[bytes] = []
+        if self.patterns is not None:
+            for pattern in self.patterns.images:
+                if pattern.regex:
+                    pass
+                elif pattern.xpath:
+                    images_in_pattern = self.tree.xpath(pattern.xpath)
+                    for image_element in images_in_pattern:
+                        image_url = image_element.xpath("@src")[0]
+                        try:
+                            image_description = image_element.xpath("@alt")[0]
+                        except IndexError:
+                            image_description = ""
+                        image_obj = ImageModel(url=image_url, description=image_description)
+                        if self.downloader.download_image(image_obj):
+                            self.images_list.append(image_obj)
+                            images_html.append(tostring(image_element))
+            self._remove_images(images_html=images_html, images_list=self.images_list)
+            # images will be inserted back after cleaning the content
+        return self.images_list
 
     def _insert_images(self, article_content: str, images_list: list[ImageModel]) -> str:
         for image in images_list:
@@ -172,12 +167,12 @@ class DefaultArticleFactory(AbstractArticleFactory):
                 pass
         return result_comments
 
-    def _content_cleanup(self, content: str) -> str:
+    def _content_cleanup(self, content: bytes) -> bytes:
         """This  function removes from downloaded content unwanted patterns - like ads, etc."""
         if self.patterns:
             for pattern in self.patterns.content_cleanup:
                 if pattern.regex:
-                    content = re.sub(pattern.regex, "", content)
+                    content = re.sub(pattern.regex, b"", content)
         return content
 
     def _content_cleanup_xpath(self):
