@@ -213,24 +213,24 @@ class Book:
         ebook.add_item(nav_css)
 
     def _include_images(self):
-        images_included = []
+        images_included = set()
         if self.configuration.include_images:
             for image_number, image in enumerate(self.book_data.images, start=1):
                 if (
                     image
-                    and image not in images_included
-                    and os.path.isfile(os.path.join(self.book_data.dirs.images, image.hash))
+                    and image.hash not in images_included
+                    and os.path.isfile(os.path.join(self.book_data.dirs.images, image.file_name))
                 ):
-                    with open(os.path.join(self.book_data.dirs.images, image.hash), "rb") as f:
+                    with open(os.path.join(self.book_data.dirs.images, image.file_name), "rb") as f:
                         image_content = f.read()
                     epub_img = EpubItem(
                         uid=f"img{image_number}",
-                        file_name="images/" + image.hash,
+                        file_name="images/" + image.file_name,
                         media_type="image/jpeg",
                         content=image_content,
                     )
                     self.book.add_item(epub_img)
-                    images_included.append(image)
+                    images_included.add(image.hash)
 
     def _update_start_end_date(self, articles: list[ArticleModel]):
         self.start = self.end = None

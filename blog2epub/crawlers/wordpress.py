@@ -48,11 +48,7 @@ class WordpressCrawler(DefaultCrawler):
                     art.get_images()
                 else:
                     art.html = self.downloader.get_content(art.url)
-                    # art.process()
-                # for category in item.categories:
-                #     art.tags.append(category.term)
                 self.articles.append(art.process())
-                # self._add_tags(art.tags)
                 if self.configuration.limit and len(self.articles) >= int(self.configuration.limit):
                     next_page = None
                     break

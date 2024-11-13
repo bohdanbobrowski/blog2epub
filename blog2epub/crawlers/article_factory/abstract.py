@@ -5,7 +5,7 @@ from lxml.html.soupparser import fromstring
 
 from blog2epub.common.downloader import Downloader
 from blog2epub.common.interfaces import EmptyInterface
-from blog2epub.models.book import ArticleModel, DirModel
+from blog2epub.models.book import ArticleModel, DirModel, ImageModel
 from blog2epub.models.content_patterns import ContentPatterns
 
 
@@ -31,6 +31,7 @@ class AbstractArticleFactory(ABC):
         self.title: Optional[str] = None
         self.tags: list[str] = []
         self.tree = fromstring("<div></div>")
+        self.images_list = [ImageModel]
         self.comments = ""  # TODO: should be a list in the future
 
     @abstractmethod

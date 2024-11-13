@@ -75,7 +75,8 @@ class DefaultArticleFactory(AbstractArticleFactory):
                         images_list.append(image_obj)
                         images_html.append(tostring(image_element))
         self._remove_images(images_html=images_html, images_list=images_list)
-        self._insert_images(images_list=images_list)
+        # images will be inserted back after cleaning the content
+        self.images_list = images_list
         return images_list
 
     def set_content(self, content):
@@ -83,7 +84,7 @@ class DefaultArticleFactory(AbstractArticleFactory):
         self.html = content
         self.tree = fromstring(self.html)
 
-    def _insert_images(self, images_list: list[ImageModel]):
+    def _insert_images(self, article_content: str, images_list: list[ImageModel]) -> str:
         for image in images_list:
             image_html = (
                 '<table align="center" cellpadding="0" cellspacing="0" class="tr-caption-container" '
@@ -96,7 +97,8 @@ class DefaultArticleFactory(AbstractArticleFactory):
             if image.description:
                 image_html += f'<tr><td class="tr-caption" style="text-align: center;">{image.description}</td></tr>'
             image_html += "</tbody></table>"
-            self.html = self.html.replace(f"#blog2epubimage#{image.hash}#".encode(), image_html.encode())
+            article_content = article_content.replace(f"#blog2epubimage#{image.hash}#", image_html)
+        return article_content
 
     def get_content(self) -> str:
         content = ""
@@ -129,6 +131,7 @@ class DefaultArticleFactory(AbstractArticleFactory):
                         content = re.sub(r"</i>[\s]*<i>", "", content)
                         content = re.sub(r"</b>[\s]*<b>", "", content)
                 if content:
+                    content = self._insert_images(content, self.images_list)
                     return content
         return content
 

@@ -14,6 +14,7 @@ def mock_configuration() -> ConfigurationModel:
     return ConfigurationModel(
         destination_folder=tempfile.gettempdir(),
         limit="2",
+        include_images=True,
     )
 
 
