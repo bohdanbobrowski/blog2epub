@@ -14,7 +14,8 @@ class ZeissIkonVEBArticleFactory(DefaultArticleFactory):
     def get_title(self) -> Optional[str]:
         try:
             title = super().get_title()
-            return title.split("|")[0]
+            if title:
+                return title.split("|")[0]
         except IndexError:
             pass
         return None

@@ -79,7 +79,7 @@ class Downloader:
             return True
         return False
 
-    def file_download(self, url: str, filepath: str) -> Optional[str]:
+    def file_download(self, url: str, filepath: str) -> Optional[bytes]:
         if self._is_url_in_ignored(url) or self._is_url_in_skipped(url):
             return None
         prepare_directories(self.dirs)
@@ -88,10 +88,8 @@ class Downloader:
         except requests.exceptions.ConnectionError:
             return None
         self.cookies = response.cookies
-        data = response.content
-        contents = data.decode("utf-8")
-        self.file_write(contents, filepath)
-        return contents
+        self.file_write(response.content, filepath)
+        return response.content
 
     @staticmethod
     def check_interstitial(contents: bytes | str):
@@ -102,7 +100,7 @@ class Downloader:
             return interstitial[0]
         return False
 
-    def get_content(self, url) -> bytes:
+    def get_content(self, url) -> Optional[bytes]:
         # TODO: This needs refactor!
         filepath = self.get_filepath(url)
         contents = None

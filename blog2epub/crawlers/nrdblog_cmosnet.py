@@ -1,4 +1,4 @@
-from blog2epub.crawlers import AbstractCrawler
+from blog2epub.crawlers import DefaultCrawler
 from blog2epub.crawlers.article_factory.default import DefaultArticleFactory
 from blog2epub.models.book import BookModel
 
@@ -6,7 +6,8 @@ from blog2epub.models.book import BookModel
 class NrdblogCmosEuArticleFactory(DefaultArticleFactory):
     pass
 
-class NrdblogCmosEuCrawler(AbstractCrawler):
+
+class NrdblogCmosEuCrawler(DefaultCrawler):
     """TODO: https://nrdblog.cmosnet.eu"""
 
     def __init__(self, **kwargs):

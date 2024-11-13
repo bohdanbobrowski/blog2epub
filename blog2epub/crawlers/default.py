@@ -134,7 +134,9 @@ class DefaultCrawler(AbstractCrawler):
     def get_date(str_date):
         return re.sub(r"[^\,]*, ", "", str_date)
 
-    def _get_blog_language(self, content) -> str:
+    def _get_blog_language(self, content: bytes | str) -> str:
+        if isinstance(content, bytes):
+            content = content.decode("utf-8")
         regex_patterns = [
             r"'lang':[\s]*'([a-z^']+)'",
             r"lang=['\"]([a-z]+)['\"]",
@@ -150,7 +152,7 @@ class DefaultCrawler(AbstractCrawler):
         if isinstance(content, bytes):
             content = content.decode("utf-8")
         if re.search("<title>([^>^<]*)</title>", content):
-            return re.search("<title>([^>^<]*)</title>", content).group(1).strip()
+            return re.search("<title>([^>^<]*)</title>", content).group(1).strip()  # type: ignore
         return ""
 
     def _get_blog_description(self, tree) -> Optional[str]:
@@ -171,7 +173,7 @@ class DefaultCrawler(AbstractCrawler):
     def _get_atom_content(self) -> bool:
         """Try to load atom"""
         atom_content = self.downloader.get_content(self.url + "/feeds/posts/default")
-        self.atom_feed = atoma.parse_atom_bytes(bytes(atom_content, encoding="utf-8"))
+        self.atom_feed = atoma.parse_atom_bytes(atom_content)
         return True
 
     def _add_tags(self, tags) -> None:
@@ -226,8 +228,8 @@ class DefaultCrawler(AbstractCrawler):
     def _get_pages_urls(self, sitemap_url: str) -> list[str]:
         sitemap = requests.get(sitemap_url)
         sitemap_pages = []
-        for sitemap_element in etree.fromstring(sitemap.content):  # type: ignore
-            sitemap_element_children = sitemap_element.getchildren()
+        for sitemap_element in etree.fromstring(sitemap.content):
+            sitemap_element_children = sitemap_element.getchildren()  # type: ignore
             if sitemap_element_children:
                 sitemap_pages.append(sitemap_element_children[0].text)  # type: ignore
         sub_sitemaps, pages = self._check_for_sub_sitemaps(sitemap_pages)
