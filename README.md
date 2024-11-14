@@ -125,10 +125,10 @@ Before you start, you'll need to install buildozer following this [installation 
 ### v1.5.0
 - [X] integration testing
 - [X] increase unit test coverage
-- [ ] blog authorization support
 - [X] crawlers refactor
 - [X] add more crawlers
 - [X] cli interface refactor
+- [X] greek alphabet support 
 
 
 [&raquo; Complete Change Log here &laquo;](https://github.com/bohdanbobrowski/blog2epub/blob/master/CHANGELOG.md)
