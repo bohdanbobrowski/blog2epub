@@ -73,7 +73,10 @@ class DefaultArticleFactory(AbstractArticleFactory):
                 elif pattern.xpath:
                     images_in_pattern = self.tree.xpath(pattern.xpath)
                     for image_element in images_in_pattern:
-                        image_url = image_element.xpath("@src")[0]
+                        try:
+                            image_url = image_element.xpath("@src")[0]
+                        except IndexError:
+                            break
                         try:
                             image_description = image_element.xpath("@alt")[0]
                         except IndexError:
@@ -155,14 +158,14 @@ class DefaultArticleFactory(AbstractArticleFactory):
         headers = self.tree.xpath('//div[@id="comments"]/h4/text()')
         result_comments = ""
         if len(headers) == 1:
-            return_comments = "<hr/><h3>" + headers[0] + "</h3>"
+            result_comments = "<hr/><h3>" + headers[0] + "</h3>"
         comments_in_article = self.tree.xpath('//div[@class="comment-block"]//text()')
         if comments_in_article:
             tag = "h4"
             for c in comments_in_article:
                 c = c.strip()
                 if c not in ("Odpowiedz", "Usuń"):
-                    return_comments = return_comments + "<" + tag + ">" + c + "</" + tag + ">"
+                    result_comments += "<" + tag + ">" + c + "</" + tag + ">"
                     if tag == "h4":
                         tag = "p"
                 if c == "Usuń":
@@ -174,8 +177,8 @@ class DefaultArticleFactory(AbstractArticleFactory):
                 for x in range(0, len(authors) + 1):
                     a = "".join(authors[x].xpath(".//text()")).strip().replace("\n", " ")
                     c = "".join(comments[x].xpath(".//text()")).strip()
-                    return_comments += f"<h4>{a}</h4>"
-                    return_comments += f"<p>{c}</p>"
+                    result_comments += f"<h4>{a}</h4>"
+                    result_comments += f"<p>{c}</p>"
             except IndexError:
                 pass
         return result_comments

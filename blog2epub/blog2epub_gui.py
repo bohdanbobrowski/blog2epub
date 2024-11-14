@@ -678,12 +678,15 @@ class Blog2EpubKivy(MDApp):
         else:
             self.icon = asset_path("blog2epub.svg")
 
+    @property
+    def name(self):
+        """This is workaround for creating user dir named  "../blog2epub" instead "/blog2epubkivy"."""
+        self._app_name = "blog2epub"
+        return self._app_name
+
     def build(self):
         global USER_DATA_DIR
-        if platform != "android":
-            USER_DATA_DIR = self.user_data_dir[:-4]
-        else:
-            USER_DATA_DIR = self.user_data_dir
+        USER_DATA_DIR = self.user_data_dir
         self.theme_cls.theme_style = "Light"
         self.theme_cls.primary_palette = "Teal"
         Window.resizable = False

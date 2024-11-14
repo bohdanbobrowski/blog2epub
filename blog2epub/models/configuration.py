@@ -14,6 +14,7 @@ class ConfigurationModel(BaseModel):
     skip: str = ""
     history: list[str] = []
     email: str = ""
+    version: str = ""
 
     def __init__(self, **kwargs) -> None:
         super().__init__(**kwargs)

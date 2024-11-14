@@ -1,13 +1,15 @@
 #!/usr/bin/env python3
 # -*- coding : utf-8 -*-
 import re
-from typing import Optional, Tuple
+from typing import Tuple
 from urllib import robotparser
+from urllib.error import URLError
 from urllib.parse import urljoin
 
 import atoma  # type: ignore
 import requests
 from lxml import etree
+from lxml.etree import XMLSyntaxError
 from lxml.html.soupparser import fromstring
 
 from blog2epub.common.downloader import Downloader
@@ -51,6 +53,9 @@ class DefaultCrawler(AbstractCrawler):
                 ),
                 Pattern(
                     xpath='//*[contains(@class, "entry-title")]/text()',
+                ),
+                Pattern(
+                    xpath='//*[contains(@class, "entry-title")]/a/text()',
                 ),
                 Pattern(
                     xpath='//*[contains(@class, "post-title")]/text()',
@@ -155,12 +160,12 @@ class DefaultCrawler(AbstractCrawler):
             return re.search("<title>([^>^<]*)</title>", content).group(1).strip()  # type: ignore
         return ""
 
-    def _get_blog_description(self, tree) -> Optional[str]:
+    def _get_blog_description(self, tree) -> str:
         description = tree.xpath('//div[@id="header"]/div/div/div/p[@class="description"]/span/text()')
         if 0 in description:
             return description[0]
         else:
-            return None
+            return ""
 
     def _get_header_images(self, tree) -> list[ImageModel]:
         header_images = []
@@ -225,42 +230,100 @@ class DefaultCrawler(AbstractCrawler):
                 pages.append(element)
         return sub_sitemaps, pages
 
-    def _get_pages_urls(self, sitemap_url: str) -> list[str]:
-        sitemap = requests.get(sitemap_url)
-        sitemap_pages = []
-        for sitemap_element in etree.fromstring(sitemap.content):
-            sitemap_element_children = sitemap_element.getchildren()  # type: ignore
-            if sitemap_element_children:
-                sitemap_pages.append(sitemap_element_children[0].text)  # type: ignore
-        sub_sitemaps, pages = self._check_for_sub_sitemaps(sitemap_pages)
-        for sub_sitemap in sub_sitemaps:
-            if (
-                re.search("sitemap.xml\\?page=[0-9]+$", sub_sitemap)
-                or re.search("wp-sitemap-posts-(post|page)-[0-9]+.xml$", sub_sitemap)
-                or re.search("(post|page)-sitemap[0-9-]*.xml$", sub_sitemap)
-            ):
-                pages += self._get_pages_from_sub_sitemap(sub_sitemap)
-        self.interface.print(f"Found {len(pages)} articles to crawl.")
+    def _get_pages_from_blog_archive_widget(self) -> list[str] | None:
+        """Addressing issue: https://github.com/bohdanbobrowski/blog2epub/issues/18"""
+        page_content = self.downloader.get_content(self.url)
+        pages = None
+        if page_content is not None:
+            page_tree = etree.fromstring(page_content)
+            try:
+                meta_url = str(page_tree.xpath("//meta/@content")[0])  # type: ignore
+                meta_url = urljoin(self.url, meta_url.split("url=")[-1].strip())
+                page_content = self.downloader.get_content(meta_url)
+                if page_content:
+                    try:
+                        page_tree = etree.fromstring(page_content)
+                    except XMLSyntaxError:
+                        page_content = self._fix_html_tags(page_content)
+                        page_tree = etree.fromstring(page_content)
+                    pages = []
+                    for _key, page in enumerate(page_tree.xpath('//div[contains(@class, "BlogArchive")]//a/@href')):  # type: ignore
+                        if str(page).startswith(".."):
+                            page_to_add = urljoin(self.url, str(page).lstrip("."))
+                        else:
+                            page_to_add = meta_url.replace("index.html", str(page))
+                        if page_to_add not in pages:
+                            pages.append(page_to_add)
+            except IndexError:
+                pass
         return pages
 
-    def _set_root_title(self):
+    def _fix_html_tags(self, content: bytes) -> bytes:
+        str_content = content.decode()
+        fixed_content = re.sub(r"([a-zA-Z0-9\-]+)=([a-zA-Z0-9\.\/\-\:#_]+)([>\s])", r'\1="\2"\3', str_content)  # type: ignore
+        fixed_content = re.sub("<meta content=([^>]+)>", r"<meta content=\1 />", fixed_content)
+        fixed_content = re.sub("<link href=([^>]+)>", r"<link href=\1 />", fixed_content)
+        fixed_content = re.sub("<img ([^>]+)>", r"<img \1 />", fixed_content)
+        fixed_content = fixed_content.replace("//>", "/>")
+        fixed_content = fixed_content.replace("<br>", "<br/>")
+        return fixed_content.encode()
+
+    def _get_pages_urls(self, sitemap_url: str) -> list[str] | None:
+        sitemap = requests.get(sitemap_url)
+        pages = None
+        if sitemap.status_code == 404:
+            pages = self._get_pages_from_blog_archive_widget()
+        if sitemap.status_code == 200:
+            sitemap_pages = []
+            for sitemap_element in etree.fromstring(sitemap.content):
+                sitemap_element_children = sitemap_element.getchildren()  # type: ignore
+                if sitemap_element_children:
+                    sitemap_pages.append(sitemap_element_children[0].text)  # type: ignore
+            sub_sitemaps, pages = self._check_for_sub_sitemaps(sitemap_pages)
+            for sub_sitemap in sub_sitemaps:
+                if (
+                    re.search("sitemap.xml\\?page=[0-9]+$", sub_sitemap)
+                    or re.search("wp-sitemap-posts-(post|page)-[0-9]+.xml$", sub_sitemap)
+                    or re.search("(post|page)-sitemap[0-9-]*.xml$", sub_sitemap)
+                ):
+                    pages += self._get_pages_from_sub_sitemap(sub_sitemap)
+        if pages is not None:
+            self.interface.print(f"Found {len(pages)} articles to crawl.")
+            try:
+                if int(self.configuration.skip) > 0:
+                    pages = pages[int(self.configuration.skip) :]
+                    self.interface.print(f"Skipping {self.configuration.skip} of them.")
+            except ValueError:
+                pass
+        return pages
+
+    def _set_root_title(self, url: str | None = None):
+        if not url:
+            url = self.url
         if not self.title:
-            html_content = self.downloader.get_content(self.url)
-            tree = fromstring(html_content)
-            self.language = self._get_blog_language(html_content)
-            self.images = self.images + self._get_header_images(tree)
-            self.description = self._get_blog_description(tree)
-            self.title = self._get_blog_title(html_content)
+            html_content = self.downloader.get_content(url)
+            if html_content is not None:
+                tree = fromstring(html_content)
+                self.language = self._get_blog_language(html_content)
+                self.images = self.images + self._get_header_images(tree)
+                self.description = self._get_blog_description(tree)
+                self.title = self._get_blog_title(html_content)
 
     def crawl(self):
         self.interface.print(f"Starting {self.name}")
         self.active = True
-        sitemap_url = self._get_sitemap_url()
-        blog_pages = self._get_pages_urls(sitemap_url)
+        blog_pages = None
+        try:
+            sitemap_url = self._get_sitemap_url()
+            blog_pages = self._get_pages_urls(sitemap_url)
+        except URLError:
+            self.cancelled = True
+            self.interface.print(f"Networking error: {self.url}")
         if blog_pages:
+            self._set_root_title()
             for page_url in blog_pages:
                 html_content = self.downloader.get_content(page_url)
-                self._set_root_title()
+                self._set_root_title(page_url)
                 art_factory = self.article_factory_class(
                     url=page_url,
                     html_content=html_content,

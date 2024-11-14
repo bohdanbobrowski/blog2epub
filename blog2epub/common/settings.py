@@ -3,6 +3,8 @@ from typing import Optional
 
 import yaml
 
+from blog2epub.common.crawler import prepare_port_and_url
+from blog2epub.common.globals import VERSION
 from blog2epub.models.configuration import ConfigurationModel
 
 
@@ -17,6 +19,14 @@ class Blog2EpubSettings:
         if not os.path.exists(self.path):
             os.makedirs(self.path)
 
+    def _normalise_history(self, history: list[str]) -> list[str]:
+        output_history = []
+        for item in history:
+            port, url = prepare_port_and_url(item)
+            output_history.append(url)
+        output_history = list(set(output_history))
+        return output_history
+
     def _read(self) -> ConfigurationModel:
         data = ConfigurationModel()
         if not os.path.isfile(self.settings_file):
@@ -24,6 +34,9 @@ class Blog2EpubSettings:
         else:
             with open(self.settings_file, "rb") as stream:
                 data_in_file = yaml.safe_load(stream)
+                if "version" not in data_in_file:
+                    data_in_file["version"] = VERSION
+                    data_in_file["history"] = self._normalise_history(data_in_file["history"])
             if data_in_file:
                 data = ConfigurationModel(**data_in_file)
             else:
