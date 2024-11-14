@@ -52,7 +52,7 @@ from blog2epub.common.interfaces import EmptyInterface
 from blog2epub.common.settings import Blog2EpubSettings
 
 USER_DATA_DIR = "."  # TODO: Make it more elegant. This is just workaround.
-UI_FONT_NAME = asset_path("MartianMono-Regular.ttf")
+UI_FONT_NAME = asset_path("LiberationMono-Regular.ttf")
 
 now = datetime.now()
 date_time = now.strftime("%Y-%m-%d[%H.%M.%S]")

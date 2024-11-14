@@ -25,6 +25,7 @@ example_blogs = [
     "https://www.returnofthecaferacers.com/",
     "https://www.szarmant.pl/",
     "https://vowe.net/",
+    "http://archaia-ellada.blogspot.com",
 ]
 
 

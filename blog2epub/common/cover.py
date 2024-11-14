@@ -11,7 +11,7 @@ from blog2epub.models.book import DirModel, ImageModel
 
 TITLE_FONT_NAME = asset_path("Alegreya-Regular.ttf")
 SUBTITLE_FONT_NAME = asset_path("Alegreya-Italic.ttf")
-GENERATOR_FONT_NAME = asset_path("MartianMono-Regular.ttf")
+GENERATOR_FONT_NAME = asset_path("LiberationMono-Regular.ttf")
 
 
 class Cover:
