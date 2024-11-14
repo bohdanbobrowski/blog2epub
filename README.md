@@ -71,10 +71,10 @@ Before you start, you'll need to install buildozer following this [installation 
 ### Android (Google Pixel 6a)
 
 <p align="center">
-<img src="assets/v1.4.0/blog2pub_android_pixel6a_screenshot1.png"  width="200px" />
-<img src="assets/v1.4.0/blog2pub_android_pixel6a_screenshot2.png"  width="200px" />
-<img src="assets/v1.4.0/blog2pub_android_pixel6a_screenshot3.png"  width="200px" />
-<img src="assets/v1.4.0/blog2pub_android_pixel6a_screenshot4.png"  width="200px" />
+<img src="assets/v1.5.0/blog2pub_android_pixel6a_screenshot1.png"  width="200px" />
+<img src="assets/v1.5.0/blog2pub_android_pixel6a_screenshot2.png"  width="200px" />
+<img src="assets/v1.5.0/blog2pub_android_pixel6a_screenshot3.png"  width="200px" />
+<img src="assets/v1.5.0/blog2pub_android_pixel6a_screenshot4.png"  width="200px" />
 </p>
 
 ### Windows (11)
