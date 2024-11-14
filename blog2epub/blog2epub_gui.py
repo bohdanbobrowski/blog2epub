@@ -365,7 +365,7 @@ class Blog2EpubKivyWindow(MDBoxLayout):
         self.url_entry = UrlTextInput(
             hint_text="Url:",
             text=self.blog2epub_settings.data.url,
-            helper_text=None if platform == "android" else "Press up/down to browse in url history",
+            helper_text="" if platform == "android" else "Press up/down to browse in url history",
             url_history=self.blog2epub_settings.data.history,
             icon_right="link-variant",
         )
