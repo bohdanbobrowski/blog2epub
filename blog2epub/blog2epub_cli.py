@@ -1,6 +1,9 @@
 import argparse
 
+from blog2epub import Blog2Epub
+from blog2epub.common.book import Book
 from blog2epub.common.interfaces import EmptyInterface
+from blog2epub.models.configuration import ConfigurationModel
 
 
 class CliInterface(EmptyInterface):
@@ -18,25 +21,32 @@ def main():
     )
     parser.add_argument("url", help="url of blog to download")
     parser.add_argument("-l", "--limit", type=int, default=None, help="articles limit")
-    parser.add_argument("-s", "--skipped", type=int, default=None, help="number of skipped articles")
+    parser.add_argument("-s", "--skip", type=int, default=None, help="number of skipped articles")
     parser.add_argument("-o", "--output", help="output epub file name")
     parser.add_argument("-d", "--debug", action="store_true", help="turn on debug")
     args = parser.parse_args()
-
-    print(args)
-
-    # blog2epub = Blog2Epub()
-    # blog2epub.download()
-    # book_data = blog2epub.crawler.get_book_data()
-    # ebook = Book(
-    #     book_data=book_data,
-    #     configuration=ConfigurationModel(
-    #         language=blog2epub.crawler.language,
-    #     ),
-    #     interface=params["interface"],
-    #     destination_folder=str("."),
-    # )
-    # ebook.save(book_data.articles)
+    configuration = ConfigurationModel(
+        url=args.url,
+        limit=str(args.limit),
+        skip=str(args.skip),
+        filename=args.output,
+    )
+    blog2epub = Blog2Epub(
+        url=args.url,
+        configuration=configuration,
+        cache_folder=".",
+        interface=CliInterface(),
+    )
+    configuration.language = blog2epub.crawler.language
+    blog2epub.download()
+    ebook = Book(
+        book_data=blog2epub.crawler.get_book_data(),
+        configuration=configuration,
+        destination_folder=".",
+        interface=CliInterface(),
+        platform_name="CLI",
+    )
+    ebook.save(file_name=args.output)
 
 
 if __name__ == "__main__":
