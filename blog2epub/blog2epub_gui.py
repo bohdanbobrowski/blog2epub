@@ -367,6 +367,7 @@ class Blog2EpubKivyWindow(MDBoxLayout):
             text=self.blog2epub_settings.data.url,
             helper_text=None if platform == "android" else "Press up/down to browse in url history",
             url_history=self.blog2epub_settings.data.history,
+            icon_right="link-variant",
         )
         url_row.add_widget(self.url_entry)
         return url_row
@@ -378,7 +379,7 @@ class Blog2EpubKivyWindow(MDBoxLayout):
             text=self.blog2epub_settings.data.limit,
             input_type="number",
             hint_text="Limit:",
-            # icon_right="numeric",
+            icon_right="numeric",
         )
         self.limit_entry.bind(text=self._validate_limit)
         params_row.add_widget(self.limit_entry)
@@ -387,7 +388,7 @@ class Blog2EpubKivyWindow(MDBoxLayout):
             text=self.blog2epub_settings.data.skip,
             input_type="number",
             hint_text="Skip:",
-            # icon_right="numeric",
+            icon_right="numeric",
         )
         self.skip_entry.bind(text=self._validate_skip)
         params_row.add_widget(self.skip_entry)
