@@ -37,7 +37,7 @@ version.filename = %(source.dir)s/blog2epub/common/globals.py
 
 # (list) Application requirements
 # comma separated e.g. requirements = sqlite3,kivy
-requirements = python3,kivy==2.3.0,kivymd==1.2.0,pydantic,pydantic_core,lxml==5.3.0,attrs,pillow,click,html5lib,beautifulsoup4,ebooklib,python-dateutil,atoma,fake-useragent,pyyaml,plyer,defusedxml,pyjnius,imagesize,strip-tags,filetype
+requirements = python3,kivy==2.3.0,kivymd==1.2.0,pydantic,pydantic_core,lxml==5.3.0,attrs,pillow,click,soupsieve,webencodings,html5lib,beautifulsoup4,ebooklib,python-dateutil,atoma,fake-useragent,pyyaml,plyer,defusedxml,pyjnius,imagesize,strip-tags,filetype
 
 # (str) Custom source folders for requirements
 # Sets custom source for any requirements with recipes

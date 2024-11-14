@@ -3,9 +3,7 @@ import re
 from datetime import datetime
 from typing import Optional
 
-import bs4
 import dateutil
-import html5lib
 from lxml.etree import tostring
 from lxml.html.soupparser import fromstring
 from strip_tags import strip_tags  # type: ignore
@@ -127,11 +125,6 @@ class DefaultArticleFactory(AbstractArticleFactory):
                         content_html = re.sub(r'<a name=["\']more["\']/>', "", content_html)
                         content_html = re.sub(r"<div[^>]*>", "<p>", content_html)
                         content_html = content_html.replace("</div>", "")
-                        self.interface.print(f"html5lib {html5lib.__version__}")
-                        self.interface.print(f"BeautifulSoup {bs4.__version__}")
-                        soup = bs4.BeautifulSoup(content_html, "html5lib", multi_valued_attributes=False)
-                        if soup:
-                            pass
                         content = strip_tags(
                             content_html,
                             minify=True,

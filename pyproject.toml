@@ -28,6 +28,8 @@ imagesize = "^1.4.1"
 filetype = "^1.2.0"
 html5lib = "^1.1"
 click = "^8.1.7"
+webencodings = "^0.5.1"
+soupsieve = "^2.6"
 
 [tool.poetry.group.docs.dependencies]
 mkdocs = "^1.6.0"
