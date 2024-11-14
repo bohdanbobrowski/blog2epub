@@ -362,12 +362,10 @@ class Blog2EpubKivyWindow(MDBoxLayout):
             orientation="horizontal",
             size_hint=(1, 0.12),
         )
-
         self.url_entry = UrlTextInput(
             hint_text="Url:",
             text=self.blog2epub_settings.data.url,
-            helper_text="Press up/down to browse in url history",
-            # icon_right="clipboard-flow",
+            helper_text=None if platform == "android" else "Press up/down to browse in url history",
             url_history=self.blog2epub_settings.data.history,
         )
         url_row.add_widget(self.url_entry)
