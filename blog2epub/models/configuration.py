@@ -4,6 +4,7 @@ from pathlib import Path
 from pydantic import BaseModel
 
 example_blogs = [
+    "http://archaia-ellada.blogspot.com",
     "http://historicaltidbits.blogspot.com/",
     "http://starybezpiek.blogspot.com/",
     "https://19thcentury.wordpress.com/",
@@ -18,14 +19,13 @@ example_blogs = [
     "https://thevictoriancyclist.wordpress.com/",
     "https://velosov.blogspot.com",
     "https://vintagebicycle.wordpress.com/",
+    "https://vowe.net/",
     "https://www.blog.homebrewing.pl",
     "https://www.historyoftheancientworld.com/",
     "https://www.mikeanderson.biz/",
     "https://www.nomadicmatt.com/",
     "https://www.returnofthecaferacers.com/",
     "https://www.szarmant.pl/",
-    "https://vowe.net/",
-    "http://archaia-ellada.blogspot.com",
 ]
 
 
