@@ -20,6 +20,7 @@ class Blog2EpubSettings:
             os.makedirs(self.path)
 
     def _normalise_history(self, history: list[str]) -> list[str]:
+        """Used only when loading configs older than v.1.5.0"""
         output_history = []
         for item in history:
             port, url = prepare_port_and_url(item)
