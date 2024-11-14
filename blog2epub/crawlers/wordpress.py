@@ -14,7 +14,12 @@ class WordpressCrawler(DefaultCrawler):
         super().__init__(**kwargs)
         self.name = "wordpress crawler"
         self.article_factory_class = WordpressArticleFactory
-        self.patterns.images = [
+        self.patterns.content += [
+            Pattern(xpath='//div[contains(@class,"type-post")]'),
+            Pattern(xpath="//div[contains(concat(' ',normalize-space(@class),' '),'type-post')]"),
+        ]
+        self.patterns.images += [
+            Pattern(xpath='//div[contains(@class,"type-post")]//img'),
             Pattern(xpath='//img[contains(@class, "size-full")]'),
             Pattern(xpath='//figure[contains(@class, "wp-block-image")]//img'),
             Pattern(xpath='//div[contains(@class, "wp-block-image")]//img'),
@@ -23,4 +28,7 @@ class WordpressCrawler(DefaultCrawler):
                 regex=r'<table[^>]*><tbody>[\s]*<tr><td[^>]*><a href="([^"]*)"[^>]*><img[^>]*></a></td></tr>[\s]*<tr><td class="tr-caption" style="[^"]*">([^<]*)'
             ),
         ]
-        # self.patterns.content = [Pattern(xpath="//div[contains(concat(' ',normalize-space(@class),' '),'type-post')]")]
+        self.patterns.title += [
+            Pattern(xpath="//*[contains(@class, 'entry-title')]"),
+        ]
+        self.patterns.content_cleanup += []

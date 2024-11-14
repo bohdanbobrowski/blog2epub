@@ -119,6 +119,8 @@ class DefaultArticleFactory(AbstractArticleFactory):
                     content_element = self.tree.xpath(pattern.xpath)
                     if content_element:
                         content_html = tostring(content_element[0]).decode("utf8")
+                        content_html = self._content_cleanup(content_html)
+                        content_html = self._content_cleanup_xpath(content_html)
                         content_html = content_html.replace("\n", "")
                         content_html = re.sub(r'<a name=["\']more["\']/>', "", content_html)
                         content_html = re.sub(r"<div[^>]*>", "<p>", content_html)
@@ -137,6 +139,7 @@ class DefaultArticleFactory(AbstractArticleFactory):
                                 "ol",
                                 "li",
                                 "br",
+                                "pre",
                             ],
                         )
                         content = re.sub(r"</i>[\s]*<i>", "", content)
@@ -183,7 +186,7 @@ class DefaultArticleFactory(AbstractArticleFactory):
                 pass
         return result_comments
 
-    def _content_cleanup(self, content: str | bytes) -> bytes:
+    def _content_cleanup(self, content: str | bytes) -> str:
         """This  function removes from downloaded content unwanted patterns - like ads, etc."""
         if isinstance(content, bytes):
             content = content.decode("utf8")
@@ -191,19 +194,36 @@ class DefaultArticleFactory(AbstractArticleFactory):
             for pattern in self.patterns.content_cleanup:
                 if pattern.regex:
                     content = re.sub(pattern.regex, "", content)
-        return content.encode("utf8")
-
-    def _content_cleanup_xpath(self):
-        if self.patterns:
-            for pattern in self.patterns.content_cleanup:
                 if pattern.xpath:
                     for bad in self.tree.xpath(pattern.xpath):
                         bad.getparent().remove(bad)
+        return content
+
+    def _content_cleanup_xpath(self, input_content: str | bytes) -> str:
+        """This  function removes from downloaded content unwanted patterns - but using xpath"""
+        xpath_patterns = []
+        if self.patterns:
+            for pattern in self.patterns.content_cleanup:
+                if pattern.xpath:
+                    xpath_patterns.append(pattern)
+        if xpath_patterns:
+            if isinstance(input_content, str):
+                content_tree = fromstring(input_content.encode())
+            else:
+                content_tree = fromstring(input_content)
+            if self.patterns:
+                for pattern in self.patterns.content_cleanup:
+                    if pattern.xpath:
+                        for bad in content_tree.xpath(pattern.xpath):
+                            bad.getparent().remove(bad)
+            return tostring(content_tree).decode()
+        if isinstance(input_content, bytes):
+            return input_content.decode()
+        else:
+            return input_content
 
     def process(self) -> ArticleModel:
-        self.html = self._content_cleanup(self.html)
         self.tree = fromstring(self.html)
-        self._content_cleanup_xpath()
         return ArticleModel(
             url=self.url,
             title=self.get_title(),

@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding : utf-8 -*-
+import html
 import re
 from typing import Tuple
 from urllib import robotparser
@@ -35,6 +36,7 @@ class DefaultCrawler(AbstractCrawler):
                 Pattern(xpath='//div[contains(@class, "entry-content")]'),
                 Pattern(xpath='//section[contains(@class, "entry-content")]'),
                 Pattern(xpath='//div[@id="content"]'),
+                Pattern(xpath="//article"),
             ],
             content_cleanup=[
                 Pattern(
@@ -46,11 +48,14 @@ class DefaultCrawler(AbstractCrawler):
                 Pattern(
                     xpath='//div[@class="post-footer"]',
                 ),
+                Pattern(
+                    xpath="//*[contains(@class, 'entry-title')]",
+                ),
+                Pattern(
+                    xpath="//*[contains(@class, ' post-meta')]",
+                ),
             ],
             title=[
-                Pattern(
-                    xpath='//meta[@property="og:title"]/@content',
-                ),
                 Pattern(
                     xpath='//*[contains(@class, "entry-title")]/text()',
                 ),
@@ -62,6 +67,9 @@ class DefaultCrawler(AbstractCrawler):
                 ),
                 Pattern(
                     xpath='//h1[contains(@class, "wp-block-post-title")]/text()',
+                ),
+                Pattern(
+                    xpath='//meta[@property="og:title"]/@content',
                 ),
             ],
             date=[
@@ -101,6 +109,9 @@ class DefaultCrawler(AbstractCrawler):
                 ),
                 Pattern(
                     xpath='//div[@id="content"]//img',
+                ),
+                Pattern(
+                    xpath="//article//img",
                 ),
             ],
         )
@@ -154,11 +165,15 @@ class DefaultCrawler(AbstractCrawler):
         return "en"
 
     def _get_blog_title(self, content: str | bytes) -> str:
+        title = ""
         if isinstance(content, bytes):
             content = content.decode("utf-8")
         if re.search("<title>([^>^<]*)</title>", content):
-            return re.search("<title>([^>^<]*)</title>", content).group(1).strip()  # type: ignore
-        return ""
+            title = re.search("<title>([^>^<]*)</title>", content).group(1).strip()  # type: ignore
+            if len(title) > 60:
+                if title.find("&#8211;") > -1:
+                    title = title.split("&#8211;")[0].strip()
+        return html.unescape(title)
 
     def _get_blog_description(self, tree) -> str:
         description = tree.xpath('//div[@id="header"]/div/div/div/p[@class="description"]/span/text()')
