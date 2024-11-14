@@ -1,4 +1,5 @@
 import argparse
+import platform
 
 from blog2epub import Blog2Epub
 from blog2epub.common.book import Book
@@ -22,6 +23,7 @@ def main():
     parser.add_argument("url", help="url of blog to download")
     parser.add_argument("-l", "--limit", type=int, default=None, help="articles limit")
     parser.add_argument("-s", "--skip", type=int, default=None, help="number of skipped articles")
+    parser.add_argument("-q", "--quality", type=int, default=40, help="images quality (0-100)")
     parser.add_argument("-o", "--output", help="output epub file name")
     parser.add_argument("-d", "--debug", action="store_true", help="turn on debug")
     args = parser.parse_args()
@@ -29,6 +31,7 @@ def main():
         url=args.url,
         limit=str(args.limit),
         skip=str(args.skip),
+        images_quality=args.quality,
         filename=args.output,
     )
     blog2epub = Blog2Epub(
@@ -44,7 +47,7 @@ def main():
         configuration=configuration,
         destination_folder=".",
         interface=CliInterface(),
-        platform_name="CLI",
+        platform_name=f"CLI {platform.system()} {platform.release()}",
     )
     ebook.save(file_name=args.output)
 

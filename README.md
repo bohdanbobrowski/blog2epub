@@ -97,14 +97,38 @@ Before you start, you'll need to install buildozer following this [installation 
 
 ## CLI
 
-    poetry run blog2epub [blog url] <parameters>
+    blog2epub --help
+    usage: Blog2epub Cli interface [-h] [-l LIMIT] [-s SKIP] [-q QUALITY] [-o OUTPUT] [-d] url
+    
+    Convert blog (blogspot.com, wordpress.com or another based on Wordpress) to epub using CLI or GUI.
+    
+    positional arguments:
+      url                   url of blog to download
+    
+    options:
+      -h, --help            show this help message and exit
+      -l LIMIT, --limit LIMIT
+                            articles limit
+      -s SKIP, --skip SKIP  number of skipped articles
+      -q QUALITY, --quality QUALITY
+                            images quality (0-100)
+      -o OUTPUT, --output OUTPUT
+                            output epub file name
+      -d, --debug           turn on debug
 
-### Parameters
+Example:
 
-    -l/--limit=[x] - limit epub file to x posts
-    -s/--skip=[x] - skip x latest posts
-    -q/--images-quality=[0-100] - included images quality (default is 40)
-    -n/--no-images - don't include images
+    blog2epub starybezpiek.blogspot.com -l=2 -o=example.epub
+    Starting blogger.com crawler
+    Found 54 articles to crawl.
+    Downloading.
+    1. 10 lat kremlowskiej propagandy, czyli RT ujawnia swoje sekrety
+    Downloading.
+    2. "Komunę obaliliśmy, a nadal jest źle. Dlaczego?" Czyli 1984 Orwella właściwie odczytany
+    Locale set as en_US.UTF-8
+    Generating cover (800px*600px) from 1 images.
+    Cover generated: .\starybezpiek.blogspot.com\example.epub.jpg
+    Epub created: .\example.epub
 
 ## Examples
 

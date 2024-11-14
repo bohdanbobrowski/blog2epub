@@ -31,6 +31,7 @@ example_blogs = [
 
 class ConfigurationModel(BaseModel):
     language: str = "en_US.UTF-8"
+    use_cache: bool = False
     destination_folder: str = str(Path.home())
     include_images: bool = True
     images_size: list[int] = [600, 800]
