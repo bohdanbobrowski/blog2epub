@@ -155,7 +155,7 @@ class Downloader:
         img_hash = self.get_urlhash(image_obj.url)
         img_type = os.path.splitext(image_obj.url)[1].lower()
         img_type = img_type.split("?")[0]
-        if img_type not in [".jpeg", ".jpg", ".png", ".bmp", ".gif", ".webp"]:
+        if img_type not in [".jpeg", ".jpg", ".png", ".bmp", ".gif", ".webp", ".heic"]:
             return False
         original_fn = os.path.join(self.dirs.originals, img_hash + "." + img_type)
         resized_fn = os.path.join(self.dirs.images, img_hash + ".jpg")

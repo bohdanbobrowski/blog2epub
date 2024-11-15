@@ -149,10 +149,16 @@ Example:
 ### v1.5.0
 - [X] integration testing
 - [X] increase unit test coverage
+- [X] use sitemaps.xml for scraping
 - [X] crawlers refactor
-- [X] add more crawlers
+  - [X] use data models
+  - [X] more common methods in crawler class
+  - [X] expand crawler abstract
 - [X] cli interface refactor
-- [X] greek alphabet support 
+- [X] greek alphabet support
+- [X] image download and attachment bug solved (ex. modernistyczny-poznan.blogspot.com)
+- [X] improved resistance to http errors
+- [X] dedicated crawler class for zeissikonveb.de
 
 
 [&raquo; Complete Change Log here &laquo;](https://github.com/bohdanbobrowski/blog2epub/blob/master/CHANGELOG.md)

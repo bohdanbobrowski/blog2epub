@@ -1,5 +1,19 @@
 # ChangeLog
 
+### [v1.5.0](https://github.com/bohdanbobrowski/blog2epub/releases/tag/v1.5.0) - ?
+- [X] integration testing
+- [X] increase unit test coverage
+- [X] use sitemaps.xml for scraping
+- [X] crawlers refactor
+  - [X] use data models
+  - [X] more common methods in crawler class
+  - [X] expand crawler abstract
+- [X] cli interface refactor
+- [X] greek alphabet support
+- [X] image download and attachment bug solved (ex. modernistyczny-poznan.blogspot.com)
+- [X] improved resistance to http errors
+- [X] dedicated crawler class for zeissikonveb.de
+
 ### [v1.4.0](https://github.com/bohdanbobrowski/blog2epub/releases/tag/v1.4.0) - 2024-11-01
 - [X] custom destination folder
 - [X] UI improvements (better scaling, more rely on KivyMD default features)
