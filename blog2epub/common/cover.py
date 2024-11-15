@@ -108,7 +108,7 @@ class Cover:
 
     def _split_long_title(self) -> list[str]:
         title = []
-        for char in ["|", "-", ":", " "]:
+        for char in ["|", "-", ":", "–", " "]:
             if self.title.find(char) > -1:
                 title = self.title.split(char)
             if len(title) > 0:

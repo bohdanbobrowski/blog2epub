@@ -113,6 +113,9 @@ class DefaultCrawler(AbstractCrawler):
                 Pattern(
                     xpath="//article//img",
                 ),
+                Pattern(
+                    xpath="//img[contains(@class, 'wp-post-image')]",
+                ),
             ],
         )
         self.downloader = Downloader(
@@ -187,6 +190,7 @@ class DefaultCrawler(AbstractCrawler):
         xpaths = [
             '//*[contains(@class, "wp-block-image")]//img/@src',
             '//div[@id="header"]/div/div/div/p[@class="description"]/span/img/@src',
+            "//img[contains(@class, 'wp-post-image')]/@src",
         ]
         for xpath in xpaths:
             for img in tree.xpath(xpath):
