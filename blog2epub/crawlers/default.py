@@ -184,10 +184,15 @@ class DefaultCrawler(AbstractCrawler):
 
     def _get_header_images(self, tree) -> list[ImageModel]:
         header_images = []
-        for img in tree.xpath('//div[@id="header"]/div/div/div/p[@class="description"]/span/img/@src'):
-            img_obj = ImageModel(url=img)
-            self.downloader.download_image(img_obj)
-            header_images.append(img_obj)
+        xpaths = [
+            '//*[contains(@class, "wp-block-image")]//img/@src',
+            '//div[@id="header"]/div/div/div/p[@class="description"]/span/img/@src',
+        ]
+        for xpath in xpaths:
+            for img in tree.xpath(xpath):
+                img_obj = ImageModel(url=img)
+                if self.downloader.download_image(img_obj):
+                    header_images.append(img_obj)
         return header_images
 
     def _get_atom_content(self) -> bool:
