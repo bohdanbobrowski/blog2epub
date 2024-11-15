@@ -74,16 +74,16 @@ class DefaultCrawler(AbstractCrawler):
             ],
             date=[
                 Pattern(
-                    xpath='//abbr[@itemprop="datePublished"]/@title',
-                ),
-                Pattern(
-                    xpath='//*[@class="date-header"]/span/text()',
-                ),
-                Pattern(
                     xpath='//meta[@property="article:published_time"]/@content',
                 ),
                 Pattern(
                     xpath='//meta[@property="article:modified_time"]/@content',
+                ),
+                Pattern(
+                    xpath='//abbr[@itemprop="datePublished"]/@title',
+                ),
+                Pattern(
+                    xpath='//*[@class="date-header"]/span/text()',
                 ),
                 Pattern(xpath='//time[@property="datetime"]/@content'),
                 Pattern(xpath="//time/@text"),

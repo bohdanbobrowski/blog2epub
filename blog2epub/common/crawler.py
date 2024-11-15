@@ -27,3 +27,11 @@ def prepare_file_name(file_name: str | None, url: str) -> str:
     for x in ["/", ",", "."]:
         result = result.replace(x, "_")
     return result
+
+
+def clever_decode(input: bytes) -> str:
+    """It's not clever at all."""
+    try:
+        return input.decode("utf-8")
+    except UnicodeDecodeError:
+        return input.decode("latin-1")

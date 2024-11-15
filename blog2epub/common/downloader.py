@@ -12,6 +12,7 @@ from imagesize import imagesize  # type: ignore
 from PIL import Image
 from requests.cookies import RequestsCookieJar
 
+from blog2epub.common.crawler import clever_decode
 from blog2epub.common.interfaces import EmptyInterface
 from blog2epub.models.book import DirModel, ImageModel
 
@@ -94,7 +95,7 @@ class Downloader:
     @staticmethod
     def check_interstitial(contents: bytes | str):
         if isinstance(contents, bytes):
-            contents = contents.decode("utf-8")
+            contents = clever_decode(contents)
         interstitial = re.findall('interstitial=([^"]+)', contents)
         if interstitial:
             return interstitial[0]

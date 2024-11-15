@@ -1624,6 +1624,17 @@ files = [
 six = ">=1.5"
 
 [[package]]
+name = "pytz"
+version = "2024.2"
+description = "World timezone definitions, modern and historical"
+optional = false
+python-versions = "*"
+files = [
+    {file = "pytz-2024.2-py2.py3-none-any.whl", hash = "sha256:31c7c1817eb7fae7ca4b8c7ee50c72f93aa2dd863de768e1ef4245d426aa0725"},
+    {file = "pytz-2024.2.tar.gz", hash = "sha256:2aa355083c50a0f93fa581709deac0c9ad65cca8a9e9beac660adcbd493c798a"},
+]
+
+[[package]]
 name = "pywin32"
 version = "308"
 description = "Python for Window Extensions"
@@ -1948,6 +1959,17 @@ files = [
 ]
 
 [[package]]
+name = "types-pytz"
+version = "2024.2.0.20241003"
+description = "Typing stubs for pytz"
+optional = false
+python-versions = ">=3.8"
+files = [
+    {file = "types-pytz-2024.2.0.20241003.tar.gz", hash = "sha256:575dc38f385a922a212bac00a7d6d2e16e141132a3c955078f4a4fd13ed6cb44"},
+    {file = "types_pytz-2024.2.0.20241003-py3-none-any.whl", hash = "sha256:3e22df1336c0c6ad1d29163c8fda82736909eb977281cb823c57f8bae07118b7"},
+]
+
+[[package]]
 name = "types-pyyaml"
 version = "6.0.12.20240917"
 description = "Typing stubs for PyYAML"
@@ -2075,4 +2097,4 @@ type = ["pytest-mypy"]
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.10, <3.13"
-content-hash = "5664a35d648b87ffaa51e655a9945d3c9736fa7de16dced0463c2821d5a793cd"
+content-hash = "db9b0522bfb0aa734b35dee3b6c6efcfcb46dfe46b2f53438e06f851102003e3"

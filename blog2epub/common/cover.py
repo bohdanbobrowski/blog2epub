@@ -1,4 +1,6 @@
+import math
 import os
+import unicodedata
 from random import shuffle
 
 from imagesize import imagesize  # type: ignore
@@ -39,8 +41,8 @@ class Cover:
         self.interface = interface
         self.file_name = file_name
         self.blog_url = blog_url
-        self.title = title
-        self.subtitle = subtitle
+        self.title = unicodedata.normalize("NFKD", title)
+        self.subtitle = unicodedata.normalize("NFKD", subtitle)
         self.images = self._check_image_size(images)
         self.platform_name = platform_name
 
@@ -84,6 +86,37 @@ class Cover:
         region = img.crop(box)
         return region
 
+    @staticmethod
+    def _split_to_parts(text: str, parts: int = 2, splitter: str = " "):
+        li = text.split()
+        n = len(li) // parts
+        return [splitter.join(li[x : x + n]) for x in range(0, len(li), n)]
+
+    def _split_too_long_parts(self, parts: list[str]) -> list[str]:
+        new_parts = []
+        for _key, t in enumerate(parts):
+            if len(t) > 45:
+                spaces = t.count(" ")
+                number_of_new_parts = math.ceil(len(t) / 45)
+                if spaces > 1:
+                    t = self._split_to_parts(t, parts=number_of_new_parts)
+            if isinstance(t, str):
+                new_parts.append(t)
+            elif isinstance(t, list):
+                new_parts += t
+        return new_parts
+
+    def _split_long_title(self) -> list[str]:
+        title = []
+        for char in ["|", "-", ":", " "]:
+            if self.title.find(char) > -1:
+                title = self.title.split(char)
+            if len(title) > 0:
+                break
+        title = [t.strip() for t in title]
+        title = self._split_too_long_parts(title)
+        return title
+
     def _draw_text(self, cover_image):
         cover_draw = ImageDraw.Draw(cover_image)
         title_font = ImageFont.truetype(TITLE_FONT_NAME, 30)
@@ -98,7 +131,7 @@ class Cover:
                 font=title_font,
             )
         else:
-            title = self.title.split(" - ")
+            title = self._split_long_title()
             buffer = 35 * (len(title) - 1)
             title = "\n".join(title)
             cover_draw.text(
@@ -108,7 +141,7 @@ class Cover:
                 font=title_font,
             )
         cover_draw.text(
-            (15, 670),
+            (15, 675),
             self.subtitle,
             (150, 150, 150),
             font=subtitle_font,

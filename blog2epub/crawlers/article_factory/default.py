@@ -4,6 +4,7 @@ from datetime import datetime
 from typing import Optional
 
 import dateutil
+import pytz
 from lxml.etree import tostring
 from lxml.html.soupparser import fromstring
 from strip_tags import strip_tags  # type: ignore
@@ -48,7 +49,12 @@ class DefaultArticleFactory(AbstractArticleFactory):
         else:
             result_date = translate_month(result_date, self.language)  # type: ignore
         try:
-            return dateutil.parser.parse(result_date)  # type: ignore
+            result_datetime_obj = dateutil.parser.parse(result_date)  # type: ignore
+            try:
+                return pytz.UTC.localize(result_datetime_obj)
+            except ValueError:
+                pass
+            return result_datetime_obj
         except (IndexError, dateutil.parser.ParserError):  # type: ignore
             pass
         return None
