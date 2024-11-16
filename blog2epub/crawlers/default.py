@@ -223,6 +223,7 @@ class DefaultCrawler(AbstractCrawler):
         return False
 
     def _get_sitemap_url(self) -> str:
+        self.interface.print("Analysing sitemaps", end="")
         robots_parser = robotparser.RobotFileParser()
         robots_parser.set_url(urljoin(self.url, "/robots.txt"))
         robots_parser.read()
@@ -296,6 +297,8 @@ class DefaultCrawler(AbstractCrawler):
         sitemap = requests.get(sitemap_url)
         pages = None
         if sitemap.status_code == 404:
+            self.interface.print("")
+            self.interface.print("Sitemap not found!")
             pages = self._get_pages_from_blog_archive_widget()
         if sitemap.status_code == 200:
             sitemap_pages = []
@@ -310,7 +313,9 @@ class DefaultCrawler(AbstractCrawler):
                     or re.search("wp-sitemap-posts-(post|page)-[0-9]+.xml$", sub_sitemap)
                     or re.search("(post|page)-sitemap[0-9-]*.xml$", sub_sitemap)
                 ):
+                    self.interface.print(".", end="")
                     pages += self._get_pages_from_sub_sitemap(sub_sitemap)
+            self.interface.print("")
         if pages is not None:
             self.interface.print(f"Found {len(pages)} articles to crawl.")
             try:

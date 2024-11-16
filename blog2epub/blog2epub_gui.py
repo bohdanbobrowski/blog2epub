@@ -421,6 +421,15 @@ class Blog2EpubKivyWindow(MDBoxLayout):
     def console_delete_last_line(self):
         self.console.text = "\n".join(self.console.text.split("\n")[:-1])
 
+    @mainthread
+    def _update_skip_value(self):
+        if self.blog2epub_settings.data.limit and int(self.blog2epub_settings.data.limit) > 0:
+            skip = int(self.blog2epub_settings.data.limit)
+            if self.blog2epub_settings.data.skip and int(self.blog2epub_settings.data.skip) > 0:
+                skip += int(self.blog2epub_settings.data.skip)
+            self.skip_entry.text = str(skip)
+            self.save_settings()
+
     def _get_url(self):
         if urllib.parse.urlparse(self.url_entry.text):
             port, self.url_entry.text = prepare_port_and_url(self.url_entry.text)
@@ -440,6 +449,7 @@ class Blog2EpubKivyWindow(MDBoxLayout):
             self._update_tab_generate()
         if not blog2epub.crawler.cancelled:
             self.interface.print("Download completed.")
+            self._update_skip_value()
             if platform != "android":
                 notification.notify(
                     title="blog2epub - download completed",
