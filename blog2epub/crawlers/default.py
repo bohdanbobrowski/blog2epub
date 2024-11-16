@@ -324,6 +324,8 @@ class DefaultCrawler(AbstractCrawler):
                     self.interface.print(f"Skipping {self.configuration.skip} of them.")
             except ValueError:
                 pass
+        else:
+            self.interface.print("No articles found!")
         return pages
 
     def _set_root_title(self, url: str | None = None):
