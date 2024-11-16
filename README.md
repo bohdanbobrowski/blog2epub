@@ -159,7 +159,7 @@ Example:
 - [X] image download and attachment bug solved (ex. modernistyczny-poznan.blogspot.com)
 - [X] improved resistance to http errors
 - [X] dedicated crawler class for zeissikonveb.de
-- [X] (on GUI) skip value is enlarged on limiet value (if such is set)
+- [X] (on GUI) skip value is enlarged on limit value (if such is set)
 - [X] download progress is much more verbose, also on GUI it can be cancelled everytime
 
 
