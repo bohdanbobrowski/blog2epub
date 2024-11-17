@@ -9,5 +9,5 @@ def asset_path(filename: str) -> str:
         base_path = os.path.abspath("./assets/")
     if os.path.isfile(os.path.join(base_path, filename)):
         return os.path.join(base_path, filename)
-    # if there is no given file i'm guessing that blog2epub is run from sources
+    # if there is no given file I'm guessing that blog2epub is run from sources
     return os.path.join(os.path.abspath("../assets/"), filename)
