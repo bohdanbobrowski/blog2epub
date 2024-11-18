@@ -16,14 +16,16 @@ from blog2epub.models.book import ArticleModel, ImageModel
 
 class DefaultArticleFactory(AbstractArticleFactory):
     def get_title(self) -> Optional[str]:
+        title = None
         if self.tree is not None and self.patterns is not None:
             for title_pattern in self.patterns.title:
                 if title_pattern.xpath:
                     title = self.tree.xpath(title_pattern.xpath)
-                    if len(title) > 0:
+                    if len(title) > 1:
                         title = title[0]
-                        return html.unescape(title.strip())
-        return None
+                        title = html.unescape(title.strip())
+                        break
+        return title
 
     def get_date(self) -> Optional[datetime]:
         result_date = None

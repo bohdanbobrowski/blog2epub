@@ -34,4 +34,5 @@ class TestBlog2EPubMainVelosov:
         )
         ebook.save()
         # then
-        pass
+        assert len(ebook.book_data.articles) == 2
+        assert ebook.book_data.articles[0].title != ebook.book_data.articles[1].title

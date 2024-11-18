@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding : utf-8 -*-
+
+from blog2epub.crawlers.article_factory.blogspot import BlogspotArticleFactory
 from blog2epub.crawlers.default import DefaultCrawler
 from blog2epub.models.content_patterns import Pattern
 
@@ -10,7 +12,7 @@ class BlogspotCrawler(DefaultCrawler):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.name = "blogger.com crawler"
-
+        self.article_factory_class = BlogspotArticleFactory
         self.patterns.content.append(
             Pattern(
                 xpath="//div[contains(@class, 'post-body')]",

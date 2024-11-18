@@ -21,6 +21,8 @@ class AbstractArticleFactory(ABC):
         downloader: Downloader,
         cancelled: bool = False,
         download_callback: Optional[Callable] = None,
+        blog_title: Optional[str] = None,
+        blog_description: Optional[str] = None,
     ):
         self.url = url
         self.html: bytes = html_content
@@ -37,6 +39,8 @@ class AbstractArticleFactory(ABC):
         self.comments = ""  # TODO: should be a list in the future
         self.cancelled: bool = cancelled
         self.download_callback = download_callback
+        self.blog_title: Optional[str] = blog_title
+        self.blog_description: Optional[str] = blog_description
 
     @abstractmethod
     def process(self) -> ArticleModel:

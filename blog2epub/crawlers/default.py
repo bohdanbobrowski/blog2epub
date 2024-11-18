@@ -364,6 +364,7 @@ class DefaultCrawler(AbstractCrawler):
                     language=self.language,
                     downloader=self.downloader,
                     download_callback=self._break_the_loop,
+                    blog_title=self.title,
                 )
                 art = art_factory.process()
                 self.images = self.images + art.images

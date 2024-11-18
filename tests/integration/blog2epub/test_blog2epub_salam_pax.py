@@ -16,11 +16,11 @@ def mock_configuration() -> ConfigurationModel:
     )
 
 
-class TestBlog2EPubMainSalamPax:
-    def test_velosov_can_parse_the_date(self, mock_configuration):
+class TestBlog2EPubSalamPax:
+    def test_salam_pax_get_different_titles(self, mock_configuration):
         # given
         given_blog2epub = Blog2Epub(
-            url="dear_raed.blogspot.com",
+            url="http://dear_raed.blogspot.com",
             interface=EmptyInterface(),
             configuration=mock_configuration,
             cache_folder="tests_cache",
@@ -32,6 +32,6 @@ class TestBlog2EPubMainSalamPax:
             interface=EmptyInterface(),
             configuration=mock_configuration,
         )
-        ebook.save()
         # then
-        pass
+        assert len(ebook.book_data.articles) == 2
+        assert ebook.book_data.articles[0].title != ebook.book_data.articles[1].title
