@@ -13,6 +13,7 @@ example_blogs = [
     "https://knippsen.blogspot.com",
     "https://ksgedania.blogspot.com",
     "https://motorbikes.blog",
+    "https://nrdblog.cmosnet.eu",
     "https://oldcam.wordpress.com",
     "https://oldcamera.blog",
     "https://python-bloggers.com",
