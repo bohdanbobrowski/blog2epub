@@ -12,7 +12,7 @@ a = Analysis(
         ("./assets/blog2epub.png", "."),
         ("./assets/Alegreya-Regular.ttf", "."),
         ("./assets/Alegreya-Italic.ttf", "."),
-        ("./assets/MartianMono-Regular.ttf", "."),
+        ("./assets/LiberationMono-Regular.ttf", "."),
     ],
     hookspath=[],
     runtime_hooks=[],

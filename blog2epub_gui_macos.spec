@@ -18,7 +18,7 @@ configuration = Analysis(
         (os.path.abspath('./assets/blog2epub.png'), '.'),
         (os.path.abspath('./assets/Alegreya-Regular.ttf'), '.'),
         (os.path.abspath('./assets/Alegreya-Italic.ttf'), '.'),
-        (os.path.abspath('./assets/MartianMono-Regular.ttf'), '.'),
+        (os.path.abspath('./assets/LiberationMono-Regular.ttf'), '.'),
     ],
     hookspath=[],
     runtime_hooks=[],
