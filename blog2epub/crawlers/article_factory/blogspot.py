@@ -9,8 +9,9 @@ from blog2epub.models.book import ArticleModel
 class BlogspotArticleFactory(DefaultArticleFactory):
     def get_title(self) -> Optional[str]:
         title = super().get_title()
-        if self.blog_title is not None and title == self.blog_title:
-            title = "Pomidor"
+        date = self.get_date()
+        if self.blog_title is not None and title == self.blog_title and date is not None:
+            title = date.strftime("%A, %d %B %Y, %H:%M")
         return title
 
     def process(self) -> ArticleModel:

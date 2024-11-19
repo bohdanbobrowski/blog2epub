@@ -22,9 +22,13 @@ class DefaultArticleFactory(AbstractArticleFactory):
                 if title_pattern.xpath:
                     title = self.tree.xpath(title_pattern.xpath)
                     if len(title) > 1:
-                        title = title[0]
-                        title = html.unescape(title.strip())
+                        title = html.unescape(title[0].strip())
                         break
+        while isinstance(title, list):
+            try:
+                title = title[0]
+            except IndexError:
+                title = None
         return title
 
     def get_date(self) -> Optional[datetime]:
