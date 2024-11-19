@@ -32,7 +32,7 @@ source.exclude_exts = spec, setup.py, pyproject.toml
 # version =
 
 # (str) Application versioning (method 2)
-version.regex = VERSION = ['"]([0-9].[0-9].[0-9])['"]
+version.regex = VERSION = ['"]*([0-9]+.[0-9]+.[0-9]+)
 version.filename = %(source.dir)s/blog2epub/common/globals.py
 
 # (list) Application requirements
