@@ -1,7 +1,7 @@
 # List of features and bugfixes I'm considering to add
 
 ## Known bugs
-..
+- [ ] it does not support Arabic, Japanese, Georgian nor many other alphabets and encodings... but this will be my goal in future versions.
 
 ## Scraping in general:
 - [ ] stop with keeping content in RAM - save it as ready to use ebook chapters
@@ -13,11 +13,7 @@
   ebooks.
 
 ## GUI, CLI and app distribution
-- [ ] fix bloody macOS build! - it build but app misses some assets, and what worse it does not run on any other machine
-  (which means *.app is broken)
+- [ ] GUI translations
+- [ ] publish app on Google Play Store (in progress)
+- [ ] publish app on F-Droid (in progress)
 - [ ] add some linux packages: aur looks promising, and dmg aswell - what about Flatpak, Snap and Appimage?
-
-## Additional crawlers:
-- [ ] [nrdblog.cmosnet.eu](https://nrdblog.cmosnet.eu/)
-- [ ] [scigacz.pl](https://www.scigacz.pl/)
-- [ ] [jednoslad.pl](https://www.jednoslad.pl)
