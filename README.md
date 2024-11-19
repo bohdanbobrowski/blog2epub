@@ -10,7 +10,8 @@ Convert blog to epub using command line or GUI.
 
 ### Supported blogs:
 - *.blogspot.com
-- *.wordpress.com and some blogs based on WordPress
+- *.wordpress.com
+- multiple other blogs and even some webpages
 
 ### Main features
 
