@@ -19,16 +19,25 @@ class DefaultArticleFactory(AbstractArticleFactory):
         title = None
         if self.tree is not None and self.patterns is not None:
             for title_pattern in self.patterns.title:
-                if title_pattern.xpath:
+                if title_pattern.xpath is not None:
                     title = self.tree.xpath(title_pattern.xpath)
                     if len(title) > 1:
-                        title = html.unescape(title[0].strip())
                         break
+            if title is None:
+                for title_pattern in self.patterns.title:
+                    if title_pattern.regex is not None:
+                        title_result = re.search(title_pattern.regex, self.html.decode())
+                        if title_result is not None:
+                            title = title_result.group(1).strip()
+                            if len(title) > 1:
+                                break
         while isinstance(title, list):
             try:
                 title = title[0]
             except IndexError:
                 title = None
+        if title is not None and len(title) > 1:
+            title = html.unescape(title.strip())
         return title
 
     def get_date(self) -> Optional[datetime]:

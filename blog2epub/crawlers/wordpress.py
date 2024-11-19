@@ -1,10 +1,13 @@
 #!/usr/bin/env python3
 # -*- coding : utf-8 -*-
 
-
-from blog2epub.crawlers.article_factory.wordpress import WordpressArticleFactory
+from blog2epub.crawlers.article_factory.default import DefaultArticleFactory
 from blog2epub.crawlers.default import DefaultCrawler
 from blog2epub.models.content_patterns import Pattern
+
+
+class WordpressArticleFactory(DefaultArticleFactory):
+    pass
 
 
 class WordpressCrawler(DefaultCrawler):

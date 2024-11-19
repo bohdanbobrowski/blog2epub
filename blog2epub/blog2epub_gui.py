@@ -449,7 +449,8 @@ class Blog2EpubKivyWindow(MDBoxLayout):
             self._update_tab_generate()
         if not blog2epub.crawler.cancelled:
             self.interface.print("Download completed.")
-            self._update_skip_value()
+            if len(blog2epub.crawler.articles) > 0:
+                self._update_skip_value()
             if platform != "android":
                 notification.notify(
                     title="blog2epub - download completed",

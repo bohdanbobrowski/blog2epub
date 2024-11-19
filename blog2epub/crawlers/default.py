@@ -71,6 +71,9 @@ class DefaultCrawler(AbstractCrawler):
                 Pattern(
                     xpath='//meta[@property="og:title"]/@content',
                 ),
+                Pattern(
+                    regex="<title>([^>^<]*)</title>",
+                ),
             ],
             date=[
                 Pattern(
