@@ -1,3 +1,4 @@
+from datetime import datetime
 from typing import Optional
 
 from lxml.html.soupparser import fromstring
@@ -10,7 +11,7 @@ class BlogspotArticleFactory(DefaultArticleFactory):
     def get_title(self) -> Optional[str]:
         title = super().get_title()
         date = self.get_date()
-        if title is None or self.blog_title is not None and title == self.blog_title and date is not None:
+        if isinstance(date, datetime) and (title is None or title == self.blog_title):
             title = date.strftime("%A, %d %B %Y, %H:%M")
         return title
 
