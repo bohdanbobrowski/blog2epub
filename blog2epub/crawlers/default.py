@@ -16,7 +16,7 @@ from lxml.html.soupparser import fromstring
 from blog2epub.common.downloader import Downloader
 from blog2epub.crawlers.abstract import AbstractCrawler
 from blog2epub.crawlers.article_factory.default import DefaultArticleFactory
-from blog2epub.models.book import BookModel, DirModel, ImageModel
+from blog2epub.models.book import ArticleModel, BookModel, DirModel, ImageModel
 from blog2epub.models.content_patterns import ContentPatterns, Pattern
 
 
@@ -70,6 +70,9 @@ class DefaultCrawler(AbstractCrawler):
                 ),
                 Pattern(
                     xpath='//meta[@property="og:title"]/@content',
+                ),
+                Pattern(
+                    xpath='//div[contains(@class, "entry")]//h1/text()',
                 ),
                 Pattern(
                     regex="<title>([^>^<]*)</title>",
@@ -370,13 +373,16 @@ class DefaultCrawler(AbstractCrawler):
                     blog_title=self.title,
                 )
                 art = art_factory.process()
-                self.images = self.images + art.images
-                if self.start:
-                    self.end = art.date
+                if isinstance(art, ArticleModel):
+                    self.images = self.images + art.images
+                    if self.start:
+                        self.end = art.date
+                    else:
+                        self.start = art.date
+                    self.articles.append(art)
+                    self.interface.print(f"{len(self.articles)}. {art.title}")
                 else:
-                    self.start = art.date
-                self.articles.append(art)
-                self.interface.print(f"{len(self.articles)}. {art.title}")
+                    pass
                 if self._break_the_loop():
                     break
         self.active = False

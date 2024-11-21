@@ -243,14 +243,18 @@ class DefaultArticleFactory(AbstractArticleFactory):
         else:
             return input_content
 
-    def process(self) -> ArticleModel:
-        self.tree = fromstring(self.html)
-        return ArticleModel(
-            url=self.url,
-            title=self.get_title(),
-            date=self.get_date(),
-            images=self.get_images(),
-            tags=self.get_tags(),
-            content=self.get_content(),
-            comments=self.get_comments(),
-        )
+    def process(self) -> Optional[ArticleModel]:
+        try:
+            self.tree = fromstring(self.html)
+            return ArticleModel(
+                url=self.url,
+                title=self.get_title(),
+                date=self.get_date(),
+                images=self.get_images(),
+                tags=self.get_tags(),
+                content=self.get_content(),
+                comments=self.get_comments(),
+            )
+        except ValueError:
+            self.interface.print(f"Contents of: {self.url} can not be parsed. Skipping!")
+            return None

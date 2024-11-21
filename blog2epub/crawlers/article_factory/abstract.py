@@ -43,5 +43,5 @@ class AbstractArticleFactory(ABC):
         self.blog_description: Optional[str] = blog_description
 
     @abstractmethod
-    def process(self) -> ArticleModel:
+    def process(self) -> Optional[ArticleModel]:
         pass
