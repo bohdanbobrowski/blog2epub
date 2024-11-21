@@ -8,6 +8,8 @@
 
 Convert blog to epub using command line or GUI.
 
+> My main goal in creating this app is to preserve the legacy of the blogosphere for future generations.
+
 ### Supported blogs:
 - *.blogspot.com
 - *.wordpress.com
