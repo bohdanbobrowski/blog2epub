@@ -21,6 +21,8 @@ class DefaultArticleFactory(AbstractArticleFactory):
             for title_pattern in self.patterns.title:
                 if title_pattern.xpath is not None:
                     title = self.tree.xpath(title_pattern.xpath)
+                    if isinstance(title, list):
+                        title = title[0]
                     if len(title) > 1:
                         break
             if title is None:
