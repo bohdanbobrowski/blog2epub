@@ -37,6 +37,7 @@ class DefaultCrawler(AbstractCrawler):
                 Pattern(xpath='//section[contains(@class, "entry-content")]'),
                 Pattern(xpath='//div[@id="content"]'),
                 Pattern(xpath="//article"),
+                Pattern(xpath="//div[contains(@class, 'blogcontent')]"),
             ],
             content_cleanup=[
                 Pattern(
@@ -122,6 +123,9 @@ class DefaultCrawler(AbstractCrawler):
                 Pattern(
                     xpath="//img[contains(@class, 'wp-post-image')]",
                 ),
+                Pattern(
+                    xpath="//a//img",
+                )
             ],
         )
         self.downloader = Downloader(
