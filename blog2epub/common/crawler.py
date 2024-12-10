@@ -6,6 +6,8 @@ ssl._create_default_https_context = ssl._create_stdlib_context  # type: ignore
 
 
 def prepare_port_and_url(url: str) -> Tuple[int, str]:
+    url = url.strip()
+    url = url.replace(" ", "")
     default_port = 80
     if not url.startswith("http"):
         url = "https://" + url
