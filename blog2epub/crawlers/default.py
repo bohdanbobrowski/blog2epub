@@ -125,7 +125,7 @@ class DefaultCrawler(AbstractCrawler):
                 ),
                 Pattern(
                     xpath="//a//img",
-                )
+                ),
             ],
         )
         self.downloader = Downloader(
