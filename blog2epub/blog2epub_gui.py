@@ -553,9 +553,6 @@ class Blog2EpubKivyWindow(MDBoxLayout):
                 logging.info("Cancelling download...")
                 time.sleep(1)
             self.interface.print("Download cancelled.")
-            self._update_articles_data([])
-            self.articles_table.update_row_data([], [])
-            self.ebook_data = self.blog2epub = None
             self._update_tab_generate()
 
     @mainthread
