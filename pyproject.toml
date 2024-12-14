@@ -1,3 +1,73 @@
+[project]
+name = "blog2epub"
+version = "1.5.0"
+description = "Convert blog (blogspot.com, wordpress.com or another based on Wordpress) to epub using CLI or GUI."
+authors = [{ name = "Bohdan Bobrowski", email = "bohdanbobrowski@gmail.com" }]
+license = { file = "LICENSE" }
+keywords = [
+    "android",
+    "blog",
+    "blogging",
+    "ebook",
+    "ebook-downloader",
+    "ebook-generator",
+    "ebook-reader",
+    "epub-generator",
+    "gui",
+    "linux",
+    "linux-desktop",
+    "macos",
+    "website-archive",
+    "windows",
+]
+readme = "README.md"
+requires-python = ">=3.10, <3.13"
+dependencies = [
+    "pydantic",
+    "beautifulsoup4",
+    "ebooklib",
+    "python-dateutil",
+    "atoma",
+    "fake-useragent",
+    "pyyaml",
+    "kivy",
+    "kivymd",
+    "pydantic-yaml",
+    "plyer",
+    "pyjnius",
+    "strip-tags",
+    "imagesize",
+    "filetype",
+    "html5lib",
+    "click",
+    "webencodings",
+    "soupsieve",
+    "pytz",
+    "ftfy",
+]
+
+[project.optional-dependencies]
+dev = [
+    "ruff",
+    "pyinstaller",
+    "mypy",
+    "pytest",
+    "lxml-stubs",
+    "types-pyyaml",
+    "types-pyinstaller",
+    "types-python-dateutil",
+    "types-requests",
+    "cython",
+    "pytest-cov",
+    "types-pytz",
+]
+
+[project.scripts]
+blog2epub = "blog2epub.blog2epub_cli:main"
+blog2epubgui = "blog2epub.blog2epub_gui:main"
+build_gui_windows = "blog2epub_build:build_gui_windows"
+build_gui_macos = "blog2epub_build:build_gui_macos"
+
 [tool.setuptools]
 packages = ["blog2epub"]
 
@@ -66,15 +136,10 @@ ignore = ["E501"]
 [tool.mypy]
 exclude = ["venv", "dist", "build"]
 
-
 [tool.ruff.lint.extend-per-file-ignores]
 "blog2epub_gui.py" = ["E402"]
-
-# TODO: verify if this default value bolow can be changed to setupotools
-# [build-system]
-# requires = ["poetry-core"]
-# build-backend = "poetry.core.masonry.api"
 
 [build-system]
 requires = ["setuptools"]
 build-backend = "setuptools.build_meta"
+package-data = { "assets" = ["*.ttf", "*.png"] }
