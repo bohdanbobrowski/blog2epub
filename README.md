@@ -43,6 +43,10 @@ Checkout for latest available [builds](https://github.com/bohdanbobrowski/blog2e
 
 ### Running from sources
 
+    pip install git+https://github.com/bohdanbobrowski/blog2epub.git
+
+### Poetry
+
     git clone git@github.com:bohdanbobrowski/blog2epub.git
     cd blog2epub
     poetry install
