@@ -9,7 +9,7 @@ keywords = [
     "blog",
     "blogging",
     "ebook",
-    "ebook-downloader",
+    "ebook-downloader",blog2epub
     "ebook-generator",
     "ebook-reader",
     "epub-generator",
@@ -69,7 +69,13 @@ build_gui_windows = "blog2epub_build:build_gui_windows"
 build_gui_macos = "blog2epub_build:build_gui_macos"
 
 [tool.setuptools]
-packages = ["blog2epub"]
+packages = [
+    "blog2epub",
+    "blog2epub.common",
+    "blog2epub.crawlers",
+    "blog2epub.crawlers.article_factory",
+    "blog2epub.models",
+]
 
 [tool.poetry]
 name = "blog2epub"
