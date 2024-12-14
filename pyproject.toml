@@ -75,7 +75,17 @@ packages = [
     "blog2epub.crawlers",
     "blog2epub.crawlers.article_factory",
     "blog2epub.models",
+    "assets",
 ]
+
+[tool.setuptools.package-dir]
+blog2epub = "blog2epub"
+blog2epub.common = "common"
+blog2epub.crawlers = "crawlers"
+blog2epub.models = "models"
+
+[tool.setuptools.package-data]
+assets = ["*.ttf", "*.png"]
 
 [tool.poetry]
 name = "blog2epub"
