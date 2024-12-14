@@ -68,15 +68,6 @@ blog2epubgui = "blog2epub.blog2epub_gui:main"
 build_gui_windows = "blog2epub_build:build_gui_windows"
 build_gui_macos = "blog2epub_build:build_gui_macos"
 
-[tool.setuptools]
-packages = [
-    "blog2epub",
-    "blog2epub.common",
-    "blog2epub.crawlers",
-    "blog2epub.crawlers.article_factory",
-    "blog2epub.models",
-]
-
 [tool.poetry]
 name = "blog2epub"
 version = "1.5.0"
