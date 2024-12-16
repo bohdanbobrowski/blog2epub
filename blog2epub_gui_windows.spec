@@ -1,7 +1,9 @@
-# -*- mode: python ; coding: utf-8 -*-
 from kivy.tools.packaging.pyinstaller_hooks import get_deps_minimal
 
 block_cipher = None
+minimal_depts = get_deps_minimal(video=None, audio=None)
+minimal_depts["hiddenimports"] += ["plyer.platforms.win.filechooser"]
+
 a = Analysis(
     ["blog2epub\\blog2epub_gui.py"],
     pathex=[
@@ -20,7 +22,7 @@ a = Analysis(
     win_private_assemblies=False,
     cipher=block_cipher,
     noarchive=False,
-    **get_deps_minimal(video=None, audio=None),
+    **minimal_depts,
 )
 pyz = PYZ(a.pure, a.zipped_data, cipher=block_cipher)
 exe = EXE(
