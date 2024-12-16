@@ -1,5 +1,4 @@
 from datetime import datetime
-from typing import Optional
 
 from blog2epub.common.globals import VERSION
 from blog2epub.common.interfaces import EmptyInterface
@@ -25,9 +24,9 @@ class Blog2Epub:
         url: str,
         configuration: ConfigurationModel,
         interface: EmptyInterface,
-        start: Optional[datetime] = None,
-        end: Optional[datetime] = None,
-        file_name: Optional[str] = None,
+        start: datetime | None = None,
+        end: datetime | None = None,
+        file_name: str | None = None,
         cache_folder: str = "",
     ):
         # TODO: Refactor this!

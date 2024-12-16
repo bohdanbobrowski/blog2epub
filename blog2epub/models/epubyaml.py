@@ -1,11 +1,10 @@
-from typing import Optional
 
 from pydantic import BaseModel
 
 
 class EpubYamlChapter(BaseModel):
     title: str
-    subtitle: Optional[str] = None
+    subtitle: str | None = None
     url: str
 
 

@@ -1,7 +1,6 @@
 import html
 import re
 from datetime import datetime
-from typing import Optional
 
 import dateutil
 import pytz
@@ -15,7 +14,7 @@ from blog2epub.models.book import ArticleModel, ImageModel
 
 
 class DefaultArticleFactory(AbstractArticleFactory):
-    def get_title(self) -> Optional[str]:
+    def get_title(self) -> str | None:
         title = None
         if self.tree is not None and self.patterns is not None:
             for title_pattern in self.patterns.title:
@@ -42,7 +41,7 @@ class DefaultArticleFactory(AbstractArticleFactory):
             title = html.unescape(title.strip())
         return title
 
-    def get_date(self) -> Optional[datetime]:
+    def get_date(self) -> datetime | None:
         result_date = None
         if self.patterns is not None:
             for date_pattern in self.patterns.date:
@@ -245,7 +244,7 @@ class DefaultArticleFactory(AbstractArticleFactory):
         else:
             return input_content
 
-    def process(self) -> Optional[ArticleModel]:
+    def process(self) -> ArticleModel | None:
         try:
             self.tree = fromstring(self.html)
             return ArticleModel(

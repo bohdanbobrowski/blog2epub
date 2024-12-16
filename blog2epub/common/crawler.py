@@ -1,11 +1,10 @@
 import ssl
-from typing import Tuple
 from urllib import parse
 
 ssl._create_default_https_context = ssl._create_stdlib_context  # type: ignore
 
 
-def prepare_port_and_url(url: str) -> Tuple[int, str]:
+def prepare_port_and_url(url: str) -> tuple[int, str]:
     url = url.strip()
     url = url.replace(" ", "")
     default_port = 80

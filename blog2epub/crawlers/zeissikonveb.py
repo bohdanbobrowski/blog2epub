@@ -1,4 +1,3 @@
-from typing import Optional
 
 from blog2epub.crawlers import DefaultCrawler
 from blog2epub.crawlers.article_factory.default import DefaultArticleFactory
@@ -11,7 +10,7 @@ class ZeissIkonVEBArticleFactory(DefaultArticleFactory):
         super().__init__(**kwargs)
         self.language = "de"
 
-    def get_title(self) -> Optional[str]:
+    def get_title(self) -> str | None:
         try:
             title = super().get_title()
             if title:

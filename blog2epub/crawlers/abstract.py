@@ -1,7 +1,6 @@
 import os
 from abc import ABC, abstractmethod
 from datetime import datetime
-from typing import Dict, Optional
 
 from blog2epub.common.book import Book
 from blog2epub.common.crawler import (
@@ -22,9 +21,9 @@ class AbstractCrawler(ABC):
         url: str,
         configuration: ConfigurationModel,
         interface: EmptyInterface,
-        start: Optional[datetime] = None,
-        end: Optional[datetime] = None,
-        file_name: Optional[str] = None,
+        start: datetime | None = None,
+        end: datetime | None = None,
+        file_name: str | None = None,
         cache_folder: str = "",
     ):
         super().__init__()
@@ -44,7 +43,7 @@ class AbstractCrawler(ABC):
                 )
             ),
         )
-        self.book: Optional[Book]
+        self.book: Book | None
         self.title: str = ""
         self.subtitle: str = ""
         self.description: str = ""
@@ -53,14 +52,14 @@ class AbstractCrawler(ABC):
         self.articles: list[ArticleModel] = []
         self.article_counter = 0
         self.images: list[ImageModel] = []
-        self.tags: Dict = {}
+        self.tags: dict = {}
         self.active = False
         self.cancelled = False
         self.ignore_downloads: list[str] = [
             r"[http|https]+:\/\/zblogowani.pl[^\s]+",
         ]
         self.article_factory_class = AbstractArticleFactory
-        self.patterns: Optional[ContentPatterns] = None
+        self.patterns: ContentPatterns | None = None
         self.downloader = Downloader(
             dirs=self.dirs,
             url=self.url,

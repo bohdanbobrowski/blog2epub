@@ -3,7 +3,7 @@ import hashlib
 import os
 import re
 import time
-from typing import Mapping, Optional
+from collections.abc import Mapping
 from urllib.parse import urlparse
 
 import filetype  # type: ignore
@@ -80,7 +80,7 @@ class Downloader:
             return True
         return False
 
-    def file_download(self, url: str, filepath: str) -> Optional[bytes]:
+    def file_download(self, url: str, filepath: str) -> bytes | None:
         if self._is_url_in_ignored(url) or self._is_url_in_skipped(url):
             return None
         prepare_directories(self.dirs)
@@ -101,7 +101,7 @@ class Downloader:
             return interstitial[0]
         return False
 
-    def get_content(self, url) -> Optional[bytes]:
+    def get_content(self, url) -> bytes | None:
         # TODO: This needs refactor!
         filepath = self.get_filepath(url)
         contents = None
@@ -135,7 +135,7 @@ class Downloader:
             img = f"{uri.scheme}:{img}"
         return img
 
-    def _download_image(self, url: str, filepath: str) -> Optional[bool]:
+    def _download_image(self, url: str, filepath: str) -> bool | None:
         if self._is_url_in_ignored(url) or self._is_url_in_skipped(url):
             return None
         prepare_directories(self.dirs)

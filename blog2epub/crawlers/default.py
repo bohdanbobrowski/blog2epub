@@ -2,7 +2,6 @@
 # -*- coding : utf-8 -*-
 import html
 import re
-from typing import Tuple
 from urllib import robotparser
 from urllib.error import URLError
 from urllib.parse import urljoin
@@ -255,7 +254,7 @@ class DefaultCrawler(AbstractCrawler):
     @staticmethod
     def _check_for_sub_sitemaps(
         sitemap_pages: list[str],
-    ) -> Tuple[list[str], list[str]]:
+    ) -> tuple[list[str], list[str]]:
         sub_sitemaps = []
         pages = []
         for element in sitemap_pages:

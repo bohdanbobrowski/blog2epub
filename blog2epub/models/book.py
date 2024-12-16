@@ -1,22 +1,21 @@
 import hashlib
 import os
 from datetime import datetime
-from typing import Optional
 
 from pydantic import BaseModel
 
 
 class BookSynopsisModel(BaseModel):
-    title: Optional[str]
-    subtitle: Optional[str]
+    title: str | None
+    subtitle: str | None
     urls: list[str]
 
 
 class CommentModel(BaseModel):
-    title: Optional[str]
-    date: Optional[datetime]
-    author: Optional[str]
-    content: Optional[str]
+    title: str | None
+    date: datetime | None
+    author: str | None
+    content: str | None
 
 
 class ImageModel(BaseModel):
@@ -39,11 +38,11 @@ class ImageModel(BaseModel):
 
 class ArticleModel(BaseModel):
     url: str
-    title: Optional[str]
-    date: Optional[datetime]
+    title: str | None
+    date: datetime | None
     accessed: datetime = datetime.now()
-    content: Optional[str]
-    comments: Optional[str]  # TODO: replace with List[CommentModel]
+    content: str | None
+    comments: str | None  # TODO: replace with List[CommentModel]
     tags: list[str] = []
     images: list[ImageModel] = []
 
@@ -66,15 +65,15 @@ class DirModel(BaseModel):
 
 class BookModel(BaseModel):
     url: str
-    title: Optional[str]
-    subtitle: Optional[str]
-    description: Optional[str]
+    title: str | None
+    subtitle: str | None
+    description: str | None
     dirs: DirModel
     articles: list[ArticleModel]
     images: list[ImageModel]
-    start: Optional[datetime]
-    end: Optional[datetime]
-    file_name_prefix: Optional[str]
-    destination_folder: Optional[str]
-    cover: Optional[str]
-    cover_image_path: Optional[str]
+    start: datetime | None
+    end: datetime | None
+    file_name_prefix: str | None
+    destination_folder: str | None
+    cover: str | None
+    cover_image_path: str | None
