@@ -1,4 +1,3 @@
-
 from blog2epub.crawlers import DefaultCrawler
 from blog2epub.crawlers.article_factory.default import DefaultArticleFactory
 from blog2epub.models.book import BookModel
