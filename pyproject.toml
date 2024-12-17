@@ -98,4 +98,3 @@ exclude = ["venv", "dist", "build"]
 [build-system]
 requires = ["setuptools"]
 build-backend = "setuptools.build_meta"
-package-data = { "assets" = ["*.ttf", "*.png"] }
