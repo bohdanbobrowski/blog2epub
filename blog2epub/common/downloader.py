@@ -30,7 +30,7 @@ class Downloader:
         dirs: DirModel,
         url: str,
         interface: EmptyInterface,
-        images_size: list[int],
+        images_size: tuple[int, int],
         images_quality: int,
         ignore_downloads: list[str],
     ):

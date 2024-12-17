@@ -39,7 +39,7 @@ class ConfigurationModel(BaseModel):
     use_cache: bool = False
     destination_folder: str = str(Path.home())
     include_images: bool = True
-    images_size: tuple[int] = (600, 800)
+    images_size: tuple[int, int] = (600, 800)
     images_quality: int = 40
     images_bw: bool = True
     url: str = ""
