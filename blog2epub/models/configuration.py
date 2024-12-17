@@ -1,4 +1,5 @@
 import random
+from dataclasses import field
 from pathlib import Path
 
 from pydantic import BaseModel
@@ -38,12 +39,13 @@ class ConfigurationModel(BaseModel):
     use_cache: bool = False
     destination_folder: str = str(Path.home())
     include_images: bool = True
-    images_size: list[int] = [600, 800]
+    images_size: tuple[int] = (600, 800)
     images_quality: int = 40
+    images_bw: bool = True
     url: str = ""
     limit: str = "5"
     skip: str = ""
-    history: list[str] = []
+    history: list[str] = field(default_factory=list)
     email: str = ""
     version: str = ""
 
