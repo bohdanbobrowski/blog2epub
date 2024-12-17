@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import Callable, Optional
+from collections.abc import Callable
 
 from lxml.html.soupparser import fromstring
 
@@ -14,34 +14,34 @@ class AbstractArticleFactory(ABC):
         self,
         url: str,
         html_content: bytes,
-        patterns: Optional[ContentPatterns],
+        patterns: ContentPatterns | None,
         interface: EmptyInterface,
         dirs: DirModel,
         language: str,
         downloader: Downloader,
         cancelled: bool = False,
-        download_callback: Optional[Callable] = None,
-        blog_title: Optional[str] = None,
-        blog_description: Optional[str] = None,
+        download_callback: Callable | None = None,
+        blog_title: str | None = None,
+        blog_description: str | None = None,
     ):
         self.url = url
         self.html: bytes = html_content
         self.interface = interface
         self.dirs: DirModel = dirs
-        self.language: Optional[str] = language
+        self.language: str | None = language
         self.downloader: Downloader = downloader
         self.patterns = patterns
-        self.content: Optional[str] = None
-        self.title: Optional[str] = None
+        self.content: str | None = None
+        self.title: str | None = None
         self.tags: list[str] = []
         self.tree = fromstring("<div></div>")
         self.images_list: list[ImageModel] = []
         self.comments = ""  # TODO: should be a list in the future
         self.cancelled: bool = cancelled
         self.download_callback = download_callback
-        self.blog_title: Optional[str] = blog_title
-        self.blog_description: Optional[str] = blog_description
+        self.blog_title: str | None = blog_title
+        self.blog_description: str | None = blog_description
 
     @abstractmethod
-    def process(self) -> Optional[ArticleModel]:
+    def process(self) -> ArticleModel | None:
         pass

@@ -1,12 +1,11 @@
 import re
-from typing import Optional
 
 from pydantic import BaseModel
 
 
 class Pattern(BaseModel):
-    xpath: Optional[str] = None
-    regex: Optional[re.Pattern] = None
+    xpath: str | None = None
+    regex: re.Pattern | None = None
 
 
 class ContentPatterns(BaseModel):

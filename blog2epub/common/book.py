@@ -4,7 +4,6 @@ import os
 import re
 import tempfile
 import zipfile
-from typing import List, Optional
 
 from ebooklib.epub import (  # type: ignore
     EpubBook,
@@ -258,7 +257,7 @@ class Book:
             ebook.add_metadata("DC", "description", "\n".join(self.book_data.description))
         return ebook
 
-    def _get_file_full_path(self, destination_folder: Optional[str]) -> str:
+    def _get_file_full_path(self, destination_folder: str | None) -> str:
         if destination_folder is None:
             return os.path.join(self.destination_folder, self.file_name)
         else:
@@ -277,9 +276,9 @@ class Book:
 
     def save(
         self,
-        articles: Optional[List[ArticleModel]] = None,
-        destination_folder: Optional[str] = None,
-        file_name: Optional[str] = None,
+        articles: list[ArticleModel] | None = None,
+        destination_folder: str | None = None,
+        file_name: str | None = None,
     ):
         if articles is None:
             articles = self.book_data.articles
@@ -296,7 +295,7 @@ class Book:
 
 
 class Chapter:
-    epub: Optional[EpubHtml] = None
+    epub: EpubHtml | None = None
 
     def __init__(self, article: ArticleModel, number: int, language: str):
         uid = "chapter_" + str(number)

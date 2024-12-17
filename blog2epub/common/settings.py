@@ -1,5 +1,4 @@
 import os
-from typing import Optional
 
 import yaml
 
@@ -50,7 +49,7 @@ class Blog2EpubSettings:
             sorted(data.history)
         return data
 
-    def save(self, data: Optional[ConfigurationModel] = None):
+    def save(self, data: ConfigurationModel | None = None):
         if data is None:
             data = self.data
         data = self._save_history(data)

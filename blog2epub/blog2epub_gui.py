@@ -11,7 +11,6 @@ from datetime import datetime
 from functools import partial
 from itertools import cycle
 from threading import Thread
-from typing import List
 
 from kivy.uix.anchorlayout import AnchorLayout  # type: ignore
 from kivy.uix.boxlayout import BoxLayout  # type: ignore
@@ -499,7 +498,7 @@ class Blog2EpubKivyWindow(MDBoxLayout):
                 self.popup_success(ebook)
                 self._generate_lock = self.generate_button.disabled = False
 
-    def _update_articles_data(self, articles: List):
+    def _update_articles_data(self, articles: list):
         no = 1
         self.articles_data = []
         for article in articles:

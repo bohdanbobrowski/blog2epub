@@ -1,5 +1,4 @@
 from datetime import datetime
-from typing import Optional
 
 from lxml.html.soupparser import fromstring
 
@@ -8,14 +7,14 @@ from blog2epub.models.book import ArticleModel
 
 
 class BlogspotArticleFactory(DefaultArticleFactory):
-    def get_title(self) -> Optional[str]:
+    def get_title(self) -> str | None:
         title = super().get_title()
         date = self.get_date()
         if isinstance(date, datetime) and (title is None or title == self.blog_title):
             title = date.strftime("%A, %d %B %Y, %H:%M")
         return title
 
-    def process(self) -> Optional[ArticleModel]:
+    def process(self) -> ArticleModel | None:
         try:
             self.tree = fromstring(self.html)
             return ArticleModel(

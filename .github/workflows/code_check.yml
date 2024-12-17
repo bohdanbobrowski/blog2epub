@@ -16,12 +16,11 @@ jobs:
         python-version: ${{ matrix.python-version }}
     - name: Install dependencies
       run: |
-        python -m pip install poetry
-        poetry install --with=dev
+        pip install '.[dev]'
     - name: Run Ruff linter and code formatter
       run: |
-        poetry run ruff format . --check
-        poetry run ruff check .
-    - name: Static code analysys with mypy
+        ruff format . --check
+        ruff check .
+    - name: Static code analysis with mypy
       run: |
-        poetry run mypy .
+        mypy .
