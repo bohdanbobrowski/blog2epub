@@ -59,7 +59,7 @@ Checkout for latest available [builds](https://github.com/bohdanbobrowski/blog2e
     
 #### macOS/Linux:
 
-    venv/bin/activate
+    source ./venv/bin/activate
     pip install -e '.[dev]'
 
 ### Building own executable
