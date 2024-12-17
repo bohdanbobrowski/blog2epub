@@ -60,7 +60,7 @@ Checkout for latest available [builds](https://github.com/bohdanbobrowski/blog2e
 #### macOS/Linux:
 
     source ./venv/bin/activate
-    pip install -e '.[dev]'
+    pip install -e .[dev]
 
 ### Building own executable
 
