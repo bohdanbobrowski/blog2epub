@@ -152,10 +152,10 @@ Example:
 
 ## Examples
 
-    poetry run blog2epub starybezpiek.blogspot.com
-    poetry run blog2epub velosov.blogspot.com -l=10
-    poetry run blog2epub poznanskiehistorie.blogspot.com -q=100
-    poetry run blog2epub classicameras.blogspot.com --limit=10 --no-images
+    blog2epub starybezpiek.blogspot.com
+    blog2epub velosov.blogspot.com -l=10
+    blog2epub poznanskiehistorie.blogspot.com -q=100
+    blog2epub classicameras.blogspot.com --limit=10 --no-images
 
 ## Running tests
 
