@@ -82,38 +82,6 @@ blog2epub = "blog2epub"
 [tool.setuptools.package-data]
 assets = ["*.ttf", "*.png"]
 
-[tool.poetry]
-name = "blog2epub"
-version = "1.5.0"
-description = "Convert blog (blogspot.com, wordpress.com or another based on Wordpress) to epub using CLI or GUI."
-authors = ["Bohdan Bobrowski <bohdanbobrowski@gmail.com>"]
-license = "MIT"
-readme = "README.md"
-
-[tool.poetry.dependencies]
-python = ">=3.10, <3.13"
-pydantic = "^2.8.2"
-beautifulsoup4 = "^4.12.3"
-ebooklib = "^0.18"
-python-dateutil = "^2.9.0.post0"
-atoma = "^0.0.17"
-fake-useragent = "^1.5.1"
-pyyaml = "^6.0.1"
-kivy = "^2.3.0"
-kivymd = "^1.2.0"
-pydantic-yaml = "^1.3.0"
-plyer = "^2.1.0"
-pyjnius = "^1.6.1"
-strip-tags = "^0.5.1"
-imagesize = "^1.4.1"
-filetype = "^1.2.0"
-html5lib = "^1.1"
-click = "^8.1.7"
-webencodings = "^0.5.1"
-soupsieve = "^2.6"
-pytz = "^2024.2"
-ftfy = "^6.3.1"
-
 [tool.ruff]
 line-length = 120
 

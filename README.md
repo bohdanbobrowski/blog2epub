@@ -66,7 +66,7 @@ Checkout for latest available [builds](https://github.com/bohdanbobrowski/blog2e
 
 #### Windows
 
-    build_gui_windows
+    python blog2epub_build_windows.py
 
 Finally, you can run NSIS to build Windows installer:
 
@@ -74,7 +74,7 @@ Finally, you can run NSIS to build Windows installer:
 
 #### macOS
 
-    build_gui_macos
+    python blog2epub_build_macos.py
 
 And then to create dmg image with app:
 
