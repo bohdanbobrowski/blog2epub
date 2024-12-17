@@ -43,24 +43,38 @@ Checkout for latest available [builds](https://github.com/bohdanbobrowski/blog2e
 
 ### Running from sources
 
+#### Easiest way
+
     pip install git+https://github.com/bohdanbobrowski/blog2epub.git
 
-### Poetry
+#### Developer environment
 
     git clone git@github.com:bohdanbobrowski/blog2epub.git
     cd blog2epub
-    poetry install
-    poetry run blog2epubgui
+    python -m venv venv
+
+##### Windows:
+    venv\Scripts\activate
+    pip install -e .[dev]
+    
+#### macOS/Linux:
+
+    venv/bin/activate
+    pip install -e '.[dev]'
 
 ### Building own executable
 
 #### Windows
 
-    poetry run build_gui_windows
+    build_gui_windows
+
+Finally, you can run NSIS to build Windows installer:
+
+    "C:\Program Files (x86)\NSIS\makensis" blog2epub_windows_installer.nsi
 
 #### macOS
 
-    poetry run build_gui_macos
+    build_gui_macos
 
 And then to create dmg image with app:
 
@@ -70,7 +84,6 @@ And then to create dmg image with app:
 
 Before you start, you'll need to install buildozer following this [installation documentation](https://buildozer.readthedocs.io/en/latest/installation.html).
 
-    poetry shell
     buildozer -v android
 
 ## Screenshots of GUI
@@ -153,7 +166,7 @@ Example:
 
 ## Current version
 
-### [v1.5.0 - Release Candidate 1](https://github.com/bohdanbobrowski/blog2epub/releases/tag/v1.5.0_RC1)
+### [v1.5.0 - Release Candidate 2](https://github.com/bohdanbobrowski/blog2epub/releases/tag/v1.5.0_RC2)
 - [X] integration testing
 - [X] increase unit test coverage
 - [X] use sitemaps.xml for scraping
@@ -168,14 +181,15 @@ Example:
 - [X] dedicated crawler class for zeissikonveb.de
 - [X] (on GUI) skip value is enlarged on limit value (if such is set)
 - [X] download progress is much more verbose, also on GUI it can be cancelled everytime
-
+- [X] remove poetry as it's overcomplicated for the case, 
+- [X] Windows installer!
+- [X] results of cancelled downloads might be converted to epub
 
 [&raquo; Complete Change Log here &laquo;](https://github.com/bohdanbobrowski/blog2epub/blob/master/CHANGELOG.md)
 
 ## Project backlog
 
 And finally, a list known bugs and future plans for some new functions and enhancements: [BACKLOG.md](https://github.com/bohdanbobrowski/blog2epub/blob/master/BACKLOG.md)
-
 
 ## Project road map:
 

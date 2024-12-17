@@ -116,29 +116,6 @@ soupsieve = "^2.6"
 pytz = "^2024.2"
 ftfy = "^6.3.1"
 
-[tool.poetry.group.docs.dependencies]
-mkdocs = "^1.6.0"
-
-[tool.poetry.group.dev.dependencies]
-ruff = "^0.5.0"
-pyinstaller = "^6.8.0"
-mypy = "^1.10.1"
-pytest = "^8.3.2"
-lxml-stubs = "^0.5.1"
-types-pyyaml = "^6.0.12.20240808"
-types-pyinstaller = "^6.10.0.20240812"
-types-python-dateutil = "^2.9.0.20240821"
-types-requests = "^2.32.0.20240712"
-cython = "^3.0.11"
-pytest-cov = "^6.0.0"
-types-pytz = "^2024.2.0.20241003"
-
-[tool.poetry.scripts]
-blog2epub = "blog2epub.blog2epub_cli:main"
-blog2epubgui = "blog2epub.blog2epub_gui:main"
-build_gui_windows = "blog2epub_build:build_gui_windows"
-build_gui_macos = "blog2epub_build:build_gui_macos"
-
 [tool.ruff]
 line-length = 120
 
