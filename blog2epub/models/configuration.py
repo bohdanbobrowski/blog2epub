@@ -2,7 +2,7 @@ import random
 from dataclasses import field
 from pathlib import Path
 
-from pydantic import BaseModel
+from pydantic import BaseModel, field_serializer
 
 example_blogs = [
     "http://archaia-ellada.blogspot.com",
@@ -48,6 +48,10 @@ class ConfigurationModel(BaseModel):
     history: list[str] = field(default_factory=list)
     email: str = ""
     version: str = ""
+
+    @field_serializer("images_size")
+    def serialize_images_size(self, images_size: tuple[int, int], _info):
+        return [images_size[0], images_size[1]]
 
     def __init__(self, **kwargs) -> None:
         super().__init__(**kwargs)
