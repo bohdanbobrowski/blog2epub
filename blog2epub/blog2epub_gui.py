@@ -167,6 +167,7 @@ class Blog2EpubKivyWindow(MDBoxLayout):
             size_hint=(0.2, 1),
             on_press=self.cancel_download,
         )
+        self.tab_download.add_widget(self._get_options_row())
         params_row = self._get_params_row()
         self.tab_download.add_widget(params_row)
         if platform != "android":
@@ -371,6 +372,26 @@ class Blog2EpubKivyWindow(MDBoxLayout):
         url_row.add_widget(self.url_entry)
         return url_row
 
+    def _get_options_row(self) -> MDBoxLayout:
+        options_row = MDBoxLayout(orientation="horizontal", size_hint=(1, 0.12), spacing=sp(10))
+        self.images_width = MDTextField(
+            text=str(self.blog2epub_settings.data.images_size[0]),
+            input_type="number",
+            hint_text="Image width:",
+            icon_right="numeric",
+        )
+        self.images_width.bind(text=self._validate_image_size)
+        options_row.add_widget(self.images_width)
+        self.images_height = MDTextField(
+            text=str(self.blog2epub_settings.data.images_size[1]),
+            input_type="number",
+            hint_text="Image height:",
+            icon_right="numeric",
+        )
+        self.images_height.bind(text=self._validate_image_size)
+        options_row.add_widget(self.images_height)
+        return options_row
+
     def _get_params_row(self) -> MDBoxLayout:
         params_row = MDBoxLayout(orientation="horizontal", size_hint=(1, 0.12), spacing=sp(10))
 
@@ -392,6 +413,13 @@ class Blog2EpubKivyWindow(MDBoxLayout):
         self.skip_entry.bind(text=self._validate_skip)
         params_row.add_widget(self.skip_entry)
         return params_row
+
+    def _validate_image_size(self, input_widget, text):
+        input_widget.text = " ".join(re.findall(r"\d+", text))
+        self.blog2epub_settings.data.images_size = (
+            self.images_width,
+            self.images_height,
+        )
 
     def _validate_limit(self, input_widget, text):
         input_widget.text = " ".join(re.findall(r"\d+", text))
