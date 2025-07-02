@@ -148,6 +148,10 @@ class Downloader:
         time.sleep(1)
         return True
 
+    def _get_resized_fn(self, img_hash: str) -> str:
+        resized_fn = os.path.join(self.dirs.images, img_hash + ".jpg")
+        return resized_fn
+
     def download_image(self, image_obj: ImageModel) -> bool:
         if self._is_url_in_ignored(image_obj.url) or self._is_url_in_skipped(image_obj.url):
             return False
@@ -158,7 +162,7 @@ class Downloader:
         if img_type not in [".jpeg", ".jpg", ".png", ".bmp", ".gif", ".webp", ".heic"]:
             return False
         original_fn = os.path.join(self.dirs.originals, img_hash + "." + img_type)
-        resized_fn = os.path.join(self.dirs.images, img_hash + ".jpg")
+        resized_fn = self._get_resized_fn(img_hash)
         if os.path.isfile(resized_fn):
             return True
         if not os.path.isfile(resized_fn):
