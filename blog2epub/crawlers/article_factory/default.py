@@ -180,12 +180,13 @@ class DefaultArticleFactory(AbstractArticleFactory):
         return output
 
     def get_comments(self) -> str:
+        # TODO: Refactor this!
         headers = self.tree.xpath('//div[@id="comments"]/h4/text()')
         result_comments = ""
-        if len(headers) == 1:
-            result_comments = "<hr/><h3>" + headers[0] + "</h3>"
         comments_in_article = self.tree.xpath('//div[@class="comment-block"]//text()')
         if comments_in_article:
+            if len(headers) == 1:
+                result_comments = "<hr/><h3>" + headers[0] + "</h3>"
             tag = "h4"
             for c in comments_in_article:
                 c = c.strip()
@@ -200,6 +201,8 @@ class DefaultArticleFactory(AbstractArticleFactory):
             comments = self.tree.xpath('//dl[@id="comments-block"]//*[@class="comment-body"]')
             try:
                 for x in range(0, len(authors) + 1):
+                    if result_comments == "" and len(headers) == 1:
+                        result_comments = "<hr/><h3>" + headers[0] + "</h3>"
                     a = "".join(authors[x].xpath(".//text()")).strip().replace("\n", " ")
                     c = "".join(comments[x].xpath(".//text()")).strip()
                     result_comments += f"<h4>{a}</h4>"
