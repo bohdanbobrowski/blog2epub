@@ -214,11 +214,7 @@ class Book:
         images_included = set()
         if self.configuration.include_images:
             for image_number, image in enumerate(self.book_data.images, start=1):
-                if (
-                    image
-                    and image.hash not in images_included
-                    and os.path.isfile(image.resized_path)
-                ):
+                if image and image.hash not in images_included and os.path.isfile(image.resized_path):
                     with open(image.resized_path, "rb") as f:
                         image_content = f.read()
                     epub_img = EpubItem(
