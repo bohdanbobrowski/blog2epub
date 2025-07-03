@@ -29,17 +29,17 @@ Convert blog to epub using command line or GUI.
 ### Example covers
 
 <table style="width:100%;text-align:center;"><tr><td>
-<img src="assets/v1.5.0/starybezpiek_blogspot_com_2014.11.04-2015.12.15.epub.jpg" width="400" style="margin:0 10px 10px 0;" />
+<img src="assets/v1.5.0/zeissikonveb_de_2023.11.17-2025.06.07.epub.jpg" width="400" style="margin:0 10px 10px 0;" />
 </td><td>
 <img src="assets/v1.5.0/starybezpiek_blogspot_com_2014.11.04-2015.12.15_bw.epub.jpg" width="400" style="margin:0 10px 10px 0;" />
 </td></tr><tr><td>
-<img src="assets/v1.5.0/archaia-ellada_blogspot_com_2014.11.01-2014.12.01.epub.jpg" width="400" style="margin:0 10px 10px 0" />
+<img src="assets/v1.5.0/starybezpiek_blogspot_com_2014.11.04-2015.12.15.epub.jpg" width="400" style="margin:0 10px 10px 0;" />
 </td><td>
 <img src="assets/v1.5.0/boston1775_blogspot_com_2024.11.10-2024.11.14.epub.jpg" width="400" style="margin:0 10px 10px 0" />
 </td></tr><tr><td>
 <img src="assets/v1.5.0/velosov_blogspot_com_2013.02.22-2013.03.10.epub.jpg" width="400" style="margin:0 10px 10px 0" />
 </td><td>
-<img src="assets/v1.5.0/zeissikonveb_de_2021.04.10-2024.10.19.epub.jpg" width="400" style="margin:0 10px 10px 0;" />
+<img src="assets/v1.5.0/archaia-ellada_blogspot_com_2014.11.01-2014.12.01.epub.jpg" width="400" style="margin:0 10px 10px 0" />
 </td></tr></table>
 
 ## Installation
