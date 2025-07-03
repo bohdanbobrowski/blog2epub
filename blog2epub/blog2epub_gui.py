@@ -15,6 +15,7 @@ from threading import Thread
 from kivy.uix.anchorlayout import AnchorLayout  # type: ignore
 from kivy.uix.boxlayout import BoxLayout  # type: ignore
 from kivymd.uix.datatables import MDDataTable  # type: ignore
+from kivymd.uix.menu import MDDropdownMenu  # type: ignore
 from kivymd.uix.tab import MDTabs, MDTabsBase  # type: ignore
 from kivymd.uix.textfield import MDTextField  # type: ignore
 from plyer import filechooser, notification  # type: ignore
@@ -372,26 +373,47 @@ class Blog2EpubKivyWindow(MDBoxLayout):
         url_row.add_widget(self.url_entry)
         return url_row
 
+    def _select_images_sizes(self, size: tuple[int, int]):
+        self.blog2epub_settings.data.images_size = size
+        self.images_sizes_button.text = "*".join([str(size[0]), str(size[1])])
+
+    def _open_images_sizes(self, caller, text):
+        if self.images_sizes.parent is None:
+            self.images_sizes.open()
+
     def _get_options_row(self) -> MDBoxLayout:
         options_row = MDBoxLayout(orientation="horizontal", size_hint=(1, 0.12), spacing=sp(10))
 
-        self.images_width = MDTextField(
-            text=str(self.blog2epub_settings.data.images_size[0]),
-            input_type="number",
-            hint_text="Image width:",
-            icon_right="numeric",
-        )
-        self.images_width.bind(text=self._validate_image_size)
-        options_row.add_widget(self.images_width)
+        sizes = [
+            {
+                "text": "600*800",
+                "on_release": lambda size=(600, 800): self._select_images_sizes(size),
+            },
+            {
+                "text": "640*960",
+                "on_release": lambda size=(640, 960): self._select_images_sizes(size),
+            },
+            {
+                "text": "1236*1648",
+                "on_release": lambda size=(1236, 1648): self._select_images_sizes(size),
+            },
+        ]
 
-        self.images_height = MDTextField(
-            text=str(self.blog2epub_settings.data.images_size[1]),
+        self.images_sizes_button = MDTextField(
+            text="*".join([str(x) for x in self.blog2epub_settings.data.images_size]),
             input_type="number",
-            hint_text="Image height:",
+            hint_text="Images and cover size:",
             icon_right="numeric",
+            readonly=True,
         )
-        self.images_height.bind(text=self._validate_image_size)
-        options_row.add_widget(self.images_height)
+        self.images_sizes_button.bind(focus=self._open_images_sizes)
+
+        self.images_sizes = MDDropdownMenu(
+            caller=self.images_sizes_button,
+            items=sizes,
+        )
+
+        options_row.add_widget(self.images_sizes_button)
 
         self.images_quality = MDTextField(
             text=str(self.blog2epub_settings.data.images_quality),
@@ -425,13 +447,6 @@ class Blog2EpubKivyWindow(MDBoxLayout):
         self.skip_entry.bind(text=self._validate_skip)
         params_row.add_widget(self.skip_entry)
         return params_row
-
-    def _validate_image_size(self, input_widget, text):
-        input_widget.text = " ".join(re.findall(r"\d+", text))
-        self.blog2epub_settings.data.images_size = (
-            self.images_width,
-            self.images_height,
-        )
 
     def _validate_images_quality(self, input_widget, text):
         try:

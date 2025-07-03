@@ -21,8 +21,6 @@ class Cover:
     Cover class used in Blog2Epub class.
     """
 
-    tile_size = 120
-
     def __init__(
         self,
         dirs: DirModel,
@@ -45,10 +43,11 @@ class Cover:
         self.blog_url = blog_url
         self.title = unicodedata.normalize("NFKD", title)
         self.subtitle = unicodedata.normalize("NFKD", subtitle)
-        self.images = self._check_image_size(images)
         self.images_bw = images_bw
         self.images_size = images_size
+        self.tile_size: int = int(images_size[0] / 5)
         self.platform_name = platform_name
+        self.images = self._check_image_size(images)
 
     def _check_image_size(self, images: list[ImageModel]) -> list[ImageModel]:
         verified_images = []
@@ -60,9 +59,9 @@ class Cover:
                         verified_images.append(image)
         return verified_images
 
-    def _make_thumb(self, img, size):
+    def _make_thumb(self, img, size: tuple[int, int]):
         cropped_img = self._crop_image(img)
-        cropped_img.thumbnail(size, Image.LANCZOS)
+        cropped_img.thumbnail(size, Image.Resampling.LANCZOS)
         return cropped_img
 
     def _is_landscape(self, width, height):
@@ -122,13 +121,16 @@ class Cover:
 
     def _draw_text(self, cover_image):
         cover_draw = ImageDraw.Draw(cover_image)
-        title_font = ImageFont.truetype(TITLE_FONT_NAME, 30)
-        subtitle_font = ImageFont.truetype(SUBTITLE_FONT_NAME, 20)
-        generator_font = ImageFont.truetype(GENERATOR_FONT_NAME, 10)
+        title_font_size = int(self.images_size[0] * 0.05)
+        title_font = ImageFont.truetype(TITLE_FONT_NAME, title_font_size)
+        subtitle_font_size = 20
+        subtitle_font = ImageFont.truetype(SUBTITLE_FONT_NAME, subtitle_font_size)
+        generator_font_size = 10
+        generator_font = ImageFont.truetype(GENERATOR_FONT_NAME, generator_font_size)
         title_length = title_font.getlength(self.title)
-        if title_length <= 570:
+        if title_length <= int(self.images_size[0] * 0.95):
             cover_draw.text(
-                (15, 635),
+                (int(self.images_size[0] * 0.025), int(self.images_size[1] * 0.79375)),
                 self.title,
                 (255, 255, 255),
                 font=title_font,

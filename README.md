@@ -177,6 +177,8 @@ Example:
 - [X] cli interface refactor
 - [X] greek alphabet support
 - [X] image download and attachment bug solved (ex. modernistyczny-poznan.blogspot.com)
+- [X] color/bw images and covers
+- [X] custom image/cover sizes
 - [X] improved resistance to http errors
 - [X] dedicated crawler class for zeissikonveb.de
 - [X] (on GUI) skip value is enlarged on limit value (if such is set)
