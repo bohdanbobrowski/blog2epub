@@ -55,11 +55,21 @@ class Cover:
             if image.hash:
                 if os.path.isfile(image.resized_path):
                     i_size = imagesize.get(image.resized_path)
-                    if i_size[0] >= self.tile_size and i_size[1] >= self.tile_size:
+                    if i_size[0] >= 100 and i_size[1] >= 100:
                         verified_images.append(image)
         return verified_images
 
     def _make_thumb(self, img, size: tuple[int, int]):
+        if img.size[0] < self.tile_size:
+            new_x = self.tile_size
+            new_y = self.tile_size
+            if img.size[0] < img.size[1]:
+                new_x = self.tile_size
+                new_y = img.size[1] / img.size[0] * self.tile_size
+            elif img.size[0] > img.size[1]:
+                new_x = img.size[0] / img.size[1] * self.tile_size
+                new_y = self.tile_size
+            img = img.resize((new_x, new_y), Image.Resampling.LANCZOS)
         cropped_img = self._crop_image(img)
         cropped_img.thumbnail(size, Image.Resampling.LANCZOS)
         return cropped_img
@@ -119,18 +129,23 @@ class Cover:
         title = self._split_too_long_parts(title)
         return title
 
+    def _calc_coordinates(self, *val: int) -> tuple[int, int]:
+        ratio_x = self.images_size[0] / 600
+        ratio_y = self.images_size[1] / 800
+        return math.ceil(val[0] * ratio_x), math.ceil(val[1] * ratio_y)
+
     def _draw_text(self, cover_image):
         cover_draw = ImageDraw.Draw(cover_image)
-        title_font_size = int(self.images_size[0] * 0.05)
+        title_font_size = math.ceil(self.images_size[0] * 0.05)
         title_font = ImageFont.truetype(TITLE_FONT_NAME, title_font_size)
-        subtitle_font_size = 20
+        subtitle_font_size = math.ceil(self.images_size[0] * 0.033)
         subtitle_font = ImageFont.truetype(SUBTITLE_FONT_NAME, subtitle_font_size)
-        generator_font_size = 10
+        generator_font_size = math.ceil(self.images_size[0] * 0.01666)
         generator_font = ImageFont.truetype(GENERATOR_FONT_NAME, generator_font_size)
         title_length = title_font.getlength(self.title)
         if title_length <= int(self.images_size[0] * 0.95):
             cover_draw.text(
-                (int(self.images_size[0] * 0.025), int(self.images_size[1] * 0.79375)),
+                self._calc_coordinates(15, 635),
                 self.title,
                 (255, 255, 255),
                 font=title_font,
@@ -140,19 +155,19 @@ class Cover:
             buffer = 35 * (len(title) - 1)
             title = "\n".join(title)
             cover_draw.text(
-                (15, 635 - buffer),
+                self._calc_coordinates(15, 635 - buffer),
                 title,
                 (255, 255, 255),
                 font=title_font,
             )
         cover_draw.text(
-            (15, 675),
+            self._calc_coordinates(15, 675),
             self.subtitle,
             (150, 150, 150),
             font=subtitle_font,
         )
         cover_draw.text(
-            (15, 750),
+            self._calc_coordinates(15, 750),
             f"Generated with blog2epub v{VERSION} {self.platform_name}\nfrom {self.blog_url}",
             (155, 155, 155),
             font=generator_font,

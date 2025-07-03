@@ -1,7 +1,7 @@
 .SILENT: format, check, test, integration_test, unit_test, unit_coverage, unit_coverage_html, clear_win
 .PHONY: format, check, test, integration_test, unit_test, unit_coverage, unit_coverage_html, clear_win
 
-precommit: clear_win format check test
+precommit: format check test
 
 format:
 	ruff format .
@@ -26,5 +26,5 @@ unit_coverage_html:
 	pytest --cov=blog2epub --cov-report=html ./tests/unit
 
 clear_win:
-	del *.epub
-	echo y|rd /s tests_cache
+	del /q *.epub
+	rd /s /q tests_cache

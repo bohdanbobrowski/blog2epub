@@ -374,10 +374,6 @@ class Blog2EpubKivyWindow(MDBoxLayout):
         url_row.add_widget(self.url_entry)
         return url_row
 
-    def _select_include_images(self, include: bool, label: str):
-        self.blog2epub_settings.data.include_images = include
-        self.images_iclude_button.text = label
-
     def _select_images_sizes(self, size: tuple[int, int]):
         self.blog2epub_settings.data.images_size = size
         self.images_sizes_button.text = "*".join([str(size[0]), str(size[1])])
@@ -389,7 +385,7 @@ class Blog2EpubKivyWindow(MDBoxLayout):
     def _get_sizes_list(self) -> list[dict]:
         return [
             {
-                "text": f"{size[0]}*{size[0]}",
+                "text": f"{size[0]}*{size[1]}",
                 "on_release": lambda s=size: self._select_images_sizes(s),
             }
             for size in IMAGE_SIZES
