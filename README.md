@@ -20,7 +20,8 @@ Convert blog to epub using command line or GUI.
 - command line (CLI) and graphic user interface (GUI)
 - script downloads all text contents of selected blog to epub file,
 - if it's possible, it includes post comments,
-- images are downsized to given resolution and optionally converted to grayscale,
+- images are downsized to given resolution (`600*800`,`640*960` or `1236*1648`)
+- images are also by default converted to grayscale,
 - one post = one epub chapter,
 - chapters are sorted by date ascending,
 - cover is generated automatically from downloaded images.
