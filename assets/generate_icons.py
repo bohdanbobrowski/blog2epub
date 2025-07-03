@@ -24,7 +24,7 @@ class IconParameters:
     def get_icon_name(self):
         if self.scale != 1:
             return f"icon_{self.width}x{self.width}{ext}"
-        return f"icon_{self.width//2}x{self.width//2}@2x{ext}"
+        return f"icon_{self.width // 2}x{self.width // 2}@2x{ext}"
 
 
 # https://developer.apple.com/design/human-interface-guidelines/macos/icons-and-images/app-icon#app-icon-sizes
