@@ -159,6 +159,8 @@ class Book:
             subtitle=self.subtitle,
             images=self.book_data.images,
             platform_name=self.platform_name,
+            images_bw=self.configuration.images_bw,
+            images_size=self.configuration.images_size,
         )
         cover_file_name, cover_file_full_path = self.cover.generate()
         self.cover_image_path = cover_file_full_path
