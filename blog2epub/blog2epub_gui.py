@@ -374,6 +374,7 @@ class Blog2EpubKivyWindow(MDBoxLayout):
 
     def _get_options_row(self) -> MDBoxLayout:
         options_row = MDBoxLayout(orientation="horizontal", size_hint=(1, 0.12), spacing=sp(10))
+
         self.images_width = MDTextField(
             text=str(self.blog2epub_settings.data.images_size[0]),
             input_type="number",
@@ -382,6 +383,7 @@ class Blog2EpubKivyWindow(MDBoxLayout):
         )
         self.images_width.bind(text=self._validate_image_size)
         options_row.add_widget(self.images_width)
+
         self.images_height = MDTextField(
             text=str(self.blog2epub_settings.data.images_size[1]),
             input_type="number",
@@ -390,6 +392,16 @@ class Blog2EpubKivyWindow(MDBoxLayout):
         )
         self.images_height.bind(text=self._validate_image_size)
         options_row.add_widget(self.images_height)
+
+        self.images_quality = MDTextField(
+            text=str(self.blog2epub_settings.data.images_quality),
+            input_type="number",
+            hint_text="Image quality:",
+            icon_right="numeric",
+        )
+        self.images_quality.bind(text=self._validate_images_quality)
+        options_row.add_widget(self.images_quality)
+
         return options_row
 
     def _get_params_row(self) -> MDBoxLayout:
@@ -420,6 +432,16 @@ class Blog2EpubKivyWindow(MDBoxLayout):
             self.images_width,
             self.images_height,
         )
+
+    def _validate_images_quality(self, input_widget, text):
+        try:
+            text_value = int(" ".join(re.findall(r"\d+", text)))
+            if text_value < 1 or text_value > 100:
+                text_value = self.blog2epub_settings.data.images_quality
+        except ValueError:
+            text_value = self.blog2epub_settings.data.images_quality
+        input_widget.text = str(text_value)
+        self.blog2epub_settings.data.images_quality = text_value
 
     def _validate_limit(self, input_widget, text):
         input_widget.text = " ".join(re.findall(r"\d+", text))

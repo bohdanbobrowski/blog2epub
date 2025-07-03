@@ -66,6 +66,7 @@ class AbstractCrawler(ABC):
             interface=self.interface,
             images_size=self.configuration.images_size,
             images_quality=self.configuration.images_quality,
+            images_bw=self.configuration.images_bw,
             ignore_downloads=self.ignore_downloads,
         )
 

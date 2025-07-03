@@ -32,6 +32,7 @@ class Downloader:
         interface: EmptyInterface,
         images_size: tuple[int, int],
         images_quality: int,
+        images_bw: bool,
         ignore_downloads: list[str],
     ):
         self.dirs = dirs
@@ -39,6 +40,7 @@ class Downloader:
         self.interface = interface
         self.images_size = images_size
         self.images_quality = images_quality
+        self.images_bw = images_bw
         self.ignore_downloads = ignore_downloads
         self.cookies = RequestsCookieJar()
         self.session = requests.session()
@@ -135,9 +137,9 @@ class Downloader:
             img = f"{uri.scheme}:{img}"
         return img
 
-    def _download_image(self, url: str, filepath: str) -> bool | None:
+    def _download_image(self, url: str, filepath: str) -> bool:
         if self._is_url_in_ignored(url) or self._is_url_in_skipped(url):
-            return None
+            return False
         prepare_directories(self.dirs)
         try:
             response = self.session.get(url, cookies=self.cookies, headers=self.headers)
@@ -148,9 +150,35 @@ class Downloader:
         time.sleep(1)
         return True
 
+    def _transform_image(self, image_obj, original_fn: str, resized_fn: str) -> bool:
+        original_img_type = filetype.guess(original_fn)
+        if original_img_type is None:
+            return False
+        if not original_img_type.MIME.startswith("image"):
+            os.remove(original_fn)
+            self.skipped_images.append(image_obj.url)
+            return False
+        image_size = imagesize.get(original_fn)
+        if image_size[0] + image_size[1] < 100:
+            os.remove(original_fn)
+            self.skipped_images.append(image_obj.url)
+            return False
+        picture = Image.open(original_fn)
+        if picture.size[0] > self.images_size[0] or picture.size[1] > self.images_size[1]:
+            picture.thumbnail(self.images_size, Image.LANCZOS)  # type: ignore
+        converted_picture = picture.convert("L")
+        converted_picture.save(resized_fn, format="JPEG", quality=self.images_quality)
+        try:
+            os.remove(original_fn)
+        except PermissionError:
+            pass
+        return True
+
     def _get_resized_fn(self, img_hash: str) -> str:
-        resized_fn = os.path.join(self.dirs.images, img_hash + ".jpg")
-        return resized_fn
+        img_size = f"{self.images_size[0]}_{self.images_size[1]}"
+        bw_suffix = "" if self.images_bw is False else "_bw"
+        resized_fn = f"{img_hash}_{img_size}_{self.images_quality}{bw_suffix}.jpg"
+        return os.path.join(self.dirs.images, resized_fn)
 
     def download_image(self, image_obj: ImageModel) -> bool:
         if self._is_url_in_ignored(image_obj.url) or self._is_url_in_skipped(image_obj.url):
@@ -168,26 +196,5 @@ class Downloader:
         if not os.path.isfile(resized_fn):
             self._download_image(image_obj.url, original_fn)
         if os.path.isfile(original_fn):
-            original_img_type = filetype.guess(original_fn)
-            if original_img_type is None:
-                return False
-            if not original_img_type.MIME.startswith("image"):
-                os.remove(original_fn)
-                self.skipped_images.append(image_obj.url)
-                return False
-            image_size = imagesize.get(original_fn)
-            if image_size[0] + image_size[1] < 100:
-                os.remove(original_fn)
-                self.skipped_images.append(image_obj.url)
-                return False
-            picture = Image.open(original_fn)
-            if picture.size[0] > self.images_size[0] or picture.size[1] > self.images_size[1]:
-                picture.thumbnail(self.images_size, Image.LANCZOS)  # type: ignore
-            converted_picture = picture.convert("L")
-            converted_picture.save(resized_fn, format="JPEG", quality=self.images_quality)
-            try:
-                os.remove(original_fn)
-            except PermissionError:
-                pass
-            return True
+            return self._transform_image(image_obj, original_fn, resized_fn)
         return False
