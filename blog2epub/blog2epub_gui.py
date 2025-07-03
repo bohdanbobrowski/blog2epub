@@ -22,6 +22,7 @@ from plyer import filechooser, notification  # type: ignore
 
 from blog2epub.common.book import Book
 from blog2epub.models.book import ArticleModel
+from blog2epub.models.configuration import IMAGE_COL_MODES, IMAGE_SIZES, INCLUDE_IMAGES
 
 if sys.__stdout__ is None or sys.__stderr__ is None:
     os.environ["KIVY_NO_CONSOLELOG"] = "1"
@@ -373,6 +374,10 @@ class Blog2EpubKivyWindow(MDBoxLayout):
         url_row.add_widget(self.url_entry)
         return url_row
 
+    def _select_include_images(self, include: bool, label: str):
+        self.blog2epub_settings.data.include_images = include
+        self.images_iclude_button.text = label
+
     def _select_images_sizes(self, size: tuple[int, int]):
         self.blog2epub_settings.data.images_size = size
         self.images_sizes_button.text = "*".join([str(size[0]), str(size[1])])
@@ -381,48 +386,114 @@ class Blog2EpubKivyWindow(MDBoxLayout):
         if self.images_sizes.parent is None:
             self.images_sizes.open()
 
+    def _get_sizes_list(self) -> list[dict]:
+        return [
+            {
+                "text": f"{size[0]}*{size[0]}",
+                "on_release": lambda s=size: self._select_images_sizes(s),
+            }
+            for size in IMAGE_SIZES
+        ]
+
+    def _select_color_mode(self, color_mode: tuple[str, bool]):
+        self.blog2epub_settings.data.images_bw = color_mode[1]
+        self.images_color_mode_button.text = color_mode[0]
+
+    def _open_color_modes(self, caller, text):
+        if self.images_color_modes.parent is None:
+            self.images_color_modes.open()
+
+    def _get_color_modes_list(self) -> list[dict]:
+        return [
+            {
+                "text": mode[0],
+                "on_release": lambda m=mode: self._select_color_mode(m),
+            }
+            for mode in IMAGE_COL_MODES.items()
+        ]
+
+    @staticmethod
+    def _get_color_modes_text(current_mode: bool) -> str:
+        for label, value in IMAGE_COL_MODES.items():
+            if current_mode == value:
+                return label
+        return ""
+
+    def _select_include_images(self, include_images: tuple[str, bool]):
+        self.blog2epub_settings.data.include_images = include_images[1]
+        self.include_images_button.text = include_images[0]
+
+    def _open_include_images(self, caller, text):
+        if self.include_images_menu.parent is None:
+            self.include_images_menu.open()
+
+    def _get_include_images_menu(self) -> list[dict]:
+        return [
+            {
+                "text": mode[0],
+                "on_release": lambda m=mode: self._select_include_images(m),
+            }
+            for mode in INCLUDE_IMAGES.items()
+        ]
+
+    @staticmethod
+    def _get_include_images_text(include: bool) -> str:
+        for label, value in INCLUDE_IMAGES.items():
+            if include == value:
+                return label
+        return ""
+
     def _get_options_row(self) -> MDBoxLayout:
         options_row = MDBoxLayout(orientation="horizontal", size_hint=(1, 0.12), spacing=sp(10))
 
-        sizes = [
-            {
-                "text": "600*800",
-                "on_release": lambda size=(600, 800): self._select_images_sizes(size),
-            },
-            {
-                "text": "640*960",
-                "on_release": lambda size=(640, 960): self._select_images_sizes(size),
-            },
-            {
-                "text": "1236*1648",
-                "on_release": lambda size=(1236, 1648): self._select_images_sizes(size),
-            },
-        ]
+        self.include_images_button = MDTextField(
+            text=self._get_include_images_text(self.blog2epub_settings.data.include_images),
+            hint_text="Include images:",
+            icon_right="image-size-select-actual",
+            readonly=True,
+        )
+        self.include_images_button.bind(focus=self._open_include_images)
+        self.include_images_menu = MDDropdownMenu(
+            caller=self.include_images_button,
+            items=self._get_include_images_menu(),
+        )
+        options_row.add_widget(self.include_images_button)
 
         self.images_sizes_button = MDTextField(
             text="*".join([str(x) for x in self.blog2epub_settings.data.images_size]),
             input_type="number",
             hint_text="Images and cover size:",
-            icon_right="numeric",
+            icon_right="image-size-select-large",
             readonly=True,
         )
         self.images_sizes_button.bind(focus=self._open_images_sizes)
-
         self.images_sizes = MDDropdownMenu(
             caller=self.images_sizes_button,
-            items=sizes,
+            items=self._get_sizes_list(),
         )
-
         options_row.add_widget(self.images_sizes_button)
 
         self.images_quality = MDTextField(
             text=str(self.blog2epub_settings.data.images_quality),
             input_type="number",
             hint_text="Image quality:",
-            icon_right="numeric",
+            icon_right="quality-high",
         )
         self.images_quality.bind(text=self._validate_images_quality)
         options_row.add_widget(self.images_quality)
+
+        self.images_color_mode_button = MDTextField(
+            text=self._get_color_modes_text(self.blog2epub_settings.data.images_bw),
+            hint_text="Color mode:",
+            icon_right="palette",
+            readonly=True,
+        )
+        self.images_color_mode_button.bind(focus=self._open_color_modes)
+        self.images_color_modes = MDDropdownMenu(
+            caller=self.images_color_mode_button,
+            items=self._get_color_modes_list(),
+        )
+        options_row.add_widget(self.images_color_mode_button)
 
         return options_row
 

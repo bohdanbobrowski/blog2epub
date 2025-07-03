@@ -4,6 +4,22 @@ from pathlib import Path
 
 from pydantic import BaseModel, field_serializer
 
+INCLUDE_IMAGES = {
+    "Yes": True,
+    "No": False,
+}
+
+IMAGE_SIZES = [
+    (600, 800),
+    (640, 960),
+    (1236, 1648),
+]
+
+IMAGE_COL_MODES = {
+    "BW": True,
+    "RGB": False,
+}
+
 example_blogs = [
     "http://archaia-ellada.blogspot.com",
     "http://historicaltidbits.blogspot.com",
@@ -38,10 +54,10 @@ class ConfigurationModel(BaseModel):
     language: str = "en_US.UTF-8"
     use_cache: bool = False
     destination_folder: str = str(Path.home())
-    include_images: bool = True
-    images_size: tuple[int, int] = (600, 800)  # (640x960) (1236,1648)
+    include_images: bool = INCLUDE_IMAGES["Yes"]
+    images_size: tuple[int, int] = IMAGE_SIZES[0]
     images_quality: int = 40
-    images_bw: bool = True
+    images_bw: bool = IMAGE_COL_MODES["BW"]
     url: str = ""
     limit: str = "5"
     skip: str = ""
