@@ -217,13 +217,13 @@ class Book:
                 if (
                     image
                     and image.hash not in images_included
-                    and os.path.isfile(os.path.join(self.book_data.dirs.images, image.file_name))
+                    and os.path.isfile(image.resized_path)
                 ):
-                    with open(os.path.join(self.book_data.dirs.images, image.file_name), "rb") as f:
+                    with open(image.resized_path, "rb") as f:
                         image_content = f.read()
                     epub_img = EpubItem(
                         uid=f"img{image_number}",
-                        file_name="images/" + image.file_name,
+                        file_name="images/" + image.resized_fn,
                         media_type="image/jpeg",
                         content=image_content,
                     )

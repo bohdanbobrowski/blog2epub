@@ -125,7 +125,7 @@ class DefaultArticleFactory(AbstractArticleFactory):
                 'box-shadow: 1px 1px 5px rgba(0, 0, 0, 0.5); padding: 8px;"><tbody>'
             )
             image_html += (
-                f'<tr><td style="text-align: center;"><img border="0" src="images/{image.file_name}" /></td></tr>'
+                f'<tr><td style="text-align: center;"><img border="0" src="images/{image.resized_fn}" /></td></tr>'
             )
             if image.description:
                 image_html += f'<tr><td class="tr-caption" style="text-align: center;">{image.description}</td></tr>'
