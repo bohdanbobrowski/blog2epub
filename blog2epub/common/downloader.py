@@ -150,26 +150,26 @@ class Downloader:
         time.sleep(1)
         return True
 
-    def _transform_image(self, image_obj, original_fn: str, resized_fn: str) -> bool:
-        original_img_type = filetype.guess(original_fn)
+    def _transform_image(self, image_obj: ImageModel) -> bool:
+        original_img_type = filetype.guess(image_obj.file_path)
         if original_img_type is None:
             return False
         if not original_img_type.MIME.startswith("image"):
-            os.remove(original_fn)
+            os.remove(image_obj.file_path)
             self.skipped_images.append(image_obj.url)
             return False
-        image_size = imagesize.get(original_fn)
+        image_size = imagesize.get(image_obj.file_path)
         if image_size[0] + image_size[1] < 100:
-            os.remove(original_fn)
+            os.remove(image_obj.file_path)
             self.skipped_images.append(image_obj.url)
             return False
-        picture = Image.open(original_fn)
+        picture = Image.open(image_obj.file_path)
         if picture.size[0] > self.images_size[0] or picture.size[1] > self.images_size[1]:
             picture.thumbnail(self.images_size, Image.LANCZOS)  # type: ignore
-        converted_picture = picture.convert("L")
-        converted_picture.save(resized_fn, format="JPEG", quality=self.images_quality)
+        converted_picture = picture.convert("L" if self.images_bw else "RGB")
+        converted_picture.save(image_obj.resized_path, format="JPEG", quality=self.images_quality)
         try:
-            os.remove(original_fn)
+            os.remove(image_obj.file_path)
         except PermissionError:
             pass
         return True
@@ -178,23 +178,27 @@ class Downloader:
         img_size = f"{self.images_size[0]}_{self.images_size[1]}"
         bw_suffix = "" if self.images_bw is False else "_bw"
         resized_fn = f"{img_hash}_{img_size}_{self.images_quality}{bw_suffix}.jpg"
+        return resized_fn
+
+    def _get_original_path(self, original_fn: str) -> str:
+        return os.path.join(self.dirs.originals, original_fn)
+
+    def _get_resized_path(self, resized_fn: str) -> str:
         return os.path.join(self.dirs.images, resized_fn)
 
     def download_image(self, image_obj: ImageModel) -> bool:
         if self._is_url_in_ignored(image_obj.url) or self._is_url_in_skipped(image_obj.url):
             return False
         image_obj.url = self._fix_image_url(image_obj.url)
-        img_hash = self.get_urlhash(image_obj.url)
-        img_type = os.path.splitext(image_obj.url)[1].lower()
-        img_type = img_type.split("?")[0]
-        if img_type not in [".jpeg", ".jpg", ".png", ".bmp", ".gif", ".webp", ".heic"]:
+        if not image_obj.is_supported:
             return False
-        original_fn = os.path.join(self.dirs.originals, img_hash + "." + img_type)
-        resized_fn = self._get_resized_fn(img_hash)
-        if os.path.isfile(resized_fn):
+        image_obj.resized_fn = self._get_resized_fn(image_obj.hash)
+        image_obj.resized_path = self._get_resized_path(image_obj.resized_fn)
+        image_obj.file_path = self._get_original_path(image_obj.file_name)
+        if os.path.isfile(image_obj.resized_path):
             return True
-        if not os.path.isfile(resized_fn):
-            self._download_image(image_obj.url, original_fn)
-        if os.path.isfile(original_fn):
-            return self._transform_image(image_obj, original_fn, resized_fn)
+        if not os.path.isfile(image_obj.file_path):
+            self._download_image(image_obj.url, image_obj.file_path)
+        if os.path.isfile(image_obj.file_path):
+            return self._transform_image(image_obj)
         return False

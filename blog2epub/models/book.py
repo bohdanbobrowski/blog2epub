@@ -21,6 +21,9 @@ class CommentModel(BaseModel):
 class ImageModel(BaseModel):
     url: str
     description: str = ""
+    file_path: str = ""
+    resized_fn: str = ""
+    resized_path: str = ""
 
     @property
     def hash(self) -> str:
@@ -32,8 +35,19 @@ class ImageModel(BaseModel):
         return hash(self.hash)
 
     @property
-    def file_name(self):
+    def file_name(self) -> str:
         return f"{self.hash}.jpg"
+
+    @property
+    def type(self) -> str:
+        img_type = os.path.splitext(self.url)[1].lower()
+        return img_type.split("?")[0]
+
+    @property
+    def is_supported(self) -> bool:
+        if self.type in [".jpeg", ".jpg", ".png", ".bmp", ".gif", ".webp", ".heic"]:
+            return True
+        return False
 
 
 class ArticleModel(BaseModel):
