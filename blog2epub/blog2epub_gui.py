@@ -169,7 +169,7 @@ class Blog2EpubKivyWindow(MDBoxLayout):
             size_hint=(0.2, 1),
             on_press=self.cancel_download,
         )
-        options_row, options_row_2 = self._get_options_rows()
+        options_row, options_row_2 = self._get_options_rows(platform)
         self.tab_download.add_widget(options_row)
         if platform != "android":
             params_row = self._get_params_row()
@@ -441,7 +441,7 @@ class Blog2EpubKivyWindow(MDBoxLayout):
                 return label
         return ""
 
-    def _get_options_rows(self, is_android: bool = False) -> tuple[MDBoxLayout, MDBoxLayout]:
+    def _get_options_rows(self, platform: str) -> tuple[MDBoxLayout, MDBoxLayout]:
         options_row = MDBoxLayout(orientation="horizontal", size_hint=(1, 0.12), spacing=sp(10))
         options_row_2 = MDBoxLayout(orientation="horizontal", size_hint=(1, 0.12), spacing=sp(10))
 
@@ -479,7 +479,7 @@ class Blog2EpubKivyWindow(MDBoxLayout):
             icon_right="quality-high",
         )
         self.images_quality.bind(text=self._validate_images_quality)
-        if is_android:
+        if platform == "android":
             options_row_2.add_widget(self.images_quality)
         else:
             options_row.add_widget(self.images_quality)
@@ -495,7 +495,7 @@ class Blog2EpubKivyWindow(MDBoxLayout):
             caller=self.images_color_mode_button,
             items=self._get_color_modes_list(),
         )
-        if is_android:
+        if platform == "android":
             options_row_2.add_widget(self.images_color_mode_button)
         else:
             options_row.add_widget(self.images_color_mode_button)
