@@ -19,7 +19,8 @@ class Blog2EpubSettings:
         if not os.path.exists(self.path):
             os.makedirs(self.path)
 
-    def _normalise_history(self, history: list[str]) -> list[str]:
+    @staticmethod
+    def _normalise_history(history: list[str]) -> list[str]:
         """Used only when loading configs older than v.1.5.0"""
         output_history = []
         for item in history:
@@ -44,7 +45,8 @@ class Blog2EpubSettings:
                 data = ConfigurationModel()
         return data
 
-    def _save_history(self, data: ConfigurationModel) -> ConfigurationModel:
+    @staticmethod
+    def _save_history(data: ConfigurationModel) -> ConfigurationModel:
         if data.url and data.url not in data.history:
             data.history.append(data.url)
             sorted(data.history)
