@@ -1,9 +1,9 @@
+from dataclasses import dataclass
 from datetime import datetime
 
-from pydantic import BaseModel
 
-
-class HistoryEntry(BaseModel):
+@dataclass
+class HistoryEntry:
     url: str
     used: int = 0
     last: datetime = datetime.now(tz=None)

@@ -1,24 +1,26 @@
 import hashlib
 import os
+from dataclasses import dataclass, field
 from datetime import datetime
 
-from pydantic import BaseModel
 
-
-class BookSynopsisModel(BaseModel):
+@dataclass
+class BookSynopsisModel:
     title: str | None
     subtitle: str | None
     urls: list[str]
 
 
-class CommentModel(BaseModel):
+@dataclass
+class CommentModel:
     title: str | None
     date: datetime | None
     author: str | None
     content: str | None
 
 
-class ImageModel(BaseModel):
+@dataclass
+class ImageModel:
     url: str
     description: str = ""
     file_path: str = ""
@@ -50,18 +52,20 @@ class ImageModel(BaseModel):
         return False
 
 
-class ArticleModel(BaseModel):
+@dataclass
+class ArticleModel:
     url: str
     title: str | None
     date: datetime | None
-    accessed: datetime = datetime.now()
     content: str | None
     comments: str | None  # TODO: replace with List[CommentModel]
-    tags: list[str] = []
-    images: list[ImageModel] = []
+    accessed: datetime = datetime.now()
+    tags: list[str] = field(default_factory=list)
+    images: list[ImageModel] = field(default_factory=list)
 
 
-class DirModel(BaseModel):
+@dataclass
+class DirModel:
     path: str
 
     @property
@@ -77,7 +81,8 @@ class DirModel(BaseModel):
         return os.path.join(self.path, "originals")
 
 
-class BookModel(BaseModel):
+@dataclass
+class BookModel:
     url: str
     title: str | None
     subtitle: str | None

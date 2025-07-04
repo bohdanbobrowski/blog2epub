@@ -1,8 +1,6 @@
 import random
-from dataclasses import field
+from dataclasses import dataclass
 from pathlib import Path
-
-from pydantic import BaseModel, field_serializer
 
 INCLUDE_IMAGES = {
     "Yes": True,
@@ -50,7 +48,9 @@ example_blogs = [
 ]
 
 
-class ConfigurationModel(BaseModel):
+@dataclass
+class ConfigurationModel:
+    history: list[str]
     language: str = "en_US.UTF-8"
     use_cache: bool = False
     destination_folder: str = str(Path.home())
@@ -61,15 +61,10 @@ class ConfigurationModel(BaseModel):
     url: str = ""
     limit: str = "5"
     skip: str = ""
-    history: list[str] = field(default_factory=list)
     email: str = ""
     version: str = ""
 
-    @field_serializer("images_size")
-    def serialize_images_size(self, images_size: tuple[int, int], _info):
-        return [images_size[0], images_size[1]]
-
     def __init__(self, **kwargs) -> None:
-        super().__init__(**kwargs)
+        self.history = []
         if self.url == "":
             self.url = random.choice(example_blogs)

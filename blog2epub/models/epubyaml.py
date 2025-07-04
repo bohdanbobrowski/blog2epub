@@ -1,13 +1,18 @@
-from pydantic import BaseModel
+from dataclasses import dataclass
 
 
-class EpubYamlChapter(BaseModel):
+@dataclass
+class EpubYamlChapter:
     title: str
-    subtitle: str | None = None
     url: str
+    subtitle: str | None = None
 
 
-class EpubYamlModel(BaseModel):
+@dataclass
+class EpubYamlModel:
     title: str
     subtitle: str
-    chapters: list[EpubYamlChapter] = []
+    chapters: list[EpubYamlChapter]
+
+    def __init__(self, **kwargs) -> None:
+        self.chapters = []

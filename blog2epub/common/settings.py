@@ -1,3 +1,4 @@
+import dataclasses
 import os
 
 import yaml
@@ -54,5 +55,5 @@ class Blog2EpubSettings:
             data = self.data
         data = self._save_history(data)
         with open(self.settings_file, "w") as outfile:
-            data_dict = data.model_dump()
+            data_dict = dataclasses.asdict(data)
             yaml.dump(data_dict, outfile, default_flow_style=False)
