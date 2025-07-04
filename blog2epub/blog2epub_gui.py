@@ -169,13 +169,15 @@ class Blog2EpubKivyWindow(MDBoxLayout):
             size_hint=(0.2, 1),
             on_press=self.cancel_download,
         )
-        self.tab_download.add_widget(self._get_options_row())
-        params_row = self._get_params_row()
-        self.tab_download.add_widget(params_row)
+        options_row, options_row_2 = self._get_options_rows()
+        self.tab_download.add_widget(options_row)
         if platform != "android":
+            params_row = self._get_params_row()
+            self.tab_download.add_widget(params_row)
             params_row.add_widget(self.download_button)
             self.download_button_container = params_row
         else:
+            self.tab_download.add_widget(options_row_2)
             self.download_button_container = MDBoxLayout(orientation="horizontal", size_hint=(1, 0.12), spacing=sp(10))
             self.tab_download.add_widget(self.download_button_container)
             self.download_button_container.add_widget(self.download_button)
@@ -439,8 +441,9 @@ class Blog2EpubKivyWindow(MDBoxLayout):
                 return label
         return ""
 
-    def _get_options_row(self) -> MDBoxLayout:
+    def _get_options_rows(self, is_android: bool = False) -> tuple[MDBoxLayout, MDBoxLayout]:
         options_row = MDBoxLayout(orientation="horizontal", size_hint=(1, 0.12), spacing=sp(10))
+        options_row_2 = MDBoxLayout(orientation="horizontal", size_hint=(1, 0.12), spacing=sp(10))
 
         self.include_images_button = MDTextField(
             text=self._get_include_images_text(self.blog2epub_settings.data.include_images),
@@ -476,7 +479,10 @@ class Blog2EpubKivyWindow(MDBoxLayout):
             icon_right="quality-high",
         )
         self.images_quality.bind(text=self._validate_images_quality)
-        options_row.add_widget(self.images_quality)
+        if is_android:
+            options_row_2.add_widget(self.images_quality)
+        else:
+            options_row.add_widget(self.images_quality)
 
         self.images_color_mode_button = MDTextField(
             text=self._get_color_modes_text(self.blog2epub_settings.data.images_bw),
@@ -489,13 +495,15 @@ class Blog2EpubKivyWindow(MDBoxLayout):
             caller=self.images_color_mode_button,
             items=self._get_color_modes_list(),
         )
-        options_row.add_widget(self.images_color_mode_button)
+        if is_android:
+            options_row_2.add_widget(self.images_color_mode_button)
+        else:
+            options_row.add_widget(self.images_color_mode_button)
 
-        return options_row
+        return options_row, options_row_2
 
     def _get_params_row(self) -> MDBoxLayout:
         params_row = MDBoxLayout(orientation="horizontal", size_hint=(1, 0.12), spacing=sp(10))
-
         self.limit_entry = MDTextField(
             text=self.blog2epub_settings.data.limit,
             input_type="number",
@@ -504,7 +512,6 @@ class Blog2EpubKivyWindow(MDBoxLayout):
         )
         self.limit_entry.bind(text=self._validate_limit)
         params_row.add_widget(self.limit_entry)
-
         self.skip_entry = MDTextField(
             text=self.blog2epub_settings.data.skip,
             input_type="number",
