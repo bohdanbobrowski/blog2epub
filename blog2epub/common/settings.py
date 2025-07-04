@@ -34,7 +34,7 @@ class Blog2EpubSettings:
             self.save(data)
         else:
             with open(self.settings_file, "rb") as stream:
-                data_in_file = yaml.safe_load(stream)
+                data_in_file = yaml.load(stream, Loader=yaml.Loader)
                 if "version" not in data_in_file:
                     data_in_file["version"] = VERSION
                     data_in_file["history"] = self._normalise_history(data_in_file["history"])
