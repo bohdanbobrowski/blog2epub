@@ -1,11 +1,41 @@
 import dataclasses
 import os
+import random
 
 import yaml
 
 from blog2epub.common.crawler import prepare_port_and_url
 from blog2epub.common.globals import VERSION
 from blog2epub.models.configuration import ConfigurationModel
+
+example_blogs = [
+    "http://archaia-ellada.blogspot.com",
+    "http://historicaltidbits.blogspot.com",
+    "http://starybezpiek.blogspot.com",
+    "https://19thcentury.wordpress.com",
+    "https://cyclehistory.wordpress.com",
+    "https://klubjagiellonski.pl",
+    "https://knippsen.blogspot.com",
+    "https://ksgedania.blogspot.com",
+    "https://motorbikes.blog",
+    "https://nrdblog.cmosnet.eu",
+    "https://oldcam.wordpress.com",
+    "https://oldcamera.blog",
+    "https://python-bloggers.com",
+    "https://rocket-garage.blogspot.com",
+    "https://swiatmotocykli.pl",
+    "https://thevictoriancyclist.wordpress.com",
+    "https://velosov.blogspot.com",
+    "https://vintagebicycle.wordpress.com",
+    "https://vowe.net",
+    "https://www.blog.homebrewing.pl",
+    "https://www.historyoftheancientworld.com",
+    "https://www.infolotnicze.pl",
+    "https://www.mikeanderson.biz",
+    "https://www.nomadicmatt.com",
+    "https://www.returnofthecaferacers.com",
+    "https://www.szarmant.pl",
+]
 
 
 class Blog2EpubSettings:
@@ -43,6 +73,8 @@ class Blog2EpubSettings:
                 data = ConfigurationModel(**data_in_file)
             else:
                 data = ConfigurationModel()
+        if data.url == "":
+            data.url = random.choice(example_blogs)
         return data
 
     @staticmethod
