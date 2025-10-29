@@ -836,7 +836,7 @@ class Blog2EpubKivy(MDApp):
         self.theme_cls.primary_palette = "Teal"
         Window.resizable = False
         if platform != "android":
-            Window.size = (sp(640), sp(480))
+            Window.size = (sp(800), sp(600))
         return Blog2EpubKivyWindow()
 
 
