@@ -23,7 +23,6 @@ example_blogs = [
     "https://oldcamera.blog",
     "https://python-bloggers.com",
     "https://rocket-garage.blogspot.com",
-    # "https://swiatmotocykli.pl",
     "https://thevictoriancyclist.wordpress.com",
     "https://velosov.blogspot.com",
     "https://vintagebicycle.wordpress.com",
