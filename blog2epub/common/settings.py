@@ -9,11 +9,10 @@ from blog2epub.common.globals import VERSION
 from blog2epub.models.configuration import ConfigurationModel
 
 example_blogs = [
-    "http://archaia-ellada.blogspot.com",
-    "http://historicaltidbits.blogspot.com",
-    "http://starybezpiek.blogspot.com",
     "https://19thcentury.wordpress.com",
+    "https://archaia-ellada.blogspot.com",
     "https://cyclehistory.wordpress.com",
+    "https://historicaltidbits.blogspot.com",
     "https://klubjagiellonski.pl",
     "https://knippsen.blogspot.com",
     "https://ksgedania.blogspot.com",
@@ -23,6 +22,7 @@ example_blogs = [
     "https://oldcamera.blog",
     "https://python-bloggers.com",
     "https://rocket-garage.blogspot.com",
+    "https://starybezpiek.blogspot.com",
     "https://thevictoriancyclist.wordpress.com",
     "https://velosov.blogspot.com",
     "https://vintagebicycle.wordpress.com",
