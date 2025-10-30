@@ -1,5 +1,5 @@
 import re
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 
 @dataclass
@@ -10,15 +10,8 @@ class Pattern:
 
 @dataclass
 class ContentPatterns:
-    content: list[Pattern]
-    content_cleanup: list[Pattern]
-    title: list[Pattern]
-    date: list[Pattern]
-    images: list[Pattern]
-
-    def __init__(self, **kwargs) -> None:
-        self.content = [Pattern()]
-        self.content_cleanup = [Pattern()]
-        self.title = [Pattern()]
-        self.date = [Pattern()]
-        self.images = [Pattern()]
+    content: list[Pattern] = field(default_factory=list)
+    content_cleanup: list[Pattern] = field(default_factory=list)
+    title: list[Pattern] = field(default_factory=list)
+    date: list[Pattern] = field(default_factory=list)
+    images: list[Pattern] = field(default_factory=list)
