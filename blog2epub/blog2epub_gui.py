@@ -59,7 +59,7 @@ UI_FONT_NAME = asset_path("LiberationMono-Regular.ttf")
 now = datetime.now()
 date_time = now.strftime("%Y-%m-%d[%H.%M.%S]")
 
-if __name__ in ['__android__', '__main__']:
+if __name__ in ["__android__", "__main__"]:
     if platform == "android":
         from android.permissions import Permission, request_permissions  # type: ignore
 
@@ -133,18 +133,6 @@ class Blog2EpubKivyWindow(MDBoxLayout):
         self.tabs.add_widget(self.tab_about)
 
         self.interface = KivyInterface(self.console_output, self.console_clear, self.console_delete_last_line)
-
-        # from kivy.metrics import sp, dp, pt, cm  # type: ignore
-        # with open("125percent.txt", "w") as f:
-        #     for x in range(1, 11):
-        #         f.write(f"[{x}]:\n")
-        #         f.write(f"{cm(10*x)}\n")
-        #         f.write(f"{pt(10*x)}\n")
-        #         f.write(f"{dp(10*x)}\n")
-        #         f.write(f"{sp(10*x)}\n")
-        #         f.write("\n")
-        # print(Window.size)
-        # exit()
 
     def _define_tab_download(self):
         self.tab_download = Tab(
