@@ -37,7 +37,7 @@ version.filename = %(source.dir)s/blog2epub/common/globals.py
 
 # (list) Application requirements
 # comma separated e.g. requirements = sqlite3,kivy
-requirements = python3,kivy==2.3.0,kivymd==1.2.0,lxml==5.3.0,attrs,pillow,click,soupsieve,webencodings,html5lib,beautifulsoup4,ebooklib,python-dateutil,atoma,fake-useragent,pyyaml,plyer,defusedxml,pyjnius,imagesize,strip-tags,filetype
+requirements = python3,kivy==2.3.0,kivymd==1.2.0,lxml==5.3.0,attrs,pillow,click,soupsieve,webencodings,html5lib,beautifulsoup4,bs4,typing-extensions,ebooklib,python-dateutil,atoma,fake-useragent,pyyaml,plyer,defusedxml,pyjnius,imagesize,strip-tags,filetype,pytz
 
 # (str) Custom source folders for requirements
 # Sets custom source for any requirements with recipes
@@ -101,16 +101,16 @@ android.permissions = android.permission.INTERNET, android.permission.WRITE_EXTE
 #android.features = android.hardware.usb.host
 
 # (int) Target Android API, should be as high as possible.
-android.api = 36
+android.api = 34
 
 # (int) Minimum API your APK / AAB will support.
 android.minapi = 24
 
 # (str) Android NDK version to use
-#android.ndk = 23b
+# android.ndk =
 
 # (int) Android NDK API to use. This is the minimum API your app will support, it should usually match android.minapi.
-#android.ndk_api = 21
+# android.ndk_api =
 
 # (bool) Use --private data storage (True) or --dir public storage (False)
 #android.private_storage = True
