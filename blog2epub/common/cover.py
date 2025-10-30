@@ -69,9 +69,9 @@ class Cover:
             elif img.size[0] > img.size[1]:
                 new_x = img.size[0] / img.size[1] * self.tile_size
                 new_y = self.tile_size
-            img = img.resize((new_x, new_y), Image.Resampling.LANCZOS)
+            img = img.resize((new_x, new_y), Image.LANCZOS)
         cropped_img = self._crop_image(img)
-        cropped_img.thumbnail(size, Image.Resampling.LANCZOS)
+        cropped_img.thumbnail(size, Image.LANCZOS)
         return cropped_img
 
     def _is_landscape(self, width, height):

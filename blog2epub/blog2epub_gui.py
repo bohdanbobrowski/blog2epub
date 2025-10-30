@@ -59,19 +59,18 @@ UI_FONT_NAME = asset_path("LiberationMono-Regular.ttf")
 now = datetime.now()
 date_time = now.strftime("%Y-%m-%d[%H.%M.%S]")
 
-if platform == "android":
-    from android.permissions import Permission, request_permissions  # type: ignore
+if __name__ in ['__android__', '__main__']:
+    if platform == "android":
+        from android.permissions import Permission, request_permissions  # type: ignore
 
-    request_permissions(
-        [
-            Permission.INTERNET,
-            Permission.WRITE_EXTERNAL_STORAGE,
-            Permission.READ_EXTERNAL_STORAGE,
-            Permission.READ_MEDIA_IMAGES,
-            Permission.READ_MEDIA_VIDEO,
-            Permission.READ_MEDIA_AUDIO,
-        ]
-    )
+        request_permissions(
+            [
+                Permission.INTERNET,
+                Permission.WRITE_EXTERNAL_STORAGE,
+                Permission.READ_EXTERNAL_STORAGE,
+                Permission.MODIFY_EXTERNAL_STORAGE,
+            ]
+        )
 
 
 class UrlTextInput(MDTextField):
@@ -173,9 +172,9 @@ class Blog2EpubKivyWindow(MDBoxLayout):
         )
         options_row, options_row_2 = self._get_options_rows(platform)
         self.tab_download.add_widget(options_row)
+        params_row = self._get_params_row()
+        self.tab_download.add_widget(params_row)
         if platform != "android":
-            params_row = self._get_params_row()
-            self.tab_download.add_widget(params_row)
             params_row.add_widget(self.download_button)
             self.download_button_container = params_row
         else:
