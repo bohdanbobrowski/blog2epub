@@ -22,7 +22,7 @@ source.source.include_patterns = blog2epub/**/*
 source.exclude_exts = spec, setup.py, pyproject.toml
 
 # (list) List of directory to exclude (let empty to not exclude anything)
-#source.exclude_dirs = tests, bin, venv
+source.exclude_dirs = .github, dist, packages, tests, venv
 
 # (list) List of exclusions using pattern matching
 # Do not prefix with './'
@@ -101,7 +101,7 @@ android.permissions = android.permission.INTERNET, android.permission.WRITE_EXTE
 #android.features = android.hardware.usb.host
 
 # (int) Target Android API, should be as high as possible.
-android.api = 34
+android.api = 36
 
 # (int) Minimum API your APK / AAB will support.
 android.minapi = 24
