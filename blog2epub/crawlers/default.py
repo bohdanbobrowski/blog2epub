@@ -40,10 +40,10 @@ class DefaultCrawler(AbstractCrawler):
             ],
             content_cleanup=[
                 Pattern(
-                    regex=r'<div style="[^"]+">[\s+]<span style="[^"]+"><i>Dyskretna Reklama<\/i><\/span>',
+                    regex=r'<div style="[^"]+">[\s+]*(<br\ ?\/?>)*[\s+]*<span style="[^"]+"><i>Dyskretna Reklama<\/i><\/span>',
                 ),
                 Pattern(
-                    regex=r'<span style="[^"]+"><br[\s\/]*><i>Koniec Dyskretnej Reklamy<\/i><\/span><\/div>',
+                    regex=r'<span style="[^"]+">(<br\ ?\/?>)*[\s+]*<i>Koniec Dyskretnej Reklamy<\/i><\/span><\/div>',
                 ),
                 Pattern(
                     xpath='//div[@class="post-footer"]',
