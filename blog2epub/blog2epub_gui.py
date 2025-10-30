@@ -135,6 +135,18 @@ class Blog2EpubKivyWindow(MDBoxLayout):
 
         self.interface = KivyInterface(self.console_output, self.console_clear, self.console_delete_last_line)
 
+        # from kivy.metrics import sp, dp, pt, cm  # type: ignore
+        # with open("125percent.txt", "w") as f:
+        #     for x in range(1, 11):
+        #         f.write(f"[{x}]:\n")
+        #         f.write(f"{cm(10*x)}\n")
+        #         f.write(f"{pt(10*x)}\n")
+        #         f.write(f"{dp(10*x)}\n")
+        #         f.write(f"{sp(10*x)}\n")
+        #         f.write("\n")
+        # print(Window.size)
+        # exit()
+
     def _define_tab_download(self):
         self.tab_download = Tab(
             title="Download",
@@ -809,6 +821,8 @@ class Blog2EpubKivy(MDApp):
         self.title = f"blog2epub - v. {Blog2Epub.version}"
         logging.info(self.title)
         logging.debug(f"Metrics.density = {Metrics.density}")
+        logging.debug(f"Metrics.dpi_rounded = {Metrics.dpi_rounded}")
+        logging.debug(f"Metrics.fontscale = {Metrics.fontscale}")
         if platform == "macos":
             self.icon = asset_path("blog2epub.icns")
         elif platform == "win":
