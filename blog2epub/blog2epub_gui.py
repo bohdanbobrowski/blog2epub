@@ -14,7 +14,7 @@ from threading import Thread
 
 from kivy.uix.anchorlayout import AnchorLayout  # type: ignore
 from kivy.uix.boxlayout import BoxLayout  # type: ignore
-from kivy.uix.filechooser import FileChooserListView
+from kivy.uix.filechooser import FileChooserListView  # type: ignore
 from kivymd.uix.datatables import MDDataTable  # type: ignore
 from kivymd.uix.menu import MDDropdownMenu  # type: ignore
 from kivymd.uix.tab import MDTabs, MDTabsBase  # type: ignore

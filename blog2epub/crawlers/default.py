@@ -43,7 +43,7 @@ class DefaultCrawler(AbstractCrawler):
                     regex=r'<div style="[^"]+">[\s+]*(<br\ ?\/?>)*[\s+]*<span style="[^"]+"><i>Dyskretna Reklama<\/i><\/span>',
                 ),
                 Pattern(
-                    regex=r'<span style="[^"]+">(<br\ ?\/?>)*[\s+]*<i>Koniec Dyskretnej Reklamy<\/i><\/span><\/div>',
+                    regex=r'<span style="[^"]+">(<br\ ?\/?>)*[\s+]*<i>Koniec Dyskretnej Reklamy<\/i><\/span>(<\/div?>)*[\s+]*(<br\ ?\/?>)*',
                 ),
                 Pattern(
                     xpath='//div[@class="post-footer"]',
