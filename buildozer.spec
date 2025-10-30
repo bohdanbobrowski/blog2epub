@@ -61,7 +61,7 @@ orientation = portrait
 #
 
 #
-# author = © Copyright Info
+author = © Copyright Bohdan Bobrowski
 
 # change the major version of python used by the app
 # android.python_version = 3.12

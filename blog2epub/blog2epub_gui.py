@@ -368,14 +368,6 @@ class Blog2EpubKivyWindow(MDBoxLayout):
         url_row.add_widget(self.url_entry)
         return url_row
 
-    def _select_images_sizes(self, size: tuple[int, int]):
-        self.blog2epub_settings.data.images_size = size
-        self.images_sizes_button.text = "*".join([str(size[0]), str(size[1])])
-
-    def _open_images_sizes(self, caller, text):
-        if self.images_sizes.parent is None:
-            self.images_sizes.open()
-
     def _get_sizes_list(self) -> list[dict]:
         return [
             {
@@ -384,14 +376,6 @@ class Blog2EpubKivyWindow(MDBoxLayout):
             }
             for size in IMAGE_SIZES
         ]
-
-    def _select_color_mode(self, color_mode: tuple[str, bool]):
-        self.blog2epub_settings.data.images_bw = color_mode[1]
-        self.images_color_mode_button.text = color_mode[0]
-
-    def _open_color_modes(self, caller, text):
-        if self.images_color_modes.parent is None:
-            self.images_color_modes.open()
 
     def _get_color_modes_list(self) -> list[dict]:
         return [
@@ -408,14 +392,6 @@ class Blog2EpubKivyWindow(MDBoxLayout):
             if current_mode == value:
                 return label
         return ""
-
-    def _select_include_images(self, include_images: tuple[str, bool]):
-        self.blog2epub_settings.data.include_images = include_images[1]
-        self.include_images_button.text = include_images[0]
-
-    def _open_include_images(self, caller, text):
-        if self.include_images_menu.parent is None:
-            self.include_images_menu.open()
 
     def _get_include_images_menu(self) -> list[dict]:
         return [
@@ -437,32 +413,34 @@ class Blog2EpubKivyWindow(MDBoxLayout):
         options_row = MDBoxLayout(orientation="horizontal", size_hint=(1, 0.12), spacing=sp(10))
         options_row_2 = MDBoxLayout(orientation="horizontal", size_hint=(1, 0.12), spacing=sp(10))
 
-        self.include_images_button = MDTextField(
+        # Include Images
+        self.include_images_textfield = MDTextField(
             text=self._get_include_images_text(self.blog2epub_settings.data.include_images),
             hint_text="Include images:",
             icon_right="image-size-select-actual",
             readonly=True,
+            on_touch_down=self._open_include_images,
         )
-        self.include_images_button.bind(focus=self._open_include_images)
         self.include_images_menu = MDDropdownMenu(
-            caller=self.include_images_button,
+            caller=self.include_images_textfield,
             items=self._get_include_images_menu(),
         )
-        options_row.add_widget(self.include_images_button)
+        options_row.add_widget(self.include_images_textfield)
 
-        self.images_sizes_button = MDTextField(
+        # Image Sizes
+        self.images_sizes_textfield = MDTextField(
             text="*".join([str(x) for x in self.blog2epub_settings.data.images_size]),
             input_type="number",
             hint_text="Images and cover size:",
             icon_right="image-size-select-large",
             readonly=True,
+            on_touch_down=self._open_images_sizes,
         )
-        self.images_sizes_button.bind(focus=self._open_images_sizes)
         self.images_sizes = MDDropdownMenu(
-            caller=self.images_sizes_button,
+            caller=self.images_sizes_textfield,
             items=self._get_sizes_list(),
         )
-        options_row.add_widget(self.images_sizes_button)
+        options_row.add_widget(self.images_sizes_textfield)
 
         self.images_quality = MDTextField(
             text=str(self.blog2epub_settings.data.images_quality),
@@ -476,23 +454,59 @@ class Blog2EpubKivyWindow(MDBoxLayout):
         else:
             options_row.add_widget(self.images_quality)
 
-        self.images_color_mode_button = MDTextField(
+        # Images Color Mode
+        self.images_color_mode_textfield = MDTextField(
             text=self._get_color_modes_text(self.blog2epub_settings.data.images_bw),
             hint_text="Color mode:",
             icon_right="palette",
             readonly=True,
+            on_touch_up=self._open_color_modes,
         )
-        self.images_color_mode_button.bind(focus=self._open_color_modes)
         self.images_color_modes = MDDropdownMenu(
-            caller=self.images_color_mode_button,
+            caller=self.images_color_mode_textfield,
             items=self._get_color_modes_list(),
         )
         if platform == "android":
-            options_row_2.add_widget(self.images_color_mode_button)
+            options_row_2.add_widget(self.images_color_mode_textfield)
         else:
-            options_row.add_widget(self.images_color_mode_button)
-
+            options_row.add_widget(self.images_color_mode_textfield)
         return options_row, options_row_2
+
+    def _select_include_images(self, include_images: tuple[str, bool]):
+        self.blog2epub_settings.data.include_images = include_images[1]
+        self.include_images_textfield.text = include_images[0]
+
+    @staticmethod
+    def _checked_if_clicked(
+        event_pos: tuple[float, float], caller_pos: tuple[float, float], caller_size: tuple[float, float]
+    ) -> bool:
+        if event_pos[0] >= caller_pos[0] and event_pos[1] >= caller_pos[1]:
+            if event_pos[0] <= caller_pos[0] + caller_size[0] and event_pos[1] <= caller_pos[1] + caller_size[1]:
+                return True
+        return False
+
+    def _open_include_images(self, caller, event):
+        if self._checked_if_clicked(event.pos, caller.pos, caller.size):
+            if self.include_images_menu.parent is None:
+                self.include_images_menu.open()
+
+    def _select_images_sizes(self, size: tuple[int, int]):
+        self.blog2epub_settings.data.images_size = size
+        self.images_sizes_textfield.text = "*".join([str(size[0]), str(size[1])])
+
+    def _open_images_sizes(self, caller, event):
+        if self._checked_if_clicked(event.pos, caller.pos, caller.size):
+            if self.images_sizes.parent is None:
+                self.images_sizes.open()
+
+    def _select_color_mode(self, color_mode: tuple[str, bool]):
+        self.blog2epub_settings.data.images_bw = color_mode[1]
+        self.images_color_mode_textfield.text = color_mode[0]
+
+    def _open_color_modes(self, caller, event):
+        if self._checked_if_clicked(event.pos, caller.pos, caller.size):
+            if self.images_color_modes.parent is None:
+                self.images_color_modes.open()
 
     def _get_params_row(self) -> MDBoxLayout:
         params_row = MDBoxLayout(orientation="horizontal", size_hint=(1, 0.12), spacing=sp(10))
