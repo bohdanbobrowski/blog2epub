@@ -19,7 +19,7 @@ from kivymd.uix.datatables import MDDataTable  # type: ignore
 from kivymd.uix.menu import MDDropdownMenu  # type: ignore
 from kivymd.uix.tab import MDTabs, MDTabsBase  # type: ignore
 from kivymd.uix.textfield import MDTextField  # type: ignore
-from plyer import filechooser, notification  # type: ignore
+from plyer import notification  # type: ignore
 
 from blog2epub.common.book import Book
 from blog2epub.models.book import ArticleModel
@@ -110,6 +110,7 @@ class Blog2EpubKivyWindow(MDBoxLayout):
         self.blog2epub_settings = Blog2EpubSettings(path=USER_DATA_DIR)
         if platform == "android":
             from android.storage import primary_external_storage_path  # type: ignore
+
             self.blog2epub_settings.data.destination_folder = os.path.join(primary_external_storage_path(), "Download")
 
         self.blog2epub = None
@@ -133,18 +134,6 @@ class Blog2EpubKivyWindow(MDBoxLayout):
         self.tabs.add_widget(self.tab_about)
 
         self.interface = KivyInterface(self.console_output, self.console_clear, self.console_delete_last_line)
-        # DEBUG:
-        # self.interface.print(self.blog2epub_settings.data.dict())
-        # self.interface.print(str(pydantic.version.version_info()))
-        # for name, value in os.environ.items():
-        #     self.interface.print(f"{name}={value}")
-        #
-        # if platform == "android":
-        #     from android.permissions import request_permissions, Permission
-        #
-        #     request_permissions(
-        #         [Permission.WRITE_EXTERNAL_STORAGE, Permission.READ_EXTERNAL_STORAGE]
-        #     )
 
     def _define_tab_download(self):
         self.tab_download = Tab(
@@ -261,7 +250,7 @@ class Blog2EpubKivyWindow(MDBoxLayout):
                 font_size=sp(16),
             )
             content_pop_download = MDBoxLayout(
-                orientation='vertical',
+                orientation="vertical",
                 size_hint=(1, 1),
                 spacing=sp(10),
             )
