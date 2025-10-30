@@ -171,7 +171,7 @@ Example:
 
 ## Current version
 
-### [v1.5.0 - Release Candidate 3](https://github.com/bohdanbobrowski/blog2epub/releases/tag/v1.5.0_RC3)
+### [v1.5.0](https://github.com/bohdanbobrowski/blog2epub/releases/tag/v1.5.0)
 - [X] integration testing
 - [X] increase unit test coverage
 - [X] use sitemaps.xml for scraping
