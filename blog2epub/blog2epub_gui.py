@@ -67,8 +67,6 @@ if __name__ in ["__android__", "__main__"]:
             [
                 Permission.INTERNET,
                 Permission.WRITE_EXTERNAL_STORAGE,
-                Permission.READ_EXTERNAL_STORAGE,
-                Permission.MODIFY_EXTERNAL_STORAGE,
             ]
         )
 
