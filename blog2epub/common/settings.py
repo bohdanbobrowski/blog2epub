@@ -13,7 +13,6 @@ example_blogs = [
     "https://archaia-ellada.blogspot.com",
     "https://cyclehistory.wordpress.com",
     "https://historicaltidbits.blogspot.com",
-    "https://klubjagiellonski.pl",
     "https://knippsen.blogspot.com",
     "https://ksgedania.blogspot.com",
     "https://motorbikes.blog",
