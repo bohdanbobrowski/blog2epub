@@ -35,7 +35,7 @@ Config.set("graphics", "resizable", False)
 
 from kivy.clock import mainthread  # type: ignore
 from kivy.core.window import Window  # type: ignore
-from kivy.metrics import Metrics, dp, sp  # type: ignore
+from kivy.metrics import Metrics, sp  # type: ignore
 from kivy.uix.image import Image  # type: ignore
 from kivy.uix.popup import Popup  # type: ignore
 from kivy.uix.textinput import TextInput  # type: ignore
@@ -106,6 +106,7 @@ class Blog2EpubKivyWindow(MDBoxLayout):
 
         if platform == "android":
             from android.storage import primary_external_storage_path  # type: ignore
+
             self.blog2epub_settings.data.destination_folder = os.path.join(primary_external_storage_path(), "Download")
             self.orientation = "vertical"
 
@@ -115,7 +116,11 @@ class Blog2EpubKivyWindow(MDBoxLayout):
         self._generate_lock = False
 
         self.tabs = MDTabs()
-        self.add_widget(self.tabs)
+        box_layout = MDBoxLayout(
+            size_hint=(1, 1),
+        )
+        box_layout.add_widget(self.tabs)
+        self.add_widget(box_layout)
 
         self._define_tab_download()
         self.tabs.add_widget(self.tab_download)
@@ -139,6 +144,8 @@ class Blog2EpubKivyWindow(MDBoxLayout):
             spacing=sp(10),
             padding=sp(16),
         )
+        self.tab_download.tab_label.font_name = UI_FONT_NAME
+        self.tab_download.tab_label.font_size = sp(16)
 
         url_row = self._get_url_row()
         self.tab_download.add_widget(url_row)
@@ -172,8 +179,9 @@ class Blog2EpubKivyWindow(MDBoxLayout):
             font_name=UI_FONT_NAME,
             background_color="black",
             foreground_color="white",
-            size_hint=(1, 0.5) if platform == "android" else (1, 0.88),
+            size_hint=(1, 0.7) if platform == "android" else (1, 0.88),
             readonly=True,
+            spacing=sp(10),
         )
         self.tab_download.add_widget(self.console)
 
@@ -211,6 +219,8 @@ class Blog2EpubKivyWindow(MDBoxLayout):
             icon="format-list-bulleted-type",
             orientation="vertical",
         )
+        self.tab_select.tab_label.font_name = UI_FONT_NAME
+        self.tab_select.tab_label.font_size = sp(16)
         self._define_data_tables()
 
     def _define_tab_generate(self):
@@ -219,6 +229,8 @@ class Blog2EpubKivyWindow(MDBoxLayout):
             icon="cog",
             orientation="vertical",
         )
+        self.tab_generate.tab_label.font_name = UI_FONT_NAME
+        self.tab_generate.tab_label.font_size = sp(16)
 
         self.selected_label = MDLabel(
             text=f"Selected {0} articles.",
@@ -309,6 +321,8 @@ class Blog2EpubKivyWindow(MDBoxLayout):
             spacing=sp(10),
             padding=sp(16),
         )
+        self.tab_about.tab_label.font_name = UI_FONT_NAME
+        self.tab_about.tab_label.font_size = sp(16)
         logo_image = Image(
             source=asset_path("blog2epub.png"),
             allow_stretch=True,
