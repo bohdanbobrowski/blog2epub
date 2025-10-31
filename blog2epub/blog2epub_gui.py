@@ -35,7 +35,7 @@ Config.set("graphics", "resizable", False)
 
 from kivy.clock import mainthread  # type: ignore
 from kivy.core.window import Window  # type: ignore
-from kivy.metrics import Metrics, sp  # type: ignore
+from kivy.metrics import Metrics, dp, sp  # type: ignore
 from kivy.uix.image import Image  # type: ignore
 from kivy.uix.popup import Popup  # type: ignore
 from kivy.uix.textinput import TextInput  # type: ignore
@@ -66,7 +66,6 @@ if __name__ in ["__android__", "__main__"]:
         request_permissions(
             [
                 Permission.INTERNET,
-                Permission.WRITE_EXTERNAL_STORAGE,
             ]
         )
 
@@ -101,14 +100,17 @@ class Blog2EpubKivyWindow(MDBoxLayout):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         global USER_DATA_DIR
-        self.orientation = "vertical"
 
         self.articles_data = []
         self.blog2epub_settings = Blog2EpubSettings(path=USER_DATA_DIR)
+
         if platform == "android":
             from android.storage import primary_external_storage_path  # type: ignore
-
             self.blog2epub_settings.data.destination_folder = os.path.join(primary_external_storage_path(), "Download")
+            self.orientation = "vertical"
+
+        self.padding = dp(10)
+        self.spacing = dp(10)
 
         self.blog2epub = None
         self.download_thread = None
@@ -173,7 +175,7 @@ class Blog2EpubKivyWindow(MDBoxLayout):
             font_name=UI_FONT_NAME,
             background_color="black",
             foreground_color="white",
-            size_hint=(1, 0.88),
+            size_hint=(1, 0.5) if platform == "android" else (1, 0.88),
             readonly=True,
         )
         self.tab_download.add_widget(self.console)
@@ -211,9 +213,6 @@ class Blog2EpubKivyWindow(MDBoxLayout):
             title="Select",
             icon="format-list-bulleted-type",
             orientation="vertical",
-            spacing=sp(1),
-            padding=sp(16),
-            disabled=True,
         )
         self._define_data_tables()
 
@@ -222,8 +221,6 @@ class Blog2EpubKivyWindow(MDBoxLayout):
             title="Generate",
             icon="cog",
             orientation="vertical",
-            spacing=sp(1),
-            padding=sp(16),
         )
 
         self.selected_label = MDLabel(
@@ -312,7 +309,7 @@ class Blog2EpubKivyWindow(MDBoxLayout):
             title="About",
             icon="information-variant",
             orientation="vertical",
-            spacing=sp(1),
+            spacing=sp(10),
             padding=sp(16),
         )
         logo_image = Image(
@@ -582,7 +579,6 @@ class Blog2EpubKivyWindow(MDBoxLayout):
         blog2epub.download()
         self._enable_download_button()
         if len(blog2epub.crawler.articles) > 0:
-            self.tab_select.disabled = False
             self._update_articles_data(blog2epub.crawler.articles)
             self.articles_table.update_row_data(self.articles_table, self._get_articles_rows())
             self.blog2epub_settings.data.language = blog2epub.crawler.language
@@ -671,7 +667,6 @@ class Blog2EpubKivyWindow(MDBoxLayout):
         self.interface.clear()
         self._disable_download_button()
         self.articles_table.update_row_data(self.articles_table, [])
-        self.tab_select.disabled = True
         self.save_settings()
         try:
             self.blog2epub = Blog2Epub(
