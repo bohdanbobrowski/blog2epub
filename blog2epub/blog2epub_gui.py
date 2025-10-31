@@ -850,7 +850,7 @@ class Blog2EpubKivy(MDApp):
         Window.resizable = False
         if platform != "android":
             Window.size = (sp(800), sp(600))
-            Config.set('input', 'mouse', 'mouse,disable_multitouch')
+            Config.set("input", "mouse", "mouse,disable_multitouch")
         return Blog2EpubKivyWindow()
 
 
