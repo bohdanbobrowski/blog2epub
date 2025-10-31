@@ -94,6 +94,7 @@ class UrlTextInput(MDTextField):
 
 class Tab(MDBoxLayout, MDTabsBase):
     orientation = "vertical"
+    size_hint = (1, 1)
 
 
 class Blog2EpubKivyWindow(MDBoxLayout):
@@ -141,7 +142,7 @@ class Blog2EpubKivyWindow(MDBoxLayout):
             title="Download",
             icon="download",
             spacing=sp(10),
-            padding=sp(16),
+            padding=sp(10),
         )
         self.tab_download.tab_label.font_name = UI_FONT_NAME
         self.tab_download.tab_label.font_size = sp(16)
@@ -174,12 +175,13 @@ class Blog2EpubKivyWindow(MDBoxLayout):
             self.tab_download.add_widget(self.download_button_container)
             self.download_button_container.add_widget(self.download_button)
         self.console = TextInput(
-            font_size=sp(12),
+            font_size=sp(11) if platform == "android" else sp(12),
             font_name=UI_FONT_NAME,
             background_color="black",
             foreground_color="white",
             size_hint=(1, 0.7) if platform == "android" else (1, 0.88),
             readonly=True,
+            padding=sp(5),
         )
         self.tab_download.add_widget(self.console)
 
@@ -216,7 +218,7 @@ class Blog2EpubKivyWindow(MDBoxLayout):
             title="Select",
             icon="format-list-bulleted-type",
             spacing=sp(10),
-            padding=sp(16),
+            padding=sp(10),
         )
         self.tab_select.tab_label.font_name = UI_FONT_NAME
         self.tab_select.tab_label.font_size = sp(16)
@@ -227,7 +229,7 @@ class Blog2EpubKivyWindow(MDBoxLayout):
             title="Generate",
             icon="cog",
             spacing=sp(10),
-            padding=sp(16),
+            padding=sp(10),
         )
         self.tab_generate.tab_label.font_name = UI_FONT_NAME
         self.tab_generate.tab_label.font_size = sp(16)
@@ -318,7 +320,7 @@ class Blog2EpubKivyWindow(MDBoxLayout):
             title="About",
             icon="information-variant",
             spacing=sp(10),
-            padding=sp(16),
+            padding=sp(10),
         )
         self.tab_about.tab_label.font_name = UI_FONT_NAME
         self.tab_about.tab_label.font_size = sp(16)
@@ -848,6 +850,7 @@ class Blog2EpubKivy(MDApp):
         Window.resizable = False
         if platform != "android":
             Window.size = (sp(800), sp(600))
+            Config.set('input', 'mouse', 'mouse,disable_multitouch')
         return Blog2EpubKivyWindow()
 
 

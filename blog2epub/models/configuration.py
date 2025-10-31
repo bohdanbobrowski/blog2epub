@@ -29,7 +29,7 @@ class ConfigurationModel:
     images_quality: int = 40
     images_bw: bool = IMAGE_COL_MODES["BW"]
     url: str = ""
-    limit: str = "5"
+    limit: str = ""
     skip: str = ""
     email: str = ""
     version: str = ""

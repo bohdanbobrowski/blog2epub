@@ -72,7 +72,7 @@ class Blog2EpubSettings:
             else:
                 data = ConfigurationModel()
         if data.url == "":
-            data.url = random.choice(example_blogs)
+            data.url = "https://blog2epub.blogspot.com" # random.choice(example_blogs)
         return data
 
     @staticmethod
