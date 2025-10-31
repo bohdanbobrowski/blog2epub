@@ -109,9 +109,6 @@ class Blog2EpubKivyWindow(MDBoxLayout):
             self.blog2epub_settings.data.destination_folder = os.path.join(primary_external_storage_path(), "Download")
             self.orientation = "vertical"
 
-        self.padding = dp(10)
-        self.spacing = dp(10)
-
         self.blog2epub = None
         self.download_thread = None
         self.ebook_data = None
