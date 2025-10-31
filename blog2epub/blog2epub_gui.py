@@ -93,7 +93,7 @@ class UrlTextInput(MDTextField):
 
 
 class Tab(MDBoxLayout, MDTabsBase):
-    pass
+    orientation = "vertical"
 
 
 class Blog2EpubKivyWindow(MDBoxLayout):
@@ -140,7 +140,6 @@ class Blog2EpubKivyWindow(MDBoxLayout):
         self.tab_download = Tab(
             title="Download",
             icon="download",
-            orientation="vertical",
             spacing=sp(10),
             padding=sp(16),
         )
@@ -181,7 +180,6 @@ class Blog2EpubKivyWindow(MDBoxLayout):
             foreground_color="white",
             size_hint=(1, 0.7) if platform == "android" else (1, 0.88),
             readonly=True,
-            spacing=sp(10),
         )
         self.tab_download.add_widget(self.console)
 
@@ -217,7 +215,8 @@ class Blog2EpubKivyWindow(MDBoxLayout):
         self.tab_select = Tab(
             title="Select",
             icon="format-list-bulleted-type",
-            orientation="vertical",
+            spacing=sp(10),
+            padding=sp(16),
         )
         self.tab_select.tab_label.font_name = UI_FONT_NAME
         self.tab_select.tab_label.font_size = sp(16)
@@ -227,7 +226,8 @@ class Blog2EpubKivyWindow(MDBoxLayout):
         self.tab_generate = Tab(
             title="Generate",
             icon="cog",
-            orientation="vertical",
+            spacing=sp(10),
+            padding=sp(16),
         )
         self.tab_generate.tab_label.font_name = UI_FONT_NAME
         self.tab_generate.tab_label.font_size = sp(16)
@@ -317,7 +317,6 @@ class Blog2EpubKivyWindow(MDBoxLayout):
         self.tab_about = Tab(
             title="About",
             icon="information-variant",
-            orientation="vertical",
             spacing=sp(10),
             padding=sp(16),
         )
