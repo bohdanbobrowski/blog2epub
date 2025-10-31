@@ -29,7 +29,7 @@ source.exclude_dirs = .github, dist, packages, tests, venv
 #source.exclude_patterns = license,images/*/*.jpg
 
 # (str) Application versioning (method 1)
-# version =
+# version = 1.5.0
 
 # (str) Application versioning (method 2)
 version.regex = VERSION = ['"]*([0-9]+.[0-9]+.[0-9]+)
@@ -101,16 +101,16 @@ android.permissions = android.permission.INTERNET, android.permission.WRITE_EXTE
 #android.features = android.hardware.usb.host
 
 # (int) Target Android API, should be as high as possible.
-android.api = 34
+android.api = 36
 
 # (int) Minimum API your APK / AAB will support.
-android.minapi = 24
+android.minapi = 26
 
 # (str) Android NDK version to use
-# android.ndk =
+android.ndk = 25b
 
 # (int) Android NDK API to use. This is the minimum API your app will support, it should usually match android.minapi.
-# android.ndk_api =
+android.ndk_api = 26
 
 # (bool) Use --private data storage (True) or --dir public storage (False)
 #android.private_storage = True
@@ -285,7 +285,7 @@ android.archs = arm64-v8a
 
 # (int) overrides automatic versionCode computation (used in build.gradle)
 # this is not the same as app version and should only be edited if you know what you're doing
-# android.numeric_version =
+android.numeric_version = 102410505
 
 # (bool) enables Android auto backup feature (Android API >=23)
 android.allow_backup = True

@@ -28,3 +28,12 @@ unit_coverage_html:
 clear_win:
 	del /q *.epub
 	rd /s /q tests_cache
+
+generate_keystore:
+	keytool -genkey -v -keystore ~/.keystores/mykey.keystore -alias bobrowski_com_pl -keyalg RSA -keysize 2048 -validity 10000
+	keytool -importkeystore -srckeystore /home/bohdan/.keystores/mykey.keystore -destkeystore /home/bohdan/.keystores/mykey.keystore -deststoretype pkcs12
+
+build_android_debug:
+	buildozer android debug
+
+build_android_release:
