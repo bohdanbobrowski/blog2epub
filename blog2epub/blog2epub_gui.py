@@ -19,7 +19,7 @@ from kivymd.uix.datatables import MDDataTable  # type: ignore
 from kivymd.uix.menu import MDDropdownMenu  # type: ignore
 from kivymd.uix.tab import MDTabs, MDTabsBase  # type: ignore
 from kivymd.uix.textfield import MDTextField  # type: ignore
-from plyer import notification  # type: ignore
+from plyer import filechooser, notification  # type: ignore
 
 from blog2epub.common.book import Book
 from blog2epub.models.book import ArticleModel
@@ -246,32 +246,35 @@ class Blog2EpubKivyWindow(MDBoxLayout):
         tab_layout.add_widget(self.selected_label)
 
         if platform != "android":
-            self.file_chooser = FileChooserListView(dirselect=True)
-            self.file_chooser_popup = Popup(
-                title="Destination folder",
-            )
-            self.file_chooser_popup_button = MDRoundFlatIconButton(
-                icon="folder",
-                text="Select folder",
-                font_size=sp(16),
-            )
-            content_pop_download = MDBoxLayout(
-                orientation="vertical",
-                size_hint=(1, 1),
-                spacing=sp(10),
-            )
-            content_pop_download.add_widget(self.file_chooser)
-            content_pop_download.add_widget(self.file_chooser_popup_button)
-            self.file_chooser_popup.add_widget(content_pop_download)
-
-            self.file_chooser_popup_button.bind(on_release=self.get_destination_folder)
+            if platform != "win":
+                self.file_chooser = FileChooserListView(dirselect=True)
+                self.file_chooser_popup = Popup(
+                    title="Destination folder",
+                )
+                self.file_chooser_popup_button = MDRoundFlatIconButton(
+                    icon="folder",
+                    text="Select folder",
+                    font_size=sp(16),
+                )
+                content_pop_download = MDBoxLayout(
+                    orientation="vertical",
+                    size_hint=(1, 1),
+                    spacing=sp(10),
+                )
+                content_pop_download.add_widget(self.file_chooser)
+                content_pop_download.add_widget(self.file_chooser_popup_button)
+                self.file_chooser_popup.add_widget(content_pop_download)
+                self.file_chooser_popup_button.bind(on_release=self.get_destination_folder)
 
             self.destination_button = MDRoundFlatIconButton(
                 icon="folder",
                 text=f"Destination folder: {self.blog2epub_settings.data.destination_folder}",
                 font_size=sp(16),
             )
-            self.destination_button.bind(on_press=self.file_chooser_popup.open)
+            if platform == "win":
+                self.destination_button.bind(on_press=self.select_destination_folder_windows)
+            else:
+                self.destination_button.bind(on_press=self.file_chooser_popup.open)
             self._put_element_in_anchor_layout(self.destination_button, tab_layout)
 
         self.generate_button = MDRoundFlatIconButton(
@@ -284,6 +287,16 @@ class Blog2EpubKivyWindow(MDBoxLayout):
         self._put_element_in_anchor_layout(self.generate_button, tab_layout)
 
         self.tab_generate.add_widget(tab_layout)
+
+    def select_destination_folder_windows(self, *args, **kwargs):
+        path = filechooser.choose_dir(
+            title="Select ebook destination",
+        )
+        logging.info(f"Selected path: {path}")
+        if path:
+            self.blog2epub_settings.data.destination_folder = path[0]
+            self.blog2epub_settings.save()
+        self.destination_button.text = f"Destination folder: {self.blog2epub_settings.data.destination_folder}"
 
     def get_destination_folder(self, *args, **kwargs):
         path = self.file_chooser.path
