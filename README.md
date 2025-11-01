@@ -31,9 +31,9 @@ Convert blog to epub using command line or GUI.
 <table style="width:100%;text-align:center;"><tr><td>
 <img src="assets/v1.5.0/zeissikonveb_de_2023.11.17-2025.06.07.epub.jpg" width="400" style="margin:0 10px 10px 0;" />
 </td><td>
-<img src="assets/v1.5.0/starybezpiek_blogspot_com_2014.11.04-2015.12.15_bw.epub.jpg" width="400" style="margin:0 10px 10px 0;" />
-</td></tr><tr><td>
 <img src="assets/v1.5.0/starybezpiek_blogspot_com_2014.11.04-2015.12.15.epub.jpg" width="400" style="margin:0 10px 10px 0;" />
+</td></tr><tr><td>
+<img src="assets/v1.5.0/magazynbiomasa_pl_2025.10.24-2025.11.01.epub.jpg" width="400" style="margin:0 10px 10px 0;" />
 </td><td>
 <img src="assets/v1.5.0/boston1775_blogspot_com_2024.11.10-2024.11.14.epub.jpg" width="400" style="margin:0 10px 10px 0" />
 </td></tr><tr><td>
