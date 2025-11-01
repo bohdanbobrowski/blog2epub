@@ -15,6 +15,6 @@ jobs:
         with:
           python_ver: '3.12'
           spec: 'blog2epub_windows.spec'
-          requirements: 'src/requirements.txt'
+          requirements: 'requirements.txt'
           upload_exe_with_name: 'blog2epub_windows'
           # options: --onefile, --name "blog2epub", --windowed,
