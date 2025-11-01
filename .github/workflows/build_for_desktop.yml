@@ -23,7 +23,7 @@ jobs:
       - name: Create installer
         run: |
           choco install nsis &&         
-          "C:\Program Files (x86)\NSIS\makensis.exe" help
+          "C:\Program Files (x86)\NSIS\makensis.exe help"
 # blog2epub_windows_installer.nsi
       - name: Upload installer
         run: bash ./make_macos_dmg.sh
