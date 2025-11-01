@@ -21,8 +21,7 @@ jobs:
 #          requirements: 'requirements.txt'
 #          upload_exe_with_name: blog2epub_win32_v1.5.0
       - name: List folders
-        run: |
-          dir ./dist
+        run: |          
           dir C:\Program Files (x86)\NSIS
 #      - name: Create installer
 #        run: |
