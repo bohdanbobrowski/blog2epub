@@ -5,6 +5,34 @@ import os
 import sys
 
 block_cipher = None
+minimal_depts = get_deps_minimal(video=None, audio=None)
+minimal_depts["hiddenimports"] += [
+    "win32timezone",
+    "pytz",
+    "yaml"
+    "imagesize",
+    "PIL",
+    "kivy",
+    "atoma",
+    "beautifulsoup4",
+    "click",
+    "ebooklib",
+    "fake-useragent",
+    "filetype",
+    "ftfy",
+    "html5lib",
+    "imagesize",
+    "kivymd",
+    "plyer",
+    "pyjnius",
+    "python-dateutil",
+    "pytz",
+    "pyyaml",
+    "soupsieve",
+    "strip_tags",
+    "webencodings",
+]
+
 configuration = Analysis(
     [
         'blog2epub/blog2epub_gui.py'
@@ -26,7 +54,7 @@ configuration = Analysis(
     win_private_assemblies=False,
     cipher=block_cipher,
     noarchive=False,
-    **get_deps_minimal(video=None, audio=None)
+    **minimal_depts,
 )
 application_pyz = PYZ(
     configuration.pure,
