@@ -65,9 +65,9 @@ class Cover:
             new_y = self.tile_size
             if img.size[0] < img.size[1]:
                 new_x = self.tile_size
-                new_y = img.size[1] / img.size[0] * self.tile_size
+                new_y = int(img.size[1] / img.size[0] * self.tile_size)
             elif img.size[0] > img.size[1]:
-                new_x = img.size[0] / img.size[1] * self.tile_size
+                new_x = int(img.size[0] / img.size[1] * self.tile_size)
                 new_y = self.tile_size
             img = img.resize((new_x, new_y), Image.LANCZOS)  # type: ignore
         cropped_img = self._crop_image(img)
