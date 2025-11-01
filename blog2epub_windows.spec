@@ -9,6 +9,25 @@ minimal_depts["hiddenimports"] += [
     "yaml"
     "imagesize",
     "PIL",
+    "kivy",
+    "atoma",
+    "beautifulsoup4",
+    "click",
+    "ebooklib",
+    "fake-useragent",
+    "filetype",
+    "ftfy",
+    "html5lib",
+    "imagesize",
+    "kivymd",
+    "plyer",
+    "pyjnius",
+    "python-dateutil",
+    "pytz",
+    "pyyaml",
+    "soupsieve",
+    "strip_tags",
+    "webencodings",
 ]
 
 a = Analysis(

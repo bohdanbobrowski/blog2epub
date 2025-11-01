@@ -19,4 +19,4 @@ jobs:
           python_ver: '3.12'
           spec: 'blog2epub_windows.spec'
           requirements: 'requirements.txt'
-          upload_exe_with_name: 'blog2epub_windows'
+          upload_exe_with_name: 'blog2epub_win32_v1.5.0'
