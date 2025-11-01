@@ -862,15 +862,12 @@ class Blog2EpubKivy(MDApp):
         self.theme_cls.theme_style = "Light"
         self.theme_cls.primary_palette = "Teal"
         if platform != "android":
-            Window.size = (sp(800), sp(600))
+            Window.size = (sp(640), sp(480))
             Window.fullscreen = False
             Window.resizable = False
             Window.maximize = False
             Config.set("graphics", "resizable", False)
             Config.set("input", "mouse", "mouse,disable_multitouch")
-        else:
-            Window.fullscreen = False
-            Window.padding = sp(10)
         return Blog2EpubKivyWindow()
 
 
