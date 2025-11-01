@@ -7,6 +7,7 @@ on: [push]
 #      - master
 
 env:
+  VERSION: 1.5.0
   KIVY_GL_BACKEND: angle_sdl2
 
 jobs:
@@ -19,4 +20,4 @@ jobs:
           python_ver: '3.12'
           spec: 'blog2epub_windows.spec'
           requirements: 'requirements.txt'
-          upload_exe_with_name: 'blog2epub_win32_v1.5.0'
+          upload_exe_with_name: blog2epub_win32_v$VERSION
