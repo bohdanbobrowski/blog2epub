@@ -22,11 +22,10 @@ jobs:
           upload_exe_with_name: blog2epub_win32_v1.5.0
       - name: Create installer
         run: |
-          choco install nsis &&         
+          choco install nsis         
           "C:\Program Files (x86)\NSIS\makensis.exe .\blog2epub_windows_installer.nsi"
       - name: Upload installer
-        run: bash ./make_macos_dmg.sh
-      - uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v4
         with:
           name: blog2epub_1.5.0_setup.exe
           path: ./dist/blog2epub_1.5.0_setup.exe
