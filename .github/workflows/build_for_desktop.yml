@@ -13,17 +13,18 @@ jobs:
   pyinstaller-windows-build:
     runs-on: windows-latest
     steps:
-      - name: Create Executable
-        uses: sayyid5416/pyinstaller@v1
-        with:
-          python_ver: '3.12'
-          spec: 'blog2epub_windows.spec'
-          requirements: 'requirements.txt'
-          upload_exe_with_name: blog2epub_win32_v1.5.0
+#      - name: Create Executable
+#        uses: sayyid5416/pyinstaller@v1
+#        with:
+#          python_ver: '3.12'
+#          spec: 'blog2epub_windows.spec'
+#          requirements: 'requirements.txt'
+#          upload_exe_with_name: blog2epub_win32_v1.5.0
       - name: Create installer
         run: |
           choco install nsis &&         
-          "C:\Program Files (x86)\NSIS\makensis.exe" blog2epub_windows_installer.nsi
+          "C:\Program Files (x86)\NSIS\makensis.exe" help
+# blog2epub_windows_installer.nsi
       - name: Upload installer
         run: bash ./make_macos_dmg.sh
       - uses: actions/upload-artifact@v4
@@ -31,20 +32,20 @@ jobs:
           name: blog2epub_1.5.0_setup.exe
           path: ./dist/blog2epub_1.5.0_setup.exe
           compression-level: 0
-  pyinstaller-macos-build:
-    runs-on: macos-latest
-    steps:
-      - name: Create Executable
-        uses: sayyid5416/pyinstaller@v1
-        with:
-          python_ver: '3.12'
-          spec: 'blog2epub_macos.spec'
-          requirements: 'requirements.txt'
-          # upload_exe_with_name: 'blog2epub_macos_v1.5.0'
-      - name: Upload dng
-        run: bash ./make_macos_dmg.sh
-      - uses: actions/upload-artifact@v4
-        with:
-          name: blog2epub_v1.5.0_macos.dmg
-          path: ./dist/blog2epub_v1.5.0_macos.dmg
-          compression-level: 0
+#  pyinstaller-macos-build:
+#    runs-on: macos-latest
+#    steps:
+#      - name: Create Executable
+#        uses: sayyid5416/pyinstaller@v1
+#        with:
+#          python_ver: '3.12'
+#          spec: 'blog2epub_macos.spec'
+#          requirements: 'requirements.txt'
+#          # upload_exe_with_name: 'blog2epub_macos_v1.5.0'
+#      - name: Upload dng
+#        run: bash ./make_macos_dmg.sh
+#      - uses: actions/upload-artifact@v4
+#        with:
+#          name: blog2epub_v1.5.0_macos.dmg
+#          path: ./dist/blog2epub_v1.5.0_macos.dmg
+#          compression-level: 0
