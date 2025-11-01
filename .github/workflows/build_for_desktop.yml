@@ -21,8 +21,9 @@ jobs:
           requirements: 'requirements.txt'
           upload_exe_with_name: blog2epub_win32_v1.5.0
       - name: Create installer
-        run: choco install nsis |
-          makensis blog2epub_windows_installer.nsi
+        uses: joncloud/makensis-action@v5.0
+        with:
+          script-file: "blog2epub_windows_installer.nsi"
       - name: Upload installer
         run: bash ./make_macos_dmg.sh
       - uses: actions/upload-artifact@v4
