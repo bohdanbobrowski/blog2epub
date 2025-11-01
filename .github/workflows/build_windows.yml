@@ -6,6 +6,9 @@ on: [push]
 #    branches:
 #      - master
 
+env:
+  KIVY_GL_BACKEND: angle_sdl2
+
 jobs:
   pyinstaller-windows-build:
     runs-on: windows-latest
@@ -17,4 +20,3 @@ jobs:
           spec: 'blog2epub_windows.spec'
           requirements: 'requirements.txt'
           upload_exe_with_name: 'blog2epub_windows'
-          # options: --onefile, --name "blog2epub", --windowed,
