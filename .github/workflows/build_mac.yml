@@ -1,4 +1,4 @@
-name: Build windows
+name: Build macOS
 
 on: [push]
 #on:
@@ -7,7 +7,6 @@ on: [push]
 #      - master
 
 env:
-  VERSION: 1.5.0
   KIVY_GL_BACKEND: angle_sdl2
 
 jobs:
@@ -20,4 +19,4 @@ jobs:
           python_ver: '3.12'
           spec: 'blog2epub_macos.spec'
           requirements: 'requirements.txt'
-          upload_exe_with_name: blog2epub_win32_v$VERSION
+          upload_exe_with_name: 'blog2epub_macos_v1.5.0'
