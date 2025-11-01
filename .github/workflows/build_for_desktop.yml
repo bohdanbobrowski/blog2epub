@@ -20,7 +20,6 @@ jobs:
           spec: 'blog2epub_windows.spec'
           requirements: 'requirements.txt'
           upload_exe_with_name: blog2epub_win32_v1.5.0
-      - name: List folders
       - name: Create installer
         run: |
           choco install nsis
