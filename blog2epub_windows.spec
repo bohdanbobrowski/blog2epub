@@ -2,7 +2,14 @@ from kivy.tools.packaging.pyinstaller_hooks import get_deps_minimal
 
 block_cipher = None
 minimal_depts = get_deps_minimal(video=None, audio=None)
-minimal_depts["hiddenimports"] += ["plyer.platforms.win.filechooser", "win32timezone", "pytz"]
+minimal_depts["hiddenimports"] += [
+    "plyer.platforms.win.filechooser",
+    "win32timezone",
+    "pytz",
+    "yaml"
+    "imagesize",
+    "PIL",
+]
 
 a = Analysis(
     ["blog2epub\\blog2epub_gui.py"],
