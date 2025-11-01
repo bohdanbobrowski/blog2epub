@@ -119,7 +119,7 @@ Before you start, you'll need to install buildozer following this [installation 
 ### macOS (Sonoma 14.4.1)
 
 <p align="center">
-<img src="assets/v1.3.0/blog2epub_macos_screenshot.png"  width="600px" />
+<img src="assets/v1.5.0/blog2epub_macos_screenshot.png"  width="600px" />
 </p>
 
 ## CLI
