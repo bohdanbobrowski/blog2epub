@@ -1,5 +1,5 @@
 ; The name of the installer
-!define VERSION "1.5.0_RC2"
+!define VERSION "1.5.0"
 
 Name "blog2epub"
 
