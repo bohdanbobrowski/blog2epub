@@ -119,6 +119,7 @@ class Blog2EpubKivyWindow(MDBoxLayout):
         self.tabs = MDTabs()
         box_layout = MDBoxLayout(
             size_hint=(1, 1),
+            padding=(0, sp(40), 0, sp(20)) if platform == "android" else 0,  # TODO: fix this!
         )
         box_layout.add_widget(self.tabs)
         self.add_widget(box_layout)
@@ -847,10 +848,16 @@ class Blog2EpubKivy(MDApp):
         USER_DATA_DIR = self.user_data_dir
         self.theme_cls.theme_style = "Light"
         self.theme_cls.primary_palette = "Teal"
-        Window.resizable = False
         if platform != "android":
             Window.size = (sp(800), sp(600))
+            Window.fullscreen = False
+            Window.resizable = False
+            Window.maximize = False
+            Config.set("graphics", "resizable", False)
             Config.set("input", "mouse", "mouse,disable_multitouch")
+        else:
+            Window.fullscreen = False
+            Window.padding = sp(10)
         return Blog2EpubKivyWindow()
 
 
