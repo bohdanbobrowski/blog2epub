@@ -1,4 +1,4 @@
-name: Code check
+name: Code check and unit tests
 
 on: [push]
 
@@ -24,3 +24,21 @@ jobs:
     - name: Static code analysis with mypy
       run: |
         mypy .
+  unit_tests:
+    needs: code_check
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.12"]
+    steps:
+    - uses: actions/checkout@v3
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v3
+      with:
+        python-version: ${{ matrix.python-version }}
+    - name: Install dependencies
+      run: |
+          pip install '.[dev]'
+    - name: Unit tests
+      run: |
+        pytest ./tests/unit
