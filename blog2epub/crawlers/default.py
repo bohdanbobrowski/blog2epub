@@ -40,10 +40,10 @@ class DefaultCrawler(AbstractCrawler):
             ],
             content_cleanup=[
                 Pattern(
-                    regex=r'<span style="[^"]+"><i>Dyskretna Reklama</i></span>',
+                    regex=r'<div style="[^"]+">[\s+]*(<br\ ?\/?>)*[\s+]*<span style="[^"]+"><i>Dyskretna Reklama<\/i><\/span>',
                 ),
                 Pattern(
-                    regex=r'<span style="[^"]+"><br /><i>Koniec Dyskretnej Reklamy</i></span></div>',
+                    regex=r'<span style="[^"]+">(<br\ ?\/?>)*[\s+]*<i>Koniec Dyskretnej Reklamy<\/i><\/span>(<\/div?>)*[\s+]*(<br\ ?\/?>)*',
                 ),
                 Pattern(
                     xpath='//div[@class="post-footer"]',
@@ -133,6 +133,7 @@ class DefaultCrawler(AbstractCrawler):
             interface=self.interface,
             images_size=self.configuration.images_size,
             images_quality=self.configuration.images_quality,
+            images_bw=self.configuration.images_bw,
             ignore_downloads=self.ignore_downloads,
         )
 

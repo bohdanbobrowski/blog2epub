@@ -23,7 +23,6 @@ keywords = [
 readme = "README.md"
 requires-python = ">=3.10, <3.13"
 dependencies = [
-    "pydantic",
     "beautifulsoup4",
     "ebooklib",
     "python-dateutil",
@@ -32,7 +31,6 @@ dependencies = [
     "pyyaml",
     "kivy",
     "kivymd",
-    "pydantic-yaml",
     "plyer",
     "pyjnius",
     "strip-tags",

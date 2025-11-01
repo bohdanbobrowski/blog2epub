@@ -4,7 +4,8 @@
 /*.egg-info
 /build
 /dist
-/venv
+/venv*
+/.venv
 /temp
 /bin
 *.epub

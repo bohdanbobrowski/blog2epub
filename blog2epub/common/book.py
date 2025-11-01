@@ -159,6 +159,8 @@ class Book:
             subtitle=self.subtitle,
             images=self.book_data.images,
             platform_name=self.platform_name,
+            images_bw=self.configuration.images_bw,
+            images_size=self.configuration.images_size,
         )
         cover_file_name, cover_file_full_path = self.cover.generate()
         self.cover_image_path = cover_file_full_path
@@ -212,16 +214,12 @@ class Book:
         images_included = set()
         if self.configuration.include_images:
             for image_number, image in enumerate(self.book_data.images, start=1):
-                if (
-                    image
-                    and image.hash not in images_included
-                    and os.path.isfile(os.path.join(self.book_data.dirs.images, image.file_name))
-                ):
-                    with open(os.path.join(self.book_data.dirs.images, image.file_name), "rb") as f:
+                if image and image.hash not in images_included and os.path.isfile(image.resized_path):
+                    with open(image.resized_path, "rb") as f:
                         image_content = f.read()
                     epub_img = EpubItem(
                         uid=f"img{image_number}",
-                        file_name="images/" + image.file_name,
+                        file_name="images/" + image.resized_fn,
                         media_type="image/jpeg",
                         content=image_content,
                     )

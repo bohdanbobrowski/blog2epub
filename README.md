@@ -20,7 +20,8 @@ Convert blog to epub using command line or GUI.
 - command line (CLI) and graphic user interface (GUI)
 - script downloads all text contents of selected blog to epub file,
 - if it's possible, it includes post comments,
-- images are downsized (to maximum 800/600px) and converted to grayscale,
+- images are downsized to given resolution (`600*800`,`640*960` or `1236*1648`)
+- images are also by default converted to grayscale,
 - one post = one epub chapter,
 - chapters are sorted by date ascending,
 - cover is generated automatically from downloaded images.
@@ -28,13 +29,17 @@ Convert blog to epub using command line or GUI.
 ### Example covers
 
 <table style="width:100%;text-align:center;"><tr><td>
-<img src="assets/v1.5.0/archaia-ellada_blogspot_com_2014.11.01-2014.12.01.epub.jpg" width="400" style="margin:0 10px 10px 0" />
+<img src="assets/v1.5.0/zeissikonveb_de_2023.11.17-2025.06.07.epub.jpg" width="400" style="margin:0 10px 10px 0;" />
+</td><td>
+<img src="assets/v1.5.0/starybezpiek_blogspot_com_2014.11.04-2015.12.15_bw.epub.jpg" width="400" style="margin:0 10px 10px 0;" />
+</td></tr><tr><td>
+<img src="assets/v1.5.0/starybezpiek_blogspot_com_2014.11.04-2015.12.15.epub.jpg" width="400" style="margin:0 10px 10px 0;" />
 </td><td>
 <img src="assets/v1.5.0/boston1775_blogspot_com_2024.11.10-2024.11.14.epub.jpg" width="400" style="margin:0 10px 10px 0" />
 </td></tr><tr><td>
 <img src="assets/v1.5.0/velosov_blogspot_com_2013.02.22-2013.03.10.epub.jpg" width="400" style="margin:0 10px 10px 0" />
 </td><td>
-<img src="assets/v1.5.0/zeissikonveb_de_2021.04.10-2024.10.19.epub.jpg" width="400" style="margin:0 10px 10px 0;" />
+<img src="assets/v1.5.0/archaia-ellada_blogspot_com_2014.11.01-2014.12.01.epub.jpg" width="400" style="margin:0 10px 10px 0" />
 </td></tr></table>
 
 ## Installation
@@ -166,17 +171,19 @@ Example:
 
 ## Current version
 
-### [v1.5.0 - Release Candidate 2](https://github.com/bohdanbobrowski/blog2epub/releases/tag/v1.5.0_RC2)
+### [v1.5.0](https://github.com/bohdanbobrowski/blog2epub/releases/tag/v1.5.0)
 - [X] integration testing
 - [X] increase unit test coverage
 - [X] use sitemaps.xml for scraping
 - [X] crawlers refactor
-  - [X] use data models
+  - [X] use builtin dataclasses instead of pydantic
   - [X] more common methods in crawler class
   - [X] expand crawler abstract
 - [X] cli interface refactor
 - [X] greek alphabet support
 - [X] image download and attachment bug solved (ex. modernistyczny-poznan.blogspot.com)
+- [X] color/bw images and covers
+- [X] custom image/cover sizes
 - [X] improved resistance to http errors
 - [X] dedicated crawler class for zeissikonveb.de
 - [X] (on GUI) skip value is enlarged on limit value (if such is set)

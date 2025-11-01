@@ -21,8 +21,6 @@ class Cover:
     Cover class used in Blog2Epub class.
     """
 
-    tile_size = 120
-
     def __init__(
         self,
         dirs: DirModel,
@@ -32,6 +30,8 @@ class Cover:
         title: str,
         subtitle: str,
         images: list[ImageModel],
+        images_bw: bool,
+        images_size: tuple[int, int],
         platform_name: str = "",
     ):
         """
@@ -43,23 +43,35 @@ class Cover:
         self.blog_url = blog_url
         self.title = unicodedata.normalize("NFKD", title)
         self.subtitle = unicodedata.normalize("NFKD", subtitle)
-        self.images = self._check_image_size(images)
+        self.images_bw = images_bw
+        self.images_size = images_size
+        self.tile_size: int = int(images_size[0] / 5)
         self.platform_name = platform_name
+        self.images = self._check_image_size(images)
 
     def _check_image_size(self, images: list[ImageModel]) -> list[ImageModel]:
         verified_images = []
         for image in images:
             if image.hash:
-                i_file = os.path.join(self.dirs.images, image.file_name)
-                if os.path.isfile(i_file):
-                    i_size = imagesize.get(i_file)
-                    if i_size[0] >= self.tile_size and i_size[1] >= self.tile_size:
+                if os.path.isfile(image.resized_path):
+                    i_size = imagesize.get(image.resized_path)
+                    if i_size[0] >= 100 and i_size[1] >= 100:
                         verified_images.append(image)
         return verified_images
 
-    def _make_thumb(self, img, size):
+    def _make_thumb(self, img, size: tuple[int, int]):
+        if img.size[0] < self.tile_size:
+            new_x = self.tile_size
+            new_y = self.tile_size
+            if img.size[0] < img.size[1]:
+                new_x = self.tile_size
+                new_y = int(img.size[1] / img.size[0] * self.tile_size)
+            elif img.size[0] > img.size[1]:
+                new_x = int(img.size[0] / img.size[1] * self.tile_size)
+                new_y = self.tile_size
+            img = img.resize((new_x, new_y), Image.LANCZOS)  # type: ignore
         cropped_img = self._crop_image(img)
-        cropped_img.thumbnail(size, Image.LANCZOS)
+        cropped_img.thumbnail(size, Image.LANCZOS)  # type: ignore
         return cropped_img
 
     def _is_landscape(self, width, height):
@@ -117,15 +129,23 @@ class Cover:
         title = self._split_too_long_parts(title)
         return title
 
+    def _calc_coordinates(self, *val: int) -> tuple[int, int]:
+        ratio_x = self.images_size[0] / 600
+        ratio_y = self.images_size[1] / 800
+        return math.ceil(val[0] * ratio_x), math.ceil(val[1] * ratio_y)
+
     def _draw_text(self, cover_image):
         cover_draw = ImageDraw.Draw(cover_image)
-        title_font = ImageFont.truetype(TITLE_FONT_NAME, 30)
-        subtitle_font = ImageFont.truetype(SUBTITLE_FONT_NAME, 20)
-        generator_font = ImageFont.truetype(GENERATOR_FONT_NAME, 10)
+        title_font_size = math.ceil(self.images_size[0] * 0.05)
+        title_font = ImageFont.truetype(TITLE_FONT_NAME, title_font_size)
+        subtitle_font_size = math.ceil(self.images_size[0] * 0.033)
+        subtitle_font = ImageFont.truetype(SUBTITLE_FONT_NAME, subtitle_font_size)
+        generator_font_size = math.ceil(self.images_size[0] * 0.01666)
+        generator_font = ImageFont.truetype(GENERATOR_FONT_NAME, generator_font_size)
         title_length = title_font.getlength(self.title)
-        if title_length <= 570:
+        if title_length <= int(self.images_size[0] * 0.95):
             cover_draw.text(
-                (15, 635),
+                self._calc_coordinates(15, 635),
                 self.title,
                 (255, 255, 255),
                 font=title_font,
@@ -135,19 +155,19 @@ class Cover:
             buffer = 35 * (len(title) - 1)
             title = "\n".join(title)
             cover_draw.text(
-                (15, 635 - buffer),
+                self._calc_coordinates(15, 635 - buffer),
                 title,
                 (255, 255, 255),
                 font=title_font,
             )
         cover_draw.text(
-            (15, 675),
+            self._calc_coordinates(15, 675),
             self.subtitle,
             (150, 150, 150),
             font=subtitle_font,
         )
         cover_draw.text(
-            (15, 750),
+            self._calc_coordinates(15, 750),
             f"Generated with blog2epub v{VERSION} {self.platform_name}\nfrom {self.blog_url}",
             (155, 155, 155),
             font=generator_font,
@@ -157,8 +177,9 @@ class Cover:
     def generate(self):
         tiles_count_y = 5
         tiles_count_x = 7
-        cover_image = Image.new("RGB", (600, 800))
-        self.interface.print(f"Generating cover (800px*600px) from {len(self.images)} images.")
+        cover_image = Image.new("RGB", self.images_size)
+        width, height = self.images_size
+        self.interface.print(f"Generating cover ({width}px*{height}px) from {len(self.images)} images.")
         dark_factor = 1.0
         if len(self.images) > 0:
             if len(self.images) > 1:
@@ -168,7 +189,7 @@ class Cover:
                 if len(self.images) > 1 & len(self.images) <= tiles_count_y * 2:
                     shuffle(self.images)
                 for y in range(0, tiles_count_y):
-                    img_file = os.path.join(self.dirs.images, self.images[i - 1].file_name)
+                    img_file = self.images[i - 1].resized_path
                     thumb = self._make_thumb(Image.open(img_file), (self.tile_size, self.tile_size))
                     enhancer = ImageEnhance.Brightness(thumb)
                     thumb = enhancer.enhance(dark_factor)
@@ -178,7 +199,7 @@ class Cover:
                     if i > len(self.images):
                         i = 1
         cover_image = self._draw_text(cover_image)
-        cover_image = cover_image.convert("L")
+        cover_image = cover_image.convert("L" if self.images_bw else "RGB")
         cover_file_name = self.file_name + ".jpg"
         cover_file_full_path = os.path.join(self.dirs.path, cover_file_name)
         cover_image.save(cover_file_full_path, format="JPEG", quality=100)

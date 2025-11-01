@@ -22,14 +22,14 @@ source.source.include_patterns = blog2epub/**/*
 source.exclude_exts = spec, setup.py, pyproject.toml
 
 # (list) List of directory to exclude (let empty to not exclude anything)
-#source.exclude_dirs = tests, bin, venv
+source.exclude_dirs = .github, dist, packages, tests, venv
 
 # (list) List of exclusions using pattern matching
 # Do not prefix with './'
 #source.exclude_patterns = license,images/*/*.jpg
 
 # (str) Application versioning (method 1)
-# version =
+# version = 1.5.0
 
 # (str) Application versioning (method 2)
 version.regex = VERSION = ['"]*([0-9]+.[0-9]+.[0-9]+)
@@ -37,7 +37,7 @@ version.filename = %(source.dir)s/blog2epub/common/globals.py
 
 # (list) Application requirements
 # comma separated e.g. requirements = sqlite3,kivy
-requirements = python3,kivy==2.3.0,kivymd==1.2.0,pydantic,pydantic_core,lxml==5.3.0,attrs,pillow,click,soupsieve,webencodings,html5lib,beautifulsoup4,ebooklib,python-dateutil,atoma,fake-useragent,pyyaml,plyer,defusedxml,pyjnius,imagesize,strip-tags,filetype
+requirements = python3,kivy==2.3.0,kivymd==1.2.0,lxml==5.3.0,attrs,pillow,click,soupsieve,webencodings,html5lib,beautifulsoup4,bs4,typing-extensions,ebooklib,python-dateutil,atoma,fake-useragent,pyyaml,plyer,defusedxml,pyjnius,imagesize,strip-tags,filetype,pytz
 
 # (str) Custom source folders for requirements
 # Sets custom source for any requirements with recipes
@@ -61,7 +61,7 @@ orientation = portrait
 #
 
 #
-# author = © Copyright Info
+author = © Copyright Bohdan Bobrowski
 
 # change the major version of python used by the app
 # android.python_version = 3.12
@@ -95,25 +95,22 @@ fullscreen = 0
 
 # (list) Permissions
 # (See https://python-for-android.readthedocs.io/en/latest/buildoptions/#build-options-1 for all the supported syntaxes and properties)
-android.permissions = android.permission.INTERNET, android.permission.WRITE_EXTERNAL_STORAGE, android.permission.READ_EXTERNAL_STORAGE, android.permission.READ_MEDIA_IMAGES, android.permission.READ_MEDIA_VIDEO, android.permission.READ_MEDIA_AUDIO
+android.permissions = android.permission.INTERNET
 
 # (list) features (adds uses-feature -tags to manifest)
 #android.features = android.hardware.usb.host
 
 # (int) Target Android API, should be as high as possible.
-android.api = 34
+android.api = 36
 
 # (int) Minimum API your APK / AAB will support.
-android.minapi = 24
-
-# (int) Android SDK version to use
-android.sdk = 34
+android.minapi = 26
 
 # (str) Android NDK version to use
-#android.ndk = 23b
+# android.ndk = 28c
 
 # (int) Android NDK API to use. This is the minimum API your app will support, it should usually match android.minapi.
-#android.ndk_api = 21
+# android.ndk_api = 26
 
 # (bool) Use --private data storage (True) or --dir public storage (False)
 #android.private_storage = True
@@ -288,7 +285,7 @@ android.archs = arm64-v8a
 
 # (int) overrides automatic versionCode computation (used in build.gradle)
 # this is not the same as app version and should only be edited if you know what you're doing
-# android.numeric_version =
+android.numeric_version = 102410508
 
 # (bool) enables Android auto backup feature (Android API >=23)
 android.allow_backup = True
@@ -322,7 +319,7 @@ android.allow_backup = True
 #p4a.fork = kivy
 
 # (str) python-for-android branch to use, defaults to master
-#p4a.branch = master
+# p4a.branch = master
 
 # (str) python-for-android specific commit to use, defaults to HEAD, must be within p4a.branch
 #p4a.commit = HEAD
