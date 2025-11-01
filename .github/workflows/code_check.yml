@@ -3,7 +3,7 @@ name: Code check
 on: [push]
 
 jobs:
-  build:
+  code_check:
     runs-on: ubuntu-latest
     strategy:
       matrix:
