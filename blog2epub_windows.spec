@@ -2,7 +2,7 @@ from kivy.tools.packaging.pyinstaller_hooks import get_deps_minimal
 
 block_cipher = None
 minimal_depts = get_deps_minimal(video=None, audio=None)
-minimal_depts["hiddenimports"] += ["plyer.platforms.win.filechooser"]
+minimal_depts["hiddenimports"] += ["plyer.platforms.win.filechooser", "win32timezone", "pytz"]
 
 a = Analysis(
     ["blog2epub\\blog2epub_gui.py"],
@@ -16,6 +16,7 @@ a = Analysis(
         ("./assets/Alegreya-Italic.ttf", "."),
         ("./assets/LiberationMono-Regular.ttf", "."),
     ],
+    # hiddenimports=[],
     hookspath=[],
     runtime_hooks=[],
     win_no_prefer_redirects=False,
