@@ -1,3 +1,0 @@
-title=blog2epub
-author=Bohdan Bobrowski
-orientation=portrait

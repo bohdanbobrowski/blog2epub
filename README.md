@@ -116,7 +116,7 @@ Before you start, you'll need to install buildozer following this [installation 
 <img src="assets/v1.5.0/blog2epub_linux_screenshot.png"  width="600px" />
 </p>
 
-### macOS (Sonoma 14.4.1)
+### macOS (Sequoia  15.6)
 
 <p align="center">
 <img src="assets/v1.5.0/blog2epub_macos_screenshot.png"  width="600px" />
