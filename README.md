@@ -96,10 +96,12 @@ Before you start, you'll need to install buildozer following this [installation 
 ### Android (Google Pixel 6a)
 
 <p align="center">
-<img src="assets/v1.5.0/blog2pub_android_pixel6a_screenshot1.png"  width="200px" />
-<img src="assets/v1.5.0/blog2pub_android_pixel6a_screenshot2.png"  width="200px" />
-<img src="assets/v1.5.0/blog2pub_android_pixel6a_screenshot3.png"  width="200px" />
-<img src="assets/v1.5.0/blog2pub_android_pixel6a_screenshot4.png"  width="200px" />
+<img src="assets/v1.5.0/blog2pub_android_pixel6_screenshot1.png"  width="200px" />
+<img src="assets/v1.5.0/blog2pub_android_pixel6_screenshot2.png"  width="200px" />
+<img src="assets/v1.5.0/blog2pub_android_pixel6_screenshot3.png"  width="200px" />
+<img src="assets/v1.5.0/blog2pub_android_pixel6_screenshot4.png"  width="200px" />
+<img src="assets/v1.5.0/blog2pub_android_pixel6_screenshot5.png"  width="200px" />
+<img src="assets/v1.5.0/blog2pub_android_pixel6_screenshot6.png"  width="200px" />
 </p>
 
 ### Windows (11)
@@ -108,10 +110,10 @@ Before you start, you'll need to install buildozer following this [installation 
 <img src="assets/v1.5.0/blog2epub_win11_screenshot.png" width="600px" />
 </p>
 
-### Linux (Manjaro Gnome)
+### Linux (Ubuntu 24.04)
 
 <p align="center">
-<img src="assets/v1.3.0/blog2epub_linux_screenshot.png"  width="600px" />
+<img src="assets/v1.5.0/blog2epub_linux_screenshot.png"  width="600px" />
 </p>
 
 ### macOS (Sonoma 14.4.1)
