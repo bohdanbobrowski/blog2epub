@@ -585,7 +585,7 @@ class Blog2EpubKivyWindow(MDBoxLayout):
                 notification.notify(
                     title="blog2epub - download completed",
                     message=f"{blog2epub.crawler.url}",
-                    app_icon=asset_path('blog2epub_256px.png'),
+                    app_icon=asset_path("blog2epub_256px.png"),
                     timeout=2,
                 )
             self._switch_tab("Select")
