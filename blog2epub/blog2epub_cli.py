@@ -1,6 +1,5 @@
 import argparse
 import platform
-import tempfile
 
 from blog2epub import Blog2Epub
 from blog2epub.common.book import Book

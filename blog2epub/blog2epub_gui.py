@@ -12,10 +12,9 @@ from itertools import cycle
 from pathlib import Path
 from threading import Thread
 
+from kivy.logger import Logger  # type: ignore
 from kivy.uix.anchorlayout import AnchorLayout  # type: ignore
 from kivy.uix.boxlayout import BoxLayout  # type: ignore
-from kivy.uix.filechooser import FileChooserListView  # type: ignore
-from kivy.logger import Logger  # type: ignore
 from kivymd.uix.datatables import MDDataTable  # type: ignore
 from kivymd.uix.menu import MDDropdownMenu  # type: ignore
 from kivymd.uix.tab import MDTabs, MDTabsBase  # type: ignore

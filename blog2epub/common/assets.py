@@ -4,9 +4,9 @@ import sysconfig
 
 
 def asset_path(filename: str) -> str:
-    """ TODO: this should be refactored """
+    """TODO: this should be refactored"""
     # Elegant part:
-    filepath = os.path.join(sysconfig.get_paths()["purelib"], 'assets', filename)
+    filepath = os.path.join(sysconfig.get_paths()["purelib"], "assets", filename)
     if os.path.isfile(filepath):
         return os.path.join(filepath)
     # Dirty part:
