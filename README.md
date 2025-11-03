@@ -72,24 +72,21 @@ Checkout for latest available [builds](https://github.com/bohdanbobrowski/blog2e
 #### Windows
 
     python build_windows.py
-
-Finally, you can run NSIS to build Windows installer:
-
     "C:\Program Files (x86)\NSIS\makensis" blog2epub_windows_installer.nsi
 
 #### macOS
 
     python build_macos.py
-
-And then to create dmg image with app:
-
     ./make_macos_dmg.sh
+
+#### Linux
+
+    python build_linux.py
+    ./make_linux_appimage.sh
 
 #### Android
 
-Before you start, you'll need to install buildozer following this [installation documentation](https://buildozer.readthedocs.io/en/latest/installation.html).
-
-    buildozer -v android
+    buildozer android debug
 
 ## Screenshots of GUI
 

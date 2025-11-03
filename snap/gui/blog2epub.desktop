@@ -7,5 +7,5 @@ TryExec=blog2epub.gui
 Exec=blog2epub.gui
 Terminal=false
 Icon=${SNAP}/meta/gui/blog2epub_desktop.svg
-Categories=Utility;
+Categories=Utility
 Keywords=ebook;epub;ereader;
