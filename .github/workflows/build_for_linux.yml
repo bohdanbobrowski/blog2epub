@@ -13,8 +13,8 @@ jobs:
       - name: Install Snapcraft
         uses: samuelmeuli/action-snapcraft@v3
       - name: Build snap
-        # run: sg lxd -c 'snapcraft --use-lxd'
-        run: snapcraft pack
+        run: sg lxd -c 'snapcraft --use-lxd'
+        # run: snapcraft pack
       - name: Upload snap package
         uses: actions/upload-artifact@v4
         with:
