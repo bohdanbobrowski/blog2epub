@@ -1,0 +1,12 @@
+[Desktop Entry]
+Type=Application
+Name=blog2epub
+GenericName=blog2epub
+Comment=Convert website (blog) to epub using command line or GUI.
+TryExec=blog2epub.gui
+Exec=blog2epub.gui
+Icon=${SNAP}/meta/gui/blog2epub_desktop.svg
+StartupNotify=false
+Actions=new-empty-window;
+Categories=Utility;
+Keywords=ebook;epub;ereader;

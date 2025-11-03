@@ -1,4 +1,3 @@
-import logging
 import math
 import os
 import re
@@ -10,11 +9,13 @@ import webbrowser
 from datetime import datetime
 from functools import partial
 from itertools import cycle
+from pathlib import Path
 from threading import Thread
 
 from kivy.uix.anchorlayout import AnchorLayout  # type: ignore
 from kivy.uix.boxlayout import BoxLayout  # type: ignore
 from kivy.uix.filechooser import FileChooserListView  # type: ignore
+from kivy.logger import Logger  # type: ignore
 from kivymd.uix.datatables import MDDataTable  # type: ignore
 from kivymd.uix.menu import MDDropdownMenu  # type: ignore
 from kivymd.uix.tab import MDTabs, MDTabsBase  # type: ignore
@@ -246,35 +247,12 @@ class Blog2EpubKivyWindow(MDBoxLayout):
         tab_layout.add_widget(self.selected_label)
 
         if platform != "android":
-            if platform != "win":
-                self.file_chooser = FileChooserListView(dirselect=True)
-                self.file_chooser_popup = Popup(
-                    title="Destination folder",
-                )
-                self.file_chooser_popup_button = MDRoundFlatIconButton(
-                    icon="folder",
-                    text="Select folder",
-                    font_size=sp(16),
-                )
-                content_pop_download = MDBoxLayout(
-                    orientation="vertical",
-                    size_hint=(1, 1),
-                    spacing=sp(10),
-                )
-                content_pop_download.add_widget(self.file_chooser)
-                content_pop_download.add_widget(self.file_chooser_popup_button)
-                self.file_chooser_popup.add_widget(content_pop_download)
-                self.file_chooser_popup_button.bind(on_release=self.get_destination_folder)
-
             self.destination_button = MDRoundFlatIconButton(
                 icon="folder",
                 text=f"Destination folder: {self.blog2epub_settings.data.destination_folder}",
                 font_size=sp(16),
             )
-            if platform == "win":
-                self.destination_button.bind(on_press=self.select_destination_folder_windows)
-            else:
-                self.destination_button.bind(on_press=self.file_chooser_popup.open)
+            self.destination_button.bind(on_press=self.select_destination_folder)
             self._put_element_in_anchor_layout(self.destination_button, tab_layout)
 
         self.generate_button = MDRoundFlatIconButton(
@@ -288,24 +266,13 @@ class Blog2EpubKivyWindow(MDBoxLayout):
 
         self.tab_generate.add_widget(tab_layout)
 
-    def select_destination_folder_windows(self, *args, **kwargs):
-        path = filechooser.choose_dir(
-            title="Select ebook destination",
-        )
-        logging.info(f"Selected path: {path}")
+    def select_destination_folder(self, *args, **kwargs):
+        path = filechooser.choose_dir()
+        Logger.info(f"Selected path: {path}")
         if path:
             self.blog2epub_settings.data.destination_folder = path[0]
             self.blog2epub_settings.save()
         self.destination_button.text = f"Destination folder: {self.blog2epub_settings.data.destination_folder}"
-
-    def get_destination_folder(self, *args, **kwargs):
-        path = self.file_chooser.path
-        logging.info(f"Selected path: {path}")
-        if path:
-            self.blog2epub_settings.data.destination_folder = path
-            self.blog2epub_settings.save()
-        self.destination_button.text = f"Destination folder: {self.blog2epub_settings.data.destination_folder}"
-        self.file_chooser_popup.dismiss()
 
     @staticmethod
     def _put_element_in_anchor_layout(element, layout):
@@ -713,7 +680,7 @@ class Blog2EpubKivyWindow(MDBoxLayout):
         if self.blog2epub:
             self.blog2epub.crawler.cancelled = True
             while self.blog2epub.crawler.active:
-                logging.info("Cancelling download...")
+                Logger.info("Cancelling download...")
                 time.sleep(1)
             self.interface.print("Download cancelled.")
             self._update_tab_generate()
@@ -821,14 +788,14 @@ class KivyInterface(EmptyInterface):
 
     def print(self, text: str, end: str = "\n"):
         if len(text) > 1:
-            logging.info(text)
+            Logger.info(text)
         self.console_output(text, end)
 
     def delete_line(self):
         self.console_delete_last_line()
 
     def exception(self, e):
-        logging.error("Exception: " + str(e))
+        Logger.error("Exception: " + str(e))
         self.print("Exception: " + str(e))
 
     def clear(self):
@@ -839,10 +806,10 @@ class Blog2EpubKivy(MDApp):
     def __init__(self):
         super().__init__()
         self.title = f"blog2epub - v. {Blog2Epub.version}"
-        logging.info(self.title)
-        logging.debug(f"Metrics.density = {Metrics.density}")
-        logging.debug(f"Metrics.dpi_rounded = {Metrics.dpi_rounded}")
-        logging.debug(f"Metrics.fontscale = {Metrics.fontscale}")
+        Logger.info(self.title)
+        Logger.debug(f"Metrics.density = {Metrics.density}")
+        Logger.debug(f"Metrics.dpi_rounded = {Metrics.dpi_rounded}")
+        Logger.debug(f"Metrics.fontscale = {Metrics.fontscale}")
         if platform == "macos":
             self.icon = asset_path("blog2epub.icns")
         elif platform == "win":
@@ -858,14 +825,19 @@ class Blog2EpubKivy(MDApp):
 
     def build(self):
         global USER_DATA_DIR
-        USER_DATA_DIR = self.user_data_dir
+        try:
+            USER_DATA_DIR = self.user_data_dir
+        except FileNotFoundError:
+            USER_DATA_DIR = os.path.join(str(Path.home()), ".config", "blog2epub")
+        # if USER_DATA_DIR.find("/snap/"):
+        #     USER_DATA_DIR = os.path.join(USER_DATA_DIR.split("/snap/")[0], ".config", "blog2epub")
+        Logger.info(f"USER_DATA_DIR: {USER_DATA_DIR}")
         self.theme_cls.theme_style = "Light"
         self.theme_cls.primary_palette = "Teal"
-        if platform != "android":
-            Window.size = (sp(640), sp(480))
-            Window.fullscreen = False
-            Window.resizable = False
-            Window.maximize = False
+        if platform == "android":
+            Window.maximize()
+        else:
+            # Window.size = (sp(640), sp(480))
             Config.set("graphics", "resizable", False)
             Config.set("input", "mouse", "mouse,disable_multitouch")
         return Blog2EpubKivyWindow()

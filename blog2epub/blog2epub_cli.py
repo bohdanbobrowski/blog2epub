@@ -1,5 +1,6 @@
 import argparse
 import platform
+import tempfile
 
 from blog2epub import Blog2Epub
 from blog2epub.common.book import Book
@@ -24,7 +25,7 @@ def main():
     parser.add_argument("-l", "--limit", type=int, default=None, help="articles limit")
     parser.add_argument("-s", "--skip", type=int, default=None, help="number of skipped articles")
     parser.add_argument("-q", "--quality", type=int, default=40, help="images quality (0-100)")
-    parser.add_argument("-o", "--output", help="output epub file name")
+    parser.add_argument("-o", "--output", help="output path (for cache and epub)", default=".")
     parser.add_argument("-d", "--debug", action="store_true", help="turn on debug")
     args = parser.parse_args()
     configuration = ConfigurationModel(
@@ -32,12 +33,12 @@ def main():
         limit=str(args.limit),
         skip=str(args.skip),
         images_quality=args.quality,
-        filename=args.output,
+        destination_folder=args.output,
     )
     blog2epub = Blog2Epub(
         url=args.url,
         configuration=configuration,
-        cache_folder=".",
+        cache_folder=args.output,
         interface=CliInterface(),
     )
     configuration.language = blog2epub.crawler.language
@@ -48,6 +49,7 @@ def main():
         destination_folder=".",
         interface=CliInterface(),
         platform_name=f"CLI {platform.system()} {platform.release()}",
+        debug=args.debug,
     )
     ebook.save(file_name=args.output)
 

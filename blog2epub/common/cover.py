@@ -33,6 +33,7 @@ class Cover:
         images_bw: bool,
         images_size: tuple[int, int],
         platform_name: str = "",
+        debug: bool = False,
     ):
         """
         :param book: intance of Book class
@@ -48,6 +49,7 @@ class Cover:
         self.tile_size: int = int(images_size[0] / 5)
         self.platform_name = platform_name
         self.images = self._check_image_size(images)
+        self.debug = debug
 
     def _check_image_size(self, images: list[ImageModel]) -> list[ImageModel]:
         verified_images = []
@@ -137,6 +139,9 @@ class Cover:
     def _draw_text(self, cover_image):
         cover_draw = ImageDraw.Draw(cover_image)
         title_font_size = math.ceil(self.images_size[0] * 0.05)
+        if self.debug:
+            print(f"TITLE_FONT_NAME: {TITLE_FONT_NAME}")
+            print(f"SUBTITLE_FONT_NAME: {SUBTITLE_FONT_NAME}")
         title_font = ImageFont.truetype(TITLE_FONT_NAME, title_font_size)
         subtitle_font_size = math.ceil(self.images_size[0] * 0.033)
         subtitle_font = ImageFont.truetype(SUBTITLE_FONT_NAME, subtitle_font_size)

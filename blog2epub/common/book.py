@@ -78,6 +78,7 @@ class Book:
         interface: EmptyInterface,
         destination_folder: str = ".",
         platform_name: str = "",
+        debug: bool = False,
     ):
         self.start: datetime.date | None = None
         self.end: datetime.date | None = None
@@ -96,6 +97,7 @@ class Book:
         self.file_name: str = self._get_new_file_name()
         self.destination_folder = destination_folder
         self.platform_name = platform_name
+        self.debug = debug
 
     def _set_locale(self):
         try:
@@ -161,6 +163,7 @@ class Book:
             platform_name=self.platform_name,
             images_bw=self.configuration.images_bw,
             images_size=self.configuration.images_size,
+            debug=self.debug,
         )
         cover_file_name, cover_file_full_path = self.cover.generate()
         self.cover_image_path = cover_file_full_path

@@ -1,0 +1,23 @@
+name: Build for Linux
+
+on: [push]
+
+jobs:
+  build_for_linux:
+    runs-on: ubuntu-latest
+#    env:
+#      SNAPCRAFT_STORE_CREDENTIALS: ${{ secrets.SNAPCRAFT_TOKEN }}
+    steps:
+      - name: Check out Git repository
+        uses: actions/checkout@v3
+      - name: Install Snapcraft
+        uses: samuelmeuli/action-snapcraft@v3
+      - name: Build snap
+        # run: sg lxd -c 'snapcraft --use-lxd'
+        run: snapcraft pack
+      - name: Upload snap package
+        uses: actions/upload-artifact@v4
+        with:
+          name: blog2epub_1.5.0_amd64.snap
+          path: blog2epub_1.5.0_amd64.snap
+          compression-level: 0

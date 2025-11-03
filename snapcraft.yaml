@@ -1,0 +1,67 @@
+name: blog2epub
+title: blog2epub
+summary: Convert website (blog) to epub using command line or GUI.
+description: |
+      - command line (CLI) and graphic user interface (GUI)
+      - script downloads all text contents of selected blog to epub file,
+      - if it's possible, it includes post comments,
+      - images are downsized to given resolution (`600*800`,`640*960` or `1236*1648`)
+      - images are also by default converted to grayscale,
+      - one post = one epub chapter,
+      - chapters are sorted by date ascending,
+      - cover is generated automatically from downloaded images.
+version: 1.5.0
+license: MIT
+grade: stable
+confinement: strict
+base: core24
+plugs:
+  dot-config-blog2epub:
+    interface: personal-files
+    write:
+      - $HOME/.config/blog2epub
+  desktop:
+    mount-host-font-cache: false
+apps:
+  blog2epub:
+    command: bin/blog2epub
+    plugs:
+      - home
+      - network
+      - dot-config-blog2epub
+  gui:
+    command: bin/blog2epubgui
+    extensions:
+      - gnome
+    plugs:
+      - home
+      - network
+      - gsettings
+      - desktop
+      - desktop-legacy
+      - wayland
+      - x11
+      - unity7
+      - dot-config-blog2epub
+    environment:
+      PYTHONPATH: ${SNAP}/lib/python3.12/site-packages:${SNAP}/usr/local/lib/python3.12/dist-packages
+parts:
+  blog2epub:
+    plugin: python
+    source: .
+    stage-packages:
+      - libgl1
+environment:
+  SNAP_DESKTOP_RUNTIME: $SNAP/gnome-platform
+  GTK_USE_PORTAL: '1'
+  LD_LIBRARY_PATH: ${SNAP_LIBRARY_PATH}${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}:$SNAP/lib:$SNAP/usr/lib:$SNAP/usr/lib/x86_64-linux-gnu
+  PATH: $SNAP/usr/sbin:$SNAP/usr/bin:$SNAP/sbin:$SNAP/bin:$PATH
+contact:
+  - bohdanbobrowski+blog2epub@gmail.com
+  - https://github.com/bohdanbobrowski
+website:
+  - https://github.com/bohdanbobrowski/blog2epub
+source-code:
+  - https://github.com/bohdanbobrowski/blog2epub
+issues:
+  - https://github.com/bohdanbobrowski/blog2epub/issues
