@@ -13,7 +13,7 @@ description: |
 
 version: 1.5.0
 license: MIT
-grade: stable
+grade: devel
 confinement: strict
 compression: lzo
 base: core24
