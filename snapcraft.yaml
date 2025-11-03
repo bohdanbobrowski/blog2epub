@@ -10,11 +10,14 @@ description: |
       - one post = one epub chapter,
       - chapters are sorted by date ascending,
       - cover is generated automatically from downloaded images.
+
 version: 1.5.0
 license: MIT
 grade: stable
 confinement: strict
+compression: lzo
 base: core24
+
 plugs:
   dot-config-blog2epub:
     interface: personal-files
@@ -22,6 +25,27 @@ plugs:
       - $HOME/.config/blog2epub
   desktop:
     mount-host-font-cache: false
+  gtk-3-themes:
+    interface: content
+    target: $SNAP/data-dir/themes
+    default-provider: gtk-common-themes
+  icon-themes:
+    interface: content
+    target: $SNAP/data-dir/icons
+    default-provider: gtk-common-themes
+  sound-themes:
+    interface: content
+    target: $SNAP/data-dir/sounds
+    default-provider: gtk-common-themes
+  gnome-46-2404:
+    interface: content
+    target: $SNAP/gnome-platform
+    default-provider: gnome-46-2404
+  gpu-2404:
+    interface: content
+    target: $SNAP/gpu-2404
+    default-provider: mesa-2404
+
 apps:
   blog2epub:
     command: bin/blog2epub
@@ -34,28 +58,56 @@ apps:
     extensions:
       - gnome
     plugs:
-      - home
-      - network
-      - gsettings
+      - browser-support
       - desktop
       - desktop-legacy
+      - dot-config-blog2epub
+      - gsettings
+      - home
+      - network
+      - removable-media
+      - unity7
       - wayland
       - x11
-      - unity7
-      - dot-config-blog2epub
     environment:
       PYTHONPATH: ${SNAP}/lib/python3.12/site-packages:${SNAP}/usr/local/lib/python3.12/dist-packages
+
 parts:
   blog2epub:
     plugin: python
     source: .
     stage-packages:
       - libgl1
+  deps:
+    plugin: nil
+    after: [blog2epub]
+    stage-packages:
+      - xclip
+      - libxmu6
+    prime:
+      - usr/bin/xclip*
+      - usr/lib/*/libXmu.so*
+  py-deps:
+    plugin: nil
+    after: [deps]
+    override-build: |
+      craftctl default
+      pip install --prefix=$CRAFT_PART_INSTALL/usr validators==0.35.0
+      pip install --prefix=$CRAFT_PART_INSTALL/usr platformdirs==4.3.8
+      pip install --prefix=$CRAFT_PART_INSTALL/usr Kivy==2.3.1
+
+slots:
+  blog2epub:
+    interface: dbus
+    bus: session
+    name: com.bobrowski.blog2epub
+
 environment:
   SNAP_DESKTOP_RUNTIME: $SNAP/gnome-platform
   GTK_USE_PORTAL: '1'
   LD_LIBRARY_PATH: ${SNAP_LIBRARY_PATH}${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}:$SNAP/lib:$SNAP/usr/lib:$SNAP/usr/lib/x86_64-linux-gnu
   PATH: $SNAP/usr/sbin:$SNAP/usr/bin:$SNAP/sbin:$SNAP/bin:$PATH
+
 contact:
   - bohdanbobrowski+blog2epub@gmail.com
   - https://github.com/bohdanbobrowski
