@@ -24,6 +24,8 @@ minimal_depts["hiddenimports"] += [
     "imagesize",
     "kivymd",
     "plyer",
+    "plyer.platforms.macos.notification",
+    "plyer.platforms.macos.filechooser",
     "pyjnius",
     "python-dateutil",
     "pytz",
