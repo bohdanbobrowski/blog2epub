@@ -81,8 +81,18 @@ Checkout for latest available [builds](https://github.com/bohdanbobrowski/blog2e
 
 #### Linux
 
+###### AppImage
+
+Works fine, but is HUGE (about 250 MB).
+
     python build_linux.py
     ./make_linux_appimage.sh
+
+###### Snap
+
+This is promising, but still i have issues with `plyer` modules called `fileselect` and `notification`.
+
+    snapcraft pack    
 
 #### Android
 
