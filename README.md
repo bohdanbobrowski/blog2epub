@@ -69,6 +69,10 @@ Checkout for latest available [builds](https://github.com/bohdanbobrowski/blog2e
 
 ### Building own executable
 
+#### Android
+
+    buildozer android debug
+
 #### Windows
 
     python build_windows.py
@@ -81,6 +85,8 @@ Checkout for latest available [builds](https://github.com/bohdanbobrowski/blog2e
 
 #### Linux
 
+I love Linux, but this gives me a headache:
+
 ###### AppImage
 
 Works fine, but is HUGE (about 250 MB).
@@ -90,13 +96,9 @@ Works fine, but is HUGE (about 250 MB).
 
 ###### Snap
 
-This is promising, but still i have issues with `plyer` modules called `fileselect` and `notification`.
+This is promising, despite taking 150 MB... but still i have issues with `plyer` modules called `fileselect` and `notification`.
 
-    snapcraft pack    
-
-#### Android
-
-    buildozer android debug
+    snapcraft pack
 
 ## Screenshots of GUI
 

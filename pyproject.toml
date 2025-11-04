@@ -37,9 +37,7 @@ dependencies = [
     "imagesize",
     "filetype",
     "html5lib",
-    "click",
     "webencodings",
-    "soupsieve",
     "pytz",
     "ftfy",
 ]
