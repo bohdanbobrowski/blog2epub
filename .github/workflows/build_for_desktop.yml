@@ -9,6 +9,7 @@ env:
   KIVY_GL_BACKEND: angle_sdl2
 
 jobs:
+
   pyinstaller-windows-build:
     runs-on: windows-latest
     steps:
@@ -29,6 +30,11 @@ jobs:
           name: blog2epub_1.5.0_setup.exe
           path: ./dist/blog2epub_1.5.0_setup.exe
           compression-level: 0
+      - name: Build Windows Installer MSI from exe file
+        uses: AliceOh/CreateWindowsInstaller@1.0.0
+        with:
+          exefile: ./dist/blog2epub_gui.exe
+
   pyinstaller-macos-build:
     runs-on: macos-latest
     steps:
