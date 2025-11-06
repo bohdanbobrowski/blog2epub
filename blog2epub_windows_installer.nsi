@@ -1,13 +1,26 @@
 ; The name of the installer
 !define VERSION "1.5.0"
-
 Name "blog2epub"
+
+XPStyle on
+ManifestDPIAware True
+LicenseBkColor /windows
 
 ; To change from default installer icon:
 Icon "assets\blog2epub.ico"
 
 ; The setup filename
 OutFile "dist\blog2epub_${VERSION}_setup.exe"
+
+!ifdef COMPANY
+!ifndef NOPEVI
+!define /IfNDef VER 1.2.3.4
+VIProductVersion ${VER}
+VIAddVersionKey /LANG=0 "FileVersion" "${VERSION}.0"
+VIAddVersionKey /LANG=0 "CompanyName" "${COMPANY}"
+VIAddVersionKey /LANG=0 "FileDescription" "${NAME}"
+!endif
+!endif
 
 ; The default installation directory
 InstallDir $PROGRAMFILES\blog2epub
@@ -53,6 +66,9 @@ Section "blog2epub v${VERSION} (required)"
 
   ; Write the uninstall keys for Windows
   WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\blog2epub" "DisplayName" "blog2epub"
+  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\blog2epub" "Publisher" "Bohdan Bobrowski"
+  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\blog2epub" "DisplayIcon" "$INSTDIR\blog2epub_gui.exe"
+  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\blog2epub" "DisplayVersion" "${VERSION}"
   WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\blog2epub" "UninstallString" '"$INSTDIR\uninstall.exe"'
   WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\blog2epub" "NoModify" 1
   WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\blog2epub" "NoRepair" 1
