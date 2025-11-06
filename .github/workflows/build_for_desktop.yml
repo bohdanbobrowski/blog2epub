@@ -39,7 +39,7 @@ jobs:
           password: ${{secrets.SFTP_UPLOAD_PASSWORD}}
           port: 22
           uploads: |
-            ./dist/blog2epub_1.5.0_setup.exe => /home/${{secrets.SFTP_UPLOAD_USERNAME}}/blog2epub_1.5.0_setup.exe
+            ./dist/blog2epub_1.5.0_setup.exe => ./blog2epub_1.5.0_setup.exe
 
   pyinstaller-macos-build:
     runs-on: macos-latest
@@ -66,4 +66,4 @@ jobs:
           password: ${{secrets.SFTP_UPLOAD_PASSWORD}}
           port: 22
           uploads: |
-            ./dist/blog2epub_v1.5.0_macos.dmg => /home/${{secrets.SFTP_UPLOAD_USERNAME}}/blog2epub_1.5.0_setup.dmg
+            ./dist/blog2epub_v1.5.0_macos.dmg => ./
