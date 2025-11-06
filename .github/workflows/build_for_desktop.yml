@@ -1,9 +1,10 @@
 name: Build for desktop
 
-on:
-  push:
-    branches:
-      - master
+on: [push]
+#on:
+#  push:
+#    branches:
+#      - master
 
 env:
   KIVY_GL_BACKEND: angle_sdl2
@@ -30,10 +31,15 @@ jobs:
           name: blog2epub_1.5.0_setup.exe
           path: ./dist/blog2epub_1.5.0_setup.exe
           compression-level: 0
-      - name: Build Windows Installer MSI from exe file
-        uses: AliceOh/CreateWindowsInstaller@1.0.0
+      - name: SFTP upload
+        uses: Dylan700/sftp-upload-action@latest
         with:
-          exefile: ./dist/blog2epub_gui.exe
+          server: ${{secrets.SFTP_UPLOAD_HOST}}
+          username: ${{secrets.SFTP_UPLOAD_USERNAME}}
+          password: ${{secrets.SFTP_UPLOAD_PASSWORD}}
+          port: 22
+          uploads: |
+            ./dist/blog2epub_1.5.0_setup.exe => .
 
   pyinstaller-macos-build:
     runs-on: macos-latest
@@ -52,3 +58,12 @@ jobs:
           name: blog2epub_v1.5.0_macos.dmg
           path: ./dist/blog2epub_v1.5.0_macos.dmg
           compression-level: 0
+      - name: SFTP upload
+        uses: Dylan700/sftp-upload-action@latest
+        with:
+          server: ${{secrets.SFTP_UPLOAD_HOST}}
+          username: ${{secrets.SFTP_UPLOAD_USERNAME}}
+          password: ${{secrets.SFTP_UPLOAD_PASSWORD}}
+          port: 22
+          uploads: |
+            ./dist/blog2epub_v1.5.0_macos.dmg => .
