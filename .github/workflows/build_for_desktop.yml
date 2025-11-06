@@ -1,10 +1,9 @@
 name: Build for desktop
 
-on: [push]
-#on:
-#  push:
-#    branches:
-#      - master
+on:
+  push:
+    branches:
+      - master
 
 env:
   KIVY_GL_BACKEND: angle_sdl2
@@ -31,14 +30,6 @@ jobs:
           name: blog2epub_1.5.0_setup.exe
           path: ./dist/blog2epub_1.5.0_setup.exe
           compression-level: 0
-      - name: SFTP uploader
-        uses: wangyucode/sftp-upload-action@v2.0.4
-        with:
-          host: ${{secrets.SFTP_UPLOAD_HOST}}
-          username: ${{secrets.SFTP_UPLOAD_USERNAME}}
-          password: ${{secrets.SFTP_UPLOAD_PASSWORD}}
-          localDir: "dist"
-          remoteDir: "/home/${{secrets.SFTP_UPLOAD_USERNAME}}/"
 
   pyinstaller-macos-build:
     runs-on: macos-latest
@@ -57,11 +48,3 @@ jobs:
           name: blog2epub_v1.5.0_macos.dmg
           path: ./dist/blog2epub_v1.5.0_macos.dmg
           compression-level: 0
-      - name: SFTP uploader
-        uses: wangyucode/sftp-upload-action@v2.0.4
-        with:
-          host: ${{secrets.SFTP_UPLOAD_HOST}}
-          username: ${{secrets.SFTP_UPLOAD_USERNAME}}
-          password: ${{secrets.SFTP_UPLOAD_PASSWORD}}
-          localDir: "dist"
-          remoteDir: "/home/${{secrets.SFTP_UPLOAD_USERNAME}}/"
