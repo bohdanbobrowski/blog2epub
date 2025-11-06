@@ -31,15 +31,14 @@ jobs:
           name: blog2epub_1.5.0_setup.exe
           path: ./dist/blog2epub_1.5.0_setup.exe
           compression-level: 0
-      - name: SFTP upload
-        uses: Dylan700/sftp-upload-action@latest
+      - name: SFTP uploader
+        uses: wangyucode/sftp-upload-action@v2.0.4
         with:
-          server: ${{secrets.SFTP_UPLOAD_HOST}}
+          host: ${{secrets.SFTP_UPLOAD_HOST}}
           username: ${{secrets.SFTP_UPLOAD_USERNAME}}
           password: ${{secrets.SFTP_UPLOAD_PASSWORD}}
-          port: 22
-          uploads: |
-            ./dist/blog2epub_1.5.0_setup.exe => ./blog2epub_1.5.0_setup.exe
+          localDir: "dist"
+          remoteDir: "/home/${{secrets.SFTP_UPLOAD_USERNAME}}/"
 
   pyinstaller-macos-build:
     runs-on: macos-latest
@@ -58,12 +57,11 @@ jobs:
           name: blog2epub_v1.5.0_macos.dmg
           path: ./dist/blog2epub_v1.5.0_macos.dmg
           compression-level: 0
-      - name: SFTP upload
-        uses: Dylan700/sftp-upload-action@latest
+      - name: SFTP uploader
+        uses: wangyucode/sftp-upload-action@v2.0.4
         with:
-          server: ${{secrets.SFTP_UPLOAD_HOST}}
+          host: ${{secrets.SFTP_UPLOAD_HOST}}
           username: ${{secrets.SFTP_UPLOAD_USERNAME}}
           password: ${{secrets.SFTP_UPLOAD_PASSWORD}}
-          port: 22
-          uploads: |
-            ./dist/blog2epub_v1.5.0_macos.dmg => ./
+          localDir: "dist"
+          remoteDir: "/home/${{secrets.SFTP_UPLOAD_USERNAME}}/"
