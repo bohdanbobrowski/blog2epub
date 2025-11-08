@@ -8,15 +8,16 @@ jobs:
     env:
       SNAPCRAFT_STORE_CREDENTIALS: ${{ secrets.SNAPCRAFT_TOKEN }}
     steps:
-      - name: Check out Git repository
-        uses: actions/checkout@v3
-      - name: Install Snapcraft
-        uses: samuelmeuli/action-snapcraft@v3
-      - name: Build snap
-        run: sg lxd -c 'snapcraft --use-lxd'
-      - name: Upload snap package
-        uses: actions/upload-artifact@v4
+      - name: Create Executable
+        uses: sayyid5416/pyinstaller@v1
         with:
-          name: blog2epub_1.5.0_amd64.snap
-          path: blog2epub_1.5.0_amd64.snap
-          compression-level: 0
+          python_ver: '3.12'
+          spec: 'blog2epub_windows.spec'
+          requirements: 'requirements.txt'
+          upload_exe_with_name: blog2epub_linux_v1.5.0
+      - name: Create installer
+        run: bash ./make_macos_dmg.sh
+      - uses: actions/upload-artifact@v4
+        with:
+          name: blog2epub_v1.5.0.AppImage
+          path: ./dist/blog2epub_v1.5.0.AppImage

@@ -19,7 +19,7 @@ jobs:
           python_ver: '3.12'
           spec: 'blog2epub_windows.spec'
           requirements: 'requirements.txt'
-          upload_exe_with_name: blog2epub_win32_v1.5.0
+          upload_exe_with_name: blog2epub_v1.5.0_win32
       - name: Create installer
         run: |
           choco install nsis          
@@ -41,10 +41,9 @@ jobs:
           spec: 'blog2epub_macos.spec'
           requirements: 'requirements.txt'
           upload_exe_with_name: 'blog2epub.app'
-      - name: Upload dng
+      - name: Make and upload dng
         run: bash ./make_macos_dmg.sh
       - uses: actions/upload-artifact@v4
         with:
           name: blog2epub_v1.5.0_macos.dmg
           path: ./dist/blog2epub_v1.5.0_macos.dmg
-          compression-level: 0

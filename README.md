@@ -60,7 +60,7 @@ Checkout for latest available [builds](https://github.com/bohdanbobrowski/blog2e
 
     git clone git@github.com:bohdanbobrowski/blog2epub.git
     cd blog2epub
-    python -m venv venv
+    python -m venv venv 
 
 ##### Windows:
     venv\Scripts\activate
@@ -72,6 +72,11 @@ Checkout for latest available [builds](https://github.com/bohdanbobrowski/blog2e
     pip install -e .[dev]
 
 ### Building own executable
+
+Build environment should contain only what is necessary to prepare build:
+
+    pip install .
+    pip instal pyinstaller
 
 #### Android
 
