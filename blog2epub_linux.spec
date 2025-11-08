@@ -4,8 +4,8 @@ from kivy.tools.packaging.pyinstaller_hooks import get_deps_minimal
 import os
 import sys
 
-block_cipher = None
-minimal_depts = get_deps_minimal(video=None, audio=None)
+block_cipher=None
+minimal_depts=get_deps_minimal(video=None, audio=None)
 minimal_depts["hiddenimports"] += [
     "win32timezone",
     "pytz",
@@ -28,8 +28,16 @@ minimal_depts["hiddenimports"] += [
     "strip_tags",
     "webencodings",
 ]
+minimal_depts["excludes"] += [
+    "mypy",
+    "jnius",
+    "coverage",
+    "cython",
+    "types*",
+    "pytest-cov",
+]
 
-configuration = Analysis(
+configuration=Analysis(
     [
         'blog2epub/blog2epub_gui.py'
     ],
@@ -52,25 +60,25 @@ configuration = Analysis(
     noarchive=False,
     **minimal_depts,
 )
-application_pyz = PYZ(
+application_pyz=PYZ(
     configuration.pure,
     configuration.zipped_data,
     cipher=block_cipher
 )
-application_exe = EXE(
+application_exe=EXE(
     application_pyz,
     configuration.scripts,
     configuration.binaries,
     configuration.zipfiles,
     configuration.datas,
-    name = 'blog2epub',
-    debug = False,
+    name='blog2epub',
     bootloader_ignore_signals=False,
-    strip = False,
-    upx = True,
+    debug=False,
+    strip=True,
+    upx=False,
     upx_exclude=[],
-    runtime_tmpdir = None,
-    console = False,
+    runtime_tmpdir=None,
+    console=False,
     disable_windowed_traceback=False,
     argv_emulation=False,
     target_arch=None,
@@ -78,10 +86,10 @@ application_exe = EXE(
     entitlements_file=None,
     icon='assets/blog2epub.ico',
 )
-app = BUNDLE(
+app=BUNDLE(
     application_exe,
     name='blog2epub',
-    icon='assets/blog2epub.ico',
+    icon='assets/blog2epub_256px.png',
     bundle_identifier=None,
-    info_plist = {'NSHighResolutionCapable': 'True'},
+    info_plist={'NSHighResolutionCapable': 'True'},
 )

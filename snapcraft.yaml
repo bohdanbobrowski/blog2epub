@@ -23,28 +23,6 @@ plugs:
     interface: personal-files
     write:
       - $HOME/.config/blog2epub
-  desktop:
-    mount-host-font-cache: false
-  gtk-3-themes:
-    interface: content
-    target: $SNAP/data-dir/themes
-    default-provider: gtk-common-themes
-  icon-themes:
-    interface: content
-    target: $SNAP/data-dir/icons
-    default-provider: gtk-common-themes
-  sound-themes:
-    interface: content
-    target: $SNAP/data-dir/sounds
-    default-provider: gtk-common-themes
-  gnome-46-2404:
-    interface: content
-    target: $SNAP/gnome-platform
-    default-provider: gnome-46-2404
-  gpu-2404:
-    interface: content
-    target: $SNAP/gpu-2404
-    default-provider: mesa-2404
 
 apps:
   blog2epub:
@@ -92,6 +70,7 @@ parts:
     after: [deps]
     override-build: |
       craftctl default
+      pip install --prefix=$CRAFT_PART_INSTALL/usr plyer==2.1.0
       pip install --prefix=$CRAFT_PART_INSTALL/usr validators==0.35.0
       pip install --prefix=$CRAFT_PART_INSTALL/usr platformdirs==4.3.8
       pip install --prefix=$CRAFT_PART_INSTALL/usr Kivy==2.3.1
@@ -117,3 +96,7 @@ source-code:
   - https://github.com/bohdanbobrowski/blog2epub
 issues:
   - https://github.com/bohdanbobrowski/blog2epub/issues
+
+lint:
+  ignore:
+    - library

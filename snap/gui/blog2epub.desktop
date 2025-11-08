@@ -6,6 +6,6 @@ Comment=Convert website (blog) to epub using command line or GUI.
 TryExec=blog2epub.gui
 Exec=blog2epub.gui
 Terminal=false
-Icon=${SNAP}/meta/gui/blog2epub_desktop.svg
+Icon=${SNAP}/meta/gui/blog2epub.svg
 Categories=Utility
 Keywords=ebook;epub;ereader;
