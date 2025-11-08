@@ -5,18 +5,16 @@ on: [push]
 jobs:
   build_for_linux:
     runs-on: ubuntu-latest
-    env:
-      SNAPCRAFT_STORE_CREDENTIALS: ${{ secrets.SNAPCRAFT_TOKEN }}
     steps:
       - name: Create Executable
         uses: sayyid5416/pyinstaller@v1
         with:
           python_ver: '3.12'
-          spec: 'blog2epub_windows.spec'
+          spec: 'blog2epub_linux.spec'
           requirements: 'requirements.txt'
-          upload_exe_with_name: blog2epub_linux_v1.5.0
+          upload_exe_with_name: blog2epub_v1.5.0_linux
       - name: Create installer
-        run: bash ./make_macos_dmg.sh
+        run: bash ./make_linux_appimage.sh
       - uses: actions/upload-artifact@v4
         with:
           name: blog2epub_v1.5.0.AppImage
