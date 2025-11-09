@@ -3,6 +3,7 @@ if [ -f "./dist/blog2epub" ]; then
   mkdir -p ./dist/blog2epub_v1.5.0.AppDir/usr/bin/
   cp ./dist/blog2epub ./dist/blog2epub_v1.5.0.AppDir/usr/bin/
   cp ./assets/blog2epub.svg ./dist/blog2epub_v1.5.0.AppDir/
+  cp ./assets/blog2epub.png ./dist/blog2epub_v1.5.0.AppDir/
   echo """#!/bin/bash
 if [[ ! \"\${APPIMAGE}\" || ! \"\${APPDIR}\" ]]; then
   export APPIMAGE=\"\$(readlink -f \"\${0}\")\"

@@ -89,7 +89,7 @@ application_exe=EXE(
 app=BUNDLE(
     application_exe,
     name='blog2epub',
-    icon='assets/blog2epub_256px.png',
+    icon='assets/blog2epub.ico',
     bundle_identifier=None,
     info_plist={'NSHighResolutionCapable': 'True'},
 )

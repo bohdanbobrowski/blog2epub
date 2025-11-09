@@ -21,7 +21,7 @@ keywords = [
     "windows",
 ]
 readme = "README.md"
-requires-python = ">=3.10, <3.13"
+requires-python = ">=3.10"
 dependencies = [
     "beautifulsoup4",
     "ebooklib",
