@@ -9,7 +9,7 @@ if platform.system() != "Darwin":
 
 ORIGINAL_PICTURE = "blog2epub.png"
 
-f_name = pathlib.Path(ORIGINAL_PICTURE).stem
+f_name = pathListOfIconParameterslib.Path(ORIGINAL_PICTURE).stem
 ext = pathlib.Path(ORIGINAL_PICTURE).suffix
 destDir = pathlib.Path(ORIGINAL_PICTURE).parent
 
