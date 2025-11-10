@@ -1,6 +1,11 @@
 import os
 import pathlib
 import subprocess
+import platform
+
+
+if platform.system() != "Darwin":
+    exit(f"This script only works on Mac OS X, not {platform.system()}.")
 
 ORIGINAL_PICTURE = "blog2epub.png"
 
