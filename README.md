@@ -7,15 +7,12 @@
 [![Maintenance](https://img.shields.io/badge/Maintained%3F-yes-green.svg)](https://github.com/bohdanbobrowski/blog2epub/graphs/commit-activity) [![MIT license](https://img.shields.io/badge/License-MIT-blue.svg)](https://lbesson.mit-license.org/) ![GitHub all releases](https://img.shields.io/github/downloads/bohdanbobrowski/blog2epub/total) ![GitHub release (with filter)](https://img.shields.io/github/v/release/bohdanbobrowski/blog2epub) ![GitHub Release Date - Published_At](https://img.shields.io/github/release-date/bohdanbobrowski/blog2epub)
 
 
-<table style="width:100%;text-align:center;border:none!important;"><tr><td>
+
 <a href="https://apps.microsoft.com/detail/XP9M0FG8NP0N8K?mode=direct">
     <img src="https://get.microsoft.com/images/en-us%20dark.svg" width="200"/>
-</a>
-</td><td>
-<a href="#">
+</a>&nbsp;<a href="#">
     <img src="assets/download-appimage-banner.svg" width="200"/>
 </a>
-</td></tr></table>
 
 Convert website (blog) to epub using command line or GUI.
 
@@ -39,7 +36,7 @@ Convert website (blog) to epub using command line or GUI.
 
 ### Example covers
 
-<table style="width:100%;text-align:center;border:none!important;"><tr><td>
+<table style="width:100%;text-align:center;"><tr><td>
 <img src="assets/v1.5.0/zeissikonveb_de_2023.11.17-2025.06.07.epub.jpg" width="400" style="margin:0 10px 10px 0;" />
 </td><td>
 <img src="assets/v1.5.0/starybezpiek_blogspot_com_2014.11.04-2015.12.15.epub.jpg" width="400" style="margin:0 10px 10px 0;" />
