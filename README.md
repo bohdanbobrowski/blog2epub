@@ -196,7 +196,7 @@ Example:
     pytest --cov=blog2epub --cov-report=html ./tests
 
 
-## Current version
+## tab Current version
 
 ### [v1.5.0](https://github.com/bohdanbobrowski/blog2epub/releases/tag/v1.5.0)
 - [X] integration testing
@@ -224,11 +224,11 @@ Example:
 
 [&raquo; Complete Changelog here &laquo;](./docs/Changelog.md)
 
-## Project backlog
+## tab Project backlog
 
 And finally, a list known bugs and future plans for some new functions and enhancements: [Backlog.md](./docs/Backlog.md)
 
-## Project road map:
+## tab Road map:
 
 - 1.0 - somewhat working
 - 2.0 - fully working project, 90% unit tested and available builds for Android/Windows/Linux/MacOS
