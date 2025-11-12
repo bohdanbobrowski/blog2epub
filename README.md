@@ -227,11 +227,11 @@ Example:
 - [X] Linux packages: Appimage and Snap (still experimental)
 - [X] GitHub actions builds for macOS, Windows and Linux
 
-[&raquo; Complete Change Log here &laquo;](https://github.com/bohdanbobrowski/blog2epub/blob/master/CHANGELOG.md)
+[&raquo; Complete Changelog here &laquo;](./docs/Changelog.md)
 
 ## Project backlog
 
-And finally, a list known bugs and future plans for some new functions and enhancements: [BACKLOG.md](https://github.com/bohdanbobrowski/blog2epub/blob/master/BACKLOG.md)
+And finally, a list known bugs and future plans for some new functions and enhancements: [Backlog.md](./docs/Backlog.md)
 
 ## Project road map:
 
