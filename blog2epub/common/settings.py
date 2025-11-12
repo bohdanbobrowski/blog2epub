@@ -48,7 +48,7 @@ class Blog2EpubSettings:
 
     @staticmethod
     def _normalise_history(history: list[str]) -> list[str]:
-        """Used only when loading configs older than v.1.5.0"""
+        """Used only when loading configs older than v.1.5.1"""
         output_history = []
         for item in history:
             port, url = prepare_port_and_url(item)

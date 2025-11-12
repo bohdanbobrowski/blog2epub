@@ -1,5 +1,5 @@
 ; The name of the installer
-!define VERSION "1.5.0"
+!define VERSION "1.5.1"
 Name "blog2epub"
 
 XPStyle on
