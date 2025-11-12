@@ -5,19 +5,29 @@
 - [X] increase unit test coverage
 - [X] use sitemaps.xml for scraping
 - [X] crawlers refactor
-  - [X] use data models
+  - [X] use builtin dataclasses instead of pydantic
   - [X] more common methods in crawler class
   - [X] expand crawler abstract
 - [X] cli interface refactor
 - [X] greek alphabet support
 - [X] image download and attachment bug solved (ex. modernistyczny-poznan.blogspot.com)
+- [X] color/bw images and covers
+- [X] custom image/cover sizes
 - [X] improved resistance to http errors
 - [X] dedicated crawler class for zeissikonveb.de
+- [X] (on GUI) skip value is enlarged on limit value (if such is set)
+- [X] download progress is much more verbose, also on GUI it can be cancelled everytime
+- [X] remove poetry as it's overcomplicated for the case, 
+- [X] results of cancelled downloads might be converted to epub
+- [X] Android version
+- [X] Windows installer (published on Microsoft Store)
+- [X] Linux packages: Appimage and Snap (still experimental)
+- [X] GitHub actions builds for macOS, Windows and Linux
 
 ### [v1.4.0](https://github.com/bohdanbobrowski/blog2epub/releases/tag/v1.4.0) - 2024-11-01
 - [X] custom destination folder
 - [X] UI improvements (better scaling, more rely on KivyMD default features)
-- [X] mypy and ruff pipeline job (via github Actions)
+- [X] mypy and ruff pipeline job (via GitHub Actions)
 - [X] Android build
 - [X] begin unit testing
 - [X] crawlers refactor - some part is done

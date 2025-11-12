@@ -9,6 +9,9 @@
 <a href="https://apps.microsoft.com/detail/XP9M0FG8NP0N8K?mode=direct">
 	<img src="https://get.microsoft.com/images/en-us%20dark.svg" width="200"/>
 </a>
+<a href="#">
+	<img src="./assets/download-appimage-banner.svg" width="200"/>
+</a>
 
 Convert website (blog) to epub using command line or GUI.
 
@@ -209,8 +212,11 @@ Example:
 - [X] (on GUI) skip value is enlarged on limit value (if such is set)
 - [X] download progress is much more verbose, also on GUI it can be cancelled everytime
 - [X] remove poetry as it's overcomplicated for the case, 
-- [X] Windows installer!
 - [X] results of cancelled downloads might be converted to epub
+- [X] Android version
+- [X] Windows installer (published on Microsoft Store)
+- [X] Linux packages: Appimage and Snap (still experimental)
+- [X] GitHub actions builds for macOS, Windows and Linux
 
 [&raquo; Complete Change Log here &laquo;](https://github.com/bohdanbobrowski/blog2epub/blob/master/CHANGELOG.md)
 

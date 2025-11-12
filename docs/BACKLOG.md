@@ -16,4 +16,3 @@
 - [ ] GUI translations
 - [ ] publish app on Google Play Store (in progress)
 - [ ] publish app on F-Droid (in progress)
-- [ ] add some linux packages: aur looks promising, and dmg aswell - what about Flatpak, Snap and Appimage?

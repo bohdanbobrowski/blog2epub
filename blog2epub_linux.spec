@@ -45,9 +45,9 @@ configuration=Analysis(
         '.'
     ],
     datas=[
-        (os.path.abspath('./assets/blog2epub.icns'), '.'),
-        (os.path.abspath('./assets/blog2epub_256px.png'), '.'),
+        (os.path.abspath('./assets/blog2epub.svg'), '.'),
         (os.path.abspath('./assets/blog2epub.png'), '.'),
+        (os.path.abspath('./assets/blog2epub_256px.png'), '.'),
         (os.path.abspath('./assets/Alegreya-Regular.ttf'), '.'),
         (os.path.abspath('./assets/Alegreya-Italic.ttf'), '.'),
         (os.path.abspath('./assets/LiberationMono-Regular.ttf'), '.'),
