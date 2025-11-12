@@ -53,14 +53,23 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Install dependencies
-        run: sudo apt-get install -y libsdl2-dev libmtdev-dev libsdl2-2.0-0 libsdl2-image-2.0-0 libsdl2-mixer-2.0-0 libsdl2-ttf-2.0-0 xclip xsel
-      - name: Create Executable
-        uses: sayyid5416/pyinstaller@v1
+        run: |
+          sudo apt-get install -y libsdl2-dev libmtdev-dev libsdl2-2.0-0 libsdl2-image-2.0-0 libsdl2-mixer-2.0-0
+          sudo apt-get install -y libsdl2-ttf-2.0-0 xclip xsel
+          pip install .
+          pip install pyinstaller
+          python build_linux.py
+      - uses: actions/upload-artifact@v4
         with:
-          python_ver: '3.12'
-          spec: 'blog2epub_linux.spec'
-          requirements: 'requirements.txt'
-          upload_exe_with_name: blog2epub_v1.5.0_linux
+          name: blog2epub_v1.5.0_linux
+          path: ./dist/blog2epub
+#      - name: Create Executable
+#        uses: sayyid5416/pyinstaller@v1
+#        with:
+#          python_ver: '3.12'
+#          spec: 'blog2epub_linux.spec'
+#          requirements: 'requirements.txt'
+#          upload_exe_with_name: blog2epub_v1.5.0_linux
       - name: Create installer
         run: |
           wget -O appimagetool-x86_64.AppImage https://github.com/AppImage/appimagetool/releases/download/continuous/appimagetool-x86_64.AppImage
