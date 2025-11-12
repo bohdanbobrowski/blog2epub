@@ -52,6 +52,7 @@ jobs:
   linux-build:
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v3
       - name: Install dependencies
         run: |
           sudo apt-get install -y libsdl2-dev libmtdev-dev libsdl2-2.0-0 libsdl2-image-2.0-0 libsdl2-mixer-2.0-0
