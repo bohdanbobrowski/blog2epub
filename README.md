@@ -8,11 +8,7 @@
 
 
 
-<a href="https://apps.microsoft.com/detail/XP9M0FG8NP0N8K?mode=direct">
-    <img src="https://get.microsoft.com/images/en-us%20dark.svg" width="200"/>
-</a>&nbsp;<a href="#">
-    <img src="assets/download-appimage-banner.svg" width="200"/>
-</a>
+<a href="https://apps.microsoft.com/detail/XP9M0FG8NP0N8K?mode=direct"><img src="https://get.microsoft.com/images/en-us%20dark.svg" width="200"/></a>&nbsp;<a href="#"><img src="assets/download-appimage-banner.svg" width="200"/></a>
 
 Convert website (blog) to epub using command line or GUI.
 
