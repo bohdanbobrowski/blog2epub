@@ -107,6 +107,8 @@ class Book:
             self.interface.print(f"Can't set locale as {self.configuration.language}, but nevermind.")
 
     def _get_subtitle(self):
+        if self.start is None:
+            return ""
         if self.end is None:
             return self.start.strftime("%d %B %Y")
         if self.start.strftime("%Y.%m") == self.end.strftime("%Y.%m"):
