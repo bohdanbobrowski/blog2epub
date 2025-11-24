@@ -26,5 +26,5 @@ NoDisplay=false
 X-AppImage-Version=1.5.0
 X-AppImage-Arch=x86_64
 """ > ./dist/blog2epub_v1.5.0.AppDir/blog2epub.desktop
-  ARCH=x86_64 appimagetool  ./dist/blog2epub_v1.5.0.AppDir ./dist/blog2epub_v1.5.0.AppImage
+  ARCH=x86_64 appimagetool  ./dist/blog2epub_v1.5.0.AppDir ./dist/blog2epub_v1.5.0.AppImage $1
 fi

@@ -103,10 +103,17 @@ So this is always a struggle (we all kno why), but eventually AppImage at least 
 
 ###### AppImage
 
-First 
+First, prepare "binary":
 
     python build_linux.py
+
+...and finally:
+
     ./make_linux_appimage.sh
+
+To build signed appimage use this command:
+
+    ./make_linux_appimage.sh --sign
 
 ###### Snap
 
