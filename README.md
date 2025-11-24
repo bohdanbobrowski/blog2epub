@@ -94,11 +94,16 @@ Build environment should contain only what is necessary to prepare build:
 
 #### Linux
 
-I love Linux, but this gives me a headache:
+So this is always a struggle (we all kno why), but eventually AppImage at least is so-so finished. Most important, thing: for building Linux images you need to have dedicated environment with minimal amount installed packages:
+
+    python -m venv ./venv_build
+    source ./venv_build/bin/activate
+    pip install .
+    pip install pyinstaller
 
 ###### AppImage
 
-Works fine, but is HUGE (about 250 MB).
+First 
 
     python build_linux.py
     ./make_linux_appimage.sh
