@@ -1,4 +1,5 @@
 #!/bin/bash
+# TODO: set version number as variable!
 if [ -f "./dist/blog2epub" ]; then
   mkdir -p ./dist/blog2epub_v1.5.0.AppDir/usr/bin/
   cp ./dist/blog2epub ./dist/blog2epub_v1.5.0.AppDir/usr/bin/
@@ -22,6 +23,8 @@ Keywords=ebook;epub;ereader;
 Terminal=false
 StartupNotify=true
 NoDisplay=false
+X-AppImage-Version=1.5.0
+X-AppImage-Arch=x86_64
 """ > ./dist/blog2epub_v1.5.0.AppDir/blog2epub.desktop
   ARCH=x86_64 appimagetool-x86_64  ./dist/blog2epub_v1.5.0.AppDir ./dist/blog2epub_v1.5.0.AppImage
 fi
