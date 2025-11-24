@@ -30,7 +30,7 @@ jobs:
         run: |
           wget -O appimagetool-x86_64.AppImage https://github.com/AppImage/appimagetool/releases/download/continuous/appimagetool-x86_64.AppImage
           chmod +x appimagetool-x86_64.AppImage
-          sudo mv appimagetool-x86_64.AppImage /usr/local/bin/appimagetool-x86_64
+          sudo mv appimagetool-x86_64.AppImage /usr/local/bin/appimagetool
           bash ./make_linux_appimage.sh
       - uses: actions/upload-artifact@v4
         with:
