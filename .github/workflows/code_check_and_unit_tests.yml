@@ -1,6 +1,11 @@
 name: Code check and unit tests
 
-on: [push]
+#on: [push]
+
+on:
+  push:
+    branches:
+      - master
 
 jobs:
   code_check:
