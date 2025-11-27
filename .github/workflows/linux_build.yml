@@ -1,10 +1,9 @@
 name: Linux build
 
-on: [push]
-#on:
-#  push:
-#    branches:
-#      - master
+on:
+  push:
+    branches:
+      - master
 
 env:
   KIVY_GL_BACKEND: angle_sdl2
