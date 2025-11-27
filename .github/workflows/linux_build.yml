@@ -24,8 +24,8 @@ jobs:
           path: src/dist/blog2epub
       - name: Install dependencies
         run: |
-          sudo apt-get install -y libsdl2-dev libmtdev-dev libsdl2-2.0-0 libsdl2-image-2.0-0 libsdl2-mixer-2.0-0
-          sudo apt-get install -y libsdl2-ttf-2.0-0 libsdl2-image-dev xclip xsel
+          sudo apt-get install -y libsdl2-dev libmtdev-dev libsdl2-2.0-0 libsdl2-image-2.0-0 libsdl2-mixer-2.0-0 --fix-missing
+          sudo apt-get install -y libsdl2-ttf-2.0-0 libsdl2-image-dev xclip xsel --fix-missing
       - name: Create installer
         run: |
           wget -O appimagetool-x86_64.AppImage https://github.com/AppImage/appimagetool/releases/download/continuous/appimagetool-x86_64.AppImage
