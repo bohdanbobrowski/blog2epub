@@ -24,7 +24,12 @@ jobs:
         with:
           name: blog2epub_v1.5.0_linux
           path: src/dist/blog2epub
-      - name: Build AppImage
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libsdl2-dev libmtdev-dev libsdl2-2.0-0 libsdl2-image-2.0-0 libsdl2-mixer-2.0-0
+          sudo apt-get install -y libsdl2-ttf-2.0-0 libsdl2-image-dev xclip xsel
+      - name: Create installer
         run: |
           wget -q https://github.com/AppImage/appimagetool/releases/download/continuous/appimagetool-x86_64.AppImage
           chmod +x appimagetool-x86_64.AppImage
