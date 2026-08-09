@@ -37,7 +37,7 @@ version.filename = %(source.dir)s/blog2epub/common/globals.py
 
 # (list) Application requirements
 # comma separated e.g. requirements = sqlite3,kivy
-requirements = python3,kivy==2.3.0,kivymd==1.2.0,lxml==5.3.0,attrs,pillow,click,soupsieve,webencodings,html5lib,beautifulsoup4,bs4,typing-extensions,ebooklib,python-dateutil,atoma,fake-useragent,pyyaml,plyer,defusedxml,pyjnius,imagesize,strip-tags,filetype,pytz
+requirements = python3,kivy==2.3.1,kivymd==2.0.0,lxml==6.1.1,attrs,pillow,click,soupsieve,webencodings,html5lib,beautifulsoup4,bs4,typing-extensions,ebooklib,python-dateutil,atoma,fake-useragent,pyyaml,plyer,defusedxml,pyjnius,imagesize,strip-tags,filetype,pytz
 
 # (str) Custom source folders for requirements
 # Sets custom source for any requirements with recipes
@@ -104,10 +104,10 @@ android.permissions = android.permission.INTERNET
 android.api = 36
 
 # (int) Minimum API your APK / AAB will support.
-android.minapi = 26
+# android.minapi = 26
 
 # (str) Android NDK version to use
-# android.ndk = 28c
+android.ndk = 29
 
 # (int) Android NDK API to use. This is the minimum API your app will support, it should usually match android.minapi.
 # android.ndk_api = 26
@@ -285,8 +285,6 @@ android.archs = arm64-v8a
 
 # (int) overrides automatic versionCode computation (used in build.gradle)
 # this is not the same as app version and should only be edited if you know what you're doing
-android.numeric_version = 102410508
-
 # (bool) enables Android auto backup feature (Android API >=23)
 android.allow_backup = True
 
@@ -316,10 +314,10 @@ android.allow_backup = True
 #p4a.url =
 
 # (str) python-for-android fork to use in case if p4a.url is not specified, defaults to upstream (kivy)
-#p4a.fork = kivy
+p4a.fork = kivy
 
 # (str) python-for-android branch to use, defaults to master
-# p4a.branch = master
+p4a.branch = develop
 
 # (str) python-for-android specific commit to use, defaults to HEAD, must be within p4a.branch
 #p4a.commit = HEAD
