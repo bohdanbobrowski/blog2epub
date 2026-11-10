@@ -15,7 +15,15 @@ class CliInterface(EmptyInterface):
         print(e)
 
 
-def main():
+def valid_quality(value: str) -> int:
+    """Image quality for the CLI, same 1-100 range the GUI enforces."""
+    quality = int(value)
+    if quality < 1 or quality > 100:
+        raise argparse.ArgumentTypeError(f"images quality must be between 1 and 100 (got {quality})")
+    return quality
+
+
+def create_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         prog="Blog2epub Cli interface",
         description="Convert blog (blogspot.com, wordpress.com or another based on Wordpress) to epub using CLI or GUI.",
@@ -23,10 +31,14 @@ def main():
     parser.add_argument("url", help="url of blog to download")
     parser.add_argument("-l", "--limit", type=int, default=None, help="articles limit")
     parser.add_argument("-s", "--skip", type=int, default=None, help="number of skipped articles")
-    parser.add_argument("-q", "--quality", type=int, default=40, help="images quality (0-100)")
+    parser.add_argument("-q", "--quality", type=valid_quality, default=40, help="images quality (1-100)")
     parser.add_argument("-o", "--output", help="output path (for cache and epub)", default=".")
     parser.add_argument("-d", "--debug", action="store_true", help="turn on debug")
-    args = parser.parse_args()
+    return parser
+
+
+def main():
+    args = create_parser().parse_args()
     configuration = ConfigurationModel(
         url=args.url,
         limit=str(args.limit),
