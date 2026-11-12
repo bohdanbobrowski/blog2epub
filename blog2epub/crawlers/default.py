@@ -322,6 +322,7 @@ class DefaultCrawler(AbstractCrawler):
                     re.search("sitemap.xml\\?page=[0-9]+$", sub_sitemap)
                     or re.search("wp-sitemap-posts-(post|page)-[0-9]+.xml$", sub_sitemap)
                     or re.search("(post|page)-sitemap[0-9-]*.xml$", sub_sitemap)
+                    or re.search(r"/sitemap-[0-9]+\.xml$", sub_sitemap)   # Jetpack / WordPress.com
                 ):
                     self.interface.print(".", end="")
                     pages += self._get_pages_from_sub_sitemap(sub_sitemap)
