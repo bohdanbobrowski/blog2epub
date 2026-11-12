@@ -1,4 +1,5 @@
 #!/bin/bash
+# TODO: set version number as variable!
 if [ -d "./dist/blog2epub.app" ]; then
   mkdir -p ./dist/macos_dng_image/
   cp -r ./dist/blog2epub.app ./dist/macos_dng_image/

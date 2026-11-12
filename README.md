@@ -8,7 +8,7 @@
 
 
 
-<a href="https://apps.microsoft.com/detail/XP9M0FG8NP0N8K?mode=direct"><img src="https://get.microsoft.com/images/en-us%20dark.svg" width="200"/></a>&nbsp;<a href="#"><img src="assets/download-appimage-banner.svg" width="200"/></a>
+<a href="https://apps.microsoft.com/detail/XP9M0FG8NP0N8K?mode=direct"><img src="https://get.microsoft.com/images/en-us%20dark.svg" width="200"/></a>&nbsp;<a href="https://github.com/bohdanbobrowski/blog2epub/releases"><img src="assets/download-appimage-banner.svg" width="200"/></a>
 
 Convert website (blog) to epub using command line or GUI.
 
@@ -94,14 +94,26 @@ Build environment should contain only what is necessary to prepare build:
 
 #### Linux
 
-I love Linux, but this gives me a headache:
+So this is always a struggle (we all kno why), but eventually AppImage at least is so-so finished. Most important, thing: for building Linux images you need to have dedicated environment with minimal amount installed packages:
+
+    python -m venv ./venv_build
+    source ./venv_build/bin/activate
+    pip install .
+    pip install pyinstaller
 
 ###### AppImage
 
-Works fine, but is HUGE (about 250 MB).
+First, prepare "binary":
 
     python build_linux.py
+
+...and finally:
+
     ./make_linux_appimage.sh
+
+To build signed appimage use this command:
+
+    ./make_linux_appimage.sh --sign
 
 ###### Snap
 
