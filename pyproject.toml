@@ -53,9 +53,10 @@ dev = [
     "types-pyinstaller",
     "types-python-dateutil",
     "types-requests",
-    "cython",
     "pytest-cov",
     "types-pytz",
+    "buildozer@git+https://github.com/kivy/buildozer",
+    "cython==0.29.37",  # important
 ]
 
 [project.scripts]
